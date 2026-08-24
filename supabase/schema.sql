@@ -22,7 +22,7 @@ create table if not exists public.job_applications (
   job_id uuid not null references public.jobs(id) on delete restrict, full_name text not null,
   email text not null, phone text, country text not null, current_location text not null,
   linkedin_url text, github_url text, portfolio_url text, cv_path text not null,
-  current_role text not null, experience text not null, technologies text not null,
+  "current_role" text not null, experience text not null, technologies text not null,
   why_join text not null, why_fit text not null, availability text not null, expected_start_date date not null,
   additional_message text, status text not null default 'new' check (status in ('new','reviewing','shortlisted','interview','accepted','rejected')),
   created_at timestamptz not null default now()
