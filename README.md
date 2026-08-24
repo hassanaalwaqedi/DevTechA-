@@ -19,6 +19,18 @@ values ('AUTH_USER_UUID', 'admin');
 
 The frontend does not contain production fallback data. Without Supabase configured, public database-driven sections are empty and protected operations return configuration/authentication errors.
 
+## Render deployment
+
+This repository includes [`render.yaml`](./render.yaml) for a single full-stack Next.js web service. Create a new Render Blueprint from the repository, then set these environment variables in Render:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-publishable-key
+NEXT_PUBLIC_SITE_URL=https://your-render-service.onrender.com
+```
+
+Firebase Hosting/App Hosting is not required for this architecture.
+
 ## Backend surface
 
 - `GET/POST /api/jobs`, `PATCH/DELETE /api/jobs/[id]`
