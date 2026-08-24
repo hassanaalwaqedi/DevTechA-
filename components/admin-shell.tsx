@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { BarChart3, BriefcaseBusiness, FileText, Package, Settings } from "lucide-react";
+import { requireAdmin } from "@/lib/auth";
+
+export async function AdminShell({ children, active }: {children: React.ReactNode; active: string}) { await requireAdmin(); return <div className="admin-shell"><aside className="admin-side"><Link href="/admin" className="brand"><span className="brand-mark">d/</span>DevTech</Link><nav><Link className={active === "overview" ? "active" : ""} href="/admin"><BarChart3 size={15}/> Overview</Link><Link className={active === "jobs" ? "active" : ""} href="/admin/jobs"><BriefcaseBusiness size={15}/> Jobs</Link><Link className={active === "applications" ? "active" : ""} href="/admin/applications"><FileText size={15}/> Applications</Link><Link className={active === "products" ? "active" : ""} href="/admin/products"><Package size={15}/> Products</Link><Link className={active === "settings" ? "active" : ""} href="/admin/settings"><Settings size={15}/> Settings</Link></nav></aside><section className="admin-main">{children}</section></div>; }
