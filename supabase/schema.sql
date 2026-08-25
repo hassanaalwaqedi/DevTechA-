@@ -21,12 +21,24 @@ create table if not exists public.job_applications (
   id uuid primary key default gen_random_uuid(), reference_id text unique not null,
   job_id uuid not null references public.jobs(id) on delete restrict, full_name text not null,
   email text not null, phone text, country text not null, current_location text not null,
-  linkedin_url text, github_url text, portfolio_url text, cv_path text not null,
+  linkedin_url text, github_url text, portfolio_url text, cv_path text not null, cover_letter_path text,
   "current_role" text not null, experience text not null, technologies text not null,
-  why_join text not null, why_fit text not null, availability text not null, expected_start_date date not null,
-  additional_message text, status text not null default 'new' check (status in ('new','reviewing','shortlisted','interview','accepted','rejected')),
+  education text, work_authorization text not null, sponsorship_required boolean not null default false,
+  salary_expectation text, notice_period text, remote_preference text, why_join text not null, why_fit text not null,
+  cover_letter_text text, availability text not null, expected_start_date date not null,
+  additional_message text, consent boolean not null default false,
+  status text not null default 'new' check (status in ('new','reviewing','shortlisted','interview','accepted','rejected')),
   created_at timestamptz not null default now()
 );
+alter table public.job_applications add column if not exists cover_letter_path text;
+alter table public.job_applications add column if not exists education text;
+alter table public.job_applications add column if not exists work_authorization text not null default 'Not specified';
+alter table public.job_applications add column if not exists sponsorship_required boolean not null default false;
+alter table public.job_applications add column if not exists salary_expectation text;
+alter table public.job_applications add column if not exists notice_period text;
+alter table public.job_applications add column if not exists remote_preference text;
+alter table public.job_applications add column if not exists cover_letter_text text;
+alter table public.job_applications add column if not exists consent boolean not null default false;
 create table if not exists public.application_answers (id uuid primary key default gen_random_uuid(), application_id uuid not null references public.job_applications(id) on delete cascade, question text not null, answer text not null);
 create table if not exists public.application_notes (id uuid primary key default gen_random_uuid(), application_id uuid not null references public.job_applications(id) on delete cascade, admin_id uuid references public.admin_users(id), note text not null, created_at timestamptz not null default now());
 create index if not exists jobs_status_idx on public.jobs(status); create index if not exists applications_job_idx on public.job_applications(job_id); create index if not exists applications_status_idx on public.job_applications(status); create index if not exists applications_created_idx on public.job_applications(created_at desc);

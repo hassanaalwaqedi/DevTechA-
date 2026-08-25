@@ -8,10 +8,18 @@ export function optionalUrl(value: unknown, field: string) {
   return value;
 }
 
-export function validateCv(file: File) {
+export function validateDocument(file: File, label: string, maxSize = 10 * 1024 * 1024) {
   const extension = file.name.toLowerCase().split(".").pop() || "";
-  if (!allowedExtensions.includes(extension) || !allowedTypes.includes(file.type)) throw new Error("CV must be a PDF or DOCX file.");
-  if (file.size > 10 * 1024 * 1024) throw new Error("CV must be smaller than 10 MB.");
+  if (!allowedExtensions.includes(extension) || !allowedTypes.includes(file.type)) throw new Error(`${label} must be a PDF or DOCX file.`);
+  if (file.size > maxSize) throw new Error(`${label} must be smaller than ${Math.round(maxSize / 1024 / 1024)} MB.`);
+}
+
+export function validateCv(file: File) { validateDocument(file, "CV"); }
+
+export function requiredChoice(value: FormDataEntryValue | null, field: string, choices: string[]) {
+  const text = requiredText(value, field);
+  if (!choices.includes(text)) throw new Error(`${field} is invalid.`);
+  return text;
 }
 
 export function requiredText(value: FormDataEntryValue | null, field: string) {
