@@ -5,7 +5,7 @@ services:
     region: frankfurt
     buildCommand: npm ci && npm run build
     startCommand: npm run start
-    healthCheckPath: /
+    healthCheckPath: /api/health
     envVars:
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false

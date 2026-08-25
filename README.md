@@ -40,5 +40,6 @@ Firebase Hosting/App Hosting is not required for this architecture.
 - `PATCH /api/applications/[id]` for status and notes
 - `GET /api/applications/[id]/cv` for a short-lived signed CV URL
 - `GET /api/metrics` for database-backed ATS metrics
+- `GET /api/health` for a PostgreSQL connectivity check
 
 Admin authorization is checked server-side against `auth.users` plus `public.admin_users`. CVs are stored in the private `cvs` bucket and never exposed through a public URL.
