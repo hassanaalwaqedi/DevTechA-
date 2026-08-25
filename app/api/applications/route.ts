@@ -37,9 +37,9 @@ export async function POST(request: Request) {
 
     const cv = form.get("cv");
     if (!(cv instanceof File) || !cv.name) throw new Error("CV is required.");
-    validateCv(cv);
+    await validateCv(cv);
     const coverLetterFile = form.get("coverLetterFile");
-    if (coverLetterFile instanceof File && coverLetterFile.name) validateDocument(coverLetterFile, "Cover letter", 5 * 1024 * 1024);
+    if (coverLetterFile instanceof File && coverLetterFile.name) await validateDocument(coverLetterFile, "Cover letter", 5 * 1024 * 1024);
     if (form.get("consent") !== "on") throw new Error("Please confirm that the information provided is accurate and may be used for recruitment.");
     if (job.compensation_type === "Unpaid" && form.get("compensationAcknowledged") !== "on") return NextResponse.json({error: "Please acknowledge the compensation status before applying."}, {status: 422});
 
@@ -100,6 +100,8 @@ export async function POST(request: Request) {
         await supabase.storage.from("cvs").remove(paths);
       } catch {}
     }
-    return NextResponse.json({error: error instanceof Error ? error.message : "Unable to submit application."}, {status: 400});
+    const message = error instanceof Error ? error.message : error && typeof error === "object" && "message" in error ? String((error as {message: unknown}).message) : "Unable to submit application.";
+    console.error("[applications] submission failed", error);
+    return NextResponse.json({error: message}, {status: 400});
   }
 }
