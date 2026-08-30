@@ -4,9 +4,10 @@ create extension if not exists pgcrypto;
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(), name text not null, slug text unique not null,
   eyebrow text not null, description text not null, long_description text not null,
-  status text not null, platforms text[] not null default '{}', color text not null default '#e6f1ed',
+  status text not null, platforms text[] not null default '{}', color text not null default '#e6f1ed', image_url text,
   featured boolean not null default false, created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
+alter table public.products add column if not exists image_url text;
 create table if not exists public.jobs (
   id uuid primary key default gen_random_uuid(), title text not null, slug text unique not null,
   department text not null, description text not null, responsibilities text[] not null default '{}',
