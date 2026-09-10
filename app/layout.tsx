@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
-import { DM_Sans, Space_Grotesk } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { VisitorTracker } from "@/components/visitor-tracker";
 
-const sans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" });
-const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const display = Inter({ subsets: ["latin"], variable: "--font-display", weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://devtecha.onrender.com"),
@@ -29,6 +30,11 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${sans.variable} ${display.variable}`}><SiteHeader />{children}<SiteFooter /></body></html>;
+  return <html lang="en"><body className={`${sans.variable} ${display.variable}`}><SiteHeader /><VisitorTracker />{children}<SiteFooter /></body></html>;
 }

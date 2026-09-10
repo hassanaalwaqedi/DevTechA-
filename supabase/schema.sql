@@ -42,18 +42,31 @@ alter table public.job_applications add column if not exists cover_letter_text t
 alter table public.job_applications add column if not exists consent boolean not null default false;
 create table if not exists public.application_answers (id uuid primary key default gen_random_uuid(), application_id uuid not null references public.job_applications(id) on delete cascade, question text not null, answer text not null);
 create table if not exists public.application_notes (id uuid primary key default gen_random_uuid(), application_id uuid not null references public.job_applications(id) on delete cascade, admin_id uuid references public.admin_users(id), note text not null, created_at timestamptz not null default now());
+create table if not exists public.visitor_events (
+  id uuid primary key default gen_random_uuid(),
+  visitor_id text not null,
+  path text not null,
+  job_slug text,
+  created_at timestamptz not null default now()
+);
 create index if not exists jobs_status_idx on public.jobs(status); create index if not exists applications_job_idx on public.job_applications(job_id); create index if not exists applications_status_idx on public.job_applications(status); create index if not exists applications_created_idx on public.job_applications(created_at desc);
+create index if not exists visitor_events_created_idx on public.visitor_events(created_at desc); create index if not exists visitor_events_job_idx on public.visitor_events(job_slug); create index if not exists visitor_events_visitor_idx on public.visitor_events(visitor_id);
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values ('cvs', 'cvs', false, 10485760, array['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) on conflict (id) do update set public = false, file_size_limit = 10485760, allowed_mime_types = excluded.allowed_mime_types;
-alter table public.admin_users enable row level security; alter table public.jobs enable row level security; alter table public.products enable row level security; alter table public.job_applications enable row level security; alter table public.application_notes enable row level security;
-drop policy if exists "published jobs are public" on public.jobs; drop policy if exists "published products are public" on public.products; drop policy if exists "anyone can submit applications" on public.job_applications; drop policy if exists "admins can read own admin record" on public.admin_users; drop policy if exists "admins manage jobs" on public.jobs; drop policy if exists "admins manage applications" on public.job_applications; drop policy if exists "admins update applications" on public.job_applications; drop policy if exists "admins manage notes" on public.application_notes; drop policy if exists "candidates can upload private cvs" on storage.objects; drop policy if exists "admins can read private cvs" on storage.objects; drop policy if exists "admins can delete private cvs" on storage.objects;
+alter table public.admin_users enable row level security; alter table public.jobs enable row level security; alter table public.products enable row level security; alter table public.job_applications enable row level security; alter table public.application_notes enable row level security; alter table public.visitor_events enable row level security;
+drop policy if exists "published jobs are public" on public.jobs; drop policy if exists "published products are public" on public.products; drop policy if exists "anyone can submit applications" on public.job_applications; drop policy if exists "admins can read own admin record" on public.admin_users; drop policy if exists "admins manage jobs" on public.jobs; drop policy if exists "admins manage applications" on public.job_applications; drop policy if exists "admins update applications" on public.job_applications; drop policy if exists "admins manage notes" on public.application_notes; drop policy if exists "anyone can record page views" on public.visitor_events; drop policy if exists "admins can read page views" on public.visitor_events; drop policy if exists "candidates can upload private cvs" on storage.objects; drop policy if exists "admins can read private cvs" on storage.objects; drop policy if exists "admins can delete private cvs" on storage.objects;
 create policy "published jobs are public" on public.jobs for select using (status = 'open');
 create policy "published products are public" on public.products for select using (true);
+insert into public.products (name, slug, eyebrow, description, long_description, status, platforms, color, image_url, featured)
+values ('Khair', 'khair', 'Meaningful events & community', 'Discover meaningful events, join communities, and help organizers bring people together.', 'Khair is a community and events platform for discovering meaningful experiences, joining communities, and helping organizers bring people together.', 'Live platform', array['Web', 'Mobile-ready'], '#10221d', '/khair-discover.png', true)
+on conflict (slug) do nothing;
 create policy "anyone can submit applications" on public.job_applications for insert with check (true);
 create policy "admins can read own admin record" on public.admin_users for select using (id = auth.uid());
 create policy "admins manage jobs" on public.jobs for all using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins manage applications" on public.job_applications for select using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins update applications" on public.job_applications for update using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins manage notes" on public.application_notes for all using (exists (select 1 from public.admin_users where id = auth.uid()));
+create policy "anyone can record page views" on public.visitor_events for insert to anon, authenticated with check (true);
+create policy "admins can read page views" on public.visitor_events for select using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "candidates can upload private cvs" on storage.objects for insert to anon, authenticated with check (bucket_id = 'cvs');
 create policy "admins can read private cvs" on storage.objects for select to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins can delete private cvs" on storage.objects for delete to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));

@@ -13,4 +13,59 @@ export async function getJobBySlug(slug: string) { if (!databaseReady()) return 
 export async function getAdminJobs() { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("jobs").select("*").order("created_at", {ascending: false}); if (error) throw error; return (data || []).map(mapJob); }
 export async function getProducts() { if (!databaseReady()) return []; const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("products").select("*").order("created_at", {ascending: false}); if (error) throw error; return (data || []).map(mapProduct); }
 export async function getApplications(filters?: {status?: string; query?: string}) { const supabase = await createSupabaseServerClient(); let query = supabase.from("job_applications").select("*, jobs(title), application_notes(note)").order("created_at", {ascending: false}); if (filters?.status && filters.status !== "All statuses") query = query.eq("status", filters.status); if (filters?.query) query = query.or(`full_name.ilike.%${filters.query}%,email.ilike.%${filters.query}%`); const {data, error} = await query; if (error) throw error; return (data || []).map(mapApplication); }
-export async function getMetrics() { const supabase = await createSupabaseServerClient(); const today = new Date().toISOString().slice(0, 10); const [{count: total}, {count: todayCount}, {count: activeJobs}, {count: closedJobs}, {data: statuses}] = await Promise.all([supabase.from("job_applications").select("id", {count: "exact", head: true}), supabase.from("job_applications").select("id", {count: "exact", head: true}).gte("created_at", `${today}T00:00:00Z`), supabase.from("jobs").select("id", {count: "exact", head: true}).eq("status", "open"), supabase.from("jobs").select("id", {count: "exact", head: true}).eq("status", "closed"), supabase.from("job_applications").select("status")]); const counts = (statuses || []).reduce<Record<string, number>>((acc, row) => {acc[row.status] = (acc[row.status] || 0) + 1; return acc;}, {}); return {totalApplications: total || 0, applicationsToday: todayCount || 0, activeJobs: activeJobs || 0, closedJobs: closedJobs || 0, newApplications: counts.new || 0, reviewing: counts.reviewing || 0, shortlisted: counts.shortlisted || 0, interviews: counts.interview || 0, accepted: counts.accepted || 0, rejected: counts.rejected || 0}; }
+export async function getMetrics() {
+  const supabase = await createSupabaseServerClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const [{count: total}, {count: todayCount}, {count: activeJobs}, {count: closedJobs}, {data: statuses}] = await Promise.all([
+    supabase.from("job_applications").select("id", {count: "exact", head: true}),
+    supabase.from("job_applications").select("id", {count: "exact", head: true}).gte("created_at", `${today}T00:00:00Z`),
+    supabase.from("jobs").select("id", {count: "exact", head: true}).eq("status", "open"),
+    supabase.from("jobs").select("id", {count: "exact", head: true}).eq("status", "closed"),
+    supabase.from("job_applications").select("status"),
+  ]);
+  const counts = (statuses || []).reduce<Record<string, number>>((acc, row) => { acc[row.status] = (acc[row.status] || 0) + 1; return acc; }, {});
+  const hiringMetrics = {
+    totalApplications: total || 0,
+    applicationsToday: todayCount || 0,
+    activeJobs: activeJobs || 0,
+    closedJobs: closedJobs || 0,
+    newApplications: counts.new || 0,
+    reviewing: counts.reviewing || 0,
+    shortlisted: counts.shortlisted || 0,
+    interviews: counts.interview || 0,
+    accepted: counts.accepted || 0,
+    rejected: counts.rejected || 0,
+  };
+
+  const [{data: events, error: eventsError}, {data: jobs}] = await Promise.all([
+    supabase.from("visitor_events").select("visitor_id, path, job_slug, created_at").order("created_at", {ascending: false}),
+    supabase.from("jobs").select("slug, title"),
+  ]);
+  if (eventsError) {
+    console.error("[metrics] visitor analytics unavailable", eventsError);
+    return {...hiringMetrics, analyticsAvailable: false, totalVisitors: 0, visitorsToday: 0, jobPageViews: 0, jobVisitors: 0, topJobs: []};
+  }
+
+  const visitorEvents = events || [];
+  const jobTitles = new Map((jobs || []).map((job) => [job.slug, job.title]));
+  const todayStart = new Date(`${today}T00:00:00Z`).getTime();
+  const visitors = new Set<string>();
+  const visitorsToday = new Set<string>();
+  const jobVisitors = new Set<string>();
+  const jobStats = new Map<string, {views: number; visitors: Set<string>}>();
+  for (const event of visitorEvents) {
+    visitors.add(event.visitor_id);
+    if (new Date(event.created_at).getTime() >= todayStart) visitorsToday.add(event.visitor_id);
+    if (!event.job_slug) continue;
+    jobVisitors.add(event.visitor_id);
+    const stat = jobStats.get(event.job_slug) || {views: 0, visitors: new Set<string>()};
+    stat.views += 1;
+    stat.visitors.add(event.visitor_id);
+    jobStats.set(event.job_slug, stat);
+  }
+  const topJobs = Array.from(jobStats.entries())
+    .sort(([, first], [, second]) => second.views - first.views)
+    .slice(0, 5)
+    .map(([slug, stat]) => ({slug, title: jobTitles.get(slug) || slug, views: stat.views, uniqueVisitors: stat.visitors.size}));
+  return {...hiringMetrics, analyticsAvailable: true, totalVisitors: visitors.size, visitorsToday: visitorsToday.size, jobPageViews: visitorEvents.filter((event) => Boolean(event.job_slug)).length, jobVisitors: jobVisitors.size, topJobs};
+}

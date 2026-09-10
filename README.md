@@ -5,7 +5,7 @@ Next.js App Router site and careers platform backed by Supabase PostgreSQL.
 ## Local setup
 
 1. Create a Supabase project.
-2. Run [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL editor. It is safe to rerun and adds the recruitment fields used by the application form.
+2. Run [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL editor. It is safe to rerun and adds the recruitment fields and visitor analytics used by the application.
 3. Create an admin user in Supabase Authentication.
 4. Insert that user into `public.admin_users`:
 
@@ -40,6 +40,9 @@ Firebase Hosting/App Hosting is not required for this architecture.
 - `PATCH /api/applications/[id]` for status and notes
 - `GET /api/applications/[id]/cv` for a short-lived signed CV URL
 - `GET /api/metrics` for database-backed ATS metrics
+- `POST /api/analytics/page-view` for anonymous first-party page-view tracking
 - `GET /api/health` for a PostgreSQL connectivity check
 
 Admin authorization is checked server-side against `auth.users` plus `public.admin_users`. CVs and cover letters are stored in the private `cvs` bucket and only exposed to admins through short-lived signed URLs.
+
+Visitor analytics stores a random browser ID, page path, job slug, and timestamp. It does not store IP addresses, user agents, names, or contact details, and respects the browser's Do Not Track setting.
