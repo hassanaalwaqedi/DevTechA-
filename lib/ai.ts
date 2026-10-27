@@ -19,8 +19,9 @@ export const technicalBriefSchema = z.object({
 });
 export type TechnicalBrief = z.infer<typeof technicalBriefSchema>;
 
-function configured() { return process.env.AI_FEATURES_ENABLED === "true" && Boolean(process.env.GEMINI_API_KEY); }
-function model() { return process.env.GEMINI_MODEL || "gemini-2.5-flash-lite"; }
+function apiKey() { return process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY; }
+function configured() { return process.env.AI_FEATURES_ENABLED === "true" && Boolean(apiKey()); }
+function model() { return process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"; }
 function redact(value: unknown) { return String(value).replace(/AIza[\w-]{20,}/g, "[REDACTED]").slice(0, 180); }
 const schemaFor = (schema: z.ZodTypeAny) => z.toJSONSchema(schema, {target: "draft-7"});
 
@@ -28,7 +29,7 @@ export async function generateStructured<T>(options: {key: string; prompt: strin
   if (!configured()) throw new Error("AI features are not configured.");
   if (!checkRateLimit(`ai:${options.key}`, options.limit ?? 8, 60 * 60 * 1000)) throw new Error("AI request limit reached. Please try again later.");
   if (options.prompt.length > 12_000) throw new Error("Request is too large.");
-  const client = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
+  const client = new GoogleGenAI({apiKey: apiKey()});
   let lastError: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
