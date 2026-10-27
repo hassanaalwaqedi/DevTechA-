@@ -4,7 +4,6 @@ import { ArrowDownRight, ArrowUpRight, BrainCircuit, HeartHandshake, Lightbulb, 
 import { getPublishedJobsResult } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { CareersDirectory } from "@/components/careers-directory";
-import "./careers.css";
 
 export const metadata: Metadata = {title: "Careers", description: "Explore careers and open positions at DevTech AI, building thoughtful AI and intelligent systems."};
 

@@ -18,6 +18,10 @@ create table if not exists public.jobs (
   created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
 create table if not exists public.admin_users (id uuid primary key references auth.users(id) on delete cascade, role text not null default 'admin', created_at timestamptz not null default now());
+alter table public.jobs add column if not exists visual_category text not null default 'default';
+alter table public.jobs add column if not exists visual_variant text not null default 'geometric';
+alter table public.jobs add column if not exists accent_color text not null default 'violet';
+alter table public.jobs add column if not exists visual_keywords text[] not null default '{}';
 create table if not exists public.job_applications (
   id uuid primary key default gen_random_uuid(), reference_id text unique not null,
   job_id uuid not null references public.jobs(id) on delete restrict, full_name text not null,
