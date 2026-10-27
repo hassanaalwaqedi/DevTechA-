@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Sparkles } from "lucide-react";
 import { EngineeringLifecycle } from "@/components/engineering-lifecycle";
 import { ArchitectureDiagram, ModelDiagram } from "@/components/technical-visuals";
 import { IntelligenceCore } from "@/components/intelligence-core";
@@ -9,15 +9,18 @@ import { SystemsShowcase } from "@/components/systems-showcase";
 import { HowWeWork } from "@/components/how-we-work";
 import { ArabicHome } from "@/components/arabic-home";
 import { getLocale } from "@/lib/locale";
+import { AiArchitectShowcase } from "@/components/ai-architect-showcase";
 
 export const metadata: Metadata = { title: "AI Engineering & Intelligent Systems", description: "Custom AI models, computer vision, scalable inference infrastructure, and intelligent systems engineered for real-world complexity." };
 
 export default async function Home() {
   if (await getLocale() === "ar") return <ArabicHome />;
   return <main className="art-home">
-    <section className="startup-hero"><div className="container"><div className="startup-hero-grid"><div className="startup-hero-copy"><div className="startup-badge"><span/> INDEPENDENT AI ENGINEERING STUDIO</div><h1>Big ideas<br/>need <span>better<br/>intelligence<span className="startup-dot">.</span></span></h1><p>We engineer the intelligence behind your systems—from custom AI models to the infrastructure that brings them to life.</p><div className="startup-hero-actions"><Link href="/expertise" className="startup-main-cta">Explore what we do <span><ArrowUpRight size={19}/></span></Link><Link href="/contact" className="startup-secondary-cta">Have a project in mind? <ArrowDownRight size={15}/></Link></div><div className="startup-hero-note"><span>NOT JUST AI.<br/>AI ENGINEERED.</span><span>01 / SCROLL TO EXPLORE ↓</span></div></div><IntelligenceCore/></div></div></section>
+    <section className="startup-hero"><div className="container"><div className="startup-hero-grid"><div className="startup-hero-copy"><div className="startup-badge"><span/> INDEPENDENT AI ENGINEERING STUDIO</div><h1>Big ideas<br/>need <span>better<br/>intelligence<span className="startup-dot">.</span></span></h1><p>We engineer the intelligence behind your systems—from custom AI models to the infrastructure that brings them to life.</p><div className="startup-hero-actions"><Link href="/expertise" className="startup-main-cta">Explore what we do <span><ArrowUpRight size={19}/></span></Link><Link href="/contact" className="startup-secondary-cta">Have a project in mind? <ArrowDownRight size={15}/></Link><div className="startup-ai-entry"><Link href="/ai-architect"><Sparkles size={15}/> Explore AI Architect <ArrowUpRight size={15}/></Link><small>Describe your idea. Let AI help engineer the solution.</small></div></div><div className="startup-hero-note"><span>NOT JUST AI.<br/>AI ENGINEERED.</span><span>01 / SCROLL TO EXPLORE ↓</span></div></div><IntelligenceCore/></div></div></section>
 
     <div className="startup-ticker" aria-hidden="true"><div><span>CURIOUS BY DESIGN</span><b>✳</b><span>ENGINEERED FOR REAL LIFE</span><b>✳</b><span>INTELLIGENCE IN MOTION</span><b>✳</b><span>CURIOUS BY DESIGN</span><b>✳</b><span>ENGINEERED FOR REAL LIFE</span><b>✳</b><span>INTELLIGENCE IN MOTION</span><b>✳</b></div></div>
+
+    <AiArchitectShowcase />
 
     <section className="art-intro"><div className="container art-intro-grid"><div className="art-label">01 / THE PRACTICE</div><div><h2>Intelligence is only as good as the system around it.</h2><p>We work across models, data, software, and infrastructure—connecting deep technical thinking to the realities of production.</p></div><Link href="/about" className="art-round-link" aria-label="About DevTech AI"><ArrowUpRight size={24}/></Link></div></section>
 
