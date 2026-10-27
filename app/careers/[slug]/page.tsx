@@ -18,7 +18,19 @@ function isPastDeadline(value?: string) {
 export async function generateMetadata({params}: {params: Promise<{slug: string}>}): Promise<Metadata> {
   const {slug} = await params;
   const job = await getJobBySlug(slug);
-  return {title: job ? `${job.title} | DevTech AI Careers` : "Position not found", description: job?.description, alternates: {canonical: `/careers/${slug}`}, openGraph: {title: job?.title, description: job?.description, type: "website"}};
+  if (!job) return {title: "Position not found"};
+  const title = `We’re hiring: ${job.title}`;
+  const details = Array.from(new Set([job.location, job.workMode, job.employmentType].filter(Boolean))).join(" · ");
+  const description = `Join DevTech AI as ${job.title}. ${details}. Explore the role and apply.`;
+  const url = `/careers/${job.slug}`;
+  const image = `${url}/opengraph-image`;
+  return {
+    title: `${job.title} | DevTech AI Careers`,
+    description,
+    alternates: {canonical: url},
+    openGraph: {title, description, type: "website", url, siteName: "DevTech AI", images: [{url: image, width: 1200, height: 630, alt: `${job.title} — DevTech AI is hiring`}]},
+    twitter: {card: "summary_large_image", title, description, images: [image]},
+  };
 }
 
 function RoleSection({title, items}: {title: string; items: string[]}) {
