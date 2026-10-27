@@ -29,6 +29,14 @@ type JobDraft = {
   visualKeywords: string;
 };
 type VisualClassification = Pick<JobDraft, "visualCategory" | "visualVariant" | "accentColor"> & {visualKeywords: string[]};
+type GeneratedJobDraft = {
+  department: string;
+  overview: string;
+  responsibilities: string[];
+  requiredQualifications: string[];
+  preferredQualifications: string[];
+  technicalSkills: string[];
+};
 
 const blankDraft: JobDraft = {
   title: "",
@@ -66,6 +74,10 @@ export function AdminJobsClient() {
   const [saving, setSaving] = useState(false);
   const [classifying, setClassifying] = useState(false);
   const [visualOverridden, setVisualOverridden] = useState(false);
+  const [generatingDraft, setGeneratingDraft] = useState(false);
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [lastGeneratedTitle, setLastGeneratedTitle] = useState("");
+  const [draftNotice, setDraftNotice] = useState("");
 
   async function load() {
     const response = await fetch("/api/jobs?admin=true", {cache: "no-store"});
@@ -80,10 +92,18 @@ export function AdminJobsClient() {
     setDraft((current) => ({...current, [key]: value}));
   }
 
+  function updateTitle(value: string) {
+    setDraft((current) => ({...current, title: value, slug: slugEdited ? current.slug : slugify(value)}));
+    setDraftNotice("");
+  }
+
   function startNew() {
     setEditing(null);
     setDraft(blankDraft);
     setVisualOverridden(false);
+    setSlugEdited(false);
+    setLastGeneratedTitle("");
+    setDraftNotice("");
     setCreating(true);
     setError("");
   }
@@ -113,7 +133,41 @@ export function AdminJobsClient() {
     });
     setCreating(true);
     setVisualOverridden(true);
+    setSlugEdited(true);
+    setLastGeneratedTitle(job.title);
+    setDraftNotice("");
     setError("");
+  }
+
+  async function generateJobContent(force = false) {
+    const title = draft.title.trim();
+    if (title.length < 3 || generatingDraft) return;
+    const hasRoleContent = Boolean(draft.description.trim() || draft.responsibilities.trim() || draft.requirements.trim() || draft.niceToHave.trim() || draft.skills.trim());
+    if (!force && (hasRoleContent || lastGeneratedTitle === title)) return;
+    setGeneratingDraft(true);
+    setDraftNotice("");
+    setError("");
+    const response = await fetch("/api/admin/ai/jobs/generate", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({title, department: draft.department, employmentType: draft.employmentType, location: draft.location, workMode: draft.workMode}),
+    });
+    const result = await response.json().catch(() => ({}));
+    setGeneratingDraft(false);
+    if (!response.ok) { setError(result.error || "Unable to generate role content."); return; }
+    const generated = result.draft as GeneratedJobDraft;
+    setDraft((current) => ({
+      ...current,
+      slug: current.slug || slugify(current.title),
+      department: force || current.department === blankDraft.department ? generated.department || current.department : current.department,
+      description: force || !current.description.trim() ? generated.overview : current.description,
+      responsibilities: force || !current.responsibilities.trim() ? generated.responsibilities.join("\n") : current.responsibilities,
+      requirements: force || !current.requirements.trim() ? generated.requiredQualifications.join("\n") : current.requirements,
+      niceToHave: force || !current.niceToHave.trim() ? generated.preferredQualifications.join("\n") : current.niceToHave,
+      skills: force || !current.skills.trim() ? generated.technicalSkills.join("\n") : current.skills,
+    }));
+    setLastGeneratedTitle(title);
+    setDraftNotice("Role content generated from the job title. Review and edit it before saving.");
   }
 
   async function requestVisualClassification(): Promise<VisualClassification> {
@@ -200,6 +254,9 @@ export function AdminJobsClient() {
     setCreating(false);
     setEditing(null);
     setDraft(blankDraft);
+    setSlugEdited(false);
+    setLastGeneratedTitle("");
+    setDraftNotice("");
     await load();
   }
 
@@ -215,12 +272,13 @@ export function AdminJobsClient() {
   return <>
     <div className="admin-toolbar"><div><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search jobs" aria-label="Search jobs" /></div><button className="button-dark" onClick={startNew}><Plus size={15}/> New job</button></div>
     {error && <p className="admin-error" role="alert">{error}</p>}
+    {draftNotice && <p className="admin-notice" role="status">{draftNotice}</p>}
     {creating && <div className="admin-panel job-editor" style={{marginBottom: 15}}>
       <div className="admin-toolbar"><div><div className="eyebrow">{editing ? "Edit position" : "New position"}</div><h2 style={{margin: "7px 0 0"}}>{editing ? editing.title : "Build the role carefully"}</h2></div><button className="button-small" aria-label="Close editor" onClick={() => {setCreating(false); setEditing(null);}}><X size={15}/></button></div>
       <div className="field-grid">
-        <div className="field"><label>Job title *</label><input value={draft.title} onChange={(event) => updateDraft("title", event.target.value)} placeholder="e.g. Senior full-stack engineer" /></div>
+        <div className="field"><label>Job title *</label><div className="job-title-control"><input value={draft.title} onChange={(event) => updateTitle(event.target.value)} onBlur={() => {void generateJobContent(false);}} placeholder="e.g. Senior full-stack engineer" /><button className="ai-fill-button" disabled={generatingDraft || draft.title.trim().length < 3} aria-busy={generatingDraft} onMouseDown={(event) => event.preventDefault()} onClick={() => {void generateJobContent(true);}}><Sparkles size={14}/>{generatingDraft ? "Writing…" : "AI fill role"}</button></div><small className="field-help">Enter a title and move to the next field to auto-generate the role content.</small></div>
         <div className="field"><label>Department *</label><input value={draft.department} onChange={(event) => updateDraft("department", event.target.value)} placeholder="e.g. Product engineering" /></div>
-        <div className="field"><label>URL slug</label><input value={draft.slug} onChange={(event) => updateDraft("slug", event.target.value)} placeholder="senior-full-stack-engineer" /></div>
+        <div className="field"><label>URL slug</label><input value={draft.slug} onChange={(event) => {setSlugEdited(true); updateDraft("slug", event.target.value);}} placeholder="senior-full-stack-engineer" /></div>
         <div className="field"><label>Location</label><input value={draft.location} onChange={(event) => updateDraft("location", event.target.value)} /></div>
         <div className="field"><label>Work arrangement</label><select value={draft.workMode} onChange={(event) => updateDraft("workMode", event.target.value)}><option>Remote</option><option>Hybrid</option><option>On-site</option><option>Flexible</option></select></div>
         <div className="field"><label>Employment</label><select value={draft.employmentType} onChange={(event) => updateDraft("employmentType", event.target.value)}><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option></select></div>
@@ -245,7 +303,7 @@ export function AdminJobsClient() {
         </div><div className="visual-preview"><span>Public preview · conceptual illustration</span><JobVisualization compact category={draft.visualCategory} variant={draft.visualVariant} accent={draft.accentColor}/></div></div>
       </section>
 
-      <div className="form-actions"><button className="button-dark" disabled={saving} aria-busy={saving} onClick={save}>{saving ? "Saving…" : editing ? "Save changes" : "Save as draft"} {!saving && <ArrowUpRight size={15}/>}</button><p>Publish the role from the status control after reviewing the public page.</p></div>
+      <div className="form-actions"><button className="button-dark" disabled={saving || generatingDraft} aria-busy={saving} onClick={save}>{saving ? "Saving…" : editing ? "Save changes" : "Save as draft"} {!saving && <ArrowUpRight size={15}/>}</button><p>Publish the role from the status control after reviewing the public page.</p></div>
     </div>}
     <div className="admin-panel"><h2>All jobs <span style={{color: "var(--muted)", fontSize: 13, fontFamily: "var(--sans)"}}>({visibleItems.length})</span></h2><table className="admin-table"><thead><tr><th>Position</th><th>Department</th><th>Visual</th><th>Location</th><th>Status</th><th>Published</th><th>Share</th><th></th></tr></thead><tbody>{visibleItems.map((job) => <tr key={job.id}><td><strong>{job.title}</strong><br/><span style={{color: "var(--muted)", fontSize: 11}}>/{job.slug}</span></td><td>{job.department}</td><td><span className="status">{titleCase(job.visualCategory)}</span></td><td>{job.location}</td><td><select className="button-small" value={job.status} onChange={(event) => setStatus(job.id, event.target.value as Job["status"])}><option>draft</option><option>open</option><option>paused</option><option>closed</option></select></td><td>{job.publishedAt || "—"}</td><td><JobShareActions slug={job.slug} title={job.title} compact /></td><td><button className="button-small" onClick={() => startEdit(job)}>Edit</button></td></tr>)}</tbody></table></div>
   </>;

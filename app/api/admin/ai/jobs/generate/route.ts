@@ -12,5 +12,8 @@ export async function POST(request: Request) {
     const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "admin";
     const draft = await generateStructured({key: `job:${ip}`, schema: jobDraftSchema, prompt: jobPrompt({title: body.title, department: String(body.department || ""), seniority: String(body.seniority || ""), employmentType: String(body.employmentType || ""), location: String(body.location || ""), workMode: String(body.workMode || ""), instructions: String(body.instructions || "").slice(0, 3000)})});
     return NextResponse.json({draft});
-  } catch (error) { return NextResponse.json({error: error instanceof Error ? error.message : "Unable to generate a job draft."}, {status: 400}); }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to generate a job draft.";
+    return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
+  }
 }
