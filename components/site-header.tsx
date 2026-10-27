@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, ArrowUpRight, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const links = [["Expertise", "/expertise"], ["Solutions", "/solutions"], ["Engineering", "/engineering"], ["Our work", "/work"], ["About", "/about"]];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  return <header className="site-header"><div className="container nav"><Link href="/" className="brand" onClick={() => setOpen(false)}><span className="brand-mark">d/</span><span>DevTech <em>AI</em></span></Link><nav className={`nav-links${open ? " open" : ""}`}><Link href="/products" onClick={() => setOpen(false)}>Products</Link><Link href="/services" onClick={() => setOpen(false)}>Services</Link><Link href="/about" onClick={() => setOpen(false)}>About</Link><Link href="/careers" onClick={() => setOpen(false)}>Careers</Link></nav><Link className="nav-cta" href="/contact">Start a conversation <ArrowUpRight size={15}/></Link><button className="menu-button" aria-expanded={open} aria-label="Toggle navigation" onClick={() => setOpen(!open)}>{open ? <X size={22}/> : <Menu size={22}/>}</button></div></header>;
+  useEffect(() => { document.body.style.overflow = open ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [open]);
+  return <header className="site-header"><div className="container nav">
+    <Link href="/" className="brand" onClick={() => setOpen(false)} aria-label="DevTech AI home"><span className="brand-mark"><i/><i/><i/></span><span>DEVTECH <em>AI</em></span></Link>
+    <nav className={`nav-links${open ? " open" : ""}`} aria-label="Primary navigation">{links.map(([label, href]) => <Link href={href} key={href} onClick={() => setOpen(false)}>{label}</Link>)}<Link className="nav-mobile-contact" href="/contact" onClick={() => setOpen(false)}>Discuss your project <ArrowUpRight size={15}/></Link></nav>
+    <Link className="nav-cta" href="/contact">Discuss your project <ArrowUpRight size={14}/></Link>
+    <button className="menu-button" aria-expanded={open} aria-label={open ? "Close navigation" : "Open navigation"} onClick={() => setOpen(!open)}>{open ? <X size={21}/> : <Menu size={21}/>}</button>
+  </div></header>;
 }
