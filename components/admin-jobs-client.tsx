@@ -256,7 +256,7 @@ export function AdminJobsClient() {
     setDraft(blankDraft);
     setSlugEdited(false);
     setLastGeneratedTitle("");
-    setDraftNotice("");
+    setDraftNotice(result.visualIdentityPending ? "Job saved. The visual identity is using its safe default until the Supabase careers migration is applied." : "Job saved successfully.");
     await load();
   }
 

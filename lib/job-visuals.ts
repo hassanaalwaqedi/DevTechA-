@@ -58,3 +58,11 @@ export function normalizeVisualKeywords(value: unknown): string[] {
     .filter(Boolean)
     .slice(0, 6);
 }
+
+export function isMissingJobVisualColumns(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const candidate = error as {code?: unknown; message?: unknown};
+  const message = String(candidate.message || "").toLowerCase();
+  const mentionsVisualField = ["visual_category", "visual_variant", "accent_color", "visual_keywords"].some((field) => message.includes(field));
+  return mentionsVisualField && (candidate.code === "42703" || candidate.code === "PGRST204" || message.includes("does not exist") || message.includes("schema cache"));
+}
