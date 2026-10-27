@@ -90,6 +90,54 @@ body:has(.admin-shell) { background: #121512; }
 .form-actions p { margin: 0; color: #8f978a; font-size: 11px; }
 .admin-main button:disabled { cursor: wait; opacity: .65; }
 
+.product-admin-toolbar > div { display: flex; align-items: center; gap: 12px; }
+.product-admin-toolbar > div > span { color: #8f978a; font-size: 11px; white-space: nowrap; }
+.product-editor { overflow: visible; }
+.product-editor-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(310px, .75fr); gap: 24px; align-items: start; }
+.product-fields { align-items: start; }
+.product-story-input { min-height: 150px !important; }
+.product-color-control { display: grid; grid-template-columns: 52px 1fr; gap: 8px; }
+.product-color-control input[type="color"] { min-height: 43px; padding: 4px; cursor: pointer; }
+.product-toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.product-toggle { display: flex !important; align-items: flex-start; gap: 10px; margin: 0 !important; padding: 13px; border: 1px solid #ffffff14; border-radius: 9px; background: #121512; cursor: pointer; }
+.product-toggle input { width: auto; margin: 3px 0 0; accent-color: #dbff53; }
+.product-toggle span { min-width: 0; }
+.product-toggle strong, .product-toggle small { display: block; }
+.product-toggle strong { color: #edf1e7; font-size: 12px; }
+.product-toggle small { margin-top: 4px; color: #7f887b; font-size: 9px; line-height: 1.45; }
+.product-admin-preview { position: sticky; top: 24px; overflow: hidden; border: 1px solid #ffffff18; border-radius: 13px; background: #111510; }
+.product-admin-preview-visual { position: relative; min-height: 245px; display: grid; place-items: center; overflow: hidden; color: #ffffffa0; }
+.product-admin-preview-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, #10130fc7); pointer-events: none; }
+.product-admin-preview-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.product-admin-preview-visual > span { position: absolute; z-index: 2; top: 14px; right: 14px; padding: 5px 7px; border-radius: 99px; background: #111510c9; color: #f3f5ed; font-size: 8px; font-weight: 800; letter-spacing: .09em; }
+.product-admin-preview-copy { padding: 21px; }
+.product-admin-preview-copy h3 { margin: 9px 0 7px; color: #f4f6ed; font: 500 30px/1 var(--font-display); letter-spacing: -.05em; }
+.product-admin-preview-copy p { min-height: 44px; margin: 0; color: #9ba397; font-size: 11px; line-height: 1.6; }
+.product-admin-preview-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 13px; border-top: 1px solid #ffffff12; color: #bec5b9; font-size: 9px; }
+.product-admin-launch { display: inline-flex; align-items: center; gap: 6px; margin-top: 13px; color: #dcff65; font-size: 9px; font-weight: 700; }
+.product-library { overflow: visible; }
+.product-library-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.product-library-head h2 { margin: 6px 0 0; }
+.product-library-head > span { color: #8f978a; font-size: 10px; }
+.product-admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.product-admin-card { min-width: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 12px; background: #121512; }
+.product-admin-card-swatch { position: relative; height: 155px; display: grid; place-items: center; overflow: hidden; color: #ffffffc9; font: 500 52px/1 var(--font-display); }
+.product-admin-card-swatch::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, #111510c5); }
+.product-admin-card-swatch img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.product-admin-card-swatch i { position: absolute; z-index: 2; top: 12px; right: 12px; padding: 5px 7px; border-radius: 99px; background: #111510d4; color: #eef1e8; font: 800 8px/1 var(--font-sans); letter-spacing: .08em; }
+.product-admin-card-body { display: flex; flex-direction: column; min-height: 260px; padding: 18px; }
+.product-admin-category { color: #b9df44; font-size: 8px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.product-admin-card h3 { margin: 8px 0 7px; color: #f5f6ee; font: 500 24px/1.05 var(--font-display); letter-spacing: -.045em; }
+.product-admin-card p { display: -webkit-box; overflow: hidden; color: #90988b; font-size: 11px; line-height: 1.6; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.product-admin-card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 15px; }
+.product-admin-card-meta span { padding: 5px 7px; border: 1px solid #ffffff12; border-radius: 99px; color: #aeb5a9; font-size: 8px; }
+.product-admin-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 18px; }
+.product-admin-card-actions .button-small { display: inline-flex; align-items: center; gap: 5px; }
+.product-admin-card-actions .danger { margin-left: auto; border: 1px solid #e28a6836; background: #e28a6810; color: #eda183; }
+.product-admin-empty { display: grid; justify-items: center; padding: 55px 20px; color: #899183; text-align: center; }
+.product-admin-empty h3 { margin: 14px 0 5px; color: #f0f3e9; font: 500 22px/1.1 var(--font-display); }
+.product-admin-empty p { font-size: 11px; }
+
 @media (max-width: 900px) {
   .admin-shell { grid-template-columns: 1fr; }
   .admin-side { position: static; height: auto; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-right: 0; border-bottom: 1px solid #ffffff14; }
@@ -100,6 +148,8 @@ body:has(.admin-shell) { background: #121512; }
   .visual-identity-head { flex-direction: column; }
   .visual-identity-actions { justify-content: flex-start; }
   .visual-identity-grid { grid-template-columns: 1fr; }
+  .product-editor-layout { grid-template-columns: 1fr; }
+  .product-admin-preview { position: static; }
 }
 
 @media (max-width: 560px) {
@@ -116,4 +166,7 @@ body:has(.admin-shell) { background: #121512; }
   .form-actions { align-items: flex-start; flex-direction: column; }
   .job-title-control { grid-template-columns: 1fr; }
   .ai-fill-button { min-height: 42px; }
+  .product-admin-grid, .product-toggle-row { grid-template-columns: 1fr; }
+  .product-admin-toolbar { align-items: stretch; flex-direction: column; }
+  .product-admin-toolbar > div { align-items: stretch; flex-direction: column; }
 }
