@@ -1,0 +1,92 @@
+/* Admin is intentionally a focused application, separate from the marketing site. */
+body:has(.admin-shell) .site-header,
+body:has(.admin-shell) .site-footer,
+body:has(.admin-shell) .reading-progress,
+body:has(.admin-shell) .scroll-motion { display: none; }
+
+body:has(.admin-shell) { background: #121512; }
+
+.admin-shell {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 246px minmax(0, 1fr);
+  min-height: 100dvh;
+  background: radial-gradient(circle at 84% -5%, #d1c4ff24, transparent 28%), #121512;
+  color: #f5f6ee;
+}
+
+.admin-side {
+  display: flex;
+  flex-direction: column;
+  gap: 42px;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  padding: 30px 20px;
+  border-right: 1px solid #ffffff14;
+  background: #181b17d9;
+  backdrop-filter: blur(18px);
+}
+
+.admin-side .brand { display: inline-flex; align-items: center; gap: 9px; color: #f7f8ef; font-size: 15px; font-weight: 800; letter-spacing: -.02em; }
+.admin-side .brand-mark { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: #dbff53; color: #151812; font-size: 12px; }
+.admin-side nav { display: grid; gap: 6px; }
+.admin-side nav a { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 9px; color: #aeb4a8; font-size: 13px; font-weight: 650; transition: background .2s, color .2s, transform .2s; }
+.admin-side nav a:hover { color: #f7f8ef; background: #ffffff0c; transform: translateX(2px); }
+.admin-side nav a.active { background: #dbff53; color: #171a13; }
+
+.admin-main { min-width: 0; padding: clamp(28px, 4vw, 58px); }
+.admin-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 34px; }
+.admin-top h1 { margin: 0; color: #f5f6ee; font: 500 clamp(42px, 5vw, 72px)/.98 var(--font-display); letter-spacing: -.07em; }
+.admin-top p { max-width: 520px; margin: 13px 0 0; color: #9ba397; font-size: 15px; line-height: 1.6; }
+.admin-top .eyebrow { flex: none; color: #20251a; background: #dbff53; padding: 8px 10px; border-radius: 100px; font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+
+.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 30px; }
+.metric { min-height: 132px; display: flex; flex-direction: column; justify-content: space-between; padding: 18px; border: 1px solid #ffffff18; border-radius: 13px; background: linear-gradient(145deg, #252925, #1c201c); }
+.metric:nth-child(3n + 1) { background: linear-gradient(145deg, #d1c4ff, #afa2df); color: #25222d; border-color: transparent; }
+.metric:nth-child(3n + 2) { background: linear-gradient(145deg, #dfff61, #b9df44); color: #202517; border-color: transparent; }
+.metric span { color: inherit; opacity: .72; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.metric strong { font: 500 clamp(35px, 3.4vw, 51px)/1 var(--font-display); letter-spacing: -.07em; }
+
+.admin-panel { overflow: auto; margin-top: 16px; padding: 25px; border: 1px solid #ffffff16; border-radius: 14px; background: #1b1f1b; box-shadow: 0 18px 45px #00000020; }
+.admin-panel h2 { margin: 0 0 20px; color: #f4f6ed; font: 500 24px/1.15 var(--font-display); letter-spacing: -.04em; }
+.admin-table { width: 100%; min-width: 620px; border-collapse: collapse; text-align: left; font-size: 13px; }
+.admin-table th { padding: 0 12px 13px; color: #929b8d; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.admin-table td { padding: 15px 12px; border-top: 1px solid #ffffff12; color: #daddd4; vertical-align: middle; }
+.admin-table td strong { color: #f6f8ef; }
+.empty-state { margin: 0; padding: 24px 0 4px; color: #9ba397; }
+.detail-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 15px; color: #d4d8ce; font-size: 13px; }
+
+.admin-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+.admin-filter-row, .field-grid, .admin-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.admin-filter-row { display: flex; }
+.admin-main input, .admin-main select, .admin-main textarea { width: 100%; border: 1px solid #ffffff23; border-radius: 8px; background: #121512; color: #f2f5eb; padding: 11px 12px; font: inherit; }
+.admin-main textarea { min-height: 108px; resize: vertical; }
+.admin-main .field label, .admin-detail-grid span { display: block; margin-bottom: 7px; color: #aeb5a9; font-size: 11px; font-weight: 700; }
+.admin-main .field.full { grid-column: 1 / -1; }
+.admin-detail-grid > div { padding: 14px; border: 1px solid #ffffff12; border-radius: 9px; }
+.admin-detail-grid strong { color: #f1f4e9; font-size: 13px; }
+.button-dark, .button-small { border: 0; border-radius: 8px; background: #dbff53; color: #202419; cursor: pointer; font-weight: 800; }
+.button-dark { display: inline-flex; align-items: center; gap: 8px; padding: 12px 15px; }
+.button-small { padding: 8px 10px; font-size: 11px; }
+.status { display: inline-flex; padding: 5px 8px; border-radius: 99px; background: #ffffff12; color: #dce1d5; font-size: 10px; font-weight: 800; text-transform: capitalize; }
+
+@media (max-width: 900px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-side { position: static; height: auto; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-right: 0; border-bottom: 1px solid #ffffff14; }
+  .admin-side nav { display: flex; gap: 3px; overflow-x: auto; }
+  .admin-side nav a { white-space: nowrap; padding: 8px 9px; }
+  .admin-main { padding: 28px 20px 45px; }
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .admin-side { align-items: flex-start; flex-direction: column; }
+  .admin-side nav { width: 100%; }
+  .admin-top { align-items: flex-start; flex-direction: column; margin-bottom: 25px; }
+  .metric-grid { gap: 8px; }
+  .metric { min-height: 110px; padding: 14px; }
+  .admin-panel { padding: 18px; }
+  .admin-filter-row, .field-grid, .admin-detail-grid { grid-template-columns: 1fr; }
+  .admin-filter-row { flex-direction: column; }
+}
