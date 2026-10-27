@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LanguageSwitch, useLanguage } from "@/components/language-provider";
 
-const links = [["Expertise", "/expertise"], ["Solutions", "/solutions"], ["Engineering", "/engineering"], ["Our work", "/work"], ["About", "/about"], ["Careers", "/careers"]];
+const links = [["Expertise", "/expertise"], ["Solutions", "/solutions"], ["AI Architect", "/ai-architect"], ["Engineering", "/engineering"], ["Our work", "/work"], ["About", "/about"], ["Careers", "/careers"]];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const ar = useLanguage() === "ar";
-  const labels = ar ? ["الخبرات", "الحلول", "الهندسة", "أعمالنا", "من نحن", "الوظائف"] : links.map(([label]) => label);
+  const labels = ar ? ["الخبرات", "الحلول", "معماري الذكاء", "الهندسة", "أعمالنا", "من نحن", "الوظائف"] : links.map(([label]) => label);
   useEffect(() => { document.body.style.overflow = open ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [open]);
   useEffect(() => { if (!open) return; const close = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); }; window.addEventListener("keydown", close); return () => window.removeEventListener("keydown", close); }, [open]);
   return <header className="site-header"><div className="container nav">

@@ -49,10 +49,17 @@ create table if not exists public.visitor_events (
   job_slug text,
   created_at timestamptz not null default now()
 );
+create table if not exists public.ai_leads (
+  id uuid primary key default gen_random_uuid(), name text not null, email text not null, company text,
+  project_category text not null, technical_brief jsonb not null, consent boolean not null default false,
+  status text not null default 'new' check (status in ('new','reviewing','contacted','archived')),
+  created_at timestamptz not null default now()
+);
 create index if not exists jobs_status_idx on public.jobs(status); create index if not exists applications_job_idx on public.job_applications(job_id); create index if not exists applications_status_idx on public.job_applications(status); create index if not exists applications_created_idx on public.job_applications(created_at desc);
 create index if not exists visitor_events_created_idx on public.visitor_events(created_at desc); create index if not exists visitor_events_job_idx on public.visitor_events(job_slug); create index if not exists visitor_events_visitor_idx on public.visitor_events(visitor_id);
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values ('cvs', 'cvs', false, 10485760, array['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) on conflict (id) do update set public = false, file_size_limit = 10485760, allowed_mime_types = excluded.allowed_mime_types;
 alter table public.admin_users enable row level security; alter table public.jobs enable row level security; alter table public.products enable row level security; alter table public.job_applications enable row level security; alter table public.application_notes enable row level security; alter table public.visitor_events enable row level security;
+alter table public.ai_leads enable row level security;
 drop policy if exists "published jobs are public" on public.jobs; drop policy if exists "published products are public" on public.products; drop policy if exists "anyone can submit applications" on public.job_applications; drop policy if exists "admins can read own admin record" on public.admin_users; drop policy if exists "admins manage jobs" on public.jobs; drop policy if exists "admins manage applications" on public.job_applications; drop policy if exists "admins update applications" on public.job_applications; drop policy if exists "admins manage notes" on public.application_notes; drop policy if exists "anyone can record page views" on public.visitor_events; drop policy if exists "admins can read page views" on public.visitor_events; drop policy if exists "candidates can upload private cvs" on storage.objects; drop policy if exists "admins can read private cvs" on storage.objects; drop policy if exists "admins can delete private cvs" on storage.objects;
 create policy "published jobs are public" on public.jobs for select using (status = 'open');
 create policy "published products are public" on public.products for select using (true);
@@ -67,6 +74,10 @@ create policy "admins update applications" on public.job_applications for update
 create policy "admins manage notes" on public.application_notes for all using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "anyone can record page views" on public.visitor_events for insert to anon, authenticated with check (true);
 create policy "admins can read page views" on public.visitor_events for select using (exists (select 1 from public.admin_users where id = auth.uid()));
+drop policy if exists "visitors can submit technical briefs" on public.ai_leads;
+drop policy if exists "admins can review technical briefs" on public.ai_leads;
+create policy "visitors can submit technical briefs" on public.ai_leads for insert with check (consent = true);
+create policy "admins can review technical briefs" on public.ai_leads for select using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "candidates can upload private cvs" on storage.objects for insert to anon, authenticated with check (bucket_id = 'cvs');
 create policy "admins can read private cvs" on storage.objects for select to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins can delete private cvs" on storage.objects for delete to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));
