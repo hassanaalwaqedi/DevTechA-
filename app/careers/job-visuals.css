@@ -61,6 +61,38 @@
 .rv-shield span { color: var(--rv); font-size: 10px; font-weight: 800; }
 .rv-geometry { border-radius: 50%; clip-path: none; animation: rv-spin 18s linear infinite; }
 .rv-geometry i { position: absolute; inset: 18%; border: 1px solid var(--rv); border-radius: 50%; transform: rotate(55deg) scaleX(1.5); }
+.rv-foot span { display: flex; align-items: center; gap: 5px; }
+.rv-foot span i { width: 5px; height: 5px; border-radius: 50%; background: var(--rv); box-shadow: 0 0 10px var(--rv); }
+.rv-people-ops,.rv-campaign,.rv-funnel,.rv-finance,.rv-roadmap,.rv-design-system,.rv-operations,.rv-customer-journey { position: absolute; z-index: 2; inset: 50px 7% 35px; }
+.rv-people-ops { display: grid; place-items: center; }
+.rv-people-ops::before { content: ""; position: absolute; width: 118px; height: 118px; border: 1px solid color-mix(in srgb, var(--rv) 48%, transparent); border-radius: 50%; box-shadow: 0 0 0 30px color-mix(in srgb, var(--rv) 4%, transparent); }
+.rv-people-ops strong { z-index: 2; padding: 9px 12px; border-radius: 99px; background: var(--rv); color: #1b1f1b; font-size: 8px; letter-spacing: .08em; }
+.rv-people-ops i { position: absolute; width: 13px; height: 13px; border: 2px solid var(--rv); border-radius: 50%; background: #1b1f1b; animation: rv-people 3.6s ease-in-out infinite; }
+.rv-people-ops i:nth-of-type(1){left:12%;top:22%}.rv-people-ops i:nth-of-type(2){left:27%;bottom:13%;animation-delay:-.6s}.rv-people-ops i:nth-of-type(3){left:47%;top:3%;animation-delay:-1.2s}.rv-people-ops i:nth-of-type(4){right:28%;bottom:8%;animation-delay:-1.8s}.rv-people-ops i:nth-of-type(5){right:10%;top:27%;animation-delay:-2.4s}.rv-people-ops i:nth-of-type(6){right:42%;bottom:0;animation-delay:-3s}
+.rv-campaign { display: grid; place-items: center; }
+.rv-campaign>i { position: absolute; width: 84px; height: 84px; border: 1px solid var(--rv); border-radius: 50%; animation: rv-campaign 4.5s ease-out infinite; }
+.rv-campaign>i:nth-of-type(2){width:145px;height:145px;opacity:.62;animation-delay:-1.5s}.rv-campaign>i:nth-of-type(3){width:205px;height:205px;opacity:.3;animation-delay:-3s}
+.rv-campaign strong { z-index: 2; color: var(--rv); font-size: 9px; letter-spacing: .12em; }
+.rv-campaign span { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--rv); box-shadow: 0 0 16px var(--rv); animation: rv-people 3s ease-in-out infinite; }
+.rv-campaign span:nth-of-type(1){left:12%;top:18%}.rv-campaign span:nth-of-type(2){right:15%;top:25%;animation-delay:-.7s}.rv-campaign span:nth-of-type(3){left:21%;bottom:15%;animation-delay:-1.4s}.rv-campaign span:nth-of-type(4){right:24%;bottom:9%;animation-delay:-2.1s}.rv-campaign span:nth-of-type(5){right:7%;top:62%;animation-delay:-2.8s}
+.rv-funnel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.rv-funnel span { min-height: 31px; display: flex; align-items: center; justify-content: space-between; padding: 0 13px; background: color-mix(in srgb, var(--rv) 12%, #20241f); border: 1px solid color-mix(in srgb, var(--rv) 58%, transparent); color: #dfe5da; font-size: 7px; letter-spacing: .08em; clip-path: polygon(5% 0,95% 0,88% 100%,12% 100%); animation: rv-funnel 4s ease-in-out infinite; }
+.rv-funnel span:nth-child(1){width:82%}.rv-funnel span:nth-child(2){width:60%;animation-delay:-1.3s}.rv-funnel span:nth-child(3){width:38%;animation-delay:-2.6s}.rv-funnel b{color:var(--rv);font-size:10px}
+.rv-finance { display: grid; grid-template-columns:.75fr 1.25fr; gap: 24px; align-items: stretch; }
+.rv-ledger { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px; border: 1px solid #ffffff15; background: #20241f; }
+.rv-ledger span { padding-bottom: 8px; border-bottom: 1px solid #ffffff12; color: #9da59a; font-size: 7px; letter-spacing: .08em; }.rv-ledger span:last-child{border:0;color:var(--rv);font-size:16px;font-weight:800}
+.rv-finance-bars { display: flex; align-items: flex-end; gap: 8px; padding: 15px 10px 0; border-bottom: 1px solid color-mix(in srgb,var(--rv) 45%,transparent); }
+.rv-finance-bars i { flex: 1; min-width: 7px; background: linear-gradient(transparent,var(--rv)); animation: rv-bars 3.6s ease-in-out infinite; }.rv-finance-bars i:nth-child(2n){animation-delay:-1.4s}.rv-finance-bars i:nth-child(3n){animation-delay:-2.3s}
+.rv-roadmap { display: flex; align-items: center; }
+.rv-roadmap>i { position: absolute; left: 9%; right: 8%; top: 50%; height: 1px; background: linear-gradient(90deg,var(--rv),color-mix(in srgb,var(--rv) 25%,transparent)); }
+.rv-roadmap span { position: absolute; top: calc(50% - 7px); display: flex; flex-direction: column; gap: 12px; color: #aeb6aa; font-size: 7px; letter-spacing: .06em; }
+.rv-roadmap span::before { content:""; width: 13px; height: 13px; border: 2px solid var(--rv); border-radius: 50%; background: #1b1f1b; box-shadow: 0 0 0 5px color-mix(in srgb,var(--rv) 10%,transparent); animation: rv-people 3s ease-in-out infinite; }.rv-roadmap b{color:var(--rv);font-size:8px}
+.rv-design-system { padding: 13px; border: 1px solid color-mix(in srgb,var(--rv) 52%,transparent); border-radius: 8px; background: #20241f; }
+.rv-design-toolbar { height: 20px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid #ffffff14; }.rv-design-toolbar i{width:6px;height:6px;border-radius:50%;background:var(--rv);opacity:.55}.rv-design-toolbar i:nth-child(2){opacity:.8}.rv-design-toolbar i:nth-child(3){opacity:1}
+.rv-design-canvas { height: calc(100% - 38px); display: grid; grid-template-columns:1fr 1.4fr; grid-template-rows:1fr 1fr; gap:7px; padding-top:10px; }.rv-design-canvas span{border:1px solid #ffffff13;border-radius:4px;background:color-mix(in srgb,var(--rv) 8%,#1b1f1b);animation:rv-design 4s ease-in-out infinite}.rv-design-canvas span:nth-child(2){grid-row:span 2;animation-delay:-1s}.rv-design-canvas span:nth-child(3){animation-delay:-2s}.rv-design-canvas span:nth-child(4){display:none}.rv-design-system>strong{position:absolute;right:18px;bottom:15px;color:var(--rv);font-size:6px;letter-spacing:.08em}
+.rv-operations { display: flex; align-items: center; justify-content: center; gap: 9px; }
+.rv-operations span { width: 72px; min-height: 65px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; border: 1px solid color-mix(in srgb,var(--rv) 45%,transparent); border-radius: 7px; background: #20241f; color: #bdc4b9; font-size: 6px; letter-spacing: .06em; animation:rv-token 4s ease-in-out infinite}.rv-operations span:not(:last-child)::after{content:"";position:absolute;left:100%;top:50%;width:10px;height:1px;background:var(--rv)}.rv-operations b{color:var(--rv);font-size:9px}.rv-operations span:nth-child(2){animation-delay:-1s}.rv-operations span:nth-child(3){animation-delay:-2s}.rv-operations span:nth-child(4){animation-delay:-3s}
+.rv-customer-journey svg { position:absolute;inset:0;width:100%;height:100%;overflow:visible }.rv-customer-journey path{fill:none;stroke:var(--rv);stroke-width:2;stroke-dasharray:700;animation:rv-draw 6s linear infinite}.rv-customer-journey span{position:absolute;padding:6px 8px;border:1px solid color-mix(in srgb,var(--rv) 45%,transparent);border-radius:99px;background:#20241f;color:#c6cec2;font-size:6px;letter-spacing:.06em}
 
 .role-aware-hero { padding: 28px 0 70px; background: #151815; color: #f4f6ed; }
 .role-aware-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; }
@@ -84,6 +116,10 @@
 @keyframes rv-float { 50% { transform: translate(8px, -5px); } }
 @keyframes rv-token { 50% { transform: translateY(-7px); border-color: var(--rv); } }
 @keyframes rv-spin { to { transform: rotate(360deg); } }
+@keyframes rv-people { 50% { transform: scale(1.25); box-shadow: 0 0 18px var(--rv); } }
+@keyframes rv-campaign { 50% { transform: scale(1.12); opacity: .35; } }
+@keyframes rv-funnel { 50% { filter: brightness(1.35); transform: translateY(-2px); } }
+@keyframes rv-design { 50% { border-color: var(--rv); background: color-mix(in srgb,var(--rv) 17%,#1b1f1b); } }
 
 @media (max-width: 850px) {
   .role-aware-grid { grid-template-columns: 1fr; }
@@ -100,6 +136,7 @@
   .rv-tokens, .rv-pipeline { gap: 3px; }
   .rv-tokens span, .rv-pipeline span { padding: 7px 5px; font-size: 6px; }
   .rv-pipeline span { width: 44px; height: 44px; }
+  .rv-operations { gap: 4px; }.rv-operations span{width:58px;min-height:55px}.rv-finance{gap:10px}.rv-roadmap span{font-size:5px}.rv-customer-journey span{font-size:5px;padding:5px}
 }
 @media (prefers-reduced-motion: reduce) {
   .role-visual * { animation: none !important; transition: none !important; }

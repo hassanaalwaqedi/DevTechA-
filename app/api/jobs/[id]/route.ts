@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/auth";
-import { isMissingJobVisualColumns, normalizeVisualAccent, normalizeVisualCategory, normalizeVisualKeywords, normalizeVisualVariant } from "@/lib/job-visuals";
+import { defaultVisualVariant, isMissingJobVisualColumns, normalizeVisualAccent, normalizeVisualCategory, normalizeVisualKeywords, normalizeVisualVariant, normalizeVisualVariantForCategory } from "@/lib/job-visuals";
 
 export const runtime = "nodejs";
 
@@ -42,8 +42,10 @@ export async function PATCH(request: Request, {params}: {params: Promise<{id: st
     if (body.requirements !== undefined) patch.requirements = body.requirements;
     if (body.niceToHave !== undefined) patch.nice_to_have = body.niceToHave;
     if (body.skills !== undefined) patch.skills = body.skills;
-    if (body.visualCategory !== undefined) patch.visual_category = normalizeVisualCategory(body.visualCategory);
-    if (body.visualVariant !== undefined) patch.visual_variant = normalizeVisualVariant(body.visualVariant);
+    const visualCategory = body.visualCategory !== undefined ? normalizeVisualCategory(body.visualCategory) : undefined;
+    if (visualCategory) patch.visual_category = visualCategory;
+    if (body.visualVariant !== undefined) patch.visual_variant = visualCategory ? normalizeVisualVariantForCategory(visualCategory, body.visualVariant) : normalizeVisualVariant(body.visualVariant);
+    else if (visualCategory) patch.visual_variant = defaultVisualVariant(visualCategory);
     if (body.accentColor !== undefined) patch.accent_color = normalizeVisualAccent(body.accentColor);
     if (body.visualKeywords !== undefined) patch.visual_keywords = normalizeVisualKeywords(body.visualKeywords);
     if (body.status === "open") patch.published_at = body.publishedAt || new Date().toISOString().slice(0, 10);

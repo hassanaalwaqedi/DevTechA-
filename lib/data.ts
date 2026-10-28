@@ -1,6 +1,6 @@
 export type JobStatus = "draft" | "open" | "paused" | "closed";
 export type ApplicantStatus = "new" | "reviewing" | "shortlisted" | "interview" | "accepted" | "rejected";
-export type JobVisualCategory = "audio-ai" | "computer-vision" | "machine-learning" | "llm" | "backend" | "infrastructure" | "security" | "talent" | "default" | "disabled";
+export type JobVisualCategory = "audio-ai" | "computer-vision" | "machine-learning" | "llm" | "backend" | "infrastructure" | "security" | "talent" | "human-resources" | "marketing" | "sales" | "finance" | "product" | "design" | "operations" | "customer-success" | "default" | "disabled";
 export type JobAccent = "lime" | "violet" | "copper" | "sage" | "blue";
 
 export type Product = { name: string; slug: string; eyebrow: string; description: string; longDescription: string; status: string; platform: string[]; color: string; image?: string; gallery?: string[]; launchUrl?: string; featured?: boolean; published?: boolean };

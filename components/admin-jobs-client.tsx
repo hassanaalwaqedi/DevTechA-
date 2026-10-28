@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, EyeOff, Plus, Sparkles, X } from "lucide-react";
 import type { Job, JobAccent, JobVisualCategory } from "@/lib/data";
-import { jobVisualAccents, jobVisualCategories, jobVisualVariants, type JobVisualVariant } from "@/lib/job-visuals";
+import { defaultVisualVariant, jobVisualAccents, jobVisualCategories, jobVisualCategoryLabels, jobVisualVariants, visualVariantsForCategory, type JobVisualVariant } from "@/lib/job-visuals";
 import { JobShareActions } from "@/components/job-share-actions";
 import { JobVisualization } from "@/components/job-visualization";
 
@@ -109,6 +109,8 @@ export function AdminJobsClient() {
   }
 
   function startEdit(job: Job) {
+    const candidateVariant = jobVisualVariants.includes(job.visualVariant as JobVisualVariant) ? job.visualVariant as JobVisualVariant : defaultVisualVariant(job.visualCategory);
+    const visualVariant = visualVariantsForCategory(job.visualCategory).includes(candidateVariant) ? candidateVariant : defaultVisualVariant(job.visualCategory);
     setEditing(job);
     setDraft({
       title: job.title,
@@ -127,7 +129,7 @@ export function AdminJobsClient() {
       requirements: job.requirements.join("\n"),
       niceToHave: job.niceToHave.join("\n"),
       visualCategory: job.visualCategory,
-      visualVariant: jobVisualVariants.includes(job.visualVariant as JobVisualVariant) ? job.visualVariant as JobVisualVariant : "geometric",
+      visualVariant,
       accentColor: job.accentColor,
       visualKeywords: job.visualKeywords.join("\n"),
     });
@@ -268,6 +270,7 @@ export function AdminJobsClient() {
   }
 
   const visibleItems = items.filter((job) => `${job.title} ${job.department} ${job.location}`.toLowerCase().includes(search.toLowerCase()));
+  const availableVisualVariants = visualVariantsForCategory(draft.visualCategory);
 
   return <>
     <div className="admin-toolbar"><div><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search jobs" aria-label="Search jobs" /></div><button className="button-dark" onClick={startNew}><Plus size={15}/> New job</button></div>
@@ -296,8 +299,8 @@ export function AdminJobsClient() {
       <section className="visual-identity-editor" aria-labelledby="visual-identity-title">
         <div className="visual-identity-head"><div><div className="eyebrow">Role-aware experience</div><h3 id="visual-identity-title">AI visual identity</h3><p>New roles are classified automatically on save. Gemini can only select from a safe visual library, and you remain in control.</p></div><div className="visual-identity-actions"><button className="button-dark" disabled={classifying} aria-busy={classifying} onClick={recommendVisual}><Sparkles size={15}/>{classifying ? "Classifying…" : "Recommend with Gemini"}</button><button className="button-small" onClick={() => {setVisualOverridden(true); setDraft((current) => ({...current, visualCategory: "disabled", visualVariant: "disabled"}));}}><EyeOff size={14}/> Disable</button></div></div>
         <div className="visual-identity-grid"><div className="visual-controls">
-          <div className="field"><label>Visual category</label><select value={draft.visualCategory} onChange={(event) => {setVisualOverridden(true); updateDraft("visualCategory", event.target.value as JobVisualCategory);}}>{jobVisualCategories.map((category) => <option value={category} key={category}>{titleCase(category)}</option>)}</select></div>
-          <div className="field"><label>Visual variant</label><select value={draft.visualVariant} onChange={(event) => {setVisualOverridden(true); updateDraft("visualVariant", event.target.value as JobVisualVariant);}}>{jobVisualVariants.map((variant) => <option value={variant} key={variant}>{titleCase(variant)}</option>)}</select></div>
+          <div className="field"><label>Visual category</label><select value={draft.visualCategory} onChange={(event) => {const category = event.target.value as JobVisualCategory; setVisualOverridden(true); setDraft((current) => ({...current, visualCategory: category, visualVariant: defaultVisualVariant(category)}));}}>{jobVisualCategories.map((category) => <option value={category} key={category}>{jobVisualCategoryLabels[category]}</option>)}</select></div>
+          <div className="field"><label>Visual variant</label><select value={draft.visualVariant} onChange={(event) => {setVisualOverridden(true); updateDraft("visualVariant", event.target.value as JobVisualVariant);}}>{availableVisualVariants.map((variant) => <option value={variant} key={variant}>{titleCase(variant)}</option>)}</select></div>
           <div className="field"><label>Accent color</label><select value={draft.accentColor} onChange={(event) => {setVisualOverridden(true); updateDraft("accentColor", event.target.value as JobAccent);}}>{jobVisualAccents.map((accent) => <option value={accent} key={accent}>{titleCase(accent)}</option>)}</select></div>
           <div className="field"><label>Visual keywords <small>(one per line)</small></label><textarea value={draft.visualKeywords} onChange={(event) => {setVisualOverridden(true); updateDraft("visualKeywords", event.target.value);}} placeholder={"signal processing\nreal-time inference"} /></div>
         </div><div className="visual-preview"><span>Public preview · conceptual illustration</span><JobVisualization compact category={draft.visualCategory} variant={draft.visualVariant} accent={draft.accentColor}/></div></div>

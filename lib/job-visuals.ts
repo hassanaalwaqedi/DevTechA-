@@ -9,9 +9,38 @@ export const jobVisualCategories = [
   "infrastructure",
   "security",
   "talent",
+  "human-resources",
+  "marketing",
+  "sales",
+  "finance",
+  "product",
+  "design",
+  "operations",
+  "customer-success",
   "default",
   "disabled",
 ] as const satisfies readonly JobVisualCategory[];
+
+export const jobVisualCategoryLabels: Record<JobVisualCategory, string> = {
+  "audio-ai": "Audio AI",
+  "computer-vision": "Computer Vision",
+  "machine-learning": "Machine Learning",
+  llm: "LLM",
+  backend: "Backend",
+  infrastructure: "Infrastructure",
+  security: "Security",
+  talent: "Talent Acquisition",
+  "human-resources": "Human Resources",
+  marketing: "Marketing",
+  sales: "Sales",
+  finance: "Finance",
+  product: "Product",
+  design: "Design",
+  operations: "Operations",
+  "customer-success": "Customer Success",
+  default: "Default",
+  disabled: "Disabled",
+};
 
 export const jobVisualAccents = ["lime", "violet", "copper", "sage", "blue"] as const satisfies readonly JobAccent[];
 
@@ -29,11 +58,53 @@ export const jobVisualVariants = [
   "deployment-pipeline",
   "network-security",
   "talent-network",
+  "people-ops",
+  "campaign-orbit",
+  "revenue-funnel",
+  "finance-ledger",
+  "product-roadmap",
+  "design-system",
+  "operations-flow",
+  "customer-journey",
   "geometric",
   "disabled",
 ] as const;
 
 export type JobVisualVariant = (typeof jobVisualVariants)[number];
+
+export const jobVisualVariantsByCategory: Record<JobVisualCategory, readonly JobVisualVariant[]> = {
+  "audio-ai": ["waveform", "spectrogram"],
+  "computer-vision": ["detection", "tracking"],
+  "machine-learning": ["neural-network", "training-graph"],
+  llm: ["token-flow", "transformer"],
+  backend: ["api-flow", "distributed-data"],
+  infrastructure: ["deployment-pipeline", "distributed-data"],
+  security: ["network-security"],
+  talent: ["talent-network"],
+  "human-resources": ["people-ops"],
+  marketing: ["campaign-orbit"],
+  sales: ["revenue-funnel"],
+  finance: ["finance-ledger"],
+  product: ["product-roadmap"],
+  design: ["design-system"],
+  operations: ["operations-flow"],
+  "customer-success": ["customer-journey"],
+  default: ["geometric"],
+  disabled: ["disabled"],
+};
+
+export function visualVariantsForCategory(category: JobVisualCategory) {
+  return jobVisualVariantsByCategory[category];
+}
+
+export function defaultVisualVariant(category: JobVisualCategory): JobVisualVariant {
+  return jobVisualVariantsByCategory[category][0];
+}
+
+export function normalizeVisualVariantForCategory(category: JobVisualCategory, value: unknown): JobVisualVariant {
+  const variants = jobVisualVariantsByCategory[category];
+  return includes(variants, value) ? value : variants[0];
+}
 
 const includes = <T extends string>(values: readonly T[], value: unknown): value is T =>
   typeof value === "string" && values.includes(value as T);

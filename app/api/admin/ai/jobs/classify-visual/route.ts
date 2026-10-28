@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { generateStructured, jobVisualPrompt, jobVisualSchema } from "@/lib/ai";
 import { requireAdminApi } from "@/lib/auth";
+import { normalizeVisualVariantForCategory } from "@/lib/job-visuals";
 
 export const runtime = "nodejs";
 
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
         skills: Array.isArray(body.skills) ? body.skills.slice(0, 16) : [],
       }),
     });
-    return NextResponse.json({classification});
+    return NextResponse.json({classification: {...classification, visualVariant: normalizeVisualVariantForCategory(classification.visualCategory, classification.visualVariant)}});
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to classify this role.";
     return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
