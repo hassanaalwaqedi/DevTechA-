@@ -3,7 +3,7 @@
 import { Check, Copy, ExternalLink, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export function JobShareActions({slug, title, revision = "social-v4", compact = false}: {slug: string; title: string; revision?: string; compact?: boolean}) {
+export function JobShareActions({slug, title, revision = "social-v5", compact = false}: {slug: string; title: string; revision?: string; compact?: boolean}) {
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState(false);
   useEffect(() => { setUrl(`${window.location.origin}/careers/${slug}?share=${encodeURIComponent(revision)}`); }, [revision, slug]);

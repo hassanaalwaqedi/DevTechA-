@@ -34,8 +34,19 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
     ? `${roleSummary} ${details}. تعرّف على التفاصيل وقدّم الآن.`
     : `${roleSummary} ${details}. Explore the role and apply.`;
   const url = `/careers/${job.slug}`;
-  const visualRevision = encodeURIComponent(`social-v4-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`);
-  const image = `${url}/opengraph-image?visual=${visualRevision}`;
+  const imageParams = new URLSearchParams({
+    v: "5",
+    title: job.title,
+    department: job.department,
+    summary: socialExcerpt(job.responsibilities[0] || job.description, 140),
+    location: job.location,
+    employment: job.employmentType,
+    skill: job.skills[0] || "Engineering",
+    category: job.visualCategory,
+    accent: job.accentColor,
+    lang: isArabic ? "ar" : "en",
+  });
+  const image = `/api/social-card?${imageParams.toString()}`;
   return {
     title: `${job.title} | DevTech AI Careers`,
     description,
@@ -56,6 +67,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
   if (!job) notFound();
   const ar = locale === "ar";
   const closed = isPastDeadline(job.deadline);
+  const shareRevision = `social-v5-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`;
   const copy = ar ? {
     eyebrow: "وظائف DEVTECH AI",
     apply: "قدّم الآن",
@@ -105,7 +117,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
         <h1 dir="auto">{job.title}</h1>
         <p dir="auto">{job.description}</p>
         <div className="role-aware-meta"><span><MapPin size={14}/>{job.location} · {job.workMode}</span><span><Clock3 size={14}/>{job.employmentType} · {job.duration}</span><span><Sparkles size={14}/>{job.compensationType}</span></div>
-        <div className="role-aware-actions">{closed ? <div className="closed-note">{copy.closed}</div> : <Link href={`/careers/${job.slug}/apply`} className="button-dark">{copy.apply}<ArrowUpRight size={15}/></Link>}<JobShareActions slug={job.slug} title={job.title} revision={`social-v4-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`}/></div>
+        <div className="role-aware-actions">{closed ? <div className="closed-note">{copy.closed}</div> : <Link href={`/careers/${job.slug}/apply`} className="button-dark">{copy.apply}<ArrowUpRight size={15}/></Link>}<JobShareActions slug={job.slug} title={job.title} revision={shareRevision}/></div>
         <span className="role-aware-note">{copy.concept}</span>
       </div>
       <JobVisualization category={job.visualCategory} variant={job.visualVariant} accent={job.accentColor} label={ar ? `تصور توضيحي لمجال وظيفة ${job.title}` : `Conceptual illustration for the ${job.title} role`}/>
