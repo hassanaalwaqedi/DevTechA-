@@ -15,6 +15,13 @@ function isPastDeadline(value?: string) {
   return Boolean(value && new Date(`${value}T23:59:59Z`).getTime() < Date.now());
 }
 
+function socialExcerpt(value: string, limit = 155) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  if (clean.length <= limit) return clean;
+  const clipped = clean.slice(0, limit + 1).replace(/\s+\S*$/, "").trim();
+  return `${clipped || clean.slice(0, limit).trim()}…`;
+}
+
 export async function generateMetadata({params}: {params: Promise<{slug: string}>}): Promise<Metadata> {
   const {slug} = await params;
   const job = await getJobBySlug(slug);
@@ -22,11 +29,12 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
   const isArabic = /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/.test(job.title);
   const title = isArabic ? `فرصة مهنية في DevTech AI: ${job.title}` : `We’re hiring: ${job.title}`;
   const details = Array.from(new Set([job.location, job.workMode, job.employmentType].filter(Boolean))).join(" · ");
+  const roleSummary = socialExcerpt(job.description);
   const description = isArabic
-    ? `انضم إلى DevTech AI في دور ${job.title}. ${details}. تعرّف على التفاصيل وقدّم الآن.`
-    : `Join DevTech AI as ${job.title}. ${details}. Explore the role and apply.`;
+    ? `${roleSummary} ${details}. تعرّف على التفاصيل وقدّم الآن.`
+    : `${roleSummary} ${details}. Explore the role and apply.`;
   const url = `/careers/${job.slug}`;
-  const visualRevision = encodeURIComponent(`social-v3-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`);
+  const visualRevision = encodeURIComponent(`social-v4-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`);
   const image = `${url}/opengraph-image?visual=${visualRevision}`;
   return {
     title: `${job.title} | DevTech AI Careers`,
@@ -97,7 +105,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
         <h1 dir="auto">{job.title}</h1>
         <p dir="auto">{job.description}</p>
         <div className="role-aware-meta"><span><MapPin size={14}/>{job.location} · {job.workMode}</span><span><Clock3 size={14}/>{job.employmentType} · {job.duration}</span><span><Sparkles size={14}/>{job.compensationType}</span></div>
-        <div className="role-aware-actions">{closed ? <div className="closed-note">{copy.closed}</div> : <Link href={`/careers/${job.slug}/apply`} className="button-dark">{copy.apply}<ArrowUpRight size={15}/></Link>}<JobShareActions slug={job.slug} title={job.title} revision={`social-v3-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`}/></div>
+        <div className="role-aware-actions">{closed ? <div className="closed-note">{copy.closed}</div> : <Link href={`/careers/${job.slug}/apply`} className="button-dark">{copy.apply}<ArrowUpRight size={15}/></Link>}<JobShareActions slug={job.slug} title={job.title} revision={`social-v4-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`}/></div>
         <span className="role-aware-note">{copy.concept}</span>
       </div>
       <JobVisualization category={job.visualCategory} variant={job.visualVariant} accent={job.accentColor} label={ar ? `تصور توضيحي لمجال وظيفة ${job.title}` : `Conceptual illustration for the ${job.title} role`}/>

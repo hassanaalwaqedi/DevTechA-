@@ -16,6 +16,17 @@ const socialFonts = Promise.all([
 ]);
 const arabicText = /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/;
 
+function socialExcerpt(value: string, limit: number) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  if (clean.length <= limit) return clean;
+  const clipped = clean.slice(0, limit + 1).replace(/\s+\S*$/, "").trim();
+  return `${clipped || clean.slice(0, limit).trim()}…`;
+}
+
+function visualText(value: string, isArabic: boolean) {
+  return isArabic ? value.trim().split(/\s+/).reverse().join(" ") : value;
+}
+
 const accentColors = {
   lime: "#dfff61",
   violet: "#d1c4ff",
@@ -51,10 +62,10 @@ function CategoryVisual({category, accent, isArabic}: {category: JobVisualCatego
   const pipeline = category === "operations" ? ["INTAKE","PLAN","DELIVER","REVIEW"] : ["API","QUEUE","MODEL","DATA"];
   const people = category === "human-resources" || category === "talent";
   const infrastructure = category === "backend" || category === "infrastructure" || category === "operations";
-  const categoryLabel = isArabic ? arabicCategoryLabels[category] : jobVisualCategoryLabels[category].toUpperCase();
+  const categoryLabel = visualText(isArabic ? arabicCategoryLabels[category] : jobVisualCategoryLabels[category].toUpperCase(), isArabic);
 
   return <div style={{width: 344, height: 292, position: "relative", display: "flex", flexDirection: "column", flexShrink: 0, overflow: "hidden", padding: "20px 22px", border: "1px solid rgba(255,255,255,.14)", borderRadius: 18, background: "rgba(37,42,35,.94)"}}>
-    <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", color: "#aeb5a9", fontSize: 10, fontWeight: 700, letterSpacing: isArabic ? 0 : 1.3}}><span>{isArabic ? "ذكاء الدور" : "AI ROLE SIGNAL"}</span><span style={{width: 7, height: 7, display: "flex", borderRadius: 99, background: accent, boxShadow: `0 0 18px ${accent}`}}/></div>
+    <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", color: "#aeb5a9", fontSize: 10, fontWeight: 700, letterSpacing: isArabic ? 0 : 1.3}}><span>{visualText(isArabic ? "ذكاء الدور" : "AI ROLE SIGNAL", isArabic)}</span><span style={{width: 7, height: 7, display: "flex", borderRadius: 99, background: accent, boxShadow: `0 0 18px ${accent}`}}/></div>
     <div dir={isArabic ? "rtl" : "ltr"} style={{display: "flex", alignSelf: isArabic ? "flex-end" : "flex-start", marginTop: 7, color: accent, fontSize: 17, fontWeight: 700, letterSpacing: isArabic ? 0 : .5}}>{categoryLabel}</div>
     <div style={{height: 190, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 10, overflow: "hidden"}}>
       {people ? <div style={{width: 190, height: 170, position: "relative", display: "flex", alignItems: "center", justifyContent: "center"}}><div style={{width: 78, height: 78, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 99, border: `1px solid ${accent}`, background: `${accent}18`, color: accent, fontSize: 10, fontWeight: 700}}>{isArabic ? "فريق" : "PEOPLE"}</div>{nodePositions.map(([left,top],index)=><span key={index} style={{position: "absolute", left: `${left}%`, top: `${top}%`, width: 16, height: 16, display: "flex", borderRadius: 99, border: `2px solid ${accent}`, background: "#252a23", boxShadow: `0 0 0 4px ${accent}18`}}/>)}</div> : null}
@@ -80,9 +91,14 @@ export default async function OpenGraphImage({params}: {params: Promise<{slug: s
   const job = await getJobBySlug(slug);
   const title = job?.title || "Build what comes next";
   const accent = accentColors[job?.accentColor || "violet"];
-  const titleSize = title.length > 42 ? 48 : title.length > 28 ? 57 : 68;
   const skills = job?.skills.slice(0, 3) || ["AI", "Engineering", "Systems"];
   const isArabic = arabicText.test(title);
+  const titleSize = title.length > 42 ? 48 : title.length > 28 ? 55 : 66;
+  const titleWords = title.trim().split(/\s+/);
+  const titleLines = isArabic && title.length > 32
+    ? [titleWords.slice(0, Math.ceil(titleWords.length / 2)).join(" "), titleWords.slice(Math.ceil(titleWords.length / 2)).join(" ")]
+    : [title];
+  const roleSummary = socialExcerpt(job?.responsibilities[0] || job?.description || "Build meaningful intelligent systems with a team that values thoughtful engineering.", isArabic ? 78 : 105);
   const [regularFont, boldFont] = await socialFonts;
 
   return new ImageResponse(
@@ -101,27 +117,31 @@ export default async function OpenGraphImage({params}: {params: Promise<{slug: s
             </div>
             <div style={{display: "flex", alignItems: "baseline", gap: 7, fontSize: 23, fontWeight: 800, letterSpacing: 1}}>DEVTECH <span style={{color: accent}}>AI</span></div>
           </div>
-          <div style={{display: "flex", alignItems: "center", gap: 10, padding: "11px 17px", border: `1px solid ${accent}80`, borderRadius: 999, background: "#252a23", color: accent, fontSize: 15, fontWeight: 700, letterSpacing: isArabic ? 0 : 1.4}}><span style={{width: 8, height: 8, display: "flex", borderRadius: 999, background: accent}}/> {isArabic ? "فرصة متاحة" : "WE'RE HIRING"}</div>
+          <div style={{display: "flex", alignItems: "center", gap: 10, padding: "11px 17px", border: `1px solid ${accent}80`, borderRadius: 999, background: "#252a23", color: accent, fontSize: 15, fontWeight: 700, letterSpacing: isArabic ? 0 : 1.4}}><span style={{width: 8, height: 8, display: "flex", borderRadius: 999, background: accent}}/> {visualText(isArabic ? "فرصة متاحة" : "WE'RE HIRING", isArabic)}</div>
         </div>
 
         <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", gap: 28}}>
           <div dir={isArabic ? "rtl" : "ltr"} style={{width: 680, display: "flex", flexDirection: "column", alignItems: isArabic ? "flex-end" : "flex-start", textAlign: isArabic ? "right" : "left"}}>
             <div style={{display: "flex", alignItems: "center", gap: 12, marginBottom: 20, color: "#b9c0b4", fontSize: 16, fontWeight: 700, letterSpacing: 2}}>
               <span style={{width: 9, height: 9, display: "flex", borderRadius: 999, background: accent}}/>
-              {job?.department?.toUpperCase() || "DEVTECH AI CAREERS"}
+              {visualText(job?.department?.toUpperCase() || "DEVTECH AI CAREERS", isArabic)}
             </div>
-            <div style={{display: "flex", fontSize: titleSize, lineHeight: 1.02, fontWeight: 700, letterSpacing: -2.7}}>{title}</div>
-            <div style={{display: "flex", flexWrap: "wrap", gap: 10, marginTop: 28}}>
-              {[job?.location || "Remote", job?.employmentType || "Open role", ...skills.slice(0,2)].map((label, index) => <span key={`${label}-${index}`} style={{display: "flex", padding: "9px 13px", border: "1px solid rgba(255,255,255,.16)", borderRadius: 999, background: "rgba(255,255,255,.035)", color: index < 2 ? "#f7f8ef" : "#b9c0b4", fontSize: 14, fontWeight: 700}}>{label}</span>)}
+            <div style={{width: "100%", display: "flex", flexDirection: "column", alignItems: isArabic ? "flex-end" : "flex-start", gap: 2, fontSize: titleSize, lineHeight: 1.02, fontWeight: 700, letterSpacing: isArabic ? 0 : -2.7, textAlign: isArabic ? "right" : "left"}}>{titleLines.map((line, index) => <span key={`${line}-${index}`} dir={isArabic ? "rtl" : "ltr"} style={{display: "flex", whiteSpace: "nowrap"}}>{visualText(line, isArabic)}</span>)}</div>
+            <div style={{width: "100%", maxWidth: 650, display: "flex", flexDirection: "column", alignItems: isArabic ? "flex-end" : "flex-start", marginTop: 13}}>
+              <span style={{display: "flex", color: accent, fontSize: 9, fontWeight: 700, letterSpacing: isArabic ? 0 : 1.2}}>{visualText(isArabic ? "المهمة / 01" : "WHAT YOU'LL DO / 01", isArabic)}</span>
+              <span style={{width: "100%", display: "flex", justifyContent: isArabic ? "flex-end" : "flex-start", marginTop: 5, color: "#b9c0b4", fontSize: 15, lineHeight: 1.45, fontWeight: 400, textAlign: isArabic ? "right" : "left"}}>{visualText(roleSummary, isArabic)}</span>
+            </div>
+            <div style={{display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14}}>
+              {[job?.location || "Remote", job?.employmentType || "Open role", ...skills.slice(0,1)].map((label, index) => <span key={`${label}-${index}`} style={{display: "flex", padding: "8px 12px", border: "1px solid rgba(255,255,255,.16)", borderRadius: 999, background: "rgba(255,255,255,.035)", color: index < 2 ? "#f7f8ef" : "#b9c0b4", fontSize: 13, fontWeight: 700}}>{label}</span>)}
             </div>
           </div>
           <CategoryVisual category={job?.visualCategory || "default"} accent={accent} isArabic={isArabic}/>
         </div>
 
         <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 26, borderTop: "1px solid rgba(255,255,255,.14)"}}>
-          <div style={{display: "flex", color: "#aeb5a9", fontSize: 15, letterSpacing: isArabic ? 0 : .7}}>{isArabic ? "هندسة ذكية. أثر حقيقي." : "Engineering intelligence with precision."}</div>
+          <div style={{display: "flex", color: "#aeb5a9", fontSize: 15, letterSpacing: isArabic ? 0 : .7}}>{visualText(isArabic ? "هندسة ذكية. أثر حقيقي." : "Engineering intelligence with precision.", isArabic)}</div>
           <div style={{display: "flex", alignItems: "center", gap: 20, padding: "8px 9px 8px 20px", borderRadius: 999, background: accent, color: "#1b1e19", fontSize: 16, fontWeight: 800}}>
-            {isArabic ? "استكشف الفرصة" : "VIEW ROLE"} <span style={{width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 999, background: "#1b1e19", color: "#fff", fontSize: 22}}>+</span>
+            {visualText(isArabic ? "استكشف الفرصة" : "VIEW ROLE", isArabic)} <span style={{width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 999, background: "#1b1e19", color: "#fff", fontSize: 22}}>+</span>
           </div>
         </div>
       </div>
