@@ -23,7 +23,8 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
   const details = Array.from(new Set([job.location, job.workMode, job.employmentType].filter(Boolean))).join(" · ");
   const description = `Join DevTech AI as ${job.title}. ${details}. Explore the role and apply.`;
   const url = `/careers/${job.slug}`;
-  const image = `${url}/opengraph-image`;
+  const visualRevision = encodeURIComponent(`${job.visualCategory}-${job.visualVariant}-${job.accentColor}`);
+  const image = `${url}/opengraph-image?visual=${visualRevision}`;
   return {
     title: `${job.title} | DevTech AI Careers`,
     description,
