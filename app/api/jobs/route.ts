@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminJobs, getPublishedJobs } from "@/lib/db";
 import { requireAdminApi } from "@/lib/auth";
-import { isMissingJobVisualColumns, normalizeVisualAccent, normalizeVisualCategory, normalizeVisualKeywords, normalizeVisualVariantForCategory } from "@/lib/job-visuals";
+import { isMissingJobVisualColumns, normalizeVisualAccent, normalizeVisualKeywords, normalizeVisualVariantForCategory, resolveVisualCategory } from "@/lib/job-visuals";
 
 export const runtime = "nodejs";
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       deadline: body.deadline || null,
       status: body.status || "draft",
     };
-    const visualCategory = normalizeVisualCategory(body.visualCategory);
+    const visualCategory = resolveVisualCategory(body.visualCategory, baseJob.title, baseJob.department);
     const visualIdentity = {
       visual_category: visualCategory,
       visual_variant: normalizeVisualVariantForCategory(visualCategory, body.visualVariant),

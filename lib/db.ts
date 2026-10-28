@@ -1,12 +1,12 @@
 import { KHAIR_URL, khairProduct, type Application, type ApplicantStatus, type Job, type JobStatus, type Product } from "@/lib/data";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { normalizeVisualAccent, normalizeVisualCategory, normalizeVisualKeywords, normalizeVisualVariantForCategory } from "@/lib/job-visuals";
+import { normalizeVisualAccent, normalizeVisualKeywords, normalizeVisualVariantForCategory, resolveVisualCategory } from "@/lib/job-visuals";
 import { isMissingExtendedProductColumns } from "@/lib/product-admin";
 
 export function databaseReady() { return isSupabaseConfigured(); }
 
 function mapJob(row: Record<string, unknown>): Job {
-  const visualCategory = normalizeVisualCategory(row.visual_category);
+  const visualCategory = resolveVisualCategory(row.visual_category, String(row.title), String(row.department));
   return {id: String(row.id), title: String(row.title), slug: String(row.slug), department: String(row.department), description: String(row.description), responsibilities: (row.responsibilities as string[]) || [], requirements: (row.requirements as string[]) || [], niceToHave: (row.nice_to_have as string[]) || [], location: String(row.location), workMode: String(row.work_mode), employmentType: String(row.employment_type), duration: String(row.duration), compensationType: String(row.compensation_type), compensationText: String(row.compensation_text), skills: (row.skills as string[]) || [], publishedAt: String(row.published_at || ""), deadline: row.deadline ? String(row.deadline) : undefined, status: row.status as JobStatus, visualCategory, visualVariant: normalizeVisualVariantForCategory(visualCategory, row.visual_variant), accentColor: normalizeVisualAccent(row.accent_color), visualKeywords: normalizeVisualKeywords(row.visual_keywords)};
 }
 function mapProduct(row: Record<string, unknown>): Product { const isKhair = String(row.slug) === khairProduct.slug; return {name: String(row.name), slug: String(row.slug), eyebrow: String(row.eyebrow), description: String(row.description), longDescription: String(row.long_description), status: String(row.status), platform: (row.platforms as string[]) || [], color: String(row.color), image: row.image_url ? String(row.image_url) : isKhair ? khairProduct.image : undefined, gallery: Array.isArray(row.gallery_urls) && row.gallery_urls.length ? row.gallery_urls as string[] : isKhair ? khairProduct.gallery : [], launchUrl: row.launch_url ? String(row.launch_url) : isKhair ? KHAIR_URL : undefined, featured: Boolean(row.featured), published: row.is_published === undefined ? true : Boolean(row.is_published)}; }

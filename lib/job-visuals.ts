@@ -113,6 +113,35 @@ export function normalizeVisualCategory(value: unknown): JobVisualCategory {
   return includes(jobVisualCategories, value) ? value : "default";
 }
 
+const categorySignals: ReadonlyArray<readonly [JobVisualCategory, readonly string[]]> = [
+  ["human-resources", ["human resources", "people operations", "موارد بشرية", "الموارد البشرية"]],
+  ["talent", ["talent", "recruit", "استقطاب", "توظيف", "مواهب"]],
+  ["marketing", ["marketing", "market research", "content", "seo", "تسويق", "أبحاث السوق"]],
+  ["sales", ["sales", "business development", "revenue", "مبيعات", "تطوير الأعمال"]],
+  ["finance", ["finance", "accounting", "financial", "محاسب", "مالية", "مالي"]],
+  ["customer-success", ["customer success", "customer experience", "دعم العملاء", "نجاح العملاء"]],
+  ["security", ["security", "cyber", "أمن", "سيبراني"]],
+  ["computer-vision", ["computer vision", "visual perception", "رؤية حاسوبية"]],
+  ["audio-ai", ["audio ai", "speech", "voice", "صوت", "كلام"]],
+  ["llm", ["llm", "language model", "generative ai", "genai", "نموذج لغوي", "ذكاء اصطناعي توليدي"]],
+  ["machine-learning", ["machine learning", "ml engineer", "ai engineer", "artificial intelligence", "تعلم الآلة", "ذكاء اصطناعي"]],
+  ["infrastructure", ["infrastructure", "devops", "cloud", "platform engineer", "بنية تحتية", "سحابة"]],
+  ["backend", ["backend", "back-end", "full stack", "full-stack", "api engineer", "واجهات خلفية"]],
+  ["design", ["product design", "ux", "ui designer", "تصميم", "مصمم"]],
+  ["product", ["product manager", "product engineering", "frontend", "front-end", "منتج", "واجهات أمامية"]],
+  ["operations", ["operations", "operational", "عمليات", "تشغيل"]],
+];
+
+export function inferVisualCategory(title: string, department = ""): JobVisualCategory {
+  const role = `${title} ${department}`.toLocaleLowerCase();
+  return categorySignals.find(([, signals]) => signals.some((signal) => role.includes(signal)))?.[0] || "default";
+}
+
+export function resolveVisualCategory(value: unknown, title: string, department = ""): JobVisualCategory {
+  const category = normalizeVisualCategory(value);
+  return category === "default" ? inferVisualCategory(title, department) : category;
+}
+
 export function normalizeVisualAccent(value: unknown): JobAccent {
   return includes(jobVisualAccents, value) ? value : "violet";
 }
