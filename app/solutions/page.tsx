@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, Boxes, BrainCircuit, Eye, Network, Sparkles } from "lucide-react";
+import { CompanyPageIntro } from "@/components/company-page-intro";
+import { ArrowUpRight, BrainCircuit, Eye, Network, Sparkles } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import "./solutions.css";
 
 export const metadata: Metadata = {title: "Solutions", description: "Explore DevTech AI solutions for visual intelligence, knowledge systems, AI-powered products, and inference infrastructure."};
 
-function SolutionsVisual({arabic}: {arabic: boolean}) {
-  return <div className="solutions-visual-new" role="img" aria-label={arabic ? "تصور لانتقال التحدي عبر هندسة الذكاء الاصطناعي إلى نظام مفيد" : "A conceptual illustration of a challenge becoming a useful intelligent system"}>
-    <div className="solutions-visual-top"><span>{arabic ? "من التحدي إلى الحل / 01" : "FROM CHALLENGE TO SOLUTION / 01"}</span><span>DEVTECH AI ✳</span></div>
-    <div className="solutions-visual-scene" aria-hidden="true"><div className="solutions-visual-grid"/><div className="solutions-path solutions-path-one"/><div className="solutions-path solutions-path-two"/><div className="solutions-orbit solutions-orbit-one"/><div className="solutions-orbit solutions-orbit-two"/><div className="solutions-center"><Sparkles size={30}/><span>{arabic ? "هندسة الذكاء" : "ENGINEERING INTELLIGENCE"}</span></div><div className="solutions-node solutions-node-input"><span className="solutions-node-dot"/><span>{arabic ? "التحدي" : "THE CHALLENGE"}</span></div><div className="solutions-node solutions-node-output"><Boxes size={16}/><span>{arabic ? "نظام مفيد" : "A USEFUL SYSTEM"}</span></div><span className="solutions-spark solutions-spark-one">✳</span><span className="solutions-spark solutions-spark-two">+</span></div>
-    <div className="solutions-visual-bottom"><span><i/> {arabic ? "مصمّم حول الواقع" : "DESIGNED AROUND REALITY"}</span><span>{arabic ? "المشكلة / الذكاء / الأثر" : "PROBLEM / INTELLIGENCE / IMPACT"}</span></div>
-  </div>;
-}
 
 export default async function SolutionsPage() {
   const ar = await getLocale() === "ar";
@@ -29,7 +23,17 @@ export default async function SolutionsPage() {
   ] as const;
 
   return <main className="solutions-new">
-    <section className="solutions-hero-new"><div className="container"><div className="solutions-hero-head"><span className="solutions-kicker"><i/> {ar ? "حلولنا / DEVTECH AI" : "OUR SOLUTIONS / DEVTECH AI"}</span><span>{ar ? "أفكار ذكية، مصممة للواقع." : "SMART IDEAS, DESIGNED FOR REALITY."}</span></div><div className="solutions-hero-layout"><div className="solutions-hero-copy"><div className="solutions-badge">✳ {ar ? "كل تحدٍ يستحق تفكيراً مختلفاً" : "EVERY CHALLENGE DESERVES A FRESH PERSPECTIVE"}</div><h1>{ar ? <>التحديات الكبيرة.<br/><span>حلول أكثر ذكاءً</span><span className="solutions-title-dot">.</span></> : <>Big challenges.<br/><span>Smarter solutions</span><span className="solutions-title-dot">.</span></>}</h1><p>{ar ? "نحوّل التحديات المعقدة إلى أنظمة ذكية مفيدة، مصممة حول البيانات والأشخاص والبيئة التي تعمل فيها." : "We turn complex challenges into useful intelligent systems, designed around the data, people, and environments they serve."}</p><div className="solutions-hero-actions"><Link href="#solutions" className="solutions-primary-link">{ar ? "استكشف الحلول" : "Explore our solutions"}<span><ArrowDownRight size={17}/></span></Link><Link href="/contact" className="solutions-secondary-link">{ar ? "لديك تحدٍ في ذهنك؟" : "Have a challenge in mind?"} <ArrowUpRight size={16}/></Link></div><div className="solutions-hero-foot"><span>{ar ? "ذكاء صُمم ليفيد." : "THOUGHTFUL AI. REAL-WORLD PURPOSE."}</span><span>{ar ? "اكتشف المزيد ↓" : "SCROLL TO EXPLORE ↓"}</span></div></div><SolutionsVisual arabic={ar}/></div></div></section>
+    <CompanyPageIntro
+      eyebrow={ar ? "DEVTECH AI / الحلول" : "DEVTECH AI / SOLUTIONS"}
+      title={ar ? "أنظمة ذكاء اصطناعي لمتطلبات واقعية." : "AI systems for operational challenges."}
+      description={ar ? "نصمم الأنظمة حول البيانات وسير العمل والقرارات التي تحتاج إلى دعمها، مع متطلبات تكامل وتقييم واضحة." : "We design around the data, workflows, and decisions a system needs to support, with explicit requirements for integration and evaluation."}
+      actionLabel={ar ? "استكشف الحلول" : "Explore solutions"}
+      actionHref="#solutions"
+      secondaryLabel={ar ? "ناقش مشروعك" : "Discuss your project"}
+      secondaryHref="/contact"
+      detailsTitle={ar ? "مجالات التطبيق" : "APPLICATION AREAS"}
+      details={ar ? ["التحليل البصري","المعرفة والأنظمة اللغوية","سير العمل والخدمات الذكية"] : ["Visual analysis","Knowledge & language systems","Intelligent workflows & services"]}
+    />
     <section className="solutions-areas-new" id="solutions"><div className="container"><div className="solutions-areas-head"><div><span className="solutions-kicker">{ar ? "01 / كيف يمكننا المساعدة" : "01 / HOW WE CAN HELP"}</span><h2>{ar ? <>ذكاء يلتقي <span>بالواقع.</span></> : <>Where intelligence meets <span>real life.</span></>}</h2></div><p>{ar ? "كل حل يبدأ بسؤال مهم، ثم يتشكل حول ما يحتاج إلى تحقيقه فعلاً." : "Every solution starts with a meaningful question, then takes shape around what it needs to accomplish."}</p></div><div className="solutions-area-grid">{solutions.map(([number, label, title, description, tags, category, Icon]) => <article key={number} className={`solutions-area-card solutions-area-${number}`}><div className="solutions-area-top"><span>{number} / {label}</span><span className="solutions-area-icon"><Icon size={21}/></span></div><div className="solutions-area-content"><h3>{title}</h3><p>{description}</p><div className="solutions-area-tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div><Link href={`/contact?category=${encodeURIComponent(category)}`} className="solutions-area-link">{ar ? "ناقش الفكرة" : "Discuss this idea"} <ArrowUpRight size={15}/></Link><div className="solutions-area-art" aria-hidden="true"><i/><i/><i/></div></article>)}</div></div></section>
     <section className="solutions-vision-new"><div className="container solutions-vision-layout"><div><span className="solutions-kicker">{ar ? "02 / رؤيتنا" : "02 / OUR VISION"}</span><div className="solutions-vision-mark" aria-hidden="true">✳</div></div><div><h2>{ar ? <>نبدأ بالتحدي.<br/><span>ونبني لما هو أبعد.</span></> : <>Start with the challenge.<br/><span>Build for what comes next.</span></>}</h2><p>{ar ? "رؤيتنا هي جعل الذكاء الاصطناعي مفيداً في الحياة العملية: أنظمة تتكامل مع الأشخاص والبيانات وسير العمل، وتستمر في التطور." : "Our vision is to make AI useful in practice: systems that fit the people, data, and workflows around them—and keep evolving."}</p><Link href="/engineering" className="solutions-text-link">{ar ? "اكتشف كيف نعمل" : "Discover how we work"} <ArrowUpRight size={16}/></Link></div></div></section>
     <section className="solutions-next-new"><div className="container"><div><span className="solutions-kicker">{ar ? "لنجعل فكرتك واقعاً" : "LET'S MAKE YOUR IDEA REAL"}</span><h2>{ar ? <>لديك تحدٍ كبير؟<br/><span>لنبدأ الحديث.</span></> : <>Have a big challenge?<br/><span>Let's talk.</span></>}</h2></div><Link href="/contact" className="solutions-primary-link">{ar ? "ناقش مشروعك" : "Discuss your project"}<span><ArrowUpRight size={17}/></span></Link></div></section>

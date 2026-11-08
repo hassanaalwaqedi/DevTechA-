@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, BrainCircuit, Database, Eye, FlaskConical, Network, ServerCog, Sparkles } from "lucide-react";
+import { CompanyPageIntro } from "@/components/company-page-intro";
+import { ArrowUpRight, BrainCircuit, Eye, FlaskConical, Network, ServerCog, Sparkles } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import "./expertise.css";
 
 export const metadata: Metadata = {title: "Expertise", description: "Explore DevTech AI's model engineering, computer vision, language systems, AI infrastructure, and intelligent backend expertise."};
 
-function ExpertiseVisual({arabic}: {arabic: boolean}) {
-  return <div className="expertise-visual-new" role="img" aria-label={arabic ? "تصور لمراحل عمل الأنظمة الذكية من البيانات إلى النماذج والتشغيل" : "A conceptual flow from data through models to running intelligent systems"}>
-    <div className="expertise-visual-top"><span>{arabic ? "تصوّر هندسي / 01" : "ANATOMY OF AN AI SYSTEM / 01"}</span><span>DEVTECH AI ✳</span></div>
-    <div className="expertise-visual-scene" aria-hidden="true"><div className="expertise-visual-grid"/><div className="expertise-flow-line"/><div className="expertise-flow-dot expertise-flow-dot-one"/><div className="expertise-flow-dot expertise-flow-dot-two"/><div className="expertise-flow-box expertise-data"><Database size={19}/><span>{arabic ? "البيانات" : "DATA"}</span><small>{arabic ? "سياق ومدخلات" : "CONTEXT & INPUT"}</small></div><div className="expertise-flow-box expertise-model-box"><BrainCircuit size={28}/><span>{arabic ? "الذكاء" : "INTELLIGENCE"}</span><small>{arabic ? "نماذج واستدلال" : "MODELS & REASONING"}</small><i>✳</i></div><div className="expertise-flow-box expertise-output"><Network size={19}/><span>{arabic ? "الأنظمة" : "SYSTEMS"}</span><small>{arabic ? "تشغيل وتكامل" : "DELIVERY & INTEGRATION"}</small></div><span className="expertise-visual-spark expertise-spark-one">✳</span><span className="expertise-visual-spark expertise-spark-two">+</span></div>
-    <div className="expertise-visual-bottom"><span><i/> {arabic ? "من الفكرة إلى الواقع" : "FROM IDEA TO REAL-WORLD INTELLIGENCE"}</span><span>{arabic ? "تصميم / تطوير / تشغيل" : "DESIGN / BUILD / OPERATE"}</span></div>
-  </div>;
-}
 
 export default async function ExpertisePage() {
   const ar = await getLocale() === "ar";
@@ -33,7 +27,17 @@ export default async function ExpertisePage() {
   ] as const;
 
   return <main className="expertise-new">
-    <section className="expertise-hero-new"><div className="container"><div className="expertise-hero-head"><span className="expertise-kicker"><i/> {ar ? "خبراتنا / DEVTECH AI" : "OUR EXPERTISE / DEVTECH AI"}</span><span>{ar ? "من البحث إلى أنظمة تعمل في الواقع." : "FROM RESEARCH TO REAL-WORLD SYSTEMS."}</span></div><div className="expertise-hero-layout"><div className="expertise-hero-copy"><div className="expertise-badge">✳ {ar ? "الذكاء يبدأ بالهندسة" : "INTELLIGENCE STARTS WITH ENGINEERING"}</div><h1>{ar ? <>أفكار ذكية.<br/><span>هندسة أعمق</span><span className="expertise-title-dot">.</span></> : <>Ideas are just<br/>the <span>beginning</span><span className="expertise-title-dot">.</span></>}</h1><p>{ar ? "من النموذج إلى النظام الكامل، نجمع البحث والبرمجيات والبنية التحتية لبناء ذكاء يفيد في العالم الحقيقي." : "From model to complete system, we bring research, software, and infrastructure together to build intelligence that works in the real world."}</p><div className="expertise-hero-actions"><Link href="#capabilities" className="expertise-primary-link">{ar ? "استكشف خبراتنا" : "Explore our expertise"}<span><ArrowDownRight size={17}/></span></Link><Link href="/contact" className="expertise-secondary-link">{ar ? "لديك تحدٍ تقني؟" : "Have a challenge in mind?"} <ArrowUpRight size={16}/></Link></div><div className="expertise-hero-foot"><span>{ar ? "من الفكرة إلى التنفيذ." : "THOUGHTFUL AI. BUILT TO WORK."}</span><span>{ar ? "اكتشف المزيد ↓" : "SCROLL TO EXPLORE ↓"}</span></div></div><ExpertiseVisual arabic={ar}/></div></div></section>
+    <CompanyPageIntro
+      eyebrow={ar ? "DEVTECH AI / الخبرات التقنية" : "DEVTECH AI / TECHNICAL EXPERTISE"}
+      title={ar ? "خبرات هندسة الذكاء الاصطناعي." : "AI engineering capabilities."}
+      description={ar ? "نطوّر النماذج وأنظمة الرؤية الحاسوبية والأنظمة اللغوية، ونربطها بالبيانات والبرمجيات والبنية التحتية." : "Model development, computer vision, and language systems, connected to the data, software, and infrastructure they need to operate."}
+      actionLabel={ar ? "استكشف الخبرات" : "Explore capabilities"}
+      actionHref="#capabilities"
+      secondaryLabel={ar ? "منهجنا الهندسي" : "Our engineering practice"}
+      secondaryHref="/engineering"
+      detailsTitle={ar ? "التخصصات الأساسية" : "CORE DISCIPLINES"}
+      details={ar ? ["هندسة النماذج والتقييم","الرؤية الحاسوبية والأنظمة اللغوية","البيانات والاستدلال والأنظمة الخلفية"] : ["Model engineering & evaluation","Computer vision & language systems","Data, inference & backend infrastructure"]}
+    />
     <section className="expertise-capabilities-new" id="capabilities"><div className="container"><div className="expertise-capabilities-head"><div><span className="expertise-kicker">{ar ? "01 / ما نبنيه" : "01 / WHAT WE BUILD"}</span><h2>{ar ? <>الذكاء في كل <span>طبقة.</span></> : <>Intelligence in every <span>layer.</span></>}</h2></div><p>{ar ? "خبرات مترابطة لتحويل التحديات المعقدة إلى أنظمة ذكية مدروسة." : "Connected disciplines for turning complex challenges into thoughtful intelligent systems."}</p></div><div className="expertise-capability-grid">{capabilities.map(([id, number, title, description, tags, Icon]) => <article id={id} key={id} className={`expertise-capability-card expertise-card-${number}`}><div className="expertise-card-top"><span>{number} / DEVTECH AI</span><span className="expertise-card-icon"><Icon size={21}/></span></div><div className="expertise-card-content"><h3>{title}</h3><p>{description}</p><div className="expertise-card-tags">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div><div className="expertise-card-art" aria-hidden="true"><i/><i/><i/></div></article>)}</div></div></section>
     <section className="expertise-vision-new"><div className="container expertise-vision-layout"><div><span className="expertise-kicker">{ar ? "02 / رؤيتنا الهندسية" : "02 / OUR ENGINEERING VISION"}</span><div className="expertise-vision-mark" aria-hidden="true">✳</div></div><div><h2>{ar ? <>لا نكتفي ببناء نموذج.<br/><span>نبني ما يجعله مفيداً.</span></> : <>A model is only the start.<br/><span>We build what makes it useful.</span></>}</h2><p>{ar ? "رؤيتنا هي أن يعمل الذكاء الاصطناعي بانسجام مع البيانات والناس والأنظمة، ليصبح جزءاً موثوقاً من المنتج والعالم الحقيقي." : "Our vision is for AI to work in harmony with data, people, and systems—becoming a dependable part of the product and the real world."}</p><Link href="/engineering" className="expertise-text-link">{ar ? "اكتشف كيف نعمل" : "Discover how we work"} <ArrowUpRight size={16}/></Link></div></div></section>
     <section className="expertise-next-new"><div className="container"><div><span className="expertise-kicker">{ar ? "لنصنع شيئاً مهماً" : "LET'S MAKE SOMETHING MATTER"}</span><h2>{ar ? <>لديك فكرة كبيرة؟<br/><span>لنبدأ من هنا.</span></> : <>Have a big idea?<br/><span>Let's start here.</span></>}</h2></div><Link href="/contact" className="expertise-primary-link">{ar ? "ناقش مشروعك" : "Discuss your project"}<span><ArrowUpRight size={17}/></span></Link></div></section>
