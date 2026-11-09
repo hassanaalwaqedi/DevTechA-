@@ -7,7 +7,7 @@ import { useLanguage } from "@/components/language-provider";
 export function JobShareActions({
   slug,
   title,
-  revision = "social-2027-v2",
+  revision = "v4",
   compact = false,
 }: {
   slug: string;

@@ -15,17 +15,7 @@ import { buildPageSocialImageUrl } from "@/lib/social-metadata";
 
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
-const defaultSocialImage = buildPageSocialImageUrl({
-  title: "DevTech AI — Computer Vision & Edge Intelligence",
-  eyebrow: "DEVTECH AI · COMPUTER VISION & EDGE AI",
-  badge: "INTELLIGENCE THAT SEES THE WORLD",
-  headline: "Intelligence that sees the world.",
-  summary:
-    "We build computer vision models, low-latency Edge AI inference systems, smart hardware devices, and vision software platforms.",
-  chips: ["Computer Vision", "On-Device Edge AI", "AEGIS AI & Smart Devices"],
-  scene: "technology",
-  telemetry: "OPTICAL PERCEPTION · 60 FPS · 11.4ms",
-});
+const defaultSocialImage = "/og/home.jpg?v=4";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://devtecha.onrender.com"),
@@ -37,7 +27,7 @@ export const metadata: Metadata = {
     description: "Intelligence that sees the world. Computer Vision, Edge AI, Intelligent Devices, and Vision Software.",
     type: "website",
     siteName: "DevTech AI",
-    images: [{ url: defaultSocialImage, width: 1200, height: 630, type: "image/png", alt: "DevTech AI — Intelligence that sees the world" }],
+    images: [{ url: defaultSocialImage, width: 1200, height: 630, type: "image/jpeg", alt: "DevTech AI — Intelligence that sees the world" }],
   },
   alternates: { canonical: "/" },
   twitter: {

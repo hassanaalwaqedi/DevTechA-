@@ -34,25 +34,12 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
     ? `${roleSummary} ${details}. تعرّف على التفاصيل وقدّم الآن.`
     : `${roleSummary} ${details}. Explore the role and apply.`;
   const url = `/careers/${job.slug}`;
-  const imageParams = new URLSearchParams({
-    v: "2027-v3",
-    mode: "job",
-    title: job.title,
-    department: job.department,
-    summary: socialExcerpt(job.responsibilities[0] || job.description, 140),
-    location: `${job.location} · ${job.workMode}`,
-    employment: job.employmentType,
-    skill: job.skills[0] || "Computer Vision & AI",
-    category: job.visualCategory,
-    accent: job.accentColor,
-    lang: isArabic ? "ar" : "en",
-  });
-  const image = `/api/social-card?${imageParams.toString()}`;
+  const image = `/og/jobs/${encodeURIComponent(job.slug)}.jpg?v=4`;
   return {
     title: `${job.title} | DevTech AI Careers`,
     description,
     alternates: {canonical: url},
-    openGraph: {title, description, type: "website", url, siteName: "DevTech AI", locale: isArabic ? "ar_AR" : "en_US", images: [{url: image, width: 1200, height: 630, type: "image/png", alt: isArabic ? `${job.title} — فرصة مهنية لدى DevTech AI` : `${job.title} — DevTech AI is hiring`}]},
+    openGraph: {title, description, type: "website", url, siteName: "DevTech AI", locale: isArabic ? "ar_AR" : "en_US", images: [{url: image, width: 1200, height: 630, type: "image/jpeg", alt: isArabic ? `${job.title} — فرصة مهنية لدى DevTech AI` : `${job.title} — DevTech AI is hiring`}]},
     twitter: {card: "summary_large_image", title, description, images: [image]},
   };
 }
@@ -68,7 +55,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
   if (!job) notFound();
   const ar = locale === "ar";
   const closed = isPastDeadline(job.deadline);
-  const shareRevision = `social-2027-v2-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`;
+  const shareRevision = `v4`;
   const copy = ar ? {
     eyebrow: "وظائف DEVTECH AI",
     apply: "قدّم الآن",

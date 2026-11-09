@@ -13,9 +13,26 @@ export type PageSocialCardConfig = {
   telemetry?: string;
 };
 
-export function buildPageSocialImageUrl(config: Omit<PageSocialCardConfig, "description" | "path">): string {
+const pathToStaticOgFile: Record<string, string> = {
+  "/": "/og/home.jpg?v=4",
+  "/technology": "/og/technology.jpg?v=4",
+  "/products": "/og/products.jpg?v=4",
+  "/applications": "/og/applications.jpg?v=4",
+  "/engineering": "/og/engineering.jpg?v=4",
+  "/about": "/og/about.jpg?v=4",
+  "/careers": "/og/careers.jpg?v=4",
+  "/contact": "/og/contact.jpg?v=4",
+  "/ai-architect": "/og/ai-architect.jpg?v=4",
+};
+
+export function buildPageSocialImageUrl(
+  config: Omit<PageSocialCardConfig, "description" | "path"> & { path?: string }
+): string {
+  if (config.path && pathToStaticOgFile[config.path]) {
+    return pathToStaticOgFile[config.path];
+  }
   const params = new URLSearchParams({
-    v: "2027-v3",
+    v: "2027-v4",
     mode: "page",
     title: config.headline,
     department: config.eyebrow,
@@ -31,7 +48,7 @@ export function buildPageSocialImageUrl(config: Omit<PageSocialCardConfig, "desc
 }
 
 export function createPageMetadata(config: PageSocialCardConfig): Metadata {
-  const imageUrl = buildPageSocialImageUrl(config);
+  const imageUrl = pathToStaticOgFile[config.path] || buildPageSocialImageUrl(config);
   const fullTitle = config.path === "/" ? config.title : `${config.title} | DevTech AI`;
 
   return {
@@ -52,7 +69,7 @@ export function createPageMetadata(config: PageSocialCardConfig): Metadata {
           url: imageUrl,
           width: 1200,
           height: 630,
-          type: "image/png",
+          type: "image/jpeg",
           alt: `${config.headline} — DevTech AI`,
         },
       ],

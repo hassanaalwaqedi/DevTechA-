@@ -24,21 +24,7 @@ export async function generateMetadata({
     ? `قدّم الآن على وظيفة ${job.title} في قسم ${job.department} لدى DevTech AI (${job.location} · ${job.workMode}).`
     : `Submit your application for ${job.title} (${job.department} · ${job.location} · ${job.workMode}) at DevTech AI.`;
   const url = `/careers/${job.slug}/apply`;
-  const imageParams = new URLSearchParams({
-    v: "2027-v3",
-    mode: "job",
-    title: job.title,
-    department: job.department,
-    badge: isArabic ? "قدّم الآن · وظيفة شاغرة" : "APPLY NOW · OPEN POSITION",
-    summary: (job.responsibilities[0] || job.description).slice(0, 140),
-    location: `${job.location} · ${job.workMode}`,
-    employment: job.employmentType,
-    skill: job.skills[0] || "Computer Vision & AI",
-    category: job.visualCategory,
-    accent: job.accentColor,
-    lang: isArabic ? "ar" : "en",
-  });
-  const image = `/api/social-card?${imageParams.toString()}`;
+  const image = `/og/jobs/${encodeURIComponent(job.slug)}.jpg?v=4`;
 
   return {
     title,
@@ -50,7 +36,7 @@ export async function generateMetadata({
       type: "website",
       url,
       siteName: "DevTech AI",
-      images: [{ url: image, width: 1200, height: 630, type: "image/png", alt: title }],
+      images: [{ url: image, width: 1200, height: 630, type: "image/jpeg", alt: title }],
     },
     twitter: {
       card: "summary_large_image",
