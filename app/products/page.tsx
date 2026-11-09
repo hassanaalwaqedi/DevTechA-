@@ -7,13 +7,23 @@ import { ArrowUpRight, Camera, Cpu, Glasses, MonitorPlay } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import { getProductsResult } from "@/lib/db";
 import { khairProduct, KHAIR_URL, type Product } from "@/lib/data";
+import { createPageMetadata } from "@/lib/social-metadata";
 import "../work/work.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Products — AEGIS AI, Vision Platforms & Future Intelligent Devices",
   description:
     "Explore DevTech AI's products: AEGIS AI smart vision and safety intelligence system, live digital platforms, and our future intelligent device roadmap.",
-};
+  path: "/products",
+  eyebrow: "DEVTECH AI / PRODUCTS & SYSTEMS",
+  badge: "AEGIS AI & VISION PRODUCTS",
+  headline: "Intelligent vision products & platforms.",
+  summary:
+    "Discover AEGIS AI—our smart vision and safety intelligence project—alongside deployed software platforms and smart device roadmap.",
+  chips: ["AEGIS AI Vision", "Smart Cameras (Dev)", "Edge AI Units (Dev)"],
+  scene: "aegis",
+  telemetry: "AEGIS AI · RISK SCORING · 60 FPS",
+});
 
 function PublishedPortfolio({ products, arabic }: { products: Product[]; arabic: boolean }) {
   const projects = products.filter((product) => product.slug !== khairProduct.slug);

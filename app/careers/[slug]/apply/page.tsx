@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BriefcaseBusiness, Clock3, MapPin, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -5,6 +6,60 @@ import { getJobBySlug } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { JobApplicationForm } from "@/components/job-application-form";
 import "./apply.css";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const job = await getJobBySlug(slug);
+  if (!job) return { title: "Apply | DevTech AI Careers" };
+
+  const isArabic = /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/.test(job.title);
+  const title = isArabic
+    ? `التقديم على وظيفة ${job.title} | DevTech AI`
+    : `Apply for ${job.title} — DevTech AI Careers`;
+  const description = isArabic
+    ? `قدّم الآن على وظيفة ${job.title} في قسم ${job.department} لدى DevTech AI (${job.location} · ${job.workMode}).`
+    : `Submit your application for ${job.title} (${job.department} · ${job.location} · ${job.workMode}) at DevTech AI.`;
+  const url = `/careers/${job.slug}/apply`;
+  const imageParams = new URLSearchParams({
+    v: "2027-v3",
+    mode: "job",
+    title: job.title,
+    department: job.department,
+    badge: isArabic ? "قدّم الآن · وظيفة شاغرة" : "APPLY NOW · OPEN POSITION",
+    summary: (job.responsibilities[0] || job.description).slice(0, 140),
+    location: `${job.location} · ${job.workMode}`,
+    employment: job.employmentType,
+    skill: job.skills[0] || "Computer Vision & AI",
+    category: job.visualCategory,
+    accent: job.accentColor,
+    lang: isArabic ? "ar" : "en",
+  });
+  const image = `/api/social-card?${imageParams.toString()}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url,
+      siteName: "DevTech AI",
+      images: [{ url: image, width: 1200, height: 630, type: "image/png", alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function ApplyPage({params}: {params: Promise<{slug: string}>}) {
   const [{slug}, locale] = await Promise.all([params, getLocale()]);

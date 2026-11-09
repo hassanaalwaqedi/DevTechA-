@@ -35,13 +35,14 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
     : `${roleSummary} ${details}. Explore the role and apply.`;
   const url = `/careers/${job.slug}`;
   const imageParams = new URLSearchParams({
-    v: "5",
+    v: "2027-v3",
+    mode: "job",
     title: job.title,
     department: job.department,
     summary: socialExcerpt(job.responsibilities[0] || job.description, 140),
-    location: job.location,
+    location: `${job.location} · ${job.workMode}`,
     employment: job.employmentType,
-    skill: job.skills[0] || "Engineering",
+    skill: job.skills[0] || "Computer Vision & AI",
     category: job.visualCategory,
     accent: job.accentColor,
     lang: isArabic ? "ar" : "en",
@@ -67,7 +68,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
   if (!job) notFound();
   const ar = locale === "ar";
   const closed = isPastDeadline(job.deadline);
-  const shareRevision = `social-v5-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`;
+  const shareRevision = `social-2027-v2-${job.visualCategory}-${job.visualVariant}-${job.accentColor}`;
   const copy = ar ? {
     eyebrow: "وظائف DEVTECH AI",
     apply: "قدّم الآن",

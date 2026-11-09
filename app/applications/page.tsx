@@ -10,13 +10,23 @@ import {
   Store,
 } from "lucide-react";
 import { getLocale } from "@/lib/locale";
+import { createPageMetadata } from "@/lib/social-metadata";
 import "../solutions/solutions.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Applications — Smart Homes, Retail, Workplace, Safety & Industrial Vision",
   description:
     "Explore real-world applications of DevTech AI's computer vision and Edge AI systems across Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and Industrial Vision.",
-};
+  path: "/applications",
+  eyebrow: "DEVTECH AI / REAL-WORLD APPLICATIONS",
+  badge: "5 VISION APPLICATION DOMAINS",
+  headline: "Where computer vision meets the real world.",
+  summary:
+    "Practical visual intelligence for Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and Industrial Vision.",
+  chips: ["Smart Homes & Retail", "Safety & Security", "Industrial Inspection"],
+  scene: "aegis",
+  telemetry: "5 DOMAINS · EDGE + CLOUD VISION",
+});
 
 export default async function ApplicationsPage() {
   const ar = (await getLocale()) === "ar";

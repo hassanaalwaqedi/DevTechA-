@@ -3,13 +3,23 @@ import Link from "next/link";
 import { CompanyPageIntro } from "@/components/company-page-intro";
 import { ArrowUpRight, Camera, Cpu, Eye, MonitorPlay, MoveUpRight } from "lucide-react";
 import { getLocale } from "@/lib/locale";
+import { createPageMetadata } from "@/lib/social-metadata";
 import "./about.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "About — Computer Vision & Edge Intelligence Company",
   description:
     "DevTech AI is a Computer Vision and Edge AI technology company developing accessible visual intelligence, edge inference systems, smart devices, and vision software platforms.",
-};
+  path: "/about",
+  eyebrow: "DEVTECH AI / ABOUT THE COMPANY",
+  badge: "INTELLIGENCE THAT SEES THE WORLD",
+  headline: "Intelligence that sees the world.",
+  summary:
+    "Developing accessible, intelligent visual technologies that combine computer vision models, Edge AI, smart hardware, and software.",
+  chips: ["Computer Vision Company", "Edge AI & Smart Hardware", "Vision Software Platforms"],
+  scene: "about",
+  telemetry: "PRODUCT-ORIENTED VISION COMPANY",
+});
 
 export default async function AboutPage() {
   const ar = (await getLocale()) === "ar";

@@ -3,13 +3,23 @@ import Link from "next/link";
 import { CompanyPageIntro } from "@/components/company-page-intro";
 import { ArrowUpRight, Camera, Cpu, Eye, MonitorPlay } from "lucide-react";
 import { getLocale } from "@/lib/locale";
+import { createPageMetadata } from "@/lib/social-metadata";
 import "../expertise/expertise.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Technology — Computer Vision, Edge AI, Intelligent Devices & Vision Software",
   description:
     "Explore DevTech AI's four core technology pillars: Computer Vision, Edge AI inference, Intelligent Devices, and Vision Software.",
-};
+  path: "/technology",
+  eyebrow: "DEVTECH AI / CORE TECHNOLOGY",
+  badge: "4 CORE TECHNOLOGY PILLARS",
+  headline: "Computer Vision & Edge Intelligence.",
+  summary:
+    "Real-time object detection, multi-object tracking, low-latency on-device Edge AI inference, smart cameras, and vision software.",
+  chips: ["Computer Vision", "Edge AI Optimization", "Intelligent Devices"],
+  scene: "technology",
+  telemetry: "4 PILLARS · ONNX & TENSORRT · 60 FPS",
+});
 
 export default async function TechnologyPage() {
   const ar = (await getLocale()) === "ar";

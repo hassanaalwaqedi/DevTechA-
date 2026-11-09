@@ -11,17 +11,41 @@ import { SiteFooter } from "@/components/site-footer";
 import { VisitorTracker } from "@/components/visitor-tracker";
 import { LanguageProvider } from "@/components/language-provider";
 import { getLocale } from "@/lib/locale";
+import { buildPageSocialImageUrl } from "@/lib/social-metadata";
 
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+const defaultSocialImage = buildPageSocialImageUrl({
+  title: "DevTech AI — Computer Vision & Edge Intelligence",
+  eyebrow: "DEVTECH AI · COMPUTER VISION & EDGE AI",
+  badge: "INTELLIGENCE THAT SEES THE WORLD",
+  headline: "Intelligence that sees the world.",
+  summary:
+    "We build computer vision models, low-latency Edge AI inference systems, smart hardware devices, and vision software platforms.",
+  chips: ["Computer Vision", "On-Device Edge AI", "AEGIS AI & Smart Devices"],
+  scene: "technology",
+  telemetry: "OPTICAL PERCEPTION · 60 FPS · 11.4ms",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://devtecha.onrender.com"),
   title: { default: "DevTech AI — Computer Vision & Edge Intelligence", template: "%s | DevTech AI" },
   description: "Intelligence that sees the world. DevTech AI builds computer vision models, Edge AI inference systems, intelligent devices, and vision software platforms.",
   icons: { icon: [{ url: "/devtech-ai-logo.png", type: "image/png" }], apple: "/devtech-ai-logo.png" },
-  openGraph: { title: "DevTech AI — Computer Vision & Edge Intelligence", description: "Intelligence that sees the world. Computer Vision, Edge AI, Intelligent Devices, and Vision Software.", type: "website", images: [{ url: "/devtech-ai-logo.png", width: 1254, height: 1254, alt: "DevTech AI" }] },
+  openGraph: {
+    title: "DevTech AI — Computer Vision & Edge Intelligence",
+    description: "Intelligence that sees the world. Computer Vision, Edge AI, Intelligent Devices, and Vision Software.",
+    type: "website",
+    siteName: "DevTech AI",
+    images: [{ url: defaultSocialImage, width: 1200, height: 630, type: "image/png", alt: "DevTech AI — Intelligence that sees the world" }],
+  },
   alternates: { canonical: "/" },
-  twitter: { card: "summary_large_image", title: "DevTech AI — Computer Vision & Edge Intelligence", description: "Intelligence that sees the world. Computer Vision, Edge AI, Intelligent Devices, and Vision Software.", images: ["/devtech-ai-logo.png"] },
+  twitter: {
+    card: "summary_large_image",
+    title: "DevTech AI — Computer Vision & Edge Intelligence",
+    description: "Intelligence that sees the world. Computer Vision, Edge AI, Intelligent Devices, and Vision Software.",
+    images: [defaultSocialImage],
+  },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#F8F9FF" };

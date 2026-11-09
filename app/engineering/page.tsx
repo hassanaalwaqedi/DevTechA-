@@ -6,12 +6,22 @@ import { EngineeringLifecycle } from "@/components/engineering-lifecycle";
 import { ArchitectureDiagram } from "@/components/technical-visuals";
 import { HowWeWork } from "@/components/how-we-work";
 import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
+import { createPageMetadata } from "@/lib/social-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Engineering — Computer Vision Pipeline, Edge AI Optimization & Stack",
   description:
     "How DevTech AI builds computer vision and Edge AI systems from camera input to application output using Python, OpenCV, PyTorch, YOLO, ONNX Runtime, TensorRT, FastAPI, and Docker.",
-};
+  path: "/engineering",
+  eyebrow: "DEVTECH AI / VISION ENGINEERING",
+  badge: "CAMERA TO DASHBOARD PIPELINE",
+  headline: "Engineered to see. Built for the edge.",
+  summary:
+    "End-to-end computer vision and Edge AI engineering: optical capture, OpenCV, YOLO & PyTorch, ONNX / TensorRT, and FastAPI dashboards.",
+  chips: ["Python · PyTorch · YOLO", "ONNX · TensorRT Edge", "FastAPI · Docker"],
+  scene: "engineering",
+  telemetry: "6-STAGE PIPELINE · 11.4ms EDGE NPU",
+});
 
 export default async function EngineeringPage() {
   const ar = (await getLocale()) === "ar";

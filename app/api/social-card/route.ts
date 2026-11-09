@@ -8,22 +8,61 @@ import { jobVisualCategoryLabels, normalizeVisualCategory } from "@/lib/job-visu
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const fonts = Promise.all([
+const fontsPromise = Promise.all([
   readFile(join(process.cwd(), "public", "fonts", "Almarai-Regular.ttf")),
   readFile(join(process.cwd(), "public", "fonts", "Almarai-Bold.ttf")),
 ]);
 
-const accentColors = {
-  lime: "#dfff61",
-  violet: "#d1c4ff",
-  copper: "#ef9b75",
-  sage: "#a9cdbb",
-  blue: "#98b8ff",
+const sceneFiles = {
+  technology: "human-ai-technology.jpg",
+  aegis: "human-ai-aegis.jpg",
+  engineering: "human-ai-engineering.jpg",
+  about: "human-ai-about.jpg",
+  contact: "human-ai-contact.jpg",
+} as const;
+
+type SceneKey = keyof typeof sceneFiles;
+
+const portraitCache = new Map<SceneKey, Promise<string>>();
+
+function getPortraitBase64(scene: SceneKey): Promise<string> {
+  const cached = portraitCache.get(scene);
+  if (cached) return cached;
+
+  const promise = (async () => {
+    try {
+      const filePath = join(process.cwd(), "public", sceneFiles[scene]);
+      const raw = await readFile(filePath);
+      const resized = await sharp(raw)
+        .resize(372, 224, { fit: "cover", position: "attention" })
+        .jpeg({ quality: 86 })
+        .toBuffer();
+      return `data:image/jpeg;base64,${resized.toString("base64")}`;
+    } catch {
+      return "";
+    }
+  })();
+
+  portraitCache.set(scene, promise);
+  return promise;
+}
+
+const accentPalette = {
+  lime: { primary: "#0754FF", secondary: "#35BEFF", badgeBg: "#EAF2FF" },
+  violet: { primary: "#6D28D9", secondary: "#873BFF", badgeBg: "#F1EBFF" },
+  copper: { primary: "#0B4BFF", secondary: "#7C3AED", badgeBg: "#EDF1FF" },
+  sage: { primary: "#065F46", secondary: "#10B981", badgeBg: "#E6FAF3" },
+  blue: { primary: "#0754FF", secondary: "#35BEFF", badgeBg: "#EAF2FF" },
 } as const;
 
 const arabicCategoryLabels: Partial<Record<JobVisualCategory, string>> = {
+  "audio-ai": "الذكاء الصوتي",
+  "computer-vision": "الرؤية الحاسوبية",
   "machine-learning": "تعلم الآلة",
+  llm: "النماذج اللغوية",
   backend: "الأنظمة الخلفية",
+  infrastructure: "البنية التحتية",
+  security: "الأمن السيبراني",
   talent: "استقطاب المواهب",
   "human-resources": "الموارد البشرية",
   marketing: "التسويق",
@@ -33,14 +72,23 @@ const arabicCategoryLabels: Partial<Record<JobVisualCategory, string>> = {
   design: "التصميم",
   operations: "العمليات",
   "customer-success": "نجاح العملاء",
+  default: "الرؤية الحاسوبية وذكاء الحافة",
 };
 
 function xml(value: string) {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
 
 function cleanParam(url: URL, key: string, fallback: string, limit: number) {
-  return (url.searchParams.get(key) || fallback).replace(/\s+/g, " ").trim().slice(0, limit);
+  return (url.searchParams.get(key) || fallback)
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, limit);
 }
 
 function wrapWords(value: string, maxCharacters: number, maxLines: number) {
@@ -49,8 +97,9 @@ function wrapWords(value: string, maxCharacters: number, maxLines: number) {
   let line = "";
   for (const word of words) {
     const candidate = line ? `${line} ${word}` : word;
-    if (candidate.length <= maxCharacters || !line) line = candidate;
-    else {
+    if (candidate.length <= maxCharacters || !line) {
+      line = candidate;
+    } else {
       lines.push(line);
       line = word;
       if (lines.length === maxLines - 1) break;
@@ -59,89 +108,308 @@ function wrapWords(value: string, maxCharacters: number, maxLines: number) {
   if (line && lines.length < maxLines) {
     const consumed = lines.join(" ").split(/\s+/).filter(Boolean).length;
     const remaining = words.slice(consumed).join(" ");
-    lines.push(remaining.length > maxCharacters + 8 ? `${remaining.slice(0, maxCharacters + 5).replace(/\s+\S*$/, "")}…` : remaining);
+    lines.push(
+      remaining.length > maxCharacters + 8
+        ? `${remaining.slice(0, maxCharacters + 5).replace(/\s+\S*$/, "")}…`
+        : remaining
+    );
   }
   return lines.slice(0, maxLines);
 }
 
-function categoryArt(category: JobVisualCategory, accent: string) {
-  const circles = [[910,276],[961,252],[1014,278],[907,359],[961,382],[1017,356]];
-  if (category === "human-resources" || category === "talent") return `<g fill="none" stroke="${accent}"><circle cx="962" cy="320" r="44" fill="${accent}16"/><circle cx="962" cy="320" r="17" fill="${accent}24"/></g>${circles.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="9" fill="#252a23" stroke="${accent}" stroke-width="2"/>`).join("")}`;
-  if (category === "marketing") return `<g fill="none" stroke="${accent}"><circle cx="962" cy="320" r="85" opacity=".35"/><circle cx="962" cy="320" r="55" opacity=".7"/><circle cx="962" cy="320" r="24" fill="${accent}"/><path d="M962 320 L1031 275" stroke-width="3"/></g><circle cx="1031" cy="275" r="8" fill="${accent}"/>`;
-  if (category === "sales") return `<g fill="${accent}16" stroke="${accent}"><rect x="858" y="259" width="208" height="42" rx="8"/><rect x="881" y="313" width="162" height="42" rx="8"/><rect x="913" y="367" width="98" height="42" rx="8"/></g>`;
-  if (category === "finance") return `<g fill="${accent}">${[44,76,58,104,88,124].map((height,index) => `<rect x="${868 + index * 34}" y="${413 - height}" width="21" height="${height}" rx="4" opacity="${.45 + index * .09}"/>`).join("")}</g><path d="M854 414H1070" stroke="${accent}" opacity=".5"/>`;
-  if (category === "product") return `<path d="M854 330H1070" stroke="${accent}" opacity=".7"/>${[870,930,994,1055].map((x,index) => `<g><circle cx="${x}" cy="330" r="10" fill="#252a23" stroke="${accent}" stroke-width="2"/><text x="${x}" y="367" text-anchor="middle" class="micro">${["DISCOVER","DEFINE","BUILD","LEARN"][index]}</text></g>`).join("")}`;
-  if (category === "design") return `<rect x="855" y="247" width="215" height="155" rx="11" fill="#1d211c" stroke="${accent}"/><path d="M855 279H1070" stroke="${accent}" opacity=".45"/><rect x="873" y="300" width="68" height="80" rx="5" fill="${accent}12" stroke="${accent}" opacity=".65"/><rect x="956" y="300" width="95" height="80" rx="5" fill="${accent}18" stroke="${accent}"/>`;
-  if (category === "customer-success") return `<path d="M850 386 C890 386 890 270 934 310 S991 404 1025 333 1050 276 1072 287" fill="none" stroke="${accent}" stroke-width="3"/><g fill="${accent}"><circle cx="850" cy="386" r="6"/><circle cx="934" cy="310" r="6"/><circle cx="1025" cy="333" r="6"/><circle cx="1072" cy="287" r="6"/></g>`;
-  if (category === "audio-ai") return `<g fill="${accent}">${[28,54,88,42,72,116,62,37,92,67,46,84,52,31,64].map((height,index) => `<rect x="${858 + index * 14}" y="${320 - height/2}" width="7" height="${height}" rx="4" opacity="${.45 + (index%4)*.15}"/>`).join("")}</g>`;
-  if (category === "computer-vision") return `<rect x="850" y="250" width="220" height="150" rx="8" fill="none" stroke="${accent}" opacity=".3"/><rect x="877" y="278" width="105" height="82" fill="${accent}08" stroke="${accent}" stroke-width="3"/><rect x="997" y="305" width="54" height="46" fill="none" stroke="${accent}"/>`;
-  if (category === "machine-learning" || category === "llm") return `<g stroke="${accent}" opacity=".45">${circles.slice(0,5).map(([x,y],index) => `<path d="M962 320L${x} ${y}"/>`).join("")}</g><circle cx="962" cy="320" r="23" fill="${accent}22" stroke="${accent}" stroke-width="2"/>${circles.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="8" fill="#252a23" stroke="${accent}" stroke-width="2"/>`).join("")}`;
-  if (category === "security") return `<path d="M962 248 L1020 271 V329 C1020 373 992 402 962 416 C932 402 904 373 904 329 V271 Z" fill="${accent}12" stroke="${accent}" stroke-width="3"/><circle cx="962" cy="325" r="18" fill="none" stroke="${accent}"/><path d="M962 343V366" stroke="${accent}" stroke-width="4"/>`;
-  if (category === "backend" || category === "infrastructure" || category === "operations") return `${["API","QUEUE","MODEL","DATA"].map((label,index) => `<g><circle cx="${866 + index * 64}" cy="324" r="27" fill="${index === 2 ? `${accent}22` : "#252a23"}" stroke="${accent}"/><text x="${866 + index * 64}" y="328" text-anchor="middle" class="micro">${label}</text></g>`).join("")}`;
-  return `<circle cx="962" cy="320" r="82" fill="none" stroke="${accent}" opacity=".35"/><circle cx="962" cy="320" r="51" fill="none" stroke="${accent}"/><circle cx="962" cy="320" r="8" fill="${accent}"/>`;
+function resolveScene(sceneParam: string | null, category: JobVisualCategory): SceneKey {
+  if (sceneParam && sceneParam in sceneFiles) {
+    return sceneParam as SceneKey;
+  }
+  if (category === "computer-vision" || category === "machine-learning" || category === "llm") {
+    return "technology";
+  }
+  if (category === "security" || category === "product" || category === "design") {
+    return "aegis";
+  }
+  if (category === "backend" || category === "infrastructure" || category === "operations") {
+    return "engineering";
+  }
+  if (
+    category === "human-resources" ||
+    category === "talent" ||
+    category === "customer-success" ||
+    category === "sales"
+  ) {
+    return "contact";
+  }
+  return "about";
 }
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const title = cleanParam(url, "title", "Build what comes next", 120);
-  const department = cleanParam(url, "department", "DEVTECH AI CAREERS", 80);
-  const summary = cleanParam(url, "summary", "Build meaningful intelligent systems.", 160);
-  const location = cleanParam(url, "location", "Remote", 40);
-  const employment = cleanParam(url, "employment", "Open role", 40);
-  const skill = cleanParam(url, "skill", "Engineering", 40);
+  const mode = url.searchParams.get("mode") === "page" ? "page" : "job";
+  const title = cleanParam(
+    url,
+    "title",
+    mode === "page" ? "Intelligence that sees the world." : "Build what comes next",
+    110
+  );
+  const department = cleanParam(
+    url,
+    "department",
+    mode === "page" ? "DEVTECH AI · COMPUTER VISION & EDGE AI" : "DEVTECH AI CAREERS",
+    80
+  );
+  const summary = cleanParam(
+    url,
+    "summary",
+    "Computer vision models, low-latency Edge AI inference, smart devices, and vision software platforms.",
+    165
+  );
+  const location = cleanParam(url, "location", mode === "page" ? "Computer Vision" : "Remote", 38);
+  const employment = cleanParam(url, "employment", mode === "page" ? "On-Device Edge AI" : "Full-time", 38);
+  const skill = cleanParam(url, "skill", mode === "page" ? "AEGIS AI & Smart Devices" : "Vision & AI", 38);
   const category = normalizeVisualCategory(url.searchParams.get("category"));
-  const accentName = url.searchParams.get("accent") as keyof typeof accentColors;
-  const accent = accentColors[accentName] || accentColors.violet;
-  const arabic = url.searchParams.get("lang") === "ar";
-  const [regularFont, boldFont] = await fonts;
-  const titleLines = wrapWords(title, arabic ? 24 : 25, 2);
-  const summaryLines = wrapWords(summary, arabic ? 54 : 65, 2);
-  const textX = arabic ? 716 : 64;
+  const accentName = url.searchParams.get("accent") as keyof typeof accentPalette;
+  const palette = accentPalette[accentName] || accentPalette.blue;
+  const arabic = url.searchParams.get("lang") === "ar" || /[\u0600-\u06ff]/.test(title);
+  const scene = resolveScene(url.searchParams.get("scene"), category);
+
+  const etag = `"${createHash("sha1").update(`2027-v2:${url.search}`).digest("hex")}"`;
+  if (request.headers.get("if-none-match") === etag) {
+    return new Response(null, { status: 304, headers: { ETag: etag } });
+  }
+
+  const [[regularFont, boldFont], portraitDataUri] = await Promise.all([
+    fontsPromise,
+    getPortraitBase64(scene),
+  ]);
+
+  const titleLines = wrapWords(title, arabic ? 23 : 24, 2);
+  const summaryLines = wrapWords(summary, arabic ? 52 : 60, 2);
+  const textX = arabic ? 696 : 74;
   const anchor = "start";
   const direction = arabic ? "rtl" : "ltr";
-  const categoryLabel = arabic && arabicCategoryLabels[category] ? arabicCategoryLabels[category]! : jobVisualCategoryLabels[category].toUpperCase();
-  const hiring = arabic ? "فرصة متاحة" : "WE'RE HIRING";
-  const taskLabel = arabic ? "المهمة / 01" : "WHAT YOU'LL DO / 01";
-  const action = arabic ? "استكشف الفرصة" : "VIEW ROLE";
-  const titleY = titleLines.length === 1 ? 270 : 232;
-  const summaryLabelY = titleY + titleLines.length * 58 + 18;
-  const chipsY = summaryLabelY + summaryLines.length * 28 + 36;
-  const chips: Array<readonly [string, number]> = [[location, 0], [employment, 1], [skill, 2]];
-  const regular = regularFont.toString("base64");
-  const bold = boldFont.toString("base64");
-  const etag = `"${createHash("sha1").update(url.search).digest("hex")}"`;
-  if (request.headers.get("if-none-match") === etag) return new Response(null, {status: 304, headers: {ETag: etag}});
+
+  const defaultBadge =
+    mode === "page"
+      ? arabic
+        ? "الرؤية الحاسوبية وذكاء الحافة"
+        : "COMPUTER VISION & EDGE AI"
+      : arabic
+      ? "فرصة وظيفية متاحة"
+      : "WE'RE HIRING · OPEN ROLE";
+  const topBadge = cleanParam(url, "badge", defaultBadge, 36);
+
+  const taskLabel =
+    mode === "page"
+      ? arabic
+        ? "القدرات والتقنيات / 01"
+        : "CAPABILITIES & FOCUS / 01"
+      : arabic
+      ? "المهمة والدور / 01"
+      : "ROLE MISSION & IMPACT / 01";
+
+  const actionText =
+    mode === "page"
+      ? arabic
+        ? "استكشف الآن ↗"
+        : "EXPLORE DEVTECH AI ↗"
+      : arabic
+      ? "قدّم الآن ↗"
+      : "APPLY FOR THIS ROLE ↗";
+
+  const categoryLabel =
+    mode === "page"
+      ? cleanParam(url, "telemetry", "HUMAN-AI VISION · 60 FPS · 11.4ms", 42)
+      : arabic && arabicCategoryLabels[category]
+      ? arabicCategoryLabels[category]!
+      : jobVisualCategoryLabels[category].toUpperCase();
+
+  const titleFontSize = title.length > 46 ? 44 : title.length > 30 ? 50 : 56;
+  const titleY = titleLines.length === 1 ? 262 : 232;
+  const summaryLabelY = titleY + titleLines.length * (titleFontSize + 6) + 8;
+  const chipsY = summaryLabelY + summaryLines.length * 26 + 38;
+
+  const chips = [location, employment, skill].filter(Boolean);
+  let chipCursor = 0;
+  const chipElements = chips
+    .map((label, idx) => {
+      const width = Math.max(108, Math.min(230, Math.round(label.length * 8.4 + 34)));
+      const x = arabic ? -chipCursor - width : chipCursor;
+      chipCursor += width + 10;
+      const isPrimary = idx === 0;
+      return `<g transform="translate(${x} 0)">
+        <rect width="${width}" height="38" rx="19" fill="${
+          isPrimary ? "rgba(7, 84, 255, 0.1)" : "#FFFFFF"
+        }" stroke="${isPrimary ? "rgba(7, 84, 255, 0.42)" : "rgba(120, 145, 225, 0.38)"}" stroke-width="1.3"/>
+        <text x="${width / 2}" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="${
+          isPrimary ? "#0754FF" : "#1E294B"
+        }">${xml(label)}</text>
+      </g>`;
+    })
+    .join("");
+
+  const regularBase64 = regularFont.toString("base64");
+  const boldBase64 = boldFont.toString("base64");
 
   const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#ffffff" opacity=".035"/></pattern>
+      <linearGradient id="bg-grad" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#F6F8FF"/>
+        <stop offset="52%" stop-color="#ECF1FF"/>
+        <stop offset="100%" stop-color="#F2ECFF"/>
+      </linearGradient>
+      <radialGradient id="orb-blue" cx="78%" cy="22%" r="48%">
+        <stop offset="0%" stop-color="${palette.primary}" stop-opacity="0.18"/>
+        <stop offset="60%" stop-color="#35BEFF" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#F6F8FF" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="orb-violet" cx="18%" cy="84%" r="45%">
+        <stop offset="0%" stop-color="#873BFF" stop-opacity="0.14"/>
+        <stop offset="100%" stop-color="#F6F8FF" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="card-surface" x1="28" y1="24" x2="1172" y2="606" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+        <stop offset="60%" stop-color="#F7FAFF" stop-opacity="0.92"/>
+        <stop offset="100%" stop-color="#F3F0FF" stop-opacity="0.95"/>
+      </linearGradient>
+      <linearGradient id="brand-pill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#0754FF"/>
+        <stop offset="52%" stop-color="#3566FF"/>
+        <stop offset="100%" stop-color="#873BFF"/>
+      </linearGradient>
+      <linearGradient id="stage-dark" x1="736" y1="132" x2="1136" y2="464" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#07153E"/>
+        <stop offset="52%" stop-color="#0D2568"/>
+        <stop offset="100%" stop-color="#1E175A"/>
+      </linearGradient>
+      <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+        <path d="M44 0H0V44" fill="none" stroke="#1050FF" stroke-opacity="0.055"/>
+      </pattern>
+      <clipPath id="portrait-clip">
+        <rect x="752" y="176" width="368" height="220" rx="14"/>
+      </clipPath>
       <style>
-        @font-face{font-family:Almarai;src:url(data:font/ttf;base64,${regular});font-weight:400}
-        @font-face{font-family:Almarai;src:url(data:font/ttf;base64,${bold});font-weight:700}
-        text{font-family:Almarai,Arial,sans-serif;fill:#f7f8ef}.muted{fill:#aeb5a9}.accent{fill:${accent}}.dark{fill:#1b1e19}.micro{font-size:7px;font-weight:700;fill:#bec5ba}
+        @font-face{font-family:Almarai;src:url(data:font/ttf;base64,${regularBase64});font-weight:400}
+        @font-face{font-family:Almarai;src:url(data:font/ttf;base64,${boldBase64});font-weight:700}
+        text{font-family:Almarai,Arial,sans-serif}
       </style>
     </defs>
-    <rect width="1200" height="630" fill="#171a16"/><rect width="1200" height="630" fill="url(#grid)"/>
-    <circle cx="1040" cy="95" r="285" fill="none" stroke="${accent}" opacity=".28"/><circle cx="1040" cy="95" r="220" fill="none" stroke="#d1c4ff" opacity=".25"/>
-    <g transform="translate(64 58)"><rect y="18" width="7" height="13" rx="4" fill="${accent}"/><rect x="12" y="9" width="7" height="22" rx="4" fill="${accent}"/><rect x="24" width="7" height="31" rx="4" fill="${accent}"/><text x="46" y="27" font-size="23" font-weight="700">DEVTECH <tspan fill="${accent}">AI</tspan></text></g>
-    <g transform="translate(965 54)"><rect width="171" height="43" rx="22" fill="#252a23" stroke="${accent}" opacity=".95"/><circle cx="20" cy="21.5" r="4" fill="${accent}"/><text x="98" y="27" text-anchor="middle" direction="${direction}" font-size="14" font-weight="700" class="accent">${xml(hiring)}</text></g>
-    <circle cx="${arabic ? 716 : 67}" cy="185" r="5" fill="${accent}"/><text x="${arabic ? 700 : 84}" y="191" text-anchor="${anchor}" direction="${direction}" font-size="15" font-weight="700" letter-spacing="${arabic ? 0 : 1.6}" class="muted">${xml(department.toUpperCase())}</text>
-    <text x="${textX}" y="${titleY}" text-anchor="${anchor}" direction="${direction}" unicode-bidi="embed" font-size="${title.length > 46 ? 45 : title.length > 30 ? 52 : 62}" font-weight="700">${titleLines.map((line,index) => `<tspan x="${textX}" dy="${index ? 58 : 0}">${xml(line)}</tspan>`).join("")}</text>
-    <text x="${textX}" y="${summaryLabelY}" text-anchor="${anchor}" direction="${direction}" font-size="9" font-weight="700" letter-spacing="${arabic ? 0 : 1.2}" class="accent">${xml(taskLabel)}</text>
-    <text x="${textX}" y="${summaryLabelY + 27}" text-anchor="${anchor}" direction="${direction}" unicode-bidi="embed" font-size="15" font-weight="400" class="muted">${summaryLines.map((line,index) => `<tspan x="${textX}" dy="${index ? 26 : 0}">${xml(line)}</tspan>`).join("")}</text>
-    <g transform="translate(${arabic ? 716 : 64} ${chipsY})" direction="${direction}">${chips.map(([label,index]) => { const width = Math.max(82, label.length * 8.5 + 28); const offset = index === 0 ? 0 : index === 1 ? 96 : 206; const x = arabic ? -offset - width : offset; return `<g transform="translate(${x} 0)"><rect width="${width}" height="36" rx="18" fill="#ffffff08" stroke="#ffffff26"/><text x="${width/2}" y="23" text-anchor="middle" font-size="12" font-weight="700" class="${index < 2 ? "" : "muted"}">${xml(label)}</text></g>`;}).join("")}</g>
-    <g><rect x="792" y="150" width="344" height="292" rx="18" fill="#252a23" opacity=".99" stroke="#ffffff" stroke-opacity=".14"/><text x="${arabic ? 1110 : 815}" y="181" text-anchor="${anchor}" direction="${direction}" font-size="10" font-weight="700" letter-spacing="${arabic ? 0 : 1.2}" class="muted">${arabic ? "ذكاء الدور" : "AI ROLE SIGNAL"}</text><circle cx="1109" cy="176" r="4" fill="${accent}"/><text x="${arabic ? 1110 : 815}" y="210" text-anchor="${anchor}" font-size="17" font-weight="700" class="accent" direction="${direction}">${xml(categoryLabel)}</text>${categoryArt(category,accent)}</g>
-    <path d="M64 496H1136" stroke="#ffffff" opacity=".14"/><text x="64" y="557" font-size="14" class="muted">${arabic ? "هندسة ذكية. أثر حقيقي." : "Engineering intelligence with precision."}</text>
-    <g transform="translate(962 523)"><rect width="174" height="53" rx="27" fill="${accent}"/><text x="74" y="33" text-anchor="middle" direction="${direction}" font-size="14" font-weight="700" class="dark">${xml(action)}</text><circle cx="146" cy="26.5" r="19" fill="#1b1e19"/><text x="146" y="33" text-anchor="middle" font-size="20">+</text></g>
+
+    <!-- Background Canvas -->
+    <rect width="1200" height="630" fill="url(#bg-grad)"/>
+    <rect width="1200" height="630" fill="url(#orb-blue)"/>
+    <rect width="1200" height="630" fill="url(#orb-violet)"/>
+    <rect width="1200" height="630" fill="url(#grid)"/>
+
+    <!-- Outer Glassmorphic Card Frame -->
+    <rect x="28" y="24" width="1144" height="582" rx="28" fill="url(#card-surface)" stroke="rgba(120, 145, 225, 0.38)" stroke-width="1.5"/>
+
+    <!-- Top Decorative Accent Bar -->
+    <rect x="74" y="24" width="220" height="4" rx="2" fill="url(#brand-pill)"/>
+
+    <!-- TOP HEADER: Brand Identity + Status Pill -->
+    <g transform="translate(74 56)">
+      <rect width="42" height="42" rx="12" fill="url(#brand-pill)"/>
+      <path d="M13 13H22C26.5 13 30 16.5 30 21C30 25.5 26.5 29 22 29H13V13Z" fill="none" stroke="#FFFFFF" stroke-width="2.6"/>
+      <circle cx="21.5" cy="21" r="3.2" fill="#5CE1FF"/>
+      <text x="56" y="23" font-size="22" font-weight="700" fill="#080D21">DevTech <tspan fill="#0754FF">AI</tspan></text>
+      <text x="56" y="39" font-size="10.5" font-weight="700" letter-spacing="1.4" fill="#526285">COMPUTER VISION &amp; EDGE INTELLIGENCE</text>
+    </g>
+
+    <!-- Top Right Pill -->
+    <g transform="translate(866 56)">
+      <rect width="258" height="40" rx="20" fill="#F0F5FF" stroke="rgba(16, 80, 255, 0.32)" stroke-width="1.3"/>
+      <circle cx="22" cy="20" r="5" fill="#10B981"/>
+      <circle cx="22" cy="20" r="9" fill="#10B981" fill-opacity="0.22"/>
+      <text x="138" y="25" text-anchor="middle" direction="${direction}" font-size="11.5" font-weight="700" letter-spacing="${arabic ? 0 : 1.1}" fill="#0754FF">${xml(topBadge)}</text>
+    </g>
+
+    <!-- LEFT COLUMN: Kicker, Headline, Mission Summary & Metadata Chips -->
+    <g>
+      <rect x="${arabic ? 696 - Math.max(190, Math.round(department.length * 8.6 + 44)) : 74}" y="132" width="${Math.max(190, Math.round(department.length * 8.6 + 44))}" height="28" rx="14" fill="rgba(16, 80, 255, 0.08)" stroke="rgba(16, 80, 255, 0.22)" stroke-width="1"/>
+      <circle cx="${arabic ? 680 : 90}" cy="146" r="4.5" fill="#0754FF"/>
+      <text x="${arabic ? 666 : 104}" y="151" text-anchor="${anchor}" direction="${direction}" font-size="11.5" font-weight="700" letter-spacing="${arabic ? 0 : 1.2}" fill="#0754FF">${xml(department.toUpperCase())}</text>
+
+      <!-- Main Title -->
+      <text x="${textX}" y="${titleY}" text-anchor="${anchor}" direction="${direction}" unicode-bidi="embed" font-size="${titleFontSize}" font-weight="700" fill="#080D21">
+        ${titleLines
+          .map(
+            (line, index) =>
+              `<tspan x="${textX}" dy="${index ? titleFontSize + 6 : 0}">${xml(line)}</tspan>`
+          )
+          .join("")}
+      </text>
+
+      <!-- Mission / Overview Callout -->
+      <rect x="${arabic ? 692 : 74}" y="${summaryLabelY - 12}" width="3.5" height="${summaryLines.length * 26 + 26}" rx="2" fill="url(#brand-pill)"/>
+      <text x="${arabic ? 680 : 90}" y="${summaryLabelY}" text-anchor="${anchor}" direction="${direction}" font-size="10.5" font-weight="700" letter-spacing="${arabic ? 0 : 1.2}" fill="#0754FF">${xml(taskLabel)}</text>
+      <text x="${arabic ? 680 : 90}" y="${summaryLabelY + 25}" text-anchor="${anchor}" direction="${direction}" unicode-bidi="embed" font-size="15.5" font-weight="400" fill="#465473">
+        ${summaryLines
+          .map((line, index) => `<tspan x="${arabic ? 680 : 90}" dy="${index ? 25 : 0}">${xml(line)}</tspan>`)
+          .join("")}
+      </text>
+
+      <!-- Metadata Pills -->
+      <g transform="translate(${arabic ? 696 : 74} ${chipsY})" direction="${direction}">
+        ${chipElements}
+      </g>
+    </g>
+
+    <!-- RIGHT COLUMN: 2027 Human-AI Eye-Contact & Computer Vision HUD Stage -->
+    <g>
+      <!-- Outer Glass Glow Frame -->
+      <rect x="730" y="126" width="402" height="346" rx="24" fill="#E6EEFF" stroke="rgba(16, 80, 255, 0.28)" stroke-width="1.5"/>
+      <!-- Deep Sapphire Inner Stage -->
+      <rect x="738" y="134" width="386" height="330" rx="18" fill="url(#stage-dark)" stroke="rgba(92, 225, 255, 0.45)" stroke-width="1.2"/>
+
+      <!-- Stage Top Chrome -->
+      <circle cx="758" cy="155" r="4" fill="#35F2A6"/>
+      <text x="770" y="159" font-size="10" font-weight="700" letter-spacing="1.1" fill="#E8F6FF">HUMAN-AI EYE CONTACT · LIVE HUD</text>
+      <text x="1044" y="159" font-size="9.5" font-weight="700" fill="#5CE1FF">99.4% LOCK</text>
+
+      <!-- Photorealistic Human-AI Eye-Contact Portrait -->
+      ${
+        portraitDataUri
+          ? `<image href="${portraitDataUri}" x="752" y="176" width="368" height="220" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>`
+          : `<rect x="752" y="176" width="368" height="220" rx="14" fill="#102A72"/>`
+      }
+
+      <!-- Translucent HUD Vignette & Corner Brackets over Portrait -->
+      <rect x="752" y="176" width="368" height="220" rx="14" fill="none" stroke="rgba(92, 225, 255, 0.55)" stroke-width="1.4"/>
+      <path d="M766 202V188H780M1106 202V188H1092M766 370V384H780M1106 370V384H1092" fill="none" stroke="#5CE1FF" stroke-width="2.2" stroke-linecap="round"/>
+
+      <!-- Subtle Optical Iris Reticle -->
+      <circle cx="936" cy="276" r="46" fill="none" stroke="rgba(92, 225, 255, 0.55)" stroke-width="1.3" stroke-dasharray="5 4"/>
+      <circle cx="936" cy="276" r="62" fill="none" stroke="rgba(165, 130, 255, 0.42)" stroke-width="1.1"/>
+      <path d="M880 276H892M980 276H992M936 220V232M936 320V332" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.3" stroke-linecap="round"/>
+
+      <!-- Bottom Telemetry Bar inside Sapphire Stage -->
+      <rect x="752" y="408" width="368" height="42" rx="11" fill="rgba(7, 18, 54, 0.86)" stroke="rgba(92, 225, 255, 0.38)" stroke-width="1"/>
+      <circle cx="772" cy="429" r="4.5" fill="#35BEFF"/>
+      <text x="786" y="433" font-size="11.5" font-weight="700" fill="#FFFFFF">${xml(categoryLabel)}</text>
+      <text x="1046" y="433" font-size="10" font-weight="700" fill="#35F2A6">EDGE NPU</text>
+    </g>
+
+    <!-- FOOTER BAR -->
+    <line x1="74" y1="498" x2="1126" y2="498" stroke="rgba(120, 145, 225, 0.28)" stroke-width="1.2"/>
+    <text x="74" y="552" font-size="14.5" font-weight="700" fill="#080D21">
+      Intelligence that sees the world. <tspan font-weight="400" fill="#526285">· Computer Vision, Edge AI &amp; Smart Devices</tspan>
+    </text>
+
+    <!-- CTA Pill Button -->
+    <g transform="translate(888 520)">
+      <rect width="238" height="50" rx="25" fill="url(#brand-pill)"/>
+      <text x="119" y="31" text-anchor="middle" direction="${direction}" font-size="13.5" font-weight="700" letter-spacing="${arabic ? 0 : 0.8}" fill="#FFFFFF">${xml(actionText)}</text>
+    </g>
   </svg>`;
 
-  const image = await sharp(Buffer.from(svg)).png({compressionLevel: 9, palette: true}).toBuffer();
+  const image = await sharp(Buffer.from(svg))
+    .png({ compressionLevel: 9, quality: 92 })
+    .toBuffer();
+
   return new Response(new Uint8Array(image), {
     headers: {
       "Content-Type": "image/png",
       "Content-Length": String(image.byteLength),
-      "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
-      "CDN-Cache-Control": "public, max-age=31536000, immutable",
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
       "X-Content-Type-Options": "nosniff",
       ETag: etag,
     },

@@ -7,6 +7,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { Job } from "@/lib/data";
+import { JobShareActions } from "@/components/job-share-actions";
 
 function formatLocationAndMode(location?: string, workMode?: string): string {
   const loc = (location || "").trim();
@@ -268,12 +269,13 @@ export function CareersDirectory({
               </div>
             </div>
 
-            {/* Right Area: View Position Button */}
+            {/* Right Area: View Position Button & Quick WhatsApp Share */}
             <div className="dt-job-card-right">
               <Link href={`/careers/${job.slug}`} className="dt-job-view-btn">
                 <span>{arabic ? "عرض الوظيفة" : "View position"}</span>
                 <ArrowUpRight size={16} />
               </Link>
+              <JobShareActions slug={job.slug} title={job.title} compact />
             </div>
           </article>
         );

@@ -7,12 +7,22 @@ import { getLocale } from "@/lib/locale";
 import { CareersDirectory } from "@/components/careers-directory";
 import { HeroArtwork } from "@/components/home/HeroArtwork";
 import { GlassSurface } from "@/components/ui/GlassSurface";
+import { createPageMetadata } from "@/lib/social-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Careers — Build the Next Generation of Intelligent Vision",
   description:
     "Join DevTech AI in developing computer vision models, edge intelligence systems, and the software powering intelligent devices.",
-};
+  path: "/careers",
+  eyebrow: "DEVTECH AI / CAREERS",
+  badge: "WE'RE HIRING · OPEN POSITIONS",
+  headline: "Build the next generation of intelligent vision.",
+  summary:
+    "Explore opportunities in Computer Vision, Machine Learning, Edge AI Optimization, Embedded Systems, Backend, Mobile, and Hardware.",
+  chips: ["Computer Vision & ML", "Edge AI & Embedded", "Platform & Mobile"],
+  scene: "engineering",
+  telemetry: "JOIN OUR ENGINEERING TEAM",
+});
 
 export default async function CareersPage() {
   const [locale, listing, productsResult] = await Promise.all([
