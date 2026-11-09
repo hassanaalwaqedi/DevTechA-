@@ -43,10 +43,10 @@ export function JobShareActions({
     if (!url) return;
     if (navigator.share) {
       await navigator.share({
-        title: ar ? `فرصة وظيفية في DevTech AI: ${title}` : `We’re hiring: ${title} at DevTech AI`,
+        title: ar ? `فرصة وظيفية في HIRZEXA: ${title}` : `We’re hiring: ${title} at HIRZEXA`,
         text: ar
-          ? `استكشف وظيفة ${title} لدى DevTech AI وقدّم الآن:`
-          : `Explore the ${title} role at DevTech AI — Computer Vision & Edge Intelligence:`,
+          ? `استكشف وظيفة ${title} لدى HIRZEXA وقدّم الآن:`
+          : `Explore the ${title} role at HIRZEXA — Computer Vision & Edge Intelligence:`,
         url,
       });
       return;
@@ -55,13 +55,13 @@ export function JobShareActions({
   }
 
   const whatsappMessage = ar
-    ? `✨ *DevTech AI — شركة الرؤية الحاسوبية وذكاء الحافة*\n📌 *فرصة وظيفية:* ${title}\nاستكشف التفاصيل وقدّم الآن:\n${url}`
-    : `✨ *DevTech AI — Computer Vision & Edge Intelligence*\n📌 *We’re Hiring:* ${title}\nExplore the role & apply:\n${url}`;
+    ? `✨ *HIRZEXA — شركة الرؤية الحاسوبية وذكاء الحافة*\n📌 *فرصة وظيفية:* ${title}\nاستكشف التفاصيل وقدّم الآن:\n${url}`
+    : `✨ *HIRZEXA — Computer Vision & Edge Intelligence*\n📌 *We’re Hiring:* ${title}\nExplore the role & apply:\n${url}`;
 
   const encodedUrl = encodeURIComponent(url);
   const encodedWhatsapp = encodeURIComponent(whatsappMessage);
   const encodedTweet = encodeURIComponent(
-    ar ? `فرصة وظيفية في DevTech AI: ${title}` : `We’re hiring: ${title} at DevTech AI`
+    ar ? `فرصة وظيفية في HIRZEXA: ${title}` : `We’re hiring: ${title} at HIRZEXA`
   );
 
   return (

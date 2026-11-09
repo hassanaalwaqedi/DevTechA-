@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   const department = cleanParam(
     url,
     "department",
-    mode === "page" ? "DEVTECH AI · COMPUTER VISION & EDGE AI" : "DEVTECH AI CAREERS",
+    mode === "page" ? "HIRZEXA · COMPUTER VISION & EDGE AI" : "HIRZEXA CAREERS",
     80
   );
   const summary = cleanParam(

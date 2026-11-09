@@ -3,12 +3,12 @@ import { ArrowUpRight, Cpu, GitBranch, Network, Sparkles } from "lucide-react";
 
 export function AiArchitectShowcase({arabic = false}: {arabic?: boolean}) {
   const copy = arabic ? {
-    eyebrow: "ذكاء ديف تك", title: "فكرتك الكبيرة القادمة تبدأ بهندسة ذكية.",
+    eyebrow: "ذكاء HIRZEXA", title: "فكرتك الكبيرة القادمة تبدأ بهندسة ذكية.",
     description: "حوّل تحدي عملك إلى مخطّط هندسي منظم. يساعدك معماري حلول الذكاء الاصطناعي على استكشاف التقنيات، وتحديد المتطلبات، وتصميم أسس نظامك الذكي القادم.",
     launch: "ابدأ مع معماري الذكاء", how: "اكتشف كيف يعمل", input: "تحدي العمل", process: "تحليل هندسي", output: "مخطّط تقني",
     prompt: "صف الفكرة والبيانات والقيود…", analysing: "تحليل المتطلبات", architecture: "تصميم البنية", risks: "تحديد المخاطر", ready: "الموجز جاهز للمراجعة",
   } : {
-    eyebrow: "DEVTECH INTELLIGENCE", title: "Your Next Big Idea Starts With Intelligent Engineering.",
+    eyebrow: "HIRZEXA / VISUAL INTELLIGENCE", title: "Your Next Big Idea Starts With Intelligent Engineering.",
     description: "Turn your business challenge into a structured engineering blueprint. Our AI Solutions Architect helps you explore technologies, define requirements, and design the foundations of your next intelligent system.",
     launch: "Launch AI Architect", how: "See How It Works", input: "Business challenge", process: "Engineering analysis", output: "Technical blueprint",
     prompt: "Describe the idea, data, and constraints…", analysing: "Requirements analysis", architecture: "Architecture design", risks: "Risk discovery", ready: "Brief ready for review",

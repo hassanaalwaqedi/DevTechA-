@@ -29,7 +29,7 @@ body:has(.admin-shell) { background: #121512; }
 }
 
 .admin-side .brand { display: inline-flex; align-items: center; gap: 9px; color: #f7f8ef; font-size: 15px; font-weight: 800; letter-spacing: -.02em; }
-.admin-side .brand-mark { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: #dbff53; color: #151812; font-size: 12px; }
+.admin-side .brand-mark { display: block; width: 28px; height: 28px; border-radius: 8px; object-fit: cover; }
 .admin-side nav { display: grid; gap: 6px; }
 .admin-side nav a { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 9px; color: #aeb4a8; font-size: 13px; font-weight: 650; transition: background .2s, color .2s, transform .2s; }
 .admin-side nav a:hover { color: #f7f8ef; background: #ffffff0c; transform: translateX(2px); }

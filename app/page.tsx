@@ -8,18 +8,18 @@ import { CapabilitiesSection } from "@/components/home/CapabilitiesSection";
 import { createPageMetadata } from "@/lib/social-metadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "DevTech AI — Computer Vision & Edge Intelligence",
+  title: "HIRZEXA | Computer Vision & Edge AI Technologies",
   description:
-    "Intelligence that sees the world. We build computer vision and Edge AI technologies that turn cameras and devices into intelligent systems — from real-time perception to actionable insights.",
+    "HIRZEXA develops computer vision and Edge AI technologies for intelligent cameras, devices, and real-world visual intelligence applications.",
   path: "/",
-  eyebrow: "DEVTECH AI · COMPUTER VISION & EDGE AI",
+  eyebrow: "HIRZEXA · COMPUTER VISION · EDGE INTELLIGENCE",
   badge: "INTELLIGENCE THAT SEES THE WORLD",
   headline: "Intelligence that sees the world.",
   summary:
-    "We build computer vision models, low-latency Edge AI inference systems, smart hardware devices, and vision software platforms.",
+    "We build computer vision and Edge AI technologies that turn cameras and devices into intelligent systems — from real-time perception to actionable insights.",
   chips: ["Computer Vision", "On-Device Edge AI", "AEGIS AI & Smart Devices"],
   scene: "technology",
-  telemetry: "OPTICAL PERCEPTION · 60 FPS · 11.4ms",
+  telemetry: "OPTICAL PERCEPTION · ON-DEVICE AI",
 });
 
 export default async function Home() {

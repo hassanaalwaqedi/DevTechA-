@@ -6,6 +6,7 @@ import { getJobBySlug } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { JobShareActions } from "@/components/job-share-actions";
 import { JobVisualization } from "@/components/job-visualization";
+import { warmJobCard } from "@/lib/social-card-renderer";
 
 function formatDate(value: string | undefined, locale: "en" | "ar") {
   return value ? new Date(`${value}T12:00:00Z`).toLocaleDateString(locale === "ar" ? "ar" : "en-US", {month: "long", day: "numeric", year: "numeric"}) : "";
@@ -27,19 +28,20 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
   const job = await getJobBySlug(slug);
   if (!job) return {title: "Position not found"};
   const isArabic = /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/.test(job.title);
-  const title = isArabic ? `فرصة مهنية في DevTech AI: ${job.title}` : `We’re hiring: ${job.title}`;
+  const title = isArabic ? `فرصة مهنية في HIRZEXA: ${job.title}` : `We’re hiring: ${job.title}`;
   const details = Array.from(new Set([job.location, job.workMode, job.employmentType].filter(Boolean))).join(" · ");
   const roleSummary = socialExcerpt(job.description);
   const description = isArabic
     ? `${roleSummary} ${details}. تعرّف على التفاصيل وقدّم الآن.`
     : `${roleSummary} ${details}. Explore the role and apply.`;
   const url = `/careers/${job.slug}`;
+  warmJobCard(job);
   const image = `/og/jobs/${encodeURIComponent(job.slug)}.jpg?v=4`;
   return {
-    title: `${job.title} | DevTech AI Careers`,
+    title: `${job.title} | HIRZEXA Careers`,
     description,
     alternates: {canonical: url},
-    openGraph: {title, description, type: "website", url, siteName: "DevTech AI", locale: isArabic ? "ar_AR" : "en_US", images: [{url: image, width: 1200, height: 630, type: "image/jpeg", alt: isArabic ? `${job.title} — فرصة مهنية لدى DevTech AI` : `${job.title} — DevTech AI is hiring`}]},
+    openGraph: {title, description, type: "website", url, siteName: "HIRZEXA", locale: isArabic ? "ar_AR" : "en_US", images: [{url: image, width: 1200, height: 630, type: "image/jpeg", alt: isArabic ? `${job.title} — فرصة مهنية لدى HIRZEXA` : `${job.title} — HIRZEXA is hiring`}]},
     twitter: {card: "summary_large_image", title, description, images: [image]},
   };
 }
@@ -57,7 +59,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
   const closed = isPastDeadline(job.deadline);
   const shareRevision = `v4`;
   const copy = ar ? {
-    eyebrow: "وظائف DEVTECH AI",
+    eyebrow: "وظائف HIRZEXA",
     apply: "قدّم الآن",
     closed: "أُغلق التقديم لهذه الوظيفة.",
     concept: "تصور توضيحي لمجال العمل — وليس مخرجات نموذج حقيقية",
@@ -77,7 +79,7 @@ export default async function JobPage({params}: {params: Promise<{slug: string}>
     deadline: "آخر موعد للتقديم",
     compensationNote: "ملاحظة حول التعويض",
   } : {
-    eyebrow: "DEVTECH AI CAREERS",
+    eyebrow: "HIRZEXA CAREERS",
     apply: "Apply for this role",
     closed: "Applications for this position are closed.",
     concept: "Conceptual role illustration — not real model output",

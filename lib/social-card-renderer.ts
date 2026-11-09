@@ -25,30 +25,10 @@ const fontsBase64Promise = (async () => {
   };
 })();
 
-const portraitCache = new Map<SceneKey, Promise<string>>();
+const logoDataUriPromise = readFile(join(process.cwd(), "public", "brand", "hirzexa-mark.png"))
+  .then((data) => `data:image/png;base64,${data.toString("base64")}`);
+
 const renderedCardCache = new Map<string, Buffer>();
-
-function getPortraitBase64(scene: SceneKey): Promise<string> {
-  const cached = portraitCache.get(scene);
-  if (cached) return cached;
-
-  const promise = (async () => {
-    try {
-      const filePath = join(process.cwd(), "public", sceneFiles[scene]);
-      const raw = await readFile(filePath);
-      const resized = await sharp(raw)
-        .resize(372, 224, { fit: "cover", position: "attention" })
-        .jpeg({ quality: 84 })
-        .toBuffer();
-      return `data:image/jpeg;base64,${resized.toString("base64")}`;
-    } catch {
-      return "";
-    }
-  })();
-
-  portraitCache.set(scene, promise);
-  return promise;
-}
 
 const accentPalette = {
   lime: { primary: "#0754FF", secondary: "#35BEFF" },
@@ -164,14 +144,13 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
   if (cached) return cached;
 
   const category = input.category || "computer-vision";
-  const scene = input.scene || resolveSceneForCategory(null, category);
   const arabic = Boolean(input.arabic || /[\u0600-\u06ff]/.test(input.title));
   const palette =
     accentPalette[(input.accent as keyof typeof accentPalette) || "blue"] || accentPalette.blue;
 
-  const [{ regularBase64, boldBase64 }, portraitDataUri] = await Promise.all([
+  const [{ regularBase64, boldBase64 }, logoDataUri] = await Promise.all([
     fontsBase64Promise,
-    getPortraitBase64(scene),
+    logoDataUriPromise,
   ]);
 
   const titleLines = wrapWords(input.title, arabic ? 23 : 24, 2);
@@ -203,14 +182,14 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
     input.mode === "page"
       ? arabic
         ? "استكشف الآن ↗"
-        : "EXPLORE DEVTECH AI ↗"
+        : "EXPLORE HIRZEXA ↗"
       : arabic
       ? "قدّم الآن ↗"
       : "APPLY FOR THIS ROLE ↗";
 
   const categoryLabel =
     input.mode === "page"
-      ? (input.telemetry || "HUMAN-AI VISION · 60 FPS · 11.4ms").slice(0, 42)
+      ? (input.telemetry || "HUMAN-AI VISION · REAL TIME · ON DEVICE").slice(0, 42)
       : arabic && arabicCategoryLabels[category]
       ? arabicCategoryLabels[category]!
       : (jobVisualCategoryLabels[category] || "Computer Vision & Edge AI").toUpperCase();
@@ -277,9 +256,6 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
       <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
         <path d="M44 0H0V44" fill="none" stroke="#1050FF" stroke-opacity="0.055"/>
       </pattern>
-      <clipPath id="portrait-clip">
-        <rect x="752" y="176" width="368" height="220" rx="14"/>
-      </clipPath>
       <style>
         @font-face{font-family:Almarai;src:url(data:font/ttf;base64,${regularBase64});font-weight:400}
         @font-face{font-family:Almarai;src:url(data:font/ttf;base64,${boldBase64});font-weight:700}
@@ -296,10 +272,8 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
     <rect x="74" y="24" width="220" height="4" rx="2" fill="url(#brand-pill)"/>
 
     <g transform="translate(74 56)">
-      <rect width="42" height="42" rx="12" fill="url(#brand-pill)"/>
-      <path d="M13 13H22C26.5 13 30 16.5 30 21C30 25.5 26.5 29 22 29H13V13Z" fill="none" stroke="#FFFFFF" stroke-width="2.6"/>
-      <circle cx="21.5" cy="21" r="3.2" fill="#5CE1FF"/>
-      <text x="56" y="23" font-size="22" font-weight="700" fill="#080D21">DevTech <tspan fill="#0754FF">AI</tspan></text>
+      <image href="${logoDataUri}" x="0" y="0" width="42" height="42"/>
+      <text x="56" y="23" font-size="22" font-weight="700" fill="#080D21">HIRZEXA</text>
       <text x="56" y="39" font-size="10.5" font-weight="700" letter-spacing="1.4" fill="#526285">COMPUTER VISION &amp; EDGE INTELLIGENCE</text>
     </g>
 
@@ -355,21 +329,31 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
       <rect x="738" y="134" width="386" height="330" rx="18" fill="url(#stage-dark)" stroke="rgba(92, 225, 255, 0.45)" stroke-width="1.2"/>
 
       <circle cx="758" cy="155" r="4" fill="#35F2A6"/>
-      <text x="770" y="159" font-size="10" font-weight="700" letter-spacing="1.1" fill="#E8F6FF">HUMAN-AI EYE CONTACT · LIVE HUD</text>
-      <text x="1044" y="159" font-size="9.5" font-weight="700" fill="#5CE1FF">99.4% LOCK</text>
+      <text x="770" y="159" font-size="10" font-weight="700" letter-spacing="1.1" fill="#E8F6FF">CAMERA · VISION · EDGE AI</text>
+      <text x="1044" y="159" font-size="9.5" font-weight="700" fill="#5CE1FF">SYSTEM VIEW</text>
 
-      ${
-        portraitDataUri
-          ? `<image href="${portraitDataUri}" x="752" y="176" width="368" height="220" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>`
-          : `<rect x="752" y="176" width="368" height="220" rx="14" fill="#102A72"/>`
-      }
+      <rect x="752" y="176" width="368" height="220" rx="14" fill="#0A1D53"/>
+      <path d="M752 232H1120M752 288H1120M752 344H1120M808 176V396M864 176V396M920 176V396M976 176V396M1032 176V396M1088 176V396" stroke="#5CE1FF" stroke-opacity="0.1"/>
+      <rect x="774" y="240" width="94" height="72" rx="12" fill="#1648A5" stroke="#5CE1FF" stroke-width="2"/>
+      <rect x="786" y="229" width="40" height="12" rx="5" fill="#35BEFF"/>
+      <circle cx="823" cy="276" r="24" fill="#0A1D53" stroke="#72E4FF" stroke-width="3"/>
+      <circle cx="823" cy="276" r="12" fill="#1354CC" stroke="#A7EBFF" stroke-width="2"/>
+      <circle cx="817" cy="270" r="3" fill="#FFFFFF"/>
+      <path d="M868 276H900M980 276H1018" stroke="#6BDBFF" stroke-width="2.5" stroke-dasharray="6 5"/>
+      <path d="M892 270L900 276L892 282M1010 270L1018 276L1010 282" fill="none" stroke="#6BDBFF" stroke-width="2"/>
+      <rect x="902" y="218" width="78" height="116" rx="8" fill="#102A72" stroke="#A579FF" stroke-width="2"/>
+      <rect x="909" y="230" width="64" height="91" rx="3" fill="none" stroke="#5CE1FF" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <circle cx="941" cy="252" r="8" fill="#A579FF"/>
+      <path d="M941 261V292M941 270L924 282M941 270L958 282M941 292L928 309M941 292L954 309" stroke="#7CE7FF" stroke-width="3" stroke-linecap="round"/>
+      <rect x="1018" y="235" width="78" height="82" rx="13" fill="#31257E" stroke="#A579FF" stroke-width="2"/>
+      <rect x="1037" y="253" width="40" height="46" rx="6" fill="#0A1D53" stroke="#72E4FF" stroke-width="1.5"/>
+      <path d="M1043 263H1071M1043 273H1071M1043 283H1071" stroke="#5CE1FF" stroke-width="2"/>
+      <text x="792" y="358" font-size="10" font-weight="700" fill="#DDEEFF">CAMERA</text>
+      <text x="914" y="358" font-size="10" font-weight="700" fill="#DDEEFF">DETECT</text>
+      <text x="1034" y="358" font-size="10" font-weight="700" fill="#DDEEFF">EDGE AI</text>
 
       <rect x="752" y="176" width="368" height="220" rx="14" fill="none" stroke="rgba(92, 225, 255, 0.55)" stroke-width="1.4"/>
       <path d="M766 202V188H780M1106 202V188H1092M766 370V384H780M1106 370V384H1092" fill="none" stroke="#5CE1FF" stroke-width="2.2" stroke-linecap="round"/>
-
-      <circle cx="936" cy="276" r="46" fill="none" stroke="rgba(92, 225, 255, 0.55)" stroke-width="1.3" stroke-dasharray="5 4"/>
-      <circle cx="936" cy="276" r="62" fill="none" stroke="rgba(165, 130, 255, 0.42)" stroke-width="1.1"/>
-      <path d="M880 276H892M980 276H992M936 220V232M936 320V332" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.3" stroke-linecap="round"/>
 
       <rect x="752" y="408" width="368" height="42" rx="11" fill="rgba(7, 18, 54, 0.86)" stroke="rgba(92, 225, 255, 0.38)" stroke-width="1"/>
       <circle cx="772" cy="429" r="4.5" fill="#35BEFF"/>
@@ -404,3 +388,49 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
   return buffer;
 }
 
+
+type JobLike = {
+  title: string;
+  department?: string;
+  description?: string;
+  responsibilities?: string[];
+  location?: string;
+  workMode?: string;
+  employmentType?: string;
+  skills?: string[];
+  visualCategory?: JobVisualCategory;
+  accentColor?: string;
+};
+
+function jobExcerpt(value: string, limit = 135) {
+  const clean = value.replace(/\s+/g, " ").trim();
+  if (clean.length <= limit) return clean;
+  const clipped = clean.slice(0, limit + 1).replace(/\s+\S*$/, "").trim();
+  return `${clipped || clean.slice(0, limit).trim()}…`;
+}
+
+export function buildJobCardInput(job: JobLike | null | undefined, format: "jpeg" | "png" = "jpeg"): SocialCardRenderInput {
+  const title = job?.title || "Engineer the Systems Behind Intelligent Vision";
+  return {
+    mode: "job",
+    title,
+    department: job?.department || "HIRZEXA CAREERS",
+    summary: jobExcerpt(
+      job?.responsibilities?.[0] ||
+        job?.description ||
+        "Join HIRZEXA in building computer vision models, Edge AI inference systems, and intelligent devices."
+    ),
+    location: job ? `${job.location} · ${job.workMode}` : "Remote · Global",
+    employment: job?.employmentType || "Full-time",
+    skill: job?.skills?.[0] || "Computer Vision & AI",
+    category: job?.visualCategory || "computer-vision",
+    accent: job?.accentColor || "blue",
+    arabic: /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/.test(title),
+    format,
+  };
+}
+
+/** Fire-and-forget: render the job card into the in-memory cache so crawlers get it instantly. */
+export function warmJobCard(job: JobLike | null | undefined) {
+  void renderSocialCardBuffer(buildJobCardInput(job)).catch(() => undefined);
+}

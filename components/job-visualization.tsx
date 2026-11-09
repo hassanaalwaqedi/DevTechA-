@@ -26,7 +26,7 @@ export function JobVisualization({category, accent = "violet", variant = "geomet
 
   const accessibleLabel = label || `${jobVisualCategoryLabels[category]} conceptual role visualization; illustrative and not model output`;
   if (category === "disabled") {
-    return <div ref={rootRef} className={`role-visual role-visual-static accent-${accent}`} role="img" aria-label={accessibleLabel}><span className="rv-static-mark">DEVTECH / ROLE</span></div>;
+    return <div ref={rootRef} className={`role-visual role-visual-static accent-${accent}`} role="img" aria-label={accessibleLabel}><span className="rv-static-mark">HIRZEXA / ROLE</span></div>;
   }
 
   return <div ref={rootRef} className={`role-visual role-visual-${category} accent-${accent}${compact ? " compact" : ""}${visible ? "" : " is-paused"}`} data-variant={variant} role="img" aria-label={accessibleLabel}>

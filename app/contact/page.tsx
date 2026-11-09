@@ -54,17 +54,17 @@ export default function ContactPage() {
         throw new Error(
           ar
             ? response.status === 503
-              ? "إرسال الرسائل غير مهيأ حالياً. يرجى مراسلتنا على hello@devtech.ai."
+              ? "إرسال الرسائل غير مهيأ حالياً. يرجى مراسلتنا على hello@hirzexa.com."
               : response.status === 400
               ? "يرجى التحقق من الاسم والبريد الإلكتروني ووصف المشروع."
-              : "تعذر إرسال رسالتك. يرجى مراسلتنا على hello@devtech.ai."
+              : "تعذر إرسال رسالتك. يرجى مراسلتنا على hello@hirzexa.com."
             : body.error || "Your enquiry could not be sent."
         );
       setStatus("success");
       setMessage(
         ar
-          ? "شكراً لك. تم إرسال استفسارك إلى فريق ديف تك إيه آي."
-          : "Thank you. Your technical enquiry has been sent to the DevTech AI team."
+          ? "شكراً لك. تم إرسال استفسارك إلى فريق HIRZEXA."
+          : "Thank you. Your technical enquiry has been sent to the HIRZEXA team."
       );
       form.reset();
       setCategory(categories[0]);
@@ -74,8 +74,8 @@ export default function ContactPage() {
         error instanceof Error && !(error instanceof TypeError)
           ? error.message
           : ar
-          ? "تعذر إرسال رسالتك. يرجى مراسلتنا على hello@devtech.ai."
-          : "Your enquiry could not be sent. Please email hello@devtech.ai."
+          ? "تعذر إرسال رسالتك. يرجى مراسلتنا على hello@hirzexa.com."
+          : "Your enquiry could not be sent. Please email hello@hirzexa.com."
       );
     }
   }
@@ -89,7 +89,7 @@ export default function ContactPage() {
               <span className="studio-eyebrow">
                 <i /> {ar ? "تواصل مع مهندسينا" : "OPEN A CONVERSATION"}
               </span>
-              <span>DEVTECH AI / CONTACT</span>
+              <span>HIRZEXA / CONTACT</span>
             </div>
             <h1>
               {ar ? (
@@ -119,8 +119,8 @@ export default function ContactPage() {
                 ? "شاركنا متطلباتك في الرؤية الحاسوبية، أو الاستدلال على الحافة (Edge AI)، أو نظام AEGIS AI، أو تكامل الكاميرات والأجهزة الذكية."
                 : "Tell us about your computer vision use case, Edge AI deployment, AEGIS AI evaluation, or intelligent device partnership."}
             </p>
-            <a className="contact-email" dir="ltr" href="mailto:hello@devtech.ai">
-              hello@devtech.ai <ArrowUpRight size={17} />
+            <a className="contact-email" dir="ltr" href="mailto:hello@hirzexa.com">
+              hello@hirzexa.com <ArrowUpRight size={17} />
             </a>
             <div className="contact-video-showcase">
               <HumanAiVideoReel
@@ -309,7 +309,7 @@ export default function ContactPage() {
               </button>
               <p>
                 {ar ? "تفضل البريد الإلكتروني؟ " : "Prefer email? "}
-                <a href="mailto:hello@devtech.ai">
+                <a href="mailto:hello@hirzexa.com">
                   {ar ? "تواصل معنا مباشرة ↗" : "Get in touch directly ↗"}
                 </a>
               </p>

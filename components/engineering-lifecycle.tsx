@@ -138,7 +138,7 @@ export function EngineeringLifecycle() {
                 <span>
                   {stage[0]} / {ar ? "مرحلة خط الأنابيب" : "PIPELINE STAGE"}
                 </span>
-                <span>DEVTECH AI VISION</span>
+                <span>HIRZEXA VISION</span>
               </div>
               <h3>{stage[1]}</h3>
               <p>{stage[2]}</p>

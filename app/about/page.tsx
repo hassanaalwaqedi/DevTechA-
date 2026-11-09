@@ -9,9 +9,9 @@ import "./about.css";
 export const metadata: Metadata = createPageMetadata({
   title: "About — Computer Vision & Edge Intelligence Company",
   description:
-    "DevTech AI is a Computer Vision and Edge AI technology company developing accessible visual intelligence, edge inference systems, smart devices, and vision software platforms.",
+    "HIRZEXA is a Computer Vision and Edge AI technology company developing accessible visual intelligence, edge inference systems, smart devices, and vision software platforms.",
   path: "/about",
-  eyebrow: "DEVTECH AI / ABOUT THE COMPANY",
+  eyebrow: "HIRZEXA / ABOUT THE COMPANY",
   badge: "INTELLIGENCE THAT SEES THE WORLD",
   headline: "Intelligence that sees the world.",
   summary:
@@ -82,9 +82,9 @@ export default async function AboutPage() {
           MonitorPlay,
         ],
         [
-          "المرحلة 02 · اتجاه مخطط (قيد التطوير)",
+          "المرحلة 02 · اتجاه مخطط (مفهوم مستقبلي)",
           "وحدات معالجة ذكاء الحافة والكاميرات الذكية",
-          "تطوير نماذج أولية لأجهزة مراقبة الحافة والكاميرات الذكية للمنازل والشركات مع تطبيقات إدارة متكاملة.",
+          "استكشاف تصورات لأجهزة معالجة الحافة والكاميرات الذكية للمنازل والشركات مع تطبيقات إدارة متكاملة.",
           "/products#product-roadmap",
           Cpu,
         ],
@@ -105,9 +105,9 @@ export default async function AboutPage() {
           MonitorPlay,
         ],
         [
-          "PHASE 02 · PLANNED DIRECTION (IN DEVELOPMENT)",
-          "Edge AI Appliances & Smart Camera Prototyping",
-          "Engineering local Edge AI monitoring units, privacy-conscious smart cameras, and unified mobile/web device management applications.",
+          "PHASE 02 · PLANNED DIRECTION (CONCEPT)",
+          "Edge AI Devices & Smart Camera Concepts",
+          "Exploring local Edge AI units, privacy-conscious smart cameras, and mobile/web device management concepts.",
           "/products#product-roadmap",
           Cpu,
         ],
@@ -125,8 +125,8 @@ export default async function AboutPage() {
       <CompanyPageIntro
         eyebrow={
           ar
-            ? "DEVTECH AI / شركة الرؤية الحاسوبية وذكاء الحافة"
-            : "DEVTECH AI / COMPUTER VISION & EDGE INTELLIGENCE"
+            ? "HIRZEXA / شركة الرؤية الحاسوبية وذكاء الحافة"
+            : "HIRZEXA / COMPUTER VISION & EDGE INTELLIGENCE"
         }
         title={
           ar ? "الذكاء الذي يرى العالم." : "Intelligence that sees the world."
@@ -167,7 +167,7 @@ export default async function AboutPage() {
             ? "رؤية حاسوبية، ذكاء حافة، وأجهزة ذكية مصممة للإنسان"
             : "Human-centric computer vision, Edge AI & smart hardware"
         }
-        videoTelemetry="DEVTECH AI · 60 FPS"
+        videoTelemetry="HIRZEXA · REAL TIME"
       />
 
       {/* Section 01: Company Story & Long-Term Vision */}
@@ -195,8 +195,8 @@ export default async function AboutPage() {
             </h2>
             <p>
               {ar
-                ? "في DevTech AI، ننطلق من قناعة هندسية واضحة: القيمة الحقيقية للرؤية الحاسوبية تتحقق عندما تتكامل النماذج الذكية مع معالجة الحافة والأجهزة المدمجة والبرمجيات السلسة. رؤيتنا طويلة المدى هي بناء شركة منتجات تقنية قادرة على تصميم وهندسة أجهزتها الذكية ومنصاتها البرمجية الخاصة لخدمة المنازل والشركات والقطاعات الصناعية."
-                : "At DevTech AI, our story is driven by engineering-led innovation and product development. Rather than acting as a general software agency, we focus on where visual perception meets the physical world—combining computer vision models, low-latency Edge AI, smart hardware, and operator software into accessible, practical products."}
+                ? "في HIRZEXA، ننطلق من قناعة هندسية واضحة: القيمة الحقيقية للرؤية الحاسوبية تتحقق عندما تتكامل النماذج الذكية مع معالجة الحافة والأجهزة المدمجة والبرمجيات السلسة. رؤيتنا طويلة المدى هي بناء شركة منتجات تقنية قادرة على تصميم وهندسة أجهزتها الذكية ومنصاتها البرمجية الخاصة لخدمة المنازل والشركات والقطاعات الصناعية."
+                : "At HIRZEXA, our story is driven by engineering-led innovation and product development. Rather than acting as a general software agency, we focus on where visual perception meets the physical world—combining computer vision models, low-latency Edge AI, smart hardware, and operator software into accessible, practical products."}
             </p>
             <Link href="/engineering" className="about-text-link">
               {ar ? "استكشف خط أنابيب الرؤية الهندسي" : "Explore our vision engineering pipeline"}{" "}
@@ -241,7 +241,7 @@ export default async function AboutPage() {
             {pillars.map(([number, title, description, href, Icon]) => (
               <Link key={number} href={href} className="about-capability">
                 <div className="about-capability-top">
-                  <span>{number} / DEVTECH AI</span>
+                  <span>{number} / HIRZEXA</span>
                   <Icon size={20} />
                 </div>
                 <div>
@@ -285,8 +285,8 @@ export default async function AboutPage() {
             </div>
             <p>
               {ar
-                ? "نوضح بشفافية مراحل تطورنا من أنظمة الرؤية البرمجية الحالية إلى النماذج الأولية للأجهزة والمفاهيم المستقبلية."
-                : "Our strategic roadmap clearly distinguishes current software capabilities from planned hardware prototypes and long-term concepts."}
+                ? "نوضح بشفافية مراحل تطورنا من تقنيات الرؤية البرمجية إلى تصورات الأجهزة المستقبلية."
+                : "Our roadmap distinguishes current vision software work from future intelligent device concepts."}
             </p>
           </div>
 

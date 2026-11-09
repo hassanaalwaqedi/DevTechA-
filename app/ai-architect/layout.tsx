@@ -4,9 +4,9 @@ import { createPageMetadata } from "@/lib/social-metadata";
 export const metadata: Metadata = createPageMetadata({
   title: "AI System Architect — Interactive Computer Vision & Edge AI Blueprint",
   description:
-    "Design your Computer Vision and Edge AI system architecture interactively with DevTech AI's Gemini-powered System Architect.",
+    "Design your Computer Vision and Edge AI system architecture interactively with HIRZEXA's Gemini-powered System Architect.",
   path: "/ai-architect",
-  eyebrow: "DEVTECH AI / INTERACTIVE SYSTEM ARCHITECT",
+  eyebrow: "HIRZEXA / INTERACTIVE SYSTEM ARCHITECT",
   badge: "AI ARCHITECTURE BLUEPRINT",
   headline: "Interactive Computer Vision & Edge AI System Architect.",
   summary:

@@ -9,16 +9,16 @@ import "../expertise/expertise.css";
 export const metadata: Metadata = createPageMetadata({
   title: "Technology — Computer Vision, Edge AI, Intelligent Devices & Vision Software",
   description:
-    "Explore DevTech AI's four core technology pillars: Computer Vision, Edge AI inference, Intelligent Devices, and Vision Software.",
+    "Explore HIRZEXA's four core technology pillars: Computer Vision, Edge AI inference, Intelligent Devices, and Vision Software.",
   path: "/technology",
-  eyebrow: "DEVTECH AI / CORE TECHNOLOGY",
+  eyebrow: "HIRZEXA / CORE TECHNOLOGY",
   badge: "4 CORE TECHNOLOGY PILLARS",
   headline: "Computer Vision & Edge Intelligence.",
   summary:
     "Real-time object detection, multi-object tracking, low-latency on-device Edge AI inference, smart cameras, and vision software.",
   chips: ["Computer Vision", "Edge AI Optimization", "Intelligent Devices"],
   scene: "technology",
-  telemetry: "4 PILLARS · ONNX & TENSORRT · 60 FPS",
+  telemetry: "4 PILLARS · ONNX & TENSORRT · REAL TIME",
 });
 
 export default async function TechnologyPage() {
@@ -71,8 +71,8 @@ export default async function TechnologyPage() {
           description:
             "تطوير وتكامل الكاميرات الذكية ووحدات معالجة الحافة وأجهزة المراقبة المعتمدة على الذكاء الاصطناعي للمنازل والشركات والقطاعات الصناعية.",
           capabilities: [
-            "الكاميرات الذكية (قيد التطوير)",
-            "أجهزة المراقبة المدعومة بالذكاء الاصطناعي (نماذج أولية)",
+            "الكاميرات الذكية (تصور مستقبلي)",
+            "أجهزة المراقبة المدعومة بالذكاء الاصطناعي (تصور مستقبلي)",
             "وحدات معالجة ذكاء الحافة (Edge AI Units)",
             "أجهزة إنترنت الأشياء البصرية (Vision IoT)",
             "منتجات الرؤية القابلة للارتداء (مفهوم مستقبلي)",
@@ -148,14 +148,14 @@ export default async function TechnologyPage() {
           description:
             "Hardware-software vision systems combining optical sensors, edge compute units, and embedded firmware into practical intelligent devices.",
           capabilities: [
-            "Smart cameras (In Development)",
-            "AI-enabled monitoring devices (Prototype)",
-            "Edge AI processing units (Architecture & Integration)",
-            "Vision-enabled IoT devices (In Development)",
+            "Smart cameras (Roadmap concept)",
+            "AI-enabled monitoring devices (Roadmap concept)",
+            "Edge AI processing units (Architecture concept)",
+            "Vision-enabled IoT devices (Roadmap concept)",
             "Future wearable vision products (Concept)",
           ],
           tags: ["Smart Cameras", "Edge AI Units", "Vision IoT", "Embedded Vision"],
-          note: "Development Transparency: We clearly distinguish active software/vision systems, hardware prototypes, and future concepts. Hardware devices are currently in R&D and not yet commercially released.",
+          note: "These device directions are future concepts. No HIRZEXA hardware product is currently offered for purchase.",
           Icon: Camera,
         },
         {
@@ -183,7 +183,7 @@ export default async function TechnologyPage() {
   return (
     <main className="expertise-new">
       <CompanyPageIntro
-        eyebrow={ar ? "DEVTECH AI / التقنية الأساسية" : "DEVTECH AI / CORE TECHNOLOGY"}
+        eyebrow={ar ? "HIRZEXA / التقنية الأساسية" : "HIRZEXA / CORE TECHNOLOGY"}
         title={
           ar
             ? "الرؤية الحاسوبية وذكاء الحافة."
@@ -225,7 +225,7 @@ export default async function TechnologyPage() {
             ? "دمج الرؤية البشرية مع استدلال الحافة الفوري"
             : "Bridging human sight and on-device Edge AI"
         }
-        videoTelemetry="IRIS & GAZE LOCK · 99.4% · 11.4 ms"
+        videoTelemetry="VISUAL PERCEPTION · EDGE INFERENCE"
       />
 
       <section className="expertise-capabilities-new" id="pillars">

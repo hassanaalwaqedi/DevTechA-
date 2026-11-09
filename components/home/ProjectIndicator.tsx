@@ -1,24 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Camera, ScanEye, Cpu } from "lucide-react";
 
 type ProjectIndicatorProps = {
   arabic?: boolean;
 };
 
-const projectThumbnails = [
-  {
-    src: "/khair-discover.png",
-    alt: "Computer Vision and event discovery project preview",
-  },
-  {
-    src: "/khair-dashboard-ar.png",
-    alt: "AI platform dashboard interface",
-  },
-  {
-    src: "/khair-mobile-event.png",
-    alt: "Mobile intelligent platform experience",
-  },
-];
+const visionStages = [Camera, ScanEye, Cpu];
 
 export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
   return (
@@ -32,24 +19,18 @@ export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
       }
     >
       <div className="dt-project-avatars" aria-hidden="true">
-        {projectThumbnails.map((thumb, index) => (
+        {visionStages.map((Icon, index) => (
           <span
-            key={thumb.src}
+            key={index}
             className={`dt-project-avatar dt-project-avatar-${index + 1}`}
           >
-            <Image
-              src={thumb.src}
-              alt={thumb.alt}
-              width={42}
-              height={42}
-              className="dt-project-avatar-img"
-            />
+            <Icon size={18} strokeWidth={1.9} />
           </span>
         ))}
       </div>
       <div className="dt-project-indicator-text">
         <strong>
-          {arabic ? "AEGIS AI وأنظمة الرؤية الذكية." : "AEGIS AI & Smart Vision Systems."}
+          {arabic ? "AEGIS AI · دراسة هندسية للرؤية الذكية" : "AEGIS AI · Vision engineering study"}
         </strong>
         <span>
           {arabic

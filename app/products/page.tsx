@@ -11,18 +11,18 @@ import { createPageMetadata } from "@/lib/social-metadata";
 import "../work/work.css";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Products — AEGIS AI, Vision Platforms & Future Intelligent Devices",
+  title: "Products — Vision Systems & Device Roadmap",
   description:
-    "Explore DevTech AI's products: AEGIS AI smart vision and safety intelligence system, live digital platforms, and our future intelligent device roadmap.",
+    "Explore AEGIS AI as HIRZEXA's vision engineering project, our published software portfolio, and future intelligent device concepts.",
   path: "/products",
-  eyebrow: "DEVTECH AI / PRODUCTS & SYSTEMS",
-  badge: "AEGIS AI & VISION PRODUCTS",
+  eyebrow: "HIRZEXA / PRODUCTS & SYSTEMS",
+  badge: "VISION TECHNOLOGY & PRODUCT ROADMAP",
   headline: "Intelligent vision products & platforms.",
   summary:
-    "Discover AEGIS AI—our smart vision and safety intelligence project—alongside deployed software platforms and smart device roadmap.",
-  chips: ["AEGIS AI Vision", "Smart Cameras (Dev)", "Edge AI Units (Dev)"],
+    "AEGIS AI is a vision engineering project. Smart cameras and edge devices are future product concepts, not products for sale.",
+  chips: ["AEGIS AI Project", "Software Portfolio", "Device Concepts"],
   scene: "aegis",
-  telemetry: "AEGIS AI · RISK SCORING · 60 FPS",
+  telemetry: "AEGIS AI · VISION ENGINEERING",
 });
 
 function PublishedPortfolio({ products, arabic }: { products: Product[]; arabic: boolean }) {
@@ -55,8 +55,8 @@ function PublishedPortfolio({ products, arabic }: { products: Product[]; arabic:
           </div>
           <p>
             {arabic
-              ? "كل منتج منشور من DevTech AI يظهر هنا تلقائياً."
-              : "Every published product from DevTech AI appears here automatically."}
+              ? "كل منتج منشور من HIRZEXA يظهر هنا تلقائياً."
+              : "Every published product from HIRZEXA appears here automatically."}
           </p>
         </div>
         <div className="work-project-grid">
@@ -139,29 +139,29 @@ export default async function ProductsPage() {
     ? ([
         {
           id: "smart-cameras",
-          stage: "قيد التطوير · In Development",
-          badgeType: "dev",
+          stage: "مفهوم ضمن خارطة الطريق · Concept",
+          badgeType: "concept",
           title: "الكاميرات الذكية للمستهلكين والشركات",
           description:
-            "كاميرات بصرية مدمجة تدعم الاستدلال المحلي (On-Device AI) لكشف الحركة والأجسام مع تحكم كامل في الخصوصية وتنبيهات ذكية.",
+            "تصور مستقبلي لكاميرات ذكية تستكشف كشف الحركة والأجسام على الجهاز مع خيارات معالجة محلية وتنبيهات قابلة للضبط.",
           Icon: Camera,
         },
         {
           id: "edge-devices",
-          stage: "نموذج أولي / قيد التطوير · In Development",
-          badgeType: "dev",
+          stage: "مفهوم ضمن خارطة الطريق · Concept",
+          badgeType: "concept",
           title: "أجهزة المراقبة ومعالجة ذكاء الحافة (Edge AI Units)",
           description:
-            "وحدات معالجة حافة محلية ترتبط بالكاميرات الحالية لتحويل البث المرئي إلى تحليلات فورية دون الحاجة لنقل الفيديو الخام إلى السحابة.",
+            "تصور مستقبلي لوحدات معالجة محلية تربط بث الكاميرات بنماذج الرؤية الحاسوبية على الحافة.",
           Icon: Cpu,
         },
         {
           id: "monitoring-apps",
-          stage: "قيد التطوير · In Development",
-          badgeType: "dev",
+          stage: "مفهوم ضمن خارطة الطريق · Concept",
+          badgeType: "concept",
           title: "تطبيقات المراقبة الذكية (Smart Monitoring Apps)",
           description:
-            "تطبيقات ويب وهواتف ذكية لإدارة الكاميرات، استعراض البث الحي، تخصيص قواعد التنبيه، ومراجعة سجل الأحداث البصرية.",
+            "تصور برمجي لإدارة الأجهزة المتصلة، وعرض بث الكاميرات، ومراجعة الأحداث، وضبط التنبيهات.",
           Icon: MonitorPlay,
         },
         {
@@ -177,29 +177,29 @@ export default async function ProductsPage() {
     : ([
         {
           id: "smart-cameras",
-          stage: "In Development",
-          badgeType: "dev",
+          stage: "Roadmap concept",
+          badgeType: "concept",
           title: "Consumer Smart Cameras",
           description:
-            "Intelligent optical cameras designed for homes and small businesses with on-device object detection, privacy-conscious local processing, and configurable alerts.",
+            "A future camera concept for homes and small businesses, exploring on-device detection, local processing, and configurable alerts.",
           Icon: Camera,
         },
         {
           id: "edge-devices",
-          stage: "In Development · Prototype",
-          badgeType: "dev",
+          stage: "Roadmap concept",
+          badgeType: "concept",
           title: "Edge AI Monitoring Devices",
           description:
-            "Compact local inference appliances that connect to standard IP cameras to run computer vision models at the edge with millisecond latency.",
+            "A future local inference device concept for connecting camera feeds to computer vision models at the edge.",
           Icon: Cpu,
         },
         {
           id: "monitoring-apps",
-          stage: "In Development",
-          badgeType: "dev",
+          stage: "Roadmap concept",
+          badgeType: "concept",
           title: "Smart Monitoring Applications",
           description:
-            "Web and mobile vision software for managing connected devices, viewing live camera feeds, reviewing structured events, and configuring notifications.",
+            "A software concept for managing connected devices, viewing camera feeds, reviewing events, and configuring notifications.",
           Icon: MonitorPlay,
         },
         {
@@ -216,7 +216,7 @@ export default async function ProductsPage() {
   return (
     <main className="work-new">
       <CompanyPageIntro
-        eyebrow={ar ? "DEVTECH AI / المنتجات والأنظمة" : "DEVTECH AI / PRODUCTS & SYSTEMS"}
+        eyebrow={ar ? "HIRZEXA / المنتجات والأنظمة" : "HIRZEXA / PRODUCTS & SYSTEMS"}
         title={
           ar
             ? "منتجات الرؤية الذكية والمنصات."
@@ -225,7 +225,7 @@ export default async function ProductsPage() {
         description={
           ar
             ? "نطور أنظمة الرؤية الحاسوبية وذكاء السلامة البصرية، إلى جانب منصاتنا البرمجية وخارطة طريق الأجهزة الذكية."
-            : "Explore AEGIS AI—our smart vision and safety intelligence project—alongside our deployed platforms and future intelligent device roadmap."
+            : "Explore AEGIS AI as a vision engineering project, our published software portfolio, and future intelligent device concepts."
         }
         actionLabel={ar ? "استكشف نظام AEGIS AI" : "Explore AEGIS AI"}
         actionHref="#aegis-ai"
@@ -236,12 +236,12 @@ export default async function ProductsPage() {
           ar
             ? [
                 "AEGIS AI: نظام الرؤية الذكية وتحليل السلامة",
-                "الأجهزة الذكية ووحدات ذكاء الحافة (قيد التطوير)",
+                "الأجهزة الذكية ووحدات ذكاء الحافة (تصورات مستقبلية)",
                 "منصات وتطبيقات إدارة الرؤية والمجتمعات",
               ]
             : [
                 "AEGIS AI: Smart vision & safety intelligence",
-                "Smart cameras & Edge AI devices (In Development)",
+                "Smart cameras & Edge AI devices (Roadmap concepts)",
                 "Vision software dashboards & live platforms",
               ]
         }
@@ -258,7 +258,7 @@ export default async function ProductsPage() {
             ? "تحليل الكاميرات، تتبع الأجسام، وتقييم المخاطر المساعد"
             : "Real-time camera perception, tracking & assisted risk scoring"
         }
-        videoTelemetry="AEGIS · 60 FPS · 11.8ms"
+        videoTelemetry="AEGIS AI · CONCEPT PREVIEW"
       />
 
       {/* SECTION 1: AEGIS AI + KHAIR */}
@@ -312,17 +312,17 @@ export default async function ProductsPage() {
                       ? "كشف الأجسام · تفسير الأحداث · تقييم المخاطر المساعد"
                       : "Real-time camera analysis · Event interpretation · Operator alerts"
                   }
-                  telemetry="RISK 0.14 LOW · 60 FPS"
+                  telemetry="VISION PIPELINE · ILLUSTRATIVE PREVIEW"
                 />
 
                 <div className="work-aegis-telemetry-strip">
                   <div className="work-aegis-metric">
                     <span>{ar ? "تقييم المخاطر المساعد" : "ASSISTED RISK SCORE"}</span>
-                    <strong className="work-aegis-metric-safe">0.14 · LOW</strong>
+                    <strong className="work-aegis-metric-safe">Concept UI</strong>
                   </div>
                   <div className="work-aegis-metric">
                     <span>{ar ? "الاستدلال على الحافة" : "EDGE NPU INFERENCE"}</span>
-                    <strong>11.8 ms · 60 FPS</strong>
+                    <strong>On-device path</strong>
                   </div>
                   <div className="work-aegis-metric">
                     <span>{ar ? "تفسير المشهد" : "EVENT INTERPRETATION"}</span>
@@ -341,14 +341,14 @@ export default async function ProductsPage() {
                 <div className="work-khair-label">
                   <span>✳</span>{" "}
                   {ar
-                    ? "مشروع الرؤية الذكية والسلامة"
-                    : "SMART VISION & SAFETY PROJECT"}
+                    ? "دراسة هندسية للرؤية والسلامة"
+                    : "AEGIS AI / ENGINEERING STUDY"}
                 </div>
                 <h3>AEGIS AI</h3>
                 <p>
                   {ar
-                    ? "نظام ذكاء بصري يحول بث الكاميرات إلى فهم لحظي للمشهد — يجمع بين كشف الأجسام وتتبعها وتفسير الأحداث وتقييم المخاطر وتنبيهات المشغلين."
-                    : "An intelligent computer vision and safety analysis system that turns live camera feeds into structured scene perception, risk scoring, and operator alerts."}
+                    ? "دراسة هندسية تستكشف معالجة بث الكاميرات وكشف الأجسام وتتبعها وتفسير الأحداث وتقييم المخاطر بمساعدة المشغلين. الواجهة المرئية توضيحية."
+                    : "A vision engineering study exploring camera input, detection and tracking, event interpretation, assisted risk scoring, and operator alerts. The visual interface is illustrative."}
                 </p>
 
                 <ul className="work-aegis-capabilities">
@@ -369,7 +369,7 @@ export default async function ProductsPage() {
                     href="/contact?category=AEGIS%20AI%20%26%20Safety%20Vision"
                     className="work-primary-link"
                   >
-                    {ar ? "اطلب عرضاً توضيحياً لـ AEGIS AI" : "Request AEGIS AI Demo"}
+                    {ar ? "ناقش مشروع AEGIS AI" : "Discuss AEGIS AI"}
                     <span>
                       <ArrowUpRight size={16} />
                     </span>
@@ -444,32 +444,30 @@ export default async function ProductsPage() {
                   <>
                     أجهزة وتطبيقات الرؤية
                     <br />
-                    <span>قيد التطوير والمفهوم.</span>
+                    <span>ضمن خارطة الطريق.</span>
                   </>
                 ) : (
                   <>
                     Intelligent hardware &amp; apps
                     <br />
-                    <span>in development.</span>
+                    <span>on our roadmap.</span>
                   </>
                 )}
               </h2>
             </div>
             <p>
               {ar
-                ? "نشارك بشفافية خارطة طريق منتجاتنا القادمة. جميع الأجهزة والتطبيقات أدناه محددة بوضوح بمرحلة «قيد التطوير» أو «مفهوم» وليست معروضة للبيع التجاري حالياً."
-                : "We clearly distinguish products in active development and future concepts. The hardware and software directions below are not yet commercially released."}
+                ? "هذه تصورات مستقبلية للأجهزة والتطبيقات، وليست منتجات متاحة للبيع حالياً."
+                : "These hardware and software directions are future concepts and are not available for purchase."}
             </p>
           </div>
 
           <div className="work-ideas-grid">
-            {roadmapItems.map(({ id, stage, badgeType, title, description, Icon }) => (
+            {roadmapItems.map(({ id, stage, title, description, Icon }) => (
               <article key={id} id={id} className="work-idea-card work-idea-vision">
                 <div className="work-idea-top">
                   <span
-                    className={`work-stage-badge ${
-                      badgeType === "dev" ? "work-stage-badge-dev" : "work-stage-badge-concept"
-                    }`}
+                    className="work-stage-badge work-stage-badge-concept"
                   >
                     {stage}
                   </span>
@@ -541,7 +539,7 @@ export default async function ProductsPage() {
         <div className="container">
           <div>
             <span className="work-kicker">
-              {ar ? "لنبني المستقبل البصري" : "BUILD WITH DEVTECH AI"}
+              {ar ? "لنبني المستقبل البصري" : "BUILD WITH HIRZEXA"}
             </span>
             <h2>
               {ar ? (

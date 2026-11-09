@@ -14,7 +14,7 @@ const categories = [
 export function AiArchitectClient() {
   const ar = useLanguage() === "ar";
   const t = ar ? {
-    kicker: "ذكاء ديف تك / 01", title: "ارسم النظام", accent: "قبل أن تبنيه.",
+    kicker: "ذكاء HIRZEXA / 01", title: "ارسم النظام", accent: "قبل أن تبنيه.",
     intro: "حوّل فكرتك التقنية الأولية إلى موجز هندسي قابل للمراجعة. هذا تحليل مبدئي وليس عرض سعر أو ضماناً أو قراراً آلياً.",
     structured: "مخرجات منظمة", review: "المراجعة البشرية مطلوبة", bilingual: "العربية / English",
     category: "فئة النظام", problem: "ما المشكلة التي تحاول حلها؟",
@@ -24,12 +24,12 @@ export function AiArchitectClient() {
     unavailable: "تعذر إنشاء الموجز.", preliminary: "موجز هندسي مبدئي", reset: "ابدأ من جديد",
     objectives: "الأهداف المؤكدة", architecture: "البنية المقترحة", risks: "المخاطر الهندسية",
     questions: "أسئلة مفتوحة", assumptions: "الافتراضات", phases: "مراحل التنفيذ",
-    investigate: "يحتاج إلى بحث ومراجعة مع فريقك.", send: "أرسل هذا الموجز إلى ديف تك",
+    investigate: "يحتاج إلى بحث ومراجعة مع فريقك.", send: "أرسل هذا الموجز إلى HIRZEXA",
     name: "الاسم", email: "بريد العمل", company: "الشركة (اختياري)",
-    consent: "أوافق على حفظ ديف تك لهذا الموجز للرد على استفساري.", submit: "إرسال الموجز التقني",
-    success: "تم استلام موجزك التقني ويمكن لمهندس من ديف تك مراجعته الآن.", submitError: "تعذر إرسال الموجز.",
+    consent: "أوافق على حفظ HIRZEXA لهذا الموجز للرد على استفساري.", submit: "إرسال الموجز التقني",
+    success: "تم استلام موجزك التقني ويمكن لمهندس من HIRZEXA مراجعته الآن.", submitError: "تعذر إرسال الموجز.",
   } : {
-    kicker: "DEVTECH INTELLIGENCE / 01", title: "Map the system", accent: "before you build it.",
+    kicker: "HIRZEXA / VISUAL INTELLIGENCE / 01", title: "Map the system", accent: "before you build it.",
     intro: "Turn an early technical idea into a reviewable engineering brief. This is a preliminary analysis—not a quote, guarantee, or automated decision.",
     structured: "Structured output", review: "Human review required", bilingual: "English / العربية",
     category: "System category", problem: "What are you trying to solve?",
@@ -39,10 +39,10 @@ export function AiArchitectClient() {
     unavailable: "Unable to create a brief.", preliminary: "PRELIMINARY ENGINEERING BRIEF", reset: "Start over",
     objectives: "Confirmed objectives", architecture: "Recommended architecture", risks: "Engineering risks",
     questions: "Open questions", assumptions: "Assumptions", phases: "Implementation phases",
-    investigate: "To be investigated with your team.", send: "Send this brief to DevTech AI",
+    investigate: "To be investigated with your team.", send: "Send this brief to HIRZEXA",
     name: "Your name", email: "Work email", company: "Company (optional)",
-    consent: "I consent to DevTech AI storing this brief to respond to my enquiry.", submit: "Submit technical brief",
-    success: "Your technical brief has been received. A DevTech AI engineer can now review it.", submitError: "Unable to submit your brief.",
+    consent: "I consent to HIRZEXA storing this brief to respond to my enquiry.", submit: "Submit technical brief",
+    success: "Your technical brief has been received. A HIRZEXA engineer can now review it.", submitError: "Unable to submit your brief.",
   };
   const [category, setCategory] = useState<string>(categories[0][0]);
   const [description, setDescription] = useState(""); const [brief, setBrief] = useState<TechnicalBrief | null>(null);

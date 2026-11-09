@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getJobBySlug } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { JobApplicationForm } from "@/components/job-application-form";
+import { warmJobCard } from "@/lib/social-card-renderer";
 import "./apply.css";
 
 export async function generateMetadata({
@@ -14,16 +15,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const job = await getJobBySlug(slug);
-  if (!job) return { title: "Apply | DevTech AI Careers" };
+  if (!job) return { title: "Apply | HIRZEXA Careers" };
 
   const isArabic = /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/.test(job.title);
   const title = isArabic
-    ? `التقديم على وظيفة ${job.title} | DevTech AI`
-    : `Apply for ${job.title} — DevTech AI Careers`;
+    ? `التقديم على وظيفة ${job.title} | HIRZEXA`
+    : `Apply for ${job.title} — HIRZEXA Careers`;
   const description = isArabic
-    ? `قدّم الآن على وظيفة ${job.title} في قسم ${job.department} لدى DevTech AI (${job.location} · ${job.workMode}).`
-    : `Submit your application for ${job.title} (${job.department} · ${job.location} · ${job.workMode}) at DevTech AI.`;
+    ? `قدّم الآن على وظيفة ${job.title} في قسم ${job.department} لدى HIRZEXA (${job.location} · ${job.workMode}).`
+    : `Submit your application for ${job.title} (${job.department} · ${job.location} · ${job.workMode}) at HIRZEXA.`;
   const url = `/careers/${job.slug}/apply`;
+  warmJobCard(job);
   const image = `/og/jobs/${encodeURIComponent(job.slug)}.jpg?v=4`;
 
   return {
@@ -35,7 +37,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url,
-      siteName: "DevTech AI",
+      siteName: "HIRZEXA",
       images: [{ url: image, width: 1200, height: 630, type: "image/jpeg", alt: title }],
     },
     twitter: {
@@ -80,7 +82,7 @@ export default async function ApplyPage({params}: {params: Promise<{slug: string
           <p>{ar ? <>أنت تتقدم لوظيفة <strong dir="auto">{job.title}</strong>. الإجابات المدروسة أهم لدينا من الكلمات المثالية.</> : <>You&apos;re applying for <strong>{job.title}</strong>. Thoughtful answers matter more than perfect words.</>}</p>
         </div>
         <div className="application-signal" aria-hidden="true">
-          <div className="application-signal-top"><span>{ar ? "إشارة المرشح / 01" : "CANDIDATE SIGNAL / 01"}</span><span>DEVTECH AI ✦</span></div>
+          <div className="application-signal-top"><span>{ar ? "إشارة المرشح / 01" : "CANDIDATE SIGNAL / 01"}</span><span>HIRZEXA ✦</span></div>
           <div className="application-orbit application-orbit-one"/><div className="application-orbit application-orbit-two"/>
           <div className="application-signal-core"><span>✦</span><strong>{ar ? "أنت" : "YOU"}</strong></div>
           <div className="application-node application-node-one">{ar ? "الحِرفة" : "CRAFT"}</div>

@@ -10,13 +10,13 @@ import { GlassSurface } from "@/components/ui/GlassSurface";
 import { createPageMetadata } from "@/lib/social-metadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Careers — Build the Next Generation of Intelligent Vision",
+  title: "Careers — Build the Future of Intelligent Vision",
   description:
-    "Join DevTech AI in developing computer vision models, edge intelligence systems, and the software powering intelligent devices.",
+    "Join HIRZEXA in developing computer vision technologies, intelligent edge systems, and the software behind next-generation devices.",
   path: "/careers",
-  eyebrow: "DEVTECH AI / CAREERS",
-  badge: "WE'RE HIRING · OPEN POSITIONS",
-  headline: "Build the next generation of intelligent vision.",
+  eyebrow: "HIRZEXA / CAREERS",
+  badge: "CAREERS · VISION ENGINEERING",
+  headline: "Build the future of intelligent vision.",
   summary:
     "Explore opportunities in Computer Vision, Machine Learning, Edge AI Optimization, Embedded Systems, Backend, Mobile, and Hardware.",
   chips: ["Computer Vision & ML", "Edge AI & Embedded", "Platform & Mobile"],
@@ -352,7 +352,7 @@ export default async function CareersPage() {
           <div className="dt-careers-hero-copy">
             <div className="dt-careers-pill">
               <span className="dt-careers-pill-dot" aria-hidden="true" />
-              <span>{ar ? "DEVTECH AI / الوظائف" : "DEVTECH AI / CAREERS"}</span>
+              <span>{ar ? "HIRZEXA / الوظائف" : "HIRZEXA / CAREERS"}</span>
             </div>
 
             <h1 className="dt-careers-headline">
@@ -365,7 +365,7 @@ export default async function CareersPage() {
                 </>
               ) : (
                 <>
-                  Build the next generation of{" "}
+                  Build the future of{" "}
                   <span className="dt-careers-headline-gradient">
                     intelligent vision.
                   </span>
@@ -376,7 +376,7 @@ export default async function CareersPage() {
             <p className="dt-careers-description">
               {ar
                 ? "انضم إلينا في تطوير نماذج الرؤية الحاسوبية، وأنظمة ذكاء الحافة (Edge AI)، والبرمجيات المشغّلة للأجهزة الذكية."
-                : "Join us in developing computer vision models, edge intelligence systems, and the software powering intelligent devices."}
+                : "Join HIRZEXA in developing computer vision technologies, intelligent edge systems, and the software behind next-generation devices."}
             </p>
 
             <div className="dt-careers-actions">
@@ -554,10 +554,10 @@ export default async function CareersPage() {
               </p>
             </div>
             <a
-              href="mailto:hello@devtech.ai?subject=Careers%20at%20DevTech%20AI"
+              href="mailto:hello@hirzexa.com?subject=Careers%20at%20HIRZEXA"
               className="dt-careers-contact-btn"
             >
-              <span>hello@devtech.ai</span>
+              <span>hello@hirzexa.com</span>
               <ArrowUpRight size={16} />
             </a>
           </div>

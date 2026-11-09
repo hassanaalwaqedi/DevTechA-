@@ -156,7 +156,7 @@ export function CareersDirectory({
           </p>
         </div>
         <a
-          href="mailto:hello@devtech.ai?subject=Careers%20at%20DevTech%20AI"
+          href="mailto:hello@hirzexa.com?subject=Careers%20at%20HIRZEXA"
           className="dt-job-view-btn"
         >
           <span>{arabic ? "تواصل معنا" : "Contact recruitment"}</span>

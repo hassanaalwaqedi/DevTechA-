@@ -1,1 +1,1 @@
-export { SiteHeader, DevTechLogoMark } from "@/components/navigation/SiteHeader";
+export { SiteHeader, HirzexaLogoMark } from "@/components/navigation/SiteHeader";

@@ -16,9 +16,9 @@ import "../solutions/solutions.css";
 export const metadata: Metadata = createPageMetadata({
   title: "Applications — Smart Homes, Retail, Workplace, Safety & Industrial Vision",
   description:
-    "Explore real-world applications of DevTech AI's computer vision and Edge AI systems across Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and Industrial Vision.",
+    "Explore real-world applications of HIRZEXA's computer vision and Edge AI systems across Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and Industrial Vision.",
   path: "/applications",
-  eyebrow: "DEVTECH AI / REAL-WORLD APPLICATIONS",
+  eyebrow: "HIRZEXA / REAL-WORLD APPLICATIONS",
   badge: "5 VISION APPLICATION DOMAINS",
   headline: "Where computer vision meets the real world.",
   summary:
@@ -190,7 +190,7 @@ export default async function ApplicationsPage() {
   return (
     <main className="solutions-new">
       <CompanyPageIntro
-        eyebrow={ar ? "DEVTECH AI / التطبيقات" : "DEVTECH AI / APPLICATIONS"}
+        eyebrow={ar ? "HIRZEXA / التطبيقات" : "HIRZEXA / APPLICATIONS"}
         title={
           ar
             ? "تقنيات الرؤية في العالم الحقيقي."
@@ -232,7 +232,7 @@ export default async function ApplicationsPage() {
             ? "من المنازل الذكية والتجزئة إلى السلامة والصناعة"
             : "Smart Homes · Retail · Workplace · Safety"
         }
-        videoTelemetry="MULTI-ZONE ACTIVE · 60 FPS"
+        videoTelemetry="MULTI-ZONE ACTIVE · REAL TIME"
       />
 
       <section className="solutions-areas-new" id="applications">

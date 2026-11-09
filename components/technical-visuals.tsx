@@ -3,7 +3,7 @@ export function ComputationalSculpture() {
     <div className="sculpture" role="img" aria-label="Abstract layered computer vision and edge intelligence architecture">
       <div className="sculpture-meta">
         <span>FIG. 01 / VISION PIPELINE STUDY</span>
-        <span>DEVTECH AI</span>
+        <span>HIRZEXA</span>
       </div>
       <svg viewBox="0 0 600 480" aria-hidden="true">
         <defs>

@@ -2,8 +2,40 @@ import { KHAIR_URL, khairProduct, type Application, type ApplicantStatus, type J
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { normalizeVisualAccent, normalizeVisualKeywords, normalizeVisualVariantForCategory, resolveVisualCategory } from "@/lib/job-visuals";
 import { isMissingExtendedProductColumns } from "@/lib/product-admin";
+import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
 
 export function databaseReady() { return isSupabaseConfigured(); }
+
+function publicBrandText(value: string): string {
+  return value
+    .replace(/\b(?:DevTech AI|DevTechA|DevTech)\b/gi, "HIRZEXA")
+    .replace(/ديف تك(?: إيه آي)?/g, "HIRZEXA")
+    .replaceAll("hello@devtech.ai", CONTACT_EMAIL)
+    .replaceAll("https://devtecha.onrender.com", SITE_URL);
+}
+
+function publicJob(job: Job): Job {
+  return {
+    ...job,
+    title: publicBrandText(job.title),
+    department: publicBrandText(job.department),
+    description: publicBrandText(job.description),
+    responsibilities: job.responsibilities.map(publicBrandText),
+    requirements: job.requirements.map(publicBrandText),
+    niceToHave: job.niceToHave.map(publicBrandText),
+    compensationText: publicBrandText(job.compensationText),
+  };
+}
+
+function publicProduct(product: Product): Product {
+  return {
+    ...product,
+    name: publicBrandText(product.name),
+    eyebrow: publicBrandText(product.eyebrow),
+    description: publicBrandText(product.description),
+    longDescription: publicBrandText(product.longDescription),
+  };
+}
 
 function mapJob(row: Record<string, unknown>): Job {
   const visualCategory = resolveVisualCategory(row.visual_category, String(row.title), String(row.department));
@@ -13,11 +45,11 @@ function mapProduct(row: Record<string, unknown>): Product { const isKhair = Str
 function mapApplication(row: Record<string, unknown>): Application { const notes = Array.isArray(row.application_notes) ? row.application_notes as Array<{note?: string}> : []; return {id: String(row.reference_id), name: String(row.full_name), email: String(row.email), phone: row.phone ? String(row.phone) : undefined, country: String(row.country), location: String(row.current_location), linkedin: row.linkedin_url ? String(row.linkedin_url) : undefined, github: row.github_url ? String(row.github_url) : undefined, portfolio: row.portfolio_url ? String(row.portfolio_url) : undefined, role: String(row.current_role), experience: String(row.experience), education: row.education ? String(row.education) : undefined, technologies: String(row.technologies), workAuthorization: row.work_authorization ? String(row.work_authorization) : undefined, sponsorshipRequired: Boolean(row.sponsorship_required), salaryExpectation: row.salary_expectation ? String(row.salary_expectation) : undefined, noticePeriod: row.notice_period ? String(row.notice_period) : undefined, remotePreference: row.remote_preference ? String(row.remote_preference) : undefined, whyJoin: String(row.why_join), whyFit: String(row.why_fit), availability: String(row.availability), startDate: String(row.expected_start_date), additionalMessage: row.additional_message ? String(row.additional_message) : undefined, coverLetterText: row.cover_letter_text ? String(row.cover_letter_text) : undefined, cvName: String(row.cv_path).split("/").pop() || "CV", coverLetterName: row.cover_letter_path ? String(row.cover_letter_path).split("/").pop() : undefined, jobId: String(row.job_id), jobTitle: String((row.jobs as {title?: string} | null)?.title || "Position"), status: row.status as ApplicantStatus, createdAt: String(row.created_at).slice(0, 10), note: notes[0]?.note}; }
 
 function isBeforeOrToday(value?: string) { return !value || value >= new Date().toISOString().slice(0, 10); }
-export async function getPublishedJobsResult(): Promise<{jobs: Job[]; available: boolean}> { if (!databaseReady()) return {jobs: [], available: false}; try { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("jobs").select("*").eq("status", "open").order("published_at", {ascending: false}); if (error) throw error; return {jobs: (data || []).map(mapJob).filter((job) => isBeforeOrToday(job.deadline)), available: true}; } catch { return {jobs: [], available: false}; } }
+export async function getPublishedJobsResult(): Promise<{jobs: Job[]; available: boolean}> { if (!databaseReady()) return {jobs: [], available: false}; try { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("jobs").select("*").eq("status", "open").order("published_at", {ascending: false}); if (error) throw error; return {jobs: (data || []).map(mapJob).filter((job) => isBeforeOrToday(job.deadline)).map(publicJob), available: true}; } catch { return {jobs: [], available: false}; } }
 export async function getPublishedJobs() { return (await getPublishedJobsResult()).jobs; }
-export async function getJobBySlug(slug: string) { if (!databaseReady()) return null; try { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("jobs").select("*").eq("slug", slug).eq("status", "open").maybeSingle(); if (error) throw error; const job = data ? mapJob(data) : null; return job && isBeforeOrToday(job.deadline) ? job : null; } catch { return null; } }
+export async function getJobBySlug(slug: string) { if (!databaseReady()) return null; try { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("jobs").select("*").eq("slug", slug).eq("status", "open").maybeSingle(); if (error) throw error; const job = data ? mapJob(data) : null; return job && isBeforeOrToday(job.deadline) ? publicJob(job) : null; } catch { return null; } }
 export async function getAdminJobs() { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("jobs").select("*").order("created_at", {ascending: false}); if (error) throw error; return (data || []).map(mapJob); }
-export async function getProductsResult(): Promise<{products: Product[]; available: boolean}> { if (!databaseReady()) return {products: [], available: false}; try { const supabase = await createSupabaseServerClient(); let {data, error} = await supabase.from("products").select("*").eq("is_published", true).order("created_at", {ascending: false}); if (isMissingExtendedProductColumns(error)) ({data, error} = await supabase.from("products").select("*").order("created_at", {ascending: false})); if (error) throw error; return {products: (data || []).map(mapProduct).filter((product) => product.published !== false), available: true}; } catch { return {products: [], available: false}; } }
+export async function getProductsResult(): Promise<{products: Product[]; available: boolean}> { if (!databaseReady()) return {products: [], available: false}; try { const supabase = await createSupabaseServerClient(); let {data, error} = await supabase.from("products").select("*").eq("is_published", true).order("created_at", {ascending: false}); if (isMissingExtendedProductColumns(error)) ({data, error} = await supabase.from("products").select("*").order("created_at", {ascending: false})); if (error) throw error; return {products: (data || []).map(mapProduct).filter((product) => product.published !== false).map(publicProduct), available: true}; } catch { return {products: [], available: false}; } }
 export async function getProducts() { return (await getProductsResult()).products; }
 export async function getAdminProducts() { const supabase = await createSupabaseServerClient(); const {data, error} = await supabase.from("products").select("*").order("created_at", {ascending: false}); if (error) throw error; return (data || []).map(mapProduct); }
 export async function getApplications(filters?: {status?: string; query?: string}) { const supabase = await createSupabaseServerClient(); let query = supabase.from("job_applications").select("*, jobs(title), application_notes(note)").order("created_at", {ascending: false}); if (filters?.status && filters.status !== "All statuses") query = query.eq("status", filters.status); if (filters?.query) query = query.or(`full_name.ilike.%${filters.query}%,email.ilike.%${filters.query}%`); const {data, error} = await query; if (error) throw error; return (data || []).map(mapApplication); }

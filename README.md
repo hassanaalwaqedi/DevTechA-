@@ -1,4 +1,4 @@
-# DevTech AI
+# HIRZEXA
 
 Next.js App Router site and careers platform backed by Supabase PostgreSQL.
 
@@ -26,10 +26,12 @@ This repository includes [`render.yaml`](./render.yaml) for a single full-stack 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-publishable-key
-NEXT_PUBLIC_SITE_URL=https://your-render-service.onrender.com
+NEXT_PUBLIC_SITE_URL=https://hirzexa.com
 ```
 
 Firebase Hosting/App Hosting is not required for this architecture.
+
+The public brand and canonical URLs use `https://hirzexa.com`. The existing Render service name and Supabase identifiers remain unchanged for deployment and data compatibility.
 
 ## Backend surface
 

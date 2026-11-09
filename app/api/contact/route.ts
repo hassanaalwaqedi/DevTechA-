@@ -13,10 +13,10 @@ export async function POST(request: Request) {
   if (typeof body.website === "string" && body.website) return NextResponse.json({ok: true});
   if (!name || !email.test(workEmail) || overview.length < 20) return NextResponse.json({error: "Please provide your name, a valid work email, and a project overview of at least 20 characters."}, {status: 400});
   const webhook = process.env.CONTACT_WEBHOOK_URL;
-  if (!webhook) return NextResponse.json({error: "Enquiry delivery is not configured yet. Please email hello@devtech.ai."}, {status: 503});
+  if (!webhook) return NextResponse.json({error: "Enquiry delivery is not configured yet. Please email hello@hirzexa.com."}, {status: 503});
   try {
-    const response = await fetch(webhook, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, email: workEmail, company: body.company || "", category: body.category || "", budget: body.budget || "", overview, source: "DevTech AI website"}), signal: AbortSignal.timeout(10_000)});
+    const response = await fetch(webhook, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, email: workEmail, company: body.company || "", category: body.category || "", budget: body.budget || "", overview, source: "HIRZEXA website"}), signal: AbortSignal.timeout(10_000)});
     if (!response.ok) throw new Error("Webhook delivery failed");
-  } catch { return NextResponse.json({error: "Your enquiry could not be delivered. Please email hello@devtech.ai."}, {status: 502}); }
+  } catch { return NextResponse.json({error: "Your enquiry could not be delivered. Please email hello@hirzexa.com."}, {status: 502}); }
   return NextResponse.json({ok: true});
 }

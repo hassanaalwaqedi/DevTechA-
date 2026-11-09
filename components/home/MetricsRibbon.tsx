@@ -18,11 +18,11 @@ export function MetricsRibbon({
       href: "/products",
       title: arabic
         ? projectCount && projectCount > 0
-          ? `AEGIS AI + ${projectCount} مشاريع`
+          ? `${projectCount} منصات منشورة`
           : "مشاريع الرؤية والذكاء"
         : projectCount && projectCount > 0
-        ? `AEGIS AI + ${projectCount} Systems`
-        : "Vision & AI Systems",
+        ? `${projectCount} Published ${projectCount === 1 ? "Platform" : "Platforms"}`
+        : "Vision Technologies",
       subtitle: arabic
         ? "الرؤية الحاسوبية · ذكاء الحافة · المنصات"
         : "Smart Vision · Edge AI · Live Platforms",
@@ -60,10 +60,10 @@ export function MetricsRibbon({
           : "الوظائف المتاحة"
         : typeof openPositionsCount === "number" && openPositionsCount > 0
         ? `${openPositionsCount} Open Positions`
-        : "Open Positions",
+        : "Explore Careers",
       subtitle: arabic
         ? "انضم إلى فريق الهندسة والتطوير"
-        : "Active Roles · Join Our Team",
+        : "Engineering · Join Our Team",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>

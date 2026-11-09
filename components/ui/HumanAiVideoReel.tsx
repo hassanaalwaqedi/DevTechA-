@@ -22,7 +22,7 @@ export function HumanAiVideoReel({
   title = "Optical Eye-Contact & Edge Perception",
   subtitle = "Real-time human-centered computer vision",
   telemetry,
-  telemetryLabel = "EYE CONTACT LOCK · 99.4% · 11.4 ms",
+  telemetryLabel = "VISUAL PERCEPTION · EDGE INFERENCE",
   compact = false,
   className = "",
 }: HumanAiVideoReelProps) {

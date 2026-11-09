@@ -67,7 +67,7 @@ export function CompanyPageIntro(props: CompanyPageIntroProps) {
                 <i aria-hidden="true" />
                 {props.detailsTitle}
               </h2>
-              <span>DEVTECH AI</span>
+              <span>HIRZEXA</span>
             </div>
             <ol>
               {props.details.map((detail, index) => (

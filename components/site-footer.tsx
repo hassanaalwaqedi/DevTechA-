@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Locale } from "@/lib/locale";
-import { DevTechLogoMark } from "@/components/navigation/SiteHeader";
+import { HirzexaLogoMark } from "@/components/navigation/SiteHeader";
 
 export function SiteFooter({ locale }: { locale: Locale }) {
   const ar = locale === "ar";
@@ -11,10 +11,8 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         <div className="footer-grid dt-footer-grid">
           <div className="dt-footer-brand-col">
             <Link href="/" className="dt-brand" dir="ltr">
-              <DevTechLogoMark />
-              <span className="dt-brand-text">
-                DevTech <em>AI</em>
-              </span>
+              <HirzexaLogoMark />
+              <span className="dt-brand-text">HIRZEXA</span>
             </Link>
             <p>
               {ar
@@ -36,8 +34,8 @@ export function SiteFooter({ locale }: { locale: Locale }) {
 
           <div className="footer-contact dt-footer-contact">
             <span>{ar ? "تواصل مباشر" : "Direct"}</span>
-            <a dir="ltr" href="mailto:hello@devtech.ai">
-              hello@devtech.ai
+            <a dir="ltr" href="mailto:hello@hirzexa.com">
+              hello@hirzexa.com
             </a>
             <a
               href="https://www.linkedin.com/company/144674058"
@@ -50,7 +48,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         </div>
 
         <div className="footer-bottom dt-footer-bottom">
-          <span dir="ltr">© {new Date().getFullYear()} DevTech AI</span>
+          <span dir="ltr">© {new Date().getFullYear()} HIRZEXA</span>
           <span>
             {ar
               ? "الرؤية الحاسوبية. ذكاء الحافة. منتجات ذكية."

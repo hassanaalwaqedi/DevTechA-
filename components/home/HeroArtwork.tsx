@@ -328,7 +328,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
 
                 {/* Camera telemetry footer */}
                 <text x="48" y="222" fill="#A9D6FF" fontSize="8.5" fontWeight="600" fontFamily="sans-serif" letterSpacing="0.05em">
-                  4K HDR · 60 FPS
+                  CAMERA · SCENE INPUT
                 </text>
 
                 {/* Mounting base */}
@@ -367,10 +367,10 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
                 />
                 <circle cx="186" cy="55" r="3.5" fill="#35F2A6" />
                 <text x="196" y="58.5" fill="#FFFFFF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.05em">
-                  HUMAN-AI EYE CONTACT · LIVE 10S
+                  CAMERA SCENE ANALYSIS · LIVE
                 </text>
                 <text x="386" y="58.5" fill="#7CE7FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif">
-                  99.4% LOCK
+                  VISION SIGNAL
                 </text>
 
                 {/* Corner HUD brackets framing the live human eyes */}
@@ -392,7 +392,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
                 />
                 <circle cx="198" cy="291" r="3.8" fill="#35F2A6" />
                 <text x="208" y="294.5" fill="#E8F6FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.04em">
-                  OPTICAL GAZE &amp; SCENE PERCEPTION · 60 FPS
+                  OPTICAL PERCEPTION · SCENE UNDERSTANDING
                 </text>
               </g>
 
@@ -467,7 +467,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
                   ONNX · TensorRT
                 </text>
                 <text x="506" y="252" fill="#35F2A6" fontSize="9.5" fontWeight="800" fontFamily="sans-serif">
-                  11.4 ms INFERENCE
+                  ON-DEVICE INFERENCE
                 </text>
               </g>
             </svg>
@@ -560,7 +560,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
           <span className="dt-vision-badge">
             <i /> CV · DETECT &amp; TRACK
           </span>
-          <span className="dt-vision-fps">60 FPS</span>
+          <span className="dt-vision-fps">REAL TIME</span>
         </div>
         <div className="dt-vision-scene">
           <svg viewBox="0 0 184 96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -606,7 +606,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             <circle cx="62" cy="66" r="3.8" fill="#5CE1FF" />
             <rect x="22" y="29" width="48" height="12" rx="3" fill="#0754FF" />
             <text x="26" y="37.5" fill="#FFFFFF" fontSize="7.2" fontWeight="700" fontFamily="sans-serif">
-              OBJ · 98%
+              OBJ · DETECT
             </text>
 
             {/* Detected Silhouette 2 */}
@@ -629,7 +629,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             />
             <rect x="104" y="13" width="50" height="12" rx="3" fill="#873BFF" />
             <text x="108" y="21.5" fill="#FFFFFF" fontSize="7.2" fontWeight="700" fontFamily="sans-serif">
-              TRK · 96%
+              TRK · TRACK
             </text>
 
             <rect width="184" height="22" y="34" fill="url(#dt-cv-scan)" />
@@ -637,7 +637,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
         </div>
         <div className="dt-vision-foot">
           <span>Detection · Tracking</span>
-          <strong>11.4 ms</strong>
+          <strong>ON DEVICE</strong>
         </div>
       </div>
 

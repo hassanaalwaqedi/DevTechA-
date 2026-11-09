@@ -1,2 +1,3 @@
 import type { MetadataRoute } from "next";
-export default function sitemap(): MetadataRoute.Sitemap { const base = process.env.NEXT_PUBLIC_SITE_URL || "https://devtecha.onrender.com"; return ["", "/technology", "/products", "/applications", "/engineering", "/about", "/careers", "/contact", "/ai-architect", "/expertise", "/solutions", "/work"].map((path) => ({url: `${base}${path}`, lastModified: new Date(), changeFrequency: "monthly", priority: path === "" ? 1 : .8})); }
+import { SITE_URL } from "@/lib/site";
+export default function sitemap(): MetadataRoute.Sitemap { return ["", "/technology", "/products", "/applications", "/engineering", "/about", "/careers", "/contact", "/ai-architect", "/expertise", "/solutions", "/work"].map((path) => ({url: `${SITE_URL}${path}`, lastModified: new Date(), changeFrequency: "monthly", priority: path === "" ? 1 : .8})); }

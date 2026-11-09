@@ -11,16 +11,16 @@ import { createPageMetadata } from "@/lib/social-metadata";
 export const metadata: Metadata = createPageMetadata({
   title: "Engineering — Computer Vision Pipeline, Edge AI Optimization & Stack",
   description:
-    "How DevTech AI builds computer vision and Edge AI systems from camera input to application output using Python, OpenCV, PyTorch, YOLO, ONNX Runtime, TensorRT, FastAPI, and Docker.",
+    "How HIRZEXA builds computer vision and Edge AI systems from camera input to application output using Python, OpenCV, PyTorch, YOLO, ONNX Runtime, TensorRT, FastAPI, and Docker.",
   path: "/engineering",
-  eyebrow: "DEVTECH AI / VISION ENGINEERING",
+  eyebrow: "HIRZEXA / VISION ENGINEERING",
   badge: "CAMERA TO DASHBOARD PIPELINE",
   headline: "Engineered to see. Built for the edge.",
   summary:
     "End-to-end computer vision and Edge AI engineering: optical capture, OpenCV, YOLO & PyTorch, ONNX / TensorRT, and FastAPI dashboards.",
   chips: ["Python · PyTorch · YOLO", "ONNX · TensorRT Edge", "FastAPI · Docker"],
   scene: "engineering",
-  telemetry: "6-STAGE PIPELINE · 11.4ms EDGE NPU",
+  telemetry: "6-STAGE PIPELINE · ON DEVICE EDGE NPU",
 });
 
 export default async function EngineeringPage() {
@@ -125,7 +125,7 @@ export default async function EngineeringPage() {
                     : "We architect computer vision and Edge AI systems end to end—making latency, model precision, privacy boundaries, and hardware constraints explicit at every stage."}
                 </p>
                 <span>
-                  DEVTECH AI
+                  HIRZEXA
                   <br />
                   {ar ? "معمارية الرؤية / 01" : "VISION ARCHITECTURE / 01"}
                 </span>
@@ -151,7 +151,7 @@ export default async function EngineeringPage() {
                     ? "Python · OpenCV · PyTorch · YOLO · ONNX Runtime · TensorRT"
                     : "Camera capture → YOLO perception → ONNX / TensorRT Edge AI"
                 }
-                telemetry="EDGE NPU · 11.4ms"
+                telemetry="EDGE NPU · ON DEVICE"
               />
             </div>
           </div>

@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 export function PageSharePill({ arabic = false }: { arabic?: boolean }) {
   const pathname = usePathname();
   const [pageUrl, setPageUrl] = useState("");
-  const [pageTitle, setPageTitle] = useState("DevTech AI — Computer Vision & Edge Intelligence");
+  const [pageTitle, setPageTitle] = useState("HIRZEXA — Computer Vision & Edge Intelligence");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
