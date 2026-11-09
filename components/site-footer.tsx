@@ -18,20 +18,20 @@ export function SiteFooter({ locale }: { locale: Locale }) {
             </Link>
             <p>
               {ar
-                ? "نصمم ونبني ونشغّل أنظمة الذكاء الاصطناعي المتقدمة — من النماذج المخصصة إلى التطبيقات القابلة للتوسع."
-                : "We design, build, and deploy intelligent AI systems — from custom models to scalable applications."}
+                ? "الذكاء الذي يرى العالم. نطور تقنيات الرؤية الحاسوبية وذكاء الحافة (Edge AI) والأجهزة الذكية ومنصات البرمجيات البصرية."
+                : "Intelligence that sees the world. We build computer vision models, Edge AI systems, intelligent devices, and vision software platforms."}
             </p>
           </div>
 
           <div className="footer-links dt-footer-links">
-            <Link href="/solutions">{ar ? "الحلول" : "Solutions"}</Link>
+            <Link href="/technology">{ar ? "التقنية" : "Technology"}</Link>
+            <Link href="/products">{ar ? "المنتجات" : "Products"}</Link>
+            <Link href="/applications">{ar ? "التطبيقات" : "Applications"}</Link>
             <Link href="/engineering">{ar ? "الهندسة" : "Engineering"}</Link>
-            <Link href="/work">{ar ? "أعمالنا" : "Work"}</Link>
-            <Link href="/about">{ar ? "الشركة" : "Company"}</Link>
+            <Link href="/about">{ar ? "الشركة" : "About"}</Link>
             <Link href="/careers">{ar ? "الوظائف" : "Careers"}</Link>
-            <Link href="/expertise">{ar ? "الخبرات" : "Capabilities"}</Link>
-            <Link href="/ai-architect">{ar ? "معماري الذكاء" : "AI Architect"}</Link>
-            <Link href="/contact">{ar ? "تواصل معنا" : "Discuss a project"}</Link>
+            <Link href="/contact">{ar ? "تواصل معنا" : "Contact"}</Link>
+            <Link href="/ai-architect">{ar ? "معماري الأنظمة" : "AI Architect"}</Link>
           </div>
 
           <div className="footer-contact dt-footer-contact">
@@ -53,8 +53,8 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           <span dir="ltr">© {new Date().getFullYear()} DevTech AI</span>
           <span>
             {ar
-              ? "هندسة الذكاء الاصطناعي للتشغيل الفعلي."
-              : "AI engineering. Built for production."}
+              ? "الرؤية الحاسوبية. ذكاء الحافة. منتجات ذكية."
+              : "Computer Vision. Edge AI. Intelligent Products."}
           </span>
         </div>
       </div>

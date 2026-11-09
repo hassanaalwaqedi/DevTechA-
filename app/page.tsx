@@ -7,9 +7,9 @@ import { MetricsRibbon } from "@/components/home/MetricsRibbon";
 import { CapabilitiesSection } from "@/components/home/CapabilitiesSection";
 
 export const metadata: Metadata = {
-  title: "AI Engineering & Intelligent Systems",
+  title: "DevTech AI — Computer Vision & Edge Intelligence",
   description:
-    "We design, build, and deploy intelligent AI systems — from custom models to scalable applications.",
+    "Intelligence that sees the world. We build computer vision and Edge AI technologies that turn cameras and devices into intelligent systems — from real-time perception to actionable insights.",
 };
 
 export default async function Home() {

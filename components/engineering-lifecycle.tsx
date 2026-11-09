@@ -4,27 +4,158 @@ import { useState } from "react";
 import { useLanguage } from "@/components/language-provider";
 
 const stages = [
-  ["01", "Research & Discovery", "Define the operating environment, risks, data constraints, and technical feasibility before choosing a model."],
-  ["02", "System Architecture", "Map services, interfaces, failure modes, data boundaries, and the human decisions the system will support."],
-  ["03", "Data Engineering", "Build governed data flows, annotation strategy, retrieval pipelines, and evaluation datasets."],
-  ["04", "Model Development", "Select, adapt, and evaluate models against the task—not a generic benchmark."],
-  ["05", "Evaluation & Optimization", "Instrument quality, latency, cost, safety, and edge cases to make tradeoffs visible."],
-  ["06", "Deployment", "Package inference, integrations, and delivery infrastructure for dependable operation."],
-  ["07", "Monitoring", "Observe drift, quality signals, runtime behavior, and the next iteration of the system."],
+  [
+    "01",
+    "Camera / Sensor Input",
+    "Ingest live video streams from IP cameras, optical sensors, or local RTSP endpoints with resilient reconnection, frame pacing, and exposure handling.",
+    "RTSP / Optical Sensor Streams",
+  ],
+  [
+    "02",
+    "Video Processing",
+    "Decode, resize, normalize, and batch video frames using OpenCV and hardware-accelerated pipelines while filtering motion regions of interest.",
+    "OpenCV · Frame Decoding & ROI",
+  ],
+  [
+    "03",
+    "Computer Vision Models",
+    "Execute object detection, multi-object tracking, pose estimation, and visual event recognition built with PyTorch and YOLO architectures.",
+    "PyTorch · YOLO · Object Tracking",
+  ],
+  [
+    "04",
+    "Edge Inference Optimization",
+    "Run quantized (FP16/INT8) models locally via ONNX Runtime and TensorRT (when supported) for low-latency, privacy-conscious edge execution.",
+    "ONNX Runtime · TensorRT · Local NPU",
+  ],
+  [
+    "05",
+    "Event Intelligence",
+    "Translate raw bounding boxes and trajectories into structured temporal events, zone rules, assisted risk scores, and configurable alert triggers.",
+    "Temporal Rules · Risk Scoring",
+  ],
+  [
+    "06",
+    "Application / Dashboard",
+    "Deliver structured events, live annotated video streams, and operator notifications through FastAPI, Dockerized microservices, and web/mobile interfaces.",
+    "FastAPI · Docker · Live Monitoring UI",
+  ],
 ] as const;
-const arabicStages = [["01", "البحث والاكتشاف", "نحدد بيئة التشغيل والمخاطر وقيود البيانات والجدوى التقنية قبل اختيار النموذج."], ["02", "معمارية النظام", "نرسم الخدمات والواجهات وحدود البيانات وطرق التعامل مع الأعطال والقرارات البشرية."], ["03", "هندسة البيانات", "نبني تدفقات بيانات منظمة واستراتيجية للتصنيف والاسترجاع ومجموعات التقييم."], ["04", "تطوير النموذج", "نختار النماذج ونكيّفها ونقيّمها وفق المهمة واحتياجاتها الفعلية."], ["05", "التقييم والتحسين", "نقيس الجودة والسرعة والتكلفة والسلامة والحالات الاستثنائية لتوضيح المفاضلات."], ["06", "النشر", "نجهّز النموذج والتكاملات والبنية التحتية لتشغيل موثوق."], ["07", "المراقبة", "نراقب تغير البيانات والجودة وسلوك النظام لنوجه التطوير المستمر."]] as const;
+
+const arabicStages = [
+  [
+    "01",
+    "مدخلات الكاميرا والحساسات",
+    "استقبال البث المرئي الحي من كاميرات IP والحساسات البصرية أو بروتوكولات RTSP مع إدارة استقرار الاتصال ومعدل الإطارات.",
+    "RTSP / البث البصري المباشر",
+  ],
+  [
+    "02",
+    "معالجة الفيديو (Video Processing)",
+    "فك ترميز الإطارات وتحجيمها ومعالجتها المسبقة باستخدام OpenCV مع تحديد مناطق الاهتمام والحركة.",
+    "OpenCV · تجهيز الإطارات",
+  ],
+  [
+    "03",
+    "نماذج الرؤية الحاسوبية",
+    "تشغيل نماذج كشف الأجسام وتتبع المسارات المتعددة والتعرف على الأنشطة المبنية باستخدام PyTorch ومعماريات YOLO.",
+    "PyTorch · YOLO · التتبع البصري",
+  ],
+  [
+    "04",
+    "الاستدلال المحسّن على الحافة (Edge Inference)",
+    "تشغيل النماذج المضغوطة محلياً عبر ONNX Runtime وTensorRT لتحقيق زمن استجابة منخفض وحماية الخصوصية على الجهاز.",
+    "ONNX Runtime · TensorRT · معالجة محلية",
+  ],
+  [
+    "05",
+    "ذكاء الأحداث (Event Intelligence)",
+    "تحويل الإحداثيات والمسارات إلى أحداث زمنية مفهومة، وقواعد مناطق، وتقييم مخاطر مساعد، وتنبيهات ذكية.",
+    "تفسير الأحداث · تقييم المخاطر",
+  ],
+  [
+    "06",
+    "التطبيق ولوحة المراقبة (Dashboard)",
+    "توصيل الأحداث المنظمة والبث الحي والتنبيهات عبر خدمات FastAPI وحاويات Docker وواجهات الويب والجوال.",
+    "FastAPI · Docker · لوحة تحكم المشغل",
+  ],
+] as const;
 
 export function EngineeringLifecycle() {
   const [active, setActive] = useState(0);
   const ar = useLanguage() === "ar";
   const currentStages = ar ? arabicStages : stages;
   const stage = currentStages[active];
-  return <section className="lifecycle section" aria-labelledby="lifecycle-title"><div className="container">
-    <div className="section-kicker">{ar ? "دورة العمل الهندسي" : "Engineering lifecycle"}</div>
-    <div className="section-title-row"><h2 id="lifecycle-title">{ar ? <>من تصميم النموذج إلى <span>ذكاء يعمل في الواقع.</span></> : <>From model architecture to <span>production intelligence.</span></>}</h2><p>{ar ? "تترابط القرارات الهندسية من الفرضية الأولى إلى تشغيل النظام في الواقع." : "AI systems become useful when every engineering decision connects—from the first hypothesis to operation in the field."}</p></div>
-    <div className="lifecycle-shell">
-      <div className="lifecycle-rail" aria-label={ar ? "مراحل دورة العمل الهندسي" : "Engineering lifecycle stages"}>{currentStages.map(([number, title], index) => <button key={title} type="button" aria-pressed={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)}><span>{number}</span>{title}</button>)}</div>
-      <div className="lifecycle-detail" aria-live="polite"><div className="detail-index">{stage[0]} / {ar ? "العمل الهندسي" : "SYSTEMS PRACTICE"}</div><h3>{stage[1]}</h3><p>{stage[2]}</p><div className="detail-meter"><span style={{width: `${((active + 1) / stages.length) * 100}%`}}/></div><small>{ar ? `المرحلة ${active + 1} من ${stages.length}` : `Stage ${active + 1} of ${stages.length}`}</small></div>
-    </div>
-  </div></section>;
+
+  return (
+    <section className="lifecycle section" aria-labelledby="lifecycle-title">
+      <div className="container">
+        <div className="section-kicker">
+          {ar ? "خط أنابيب الرؤية التفاعلي" : "Interactive Vision Pipeline"}
+        </div>
+        <div className="section-title-row lifecycle-intro">
+          <h2 id="lifecycle-title">
+            {ar ? (
+              <>
+                من إشارة الكاميرا إلى <span>لوحة التحكم والتطبيق.</span>
+              </>
+            ) : (
+              <>
+                From camera sensor to <span>live application output.</span>
+              </>
+            )}
+          </h2>
+          <p>
+            {ar
+              ? "استكشف المراحل الست التي تحول البث المرئي الخام إلى أحداث ذكية وتنبيهات فورية."
+              : "Inspect each stage of our six-step computer vision and Edge AI architecture."}
+          </p>
+        </div>
+
+        <div className="lifecycle-shell">
+          <div
+            className="lifecycle-rail"
+            aria-label={ar ? "مراحل خط أنابيب الرؤية" : "Vision pipeline stages"}
+          >
+            {currentStages.map(([number, title], index) => (
+              <button
+                key={title}
+                type="button"
+                aria-pressed={active === index}
+                className={active === index ? "active" : ""}
+                onClick={() => setActive(index)}
+              >
+                <span>{number}</span>
+                <strong>{title}</strong>
+                <i aria-hidden="true">→</i>
+              </button>
+            ))}
+          </div>
+
+          <div className="lifecycle-detail" aria-live="polite">
+            <div>
+              <div className="detail-index detail-top">
+                <span>
+                  {stage[0]} / {ar ? "مرحلة خط الأنابيب" : "PIPELINE STAGE"}
+                </span>
+                <span>DEVTECH AI VISION</span>
+              </div>
+              <h3>{stage[1]}</h3>
+              <p>{stage[2]}</p>
+            </div>
+
+            <div className="detail-output">
+              <span>{ar ? "التقنيات والمخرجات" : "KEY TECHNOLOGIES & OUTPUT"}</span>
+              <strong>{stage[3]}</strong>
+              <div className="detail-meter">
+                {currentStages.map((_, idx) => (
+                  <i key={idx} className={idx <= active ? "lit" : ""} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

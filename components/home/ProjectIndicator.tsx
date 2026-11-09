@@ -23,12 +23,12 @@ const projectThumbnails = [
 export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
   return (
     <Link
-      href="/work"
+      href="/products"
       className="dt-project-indicator"
       aria-label={
         arabic
-          ? "مشاريع حقيقية. أثر ملموس. استكشف أعمالنا"
-          : "Real projects. Real impact. Explore our work"
+          ? "أنظمة رؤية ذكية ومنتجات حقيقية. استكشف منتجاتنا"
+          : "Intelligent vision systems and products. Explore our products"
       }
     >
       <div className="dt-project-avatars" aria-hidden="true">
@@ -49,12 +49,12 @@ export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
       </div>
       <div className="dt-project-indicator-text">
         <strong>
-          {arabic ? "مشاريع حقيقية. أثر ملموس." : "Real projects. Real impact."}
+          {arabic ? "AEGIS AI وأنظمة الرؤية الذكية." : "AEGIS AI & Smart Vision Systems."}
         </strong>
         <span>
           {arabic
-            ? "الرؤية الحاسوبية · أنظمة الذكاء الاصطناعي · المنصات"
-            : "Computer Vision · AI Systems · Platforms"}
+            ? "الرؤية الحاسوبية · ذكاء الحافة · الأجهزة الذكية"
+            : "Computer Vision · Edge AI · Intelligent Devices"}
         </span>
       </div>
     </Link>

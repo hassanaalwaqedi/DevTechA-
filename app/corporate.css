@@ -1906,8 +1906,8 @@
 
 /* Reference Architecture Glass Console */
 .corporate-site .architecture-diagram {
-  max-width: 980px;
-  margin: 44px 0 0 auto;
+  max-width: 100%;
+  margin: 44px 0 0;
   padding: 28px 30px;
   border-radius: 24px;
   background: linear-gradient(
@@ -1948,6 +1948,66 @@
   gap: 14px;
   align-items: stretch;
   margin: 22px 0;
+}
+
+.corporate-site .diagram-flow.diagram-flow-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.corporate-site .diagram-flow.diagram-flow-6 > div {
+  padding: 20px 18px;
+}
+
+.corporate-site .diagram-flow.diagram-flow-6 strong {
+  font-size: 17.5px;
+}
+
+.corporate-site .engineering-stack-section {
+  padding: 72px 0;
+  background: linear-gradient(180deg, rgba(240, 245, 255, 0.7) 0%, rgba(248, 250, 255, 0.95) 100%);
+  border-top: 1px solid rgba(120, 145, 225, 0.2);
+}
+
+.corporate-site .engineering-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.corporate-site .engineering-stack-card {
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(120, 145, 225, 0.24);
+  box-shadow: 0 12px 28px -10px rgba(15, 38, 105, 0.06), inset 0 1px 0 #FFFFFF;
+}
+
+.corporate-site .engineering-stack-card span {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 80, 255, 0.09);
+  color: #1050FF;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.corporate-site .engineering-stack-card h3 {
+  margin: 12px 0 6px;
+  color: #080D21;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.corporate-site .engineering-stack-card p {
+  color: #465473;
+  font-size: 13.5px;
+  line-height: 1.58;
 }
 
 .corporate-site .diagram-flow > div {
@@ -2842,7 +2902,9 @@ body:has(.startup-contact),
     grid-template-columns: 1fr;
   }
 
-  .corporate-site .diagram-flow {
+  .corporate-site .diagram-flow,
+  .corporate-site .diagram-flow.diagram-flow-6,
+  .corporate-site .engineering-stack-grid {
     grid-template-columns: 1fr;
   }
 

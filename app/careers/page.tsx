@@ -9,9 +9,9 @@ import { HeroArtwork } from "@/components/home/HeroArtwork";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 
 export const metadata: Metadata = {
-  title: "Careers",
+  title: "Careers — Build the Next Generation of Intelligent Vision",
   description:
-    "Explore open positions in AI engineering, software development, and intelligent systems at DevTech AI.",
+    "Join DevTech AI in developing computer vision models, edge intelligence systems, and the software powering intelligent devices.",
 };
 
 export default async function CareersPage() {
@@ -31,56 +31,132 @@ export default async function CareersPage() {
       : [khairProduct];
   const projectCount = products.length;
 
-  const principles = ar
+  const disciplines = ar
     ? [
         [
           "01",
-          "معايير هندسية واضحة",
-          "نحدد المتطلبات ونقيّم النتائج ونتخذ القرارات بناءً على الأدلة.",
+          "هندسة الرؤية الحاسوبية (Computer Vision Engineering)",
+          "كشف الأجسام، التتبع متعدد الأجسام، فهم المشاهد، وتحليلات الفيديو الفورية.",
         ],
         [
           "02",
-          "عمل عبر التخصصات",
-          "نربط تطوير النماذج بهندسة البيانات والبرمجيات والبنية التحتية.",
+          "هندسة التعلم الآلي (Machine Learning Engineering)",
+          "تدريب وتخصيص نماذج الإدراك البصري ونماذج الرؤية واللغة (VLMs) باستخدام PyTorch وYOLO.",
         ],
         [
           "03",
-          "تواصل مهني مباشر",
-          "نؤمن بالتعاون المحترم وتوثيق القرارات ووضوح المسؤوليات.",
+          "تحسين ذكاء الحافة (Edge AI Optimization)",
+          "ضغط النماذج، التكميم (Quantization)، والنشر عالي الكفاءة عبر ONNX Runtime وTensorRT.",
+        ],
+        [
+          "04",
+          "الأنظمة المدمجة (Embedded Systems)",
+          "برمجيات الحافة والأنظمة المدمجة لربط الكاميرات والحساسات بوحدات المعالجة المحلية.",
+        ],
+        [
+          "05",
+          "هندسة المنصات والأنظمة الخلفية (Backend / Platform Engineering)",
+          "خدمات FastAPI، أنظمة إدارة الأحداث، وبروتوكولات اتصال الأجهزة بالسحابة.",
+        ],
+        [
+          "06",
+          "تطوير تطبيقات الجوال والويب (Mobile Application Development)",
+          "تطبيقات المراقبة الحية، لوحات التحكم، وأنظمة التنبيهات الفورية للمستخدمين والمشغلين.",
+        ],
+        [
+          "07",
+          "هندسة الأجهزة الذكية (Hardware Engineering)",
+          "تصميم وتكامل الكاميرات الذكية ووحدات معالجة ذكاء الحافة وأجهزة الرؤية المستقبلية.",
         ],
       ]
     : [
         [
           "01",
-          "Engineering standards",
-          "Define requirements, evaluate outcomes, and make technical decisions grounded in evidence.",
+          "Computer Vision Engineering",
+          "Object detection, multi-object tracking, activity recognition, and real-time video analytics.",
         ],
         [
           "02",
-          "Connected disciplines",
-          "Work across model development, data, software, and production infrastructure.",
+          "Machine Learning Engineering",
+          "Training, fine-tuning, and benchmarking visual perception and vision-language models with PyTorch and YOLO.",
         ],
         [
           "03",
-          "Professional collaboration",
-          "Clear communication, documented decisions, and respect for the people doing the work.",
+          "Edge AI Optimization",
+          "Model quantization, graph optimization, and low-latency deployment via ONNX Runtime and TensorRT.",
+        ],
+        [
+          "04",
+          "Embedded Systems",
+          "Camera stream ingestion, sensor integration, and resilient runtime software for edge compute units.",
+        ],
+        [
+          "05",
+          "Backend / Platform Engineering",
+          "FastAPI microservices, device-to-cloud communication APIs, event pipelines, and cloud inference.",
+        ],
+        [
+          "06",
+          "Mobile Application Development",
+          "Smart camera management apps, live video monitoring interfaces, and configurable alert workflows.",
+        ],
+        [
+          "07",
+          "Hardware Engineering",
+          "Prototyping and engineering smart cameras, Edge AI monitoring appliances, and future vision devices.",
+        ],
+      ];
+
+  const principles = ar
+    ? [
+        [
+          "01",
+          "دقة هندسية على مشاهد واقعية",
+          "نبني ونقيّم أنظمة الرؤية الحاسوبية وذكاء الحافة بناءً على الأداء الفعلي وزمن الاستجابة.",
+        ],
+        [
+          "02",
+          "تكامل العتاد والبرمجيات",
+          "نعمل عبر طبقات الكاميرات، ونماذج الذكاء الاصطناعي، وأنظمة الحافة، وتطبيقات المستخدمين.",
+        ],
+        [
+          "03",
+          "تعاون مهني مباشر",
+          "نؤمن بالتواصل الواضح، وتوثيق القرارات المعمارية، والتركيز على بناء منتجات ذات أثر ملموس.",
+        ],
+      ]
+    : [
+        [
+          "01",
+          "Real-world vision benchmarks",
+          "Define requirements, measure latency and precision on real scenes, and ground technical decisions in evidence.",
+        ],
+        [
+          "02",
+          "Hardware + software integration",
+          "Collaborate across computer vision models, edge runtimes, intelligent device architectures, and operator apps.",
+        ],
+        [
+          "03",
+          "Direct engineering culture",
+          "Clear communication, documented system boundaries, and high ownership across every product stage.",
         ],
       ];
 
   const ribbonItems = [
     {
       id: "projects",
-      href: "/work",
+      href: "/products",
       title: ar
         ? projectCount > 0
-          ? `${projectCount} مشاريع ذكاء اصطناعي`
-          : "مشاريع الذكاء الاصطناعي"
+          ? `AEGIS AI + ${projectCount} مشاريع`
+          : "مشاريع الرؤية الذكية"
         : projectCount > 0
-        ? `${projectCount} AI Projects`
-        : "AI Projects",
+        ? `AEGIS AI + ${projectCount} Systems`
+        : "Vision & AI Systems",
       subtitle: ar
-        ? "الرؤية الحاسوبية · النماذج · المنصات"
-        : "Vision · Models · Live Platforms",
+        ? "الرؤية الحاسوبية · ذكاء الحافة · المنصات"
+        : "Smart Vision · Edge AI · Live Platforms",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -153,11 +229,11 @@ export default async function CareersPage() {
     },
     {
       id: "capabilities",
-      href: "/solutions",
-      title: ar ? "القدرات الهندسية" : "Engineering Capabilities",
+      href: "/technology",
+      title: ar ? "4 ركائز تقنية" : "4 Core Pillars",
       subtitle: ar
-        ? "الرؤية · الأنظمة الذكية · البرمجيات · البنية التحتية"
-        : "Vision · AI Systems · Software · Infra",
+        ? "الرؤية · ذكاء الحافة · الأجهزة · البرمجيات"
+        : "Vision · Edge AI · Devices · Software",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -209,11 +285,11 @@ export default async function CareersPage() {
     },
     {
       id: "global",
-      href: "#working-principles",
-      title: ar ? "توجه عالمي" : "Global Focus",
+      href: "#disciplines",
+      title: ar ? "7 تخصصات هندسية" : "7 Vision Disciplines",
       subtitle: ar
-        ? "فرق هندسية موزعة وتعاون عن بُعد"
-        : "Remote-First & Distributed Teams",
+        ? "الرؤية · الحافة · الأنظمة المدمجة · المنصات"
+        : "CV · Edge AI · Embedded · Platforms",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -272,25 +348,25 @@ export default async function CareersPage() {
             <h1 className="dt-careers-headline">
               {ar ? (
                 <>
-                  ساهم في هندسة أنظمة{" "}
+                  ابنِ الجيل القادم من{" "}
                   <span className="dt-careers-headline-gradient">
-                    الذكاء الاصطناعي.
+                    الرؤية الذكية.
                   </span>
                 </>
               ) : (
                 <>
-                  Engineer the systems
-                  <br />
-                  behind{" "}
-                  <span className="dt-careers-headline-gradient">AI.</span>
+                  Build the next generation of{" "}
+                  <span className="dt-careers-headline-gradient">
+                    intelligent vision.
+                  </span>
                 </>
               )}
             </h1>
 
             <p className="dt-careers-description">
               {ar
-                ? "استكشف فرص العمل في تطوير النماذج والبرمجيات والبنية التحتية. راجع المتطلبات ونمط العمل والتعويضات الخاصة بكل وظيفة."
-                : "Explore opportunities in model development, software, and infrastructure. Review the requirements, working arrangements, and compensation for each role."}
+                ? "انضم إلينا في تطوير نماذج الرؤية الحاسوبية، وأنظمة ذكاء الحافة (Edge AI)، والبرمجيات المشغّلة للأجهزة الذكية."
+                : "Join us in developing computer vision models, edge intelligence systems, and the software powering intelligent devices."}
             </p>
 
             <div className="dt-careers-actions">
@@ -299,15 +375,15 @@ export default async function CareersPage() {
                 <ArrowRight size={16} aria-hidden="true" />
               </a>
 
-              <a href="#working-principles" className="dt-careers-btn-secondary">
+              <a href="#disciplines" className="dt-careers-btn-secondary">
                 <span>
-                  {ar ? "لماذا العمل في DevTech AI" : "Why work at DevTech AI"}
+                  {ar ? "التخصصات الهندسية" : "Engineering disciplines"}
                 </span>
               </a>
             </div>
           </div>
 
-          {/* Right Column: Futuristic AI Visualization */}
+          {/* Right Column: Computer Vision & Edge AI Visualization */}
           <div className="dt-careers-hero-visual">
             <HeroArtwork arabic={ar} />
           </div>
@@ -376,6 +452,43 @@ export default async function CareersPage() {
         </div>
       </section>
 
+      {/* 3B. Target Engineering Disciplines */}
+      <section
+        className="dt-careers-principles"
+        id="disciplines"
+        aria-labelledby="disciplines-title"
+      >
+        <div className="container">
+          <div className="dt-careers-section-head">
+            <div>
+              <span className="dt-careers-section-kicker">
+                {ar ? "التخصصات المستهدفة" : "CORE RECRUITMENT DISCIPLINES"}
+              </span>
+              <h2 id="disciplines-title" className="dt-careers-section-title">
+                {ar
+                  ? "مجالات الهندسة التي نبحث عنها"
+                  : "Disciplines powering our vision systems"}
+              </h2>
+            </div>
+
+            <Link href="/technology" className="dt-careers-text-link">
+              <span>{ar ? "استكشف ركائزنا التقنية" : "Explore our technology pillars"}</span>
+              <ArrowUpRight size={16} />
+            </Link>
+          </div>
+
+          <div className="dt-careers-principles-grid">
+            {disciplines.map(([number, title, description]) => (
+              <article key={number} className="dt-careers-principle-card">
+                <span className="dt-careers-principle-num">{number}</span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 4. Working Principles Section */}
       <section
         className="dt-careers-principles"
@@ -421,13 +534,13 @@ export default async function CareersPage() {
               </span>
               <h2>
                 {ar
-                  ? "هل تبحث عن فرصة مختلفة؟"
-                  : "Looking for a different opportunity?"}
+                  ? "هل تتخصص في الرؤية الحاسوبية أو ذكاء الحافة؟"
+                  : "Specialize in Computer Vision, Edge AI, or Smart Hardware?"}
               </h2>
               <p>
                 {ar
-                  ? "تواصل معنا للاستفسار عن فرص العمل المستقبلية."
-                  : "Contact us about future opportunities relevant to your experience."}
+                  ? "تواصل معنا لمشاركة خبراتك والاستفسار عن الأدوار الهندسية القادمة."
+                  : "Reach out to share your background and explore upcoming engineering roles."}
               </p>
             </div>
             <a

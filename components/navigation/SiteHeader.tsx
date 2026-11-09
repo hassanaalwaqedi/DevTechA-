@@ -8,11 +8,13 @@ import { LanguageSwitch, useLanguage } from "@/components/language-provider";
 import { GradientButton } from "@/components/ui/GradientButton";
 
 const navItems = [
-  { en: "Solutions", ar: "الحلول", href: "/solutions" },
-  { en: "Engineering", ar: "الهندسة", href: "/engineering" },
-  { en: "Work", ar: "أعمالنا", href: "/work" },
-  { en: "Company", ar: "الشركة", href: "/about" },
-  { en: "Careers", ar: "الوظائف", href: "/careers" },
+  { en: "Technology", ar: "التقنية", href: "/technology", aliases: ["/expertise"] },
+  { en: "Products", ar: "المنتجات", href: "/products", aliases: ["/work"] },
+  { en: "Applications", ar: "التطبيقات", href: "/applications", aliases: ["/solutions"] },
+  { en: "Engineering", ar: "الهندسة", href: "/engineering", aliases: [] },
+  { en: "About", ar: "الشركة", href: "/about", aliases: [] },
+  { en: "Careers", ar: "الوظائف", href: "/careers", aliases: [] },
+  { en: "Contact", ar: "تواصل معنا", href: "/contact", aliases: [] },
 ] as const;
 
 export function DevTechLogoMark() {
@@ -103,7 +105,10 @@ export function SiteHeader() {
           aria-label={ar ? "القائمة الرئيسية" : "Primary navigation"}
         >
           {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const isActive =
+              pathname === item.href ||
+              pathname.startsWith(`${item.href}/`) ||
+              item.aliases.some((alias) => pathname === alias || pathname.startsWith(`${alias}/`));
             return (
               <Link
                 href={item.href}
@@ -117,20 +122,20 @@ export function SiteHeader() {
           })}
           <div className="dt-nav-mobile-actions">
             <GradientButton
-              href="/contact"
+              href="/products"
               variant="primary"
               className="dt-nav-mobile-cta"
               onClick={() => setOpen(false)}
             >
-              {ar ? "ناقش مشروعك" : "Discuss a project"}
+              {ar ? "استكشف منتجات الرؤية" : "Explore Vision Products"}
             </GradientButton>
           </div>
         </nav>
 
         <div className="dt-nav-actions">
           <LanguageSwitch />
-          <GradientButton href="/contact" variant="nav" className="nav-cta dt-nav-cta">
-            {ar ? "ناقش مشروعك" : "Discuss a project"}
+          <GradientButton href="/products" variant="nav" className="nav-cta dt-nav-cta">
+            {ar ? "منتجات الرؤية" : "Vision Products"}
           </GradientButton>
           <button
             className="menu-button dt-menu-button"

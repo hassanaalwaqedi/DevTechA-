@@ -15,17 +15,17 @@ export function MetricsRibbon({
   const items = [
     {
       id: "projects",
-      href: "/work",
+      href: "/products",
       title: arabic
         ? projectCount && projectCount > 0
-          ? `${projectCount} مشاريع ذكاء اصطناعي`
-          : "مشاريع الذكاء الاصطناعي"
+          ? `AEGIS AI + ${projectCount} مشاريع`
+          : "مشاريع الرؤية والذكاء"
         : projectCount && projectCount > 0
-        ? `${projectCount} AI Projects`
-        : "AI Projects",
+        ? `AEGIS AI + ${projectCount} Systems`
+        : "Vision & AI Systems",
       subtitle: arabic
-        ? "الرؤية الحاسوبية · النماذج · المنصات"
-        : "Vision · Models · Live Platforms",
+        ? "الرؤية الحاسوبية · ذكاء الحافة · المنصات"
+        : "Smart Vision · Edge AI · Live Platforms",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -98,11 +98,11 @@ export function MetricsRibbon({
     },
     {
       id: "production",
-      href: "/engineering",
-      title: arabic ? "جاهزة للإنتاج" : "Production-Ready",
+      href: "/technology",
+      title: arabic ? "4 ركائز تقنية" : "4 Core Pillars",
       subtitle: arabic
-        ? "معمارية شاملة من النموذج للتشغيل"
-        : "End-to-End AI Systems",
+        ? "الرؤية · ذكاء الحافة · الأجهزة · البرمجيات"
+        : "Vision · Edge AI · Devices · Software",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -129,11 +129,11 @@ export function MetricsRibbon({
     },
     {
       id: "global",
-      href: "/about",
-      title: arabic ? "توجه عالمي" : "Global Focus",
+      href: "/applications",
+      title: arabic ? "5 قطاعات تطبيقية" : "5 Application Domains",
       subtitle: arabic
-        ? "تعاون هندسي عابر للحدود"
-        : "Distributed AI Engineering",
+        ? "المنازل · التجزئة · بيئات العمل · السلامة · الصناعة"
+        : "Homes · Retail · Workplace · Safety · Industry",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>

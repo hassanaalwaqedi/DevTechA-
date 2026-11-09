@@ -1,39 +1,327 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CompanyPageIntro } from "@/components/company-page-intro";
-import { ArrowUpRight, BrainCircuit, Eye, Layers3, MoveUpRight } from "lucide-react";
+import { ArrowUpRight, Camera, Cpu, Eye, MonitorPlay, MoveUpRight } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import "./about.css";
 
-export const metadata: Metadata = {title: "About", description: "Meet DevTech AI: an AI engineering company building intelligent systems from model to production."};
-
+export const metadata: Metadata = {
+  title: "About — Computer Vision & Edge Intelligence Company",
+  description:
+    "DevTech AI is a Computer Vision and Edge AI technology company developing accessible visual intelligence, edge inference systems, smart devices, and vision software platforms.",
+};
 
 export default async function AboutPage() {
-  const ar = await getLocale() === "ar";
-  const capabilities = ar ? [
-    ["01", "الذكاء الاصطناعي", "نماذج مخصصة وأنظمة لغوية وذكاء تطبيقي مصمم حول المشكلة.", "/expertise", BrainCircuit],
-    ["02", "الرؤية الحاسوبية", "تحويل الصور والفيديو إلى إشارات مفيدة من خلال الكشف والتتبع والتحليل.", "/expertise#vision", Eye],
-    ["03", "الأنظمة والبنية التحتية", "هندسة البيانات وخدمات النماذج والأنظمة الخلفية لتشغيل موثوق.", "/engineering", Layers3],
-  ] as const : [
-    ["01", "Artificial intelligence", "Custom models, language systems, and applied intelligence built around the problem.", "/expertise", BrainCircuit],
-    ["02", "Computer vision", "Turn images and video into useful signals through detection, tracking, and analysis.", "/expertise#vision", Eye],
-    ["03", "Systems & infrastructure", "Data, model serving, and backend engineering for dependable operation.", "/engineering", Layers3],
-  ] as const;
+  const ar = (await getLocale()) === "ar";
 
-  return <main className="about-new">
-    <CompanyPageIntro
-      eyebrow={ar ? "DEVTECH AI / الشركة" : "DEVTECH AI / COMPANY"}
-      title={ar ? "شركة متخصصة في هندسة الذكاء الاصطناعي." : "An AI engineering company."}
-      description={ar ? "نجمع بين تطوير النماذج وهندسة البرمجيات والبنية التحتية لبناء أنظمة ذكاء اصطناعي تلبي متطلبات التشغيل الفعلي." : "DevTech AI brings model development, software engineering, and infrastructure together to build intelligent systems for real operating environments."}
-      actionLabel={ar ? "منهجنا الهندسي" : "Our engineering practice"}
-      actionHref="/engineering"
-      secondaryLabel={ar ? "استكشف أعمالنا" : "Explore our work"}
-      secondaryHref="/work"
-      detailsTitle={ar ? "مجالات عملنا" : "OUR FOCUS"}
-      details={ar ? ["تطوير نماذج الذكاء الاصطناعي","معمارية البرمجيات وتطويرها","خدمات الاستدلال والبنية التحتية"] : ["AI model development","Software architecture & development","Inference services & infrastructure"]}
-    />
-    <section className="about-vision-new" id="our-vision"><div className="container about-vision-grid"><div className="about-vision-label"><span className="about-kicker">{ar ? "01 / رؤيتنا" : "01 / OUR VISION"}</span><span className="about-vision-star" aria-hidden="true">✳</span></div><div><h2>{ar ? <>نجعل الذكاء <span>مفيداً</span> في العالم الحقيقي.</> : <>Make intelligence <span>useful</span> in the real world.</>}</h2><p>{ar ? "رؤيتنا هي بناء أنظمة ذكية تجمع بين البحث والهندسة وفهم الناس؛ أنظمة يمكن الوثوق بها وتطويرها والاستفادة منها خارج حدود التجارب." : "Our vision is to build intelligent systems that bring research, engineering, and people together—systems made to be understood, improved, and useful beyond the lab."}</p><Link href="/engineering" className="about-text-link">{ar ? "اكتشف كيف نعمل" : "Discover how we work"} <ArrowUpRight size={16}/></Link></div></div></section>
-    <section className="about-capabilities-new"><div className="container"><div className="about-capabilities-head"><div><span className="about-kicker">{ar ? "02 / ما نعمل عليه" : "02 / WHAT WE WORK ON"}</span><h2>{ar ? <>أفكار كبيرة.<br/><span>أنظمة مدروسة.</span></> : <>Big ideas.<br/><span>Thoughtful systems.</span></>}</h2></div><p>{ar ? "من أول تجربة إلى النظام المتكامل، نربط كل جزء بما يحتاجه الواقع." : "From the first experiment to the complete system, we connect every part to what the real world needs."}</p></div><div className="about-capability-grid">{capabilities.map(([number, title, description, href, Icon]) => <Link key={number} href={href} className="about-capability"><div className="about-capability-top"><span>{number} / DEVTECH AI</span><Icon size={20}/></div><div><h3>{title}</h3><p>{description}</p></div><span className="about-capability-arrow"><MoveUpRight size={18}/></span></Link>)}</div></div></section>
-    <section className="about-belief-new"><div className="container"><div><span className="about-kicker">{ar ? "03 / ما نؤمن به" : "03 / WHAT WE BELIEVE"}</span><h2>{ar ? <>لا نكتفي بدمج الذكاء الاصطناعي.<br/><span>بل نهندسه.</span></> : <>We don&apos;t just integrate AI.<br/><span>We engineer it.</span></>}</h2><p>{ar ? "نجمع بين التعلم الآلي ومعمارية البرمجيات والبنية التحتية لبناء ذكاء يعمل ويتطور." : "We bring machine learning, software architecture, and infrastructure together to build intelligence that works and evolves."}</p></div><Link href="/contact" className="about-primary-link">{ar ? "لنبدأ الحديث" : "Start a conversation"}<span><ArrowUpRight size={17}/></span></Link></div></section>
-  </main>;
+  const pillars = ar
+    ? ([
+        [
+          "01",
+          "الابتكار بقيادة الهندسة والخبرة في الرؤية الحاسوبية",
+          "نطوّر نماذج كشف الأجسام وتتبعها وتحليلات الفيديو الفورية المبنية للعمل في البيئات الواقعية.",
+          "/technology#computer-vision",
+          Eye,
+        ],
+        [
+          "02",
+          "الالتزام طويل المدى بذكاء الحافة (Edge AI)",
+          "نحسّن نماذج الرؤية لتعمل محلياً على أجهزة الحافة بزمن استجابة منخفض وبنية تراعي الخصوصية.",
+          "/technology#edge-ai",
+          Cpu,
+        ],
+        [
+          "03",
+          "تكامل الأجهزة الذكية والبرمجيات",
+          "نجمع بين الكاميرات ووحدات المعالجة المحلية ولوحات المراقبة وتطبيقات الهواتف في منظومة متكاملة.",
+          "/products",
+          Camera,
+        ],
+      ] as const)
+    : ([
+        [
+          "01",
+          "Computer Vision Expertise & Engineering-Led Innovation",
+          "We engineer object detection, multi-object tracking, and real-time video analytics models built for real operating environments.",
+          "/technology#computer-vision",
+          Eye,
+        ],
+        [
+          "02",
+          "Long-Term Commitment to Edge AI",
+          "We optimize neural perception to run locally at the camera and edge node—delivering low latency, bandwidth efficiency, and privacy-conscious operation.",
+          "/technology#edge-ai",
+          Cpu,
+        ],
+        [
+          "03",
+          "Hardware + Software Product Integration",
+          "We unite optical sensors, edge processing units, monitoring dashboards, and mobile applications into cohesive products.",
+          "/products",
+          Camera,
+        ],
+      ] as const);
+
+  const roadmapStages = ar
+    ? ([
+        [
+          "المرحلة 01 · حالي",
+          "أنظمة الرؤية الحاسوبية وذكاء السلامة (AEGIS AI)",
+          "تطوير نماذج الإدراك البصري الفوري، وتتبع الأجسام، وتقييم المخاطر المساعد، ولوحات المراقبة البرمجية.",
+          "/products#aegis-ai",
+          MonitorPlay,
+        ],
+        [
+          "المرحلة 02 · اتجاه مخطط (قيد التطوير)",
+          "وحدات معالجة ذكاء الحافة والكاميرات الذكية",
+          "تطوير نماذج أولية لأجهزة مراقبة الحافة والكاميرات الذكية للمنازل والشركات مع تطبيقات إدارة متكاملة.",
+          "/products#product-roadmap",
+          Cpu,
+        ],
+        [
+          "المرحلة 03 · رؤية طويلة المدى (مفهوم مستقبلي)",
+          "الأجهزة البصرية المتقدمة والتقنيات القابلة للارتداء",
+          "بناء جيل جديد من الأجهزة الذكية المملوكة للشركة ومنتجات الرؤية القابلة للارتداء وتطبيقات الفحص الصناعي.",
+          "/applications#industrial-vision",
+          Camera,
+        ],
+      ] as const)
+    : ([
+        [
+          "PHASE 01 · CURRENT FOCUS",
+          "Computer Vision & Safety Intelligence Software (AEGIS AI)",
+          "Advancing real-time camera analysis, object tracking, event interpretation, assisted risk scoring, and operator monitoring dashboards.",
+          "/products#aegis-ai",
+          MonitorPlay,
+        ],
+        [
+          "PHASE 02 · PLANNED DIRECTION (IN DEVELOPMENT)",
+          "Edge AI Appliances & Smart Camera Prototyping",
+          "Engineering local Edge AI monitoring units, privacy-conscious smart cameras, and unified mobile/web device management applications.",
+          "/products#product-roadmap",
+          Cpu,
+        ],
+        [
+          "PHASE 03 · LONG-TERM VISION (CONCEPT)",
+          "Proprietary Intelligent Devices & Wearable Vision",
+          "Building a product-oriented technology company capable of engineering its own intelligent cameras, industrial vision systems, and future wearable vision hardware.",
+          "/applications#industrial-vision",
+          Camera,
+        ],
+      ] as const);
+
+  return (
+    <main className="about-new">
+      <CompanyPageIntro
+        eyebrow={
+          ar
+            ? "DEVTECH AI / شركة الرؤية الحاسوبية وذكاء الحافة"
+            : "DEVTECH AI / COMPUTER VISION & EDGE INTELLIGENCE"
+        }
+        title={
+          ar ? "الذكاء الذي يرى العالم." : "Intelligence that sees the world."
+        }
+        description={
+          ar
+            ? "مهمتنا هي تطوير تقنيات رؤية ذكية يسهل الوصول إليها، تجمع بين نماذج الرؤية الحاسوبية، والحوسبة على الحافة (Edge AI)، والأجهزة الذكية، والبرمجيات في منتجات عملية للمنازل والشركات والصناعة."
+            : "Our mission is to develop accessible, intelligent visual technologies that combine computer vision models, edge computing, smart hardware, and software into practical products for homes, businesses, and industry."
+        }
+        actionLabel={ar ? "استكشف ركائزنا التقنية" : "Explore our technology"}
+        actionHref="/technology"
+        secondaryLabel={ar ? "اكتشف منتجاتنا" : "Discover our products"}
+        secondaryHref="/products"
+        detailsTitle={ar ? "هويتنا التقنية" : "COMPANY POSITIONING"}
+        details={
+          ar
+            ? [
+                "شركة تقنية متخصصة في الرؤية الحاسوبية وذكاء الحافة",
+                "تكامل العتاد الذكي والبرمجيات البصرية",
+                "رؤية طويلة المدى لهندسة أجهزة ومنصات ذكية خاصة",
+              ]
+            : [
+                "Computer Vision & Edge Intelligence Company",
+                "Hardware + software product engineering",
+                "Accessible visual intelligence for homes, business & industry",
+              ]
+        }
+      />
+
+      {/* Section 01: Company Story & Long-Term Vision */}
+      <section className="about-vision-new" id="our-vision">
+        <div className="container about-vision-grid">
+          <div className="about-vision-label">
+            <span className="about-kicker">
+              {ar ? "01 / مهمتنا ورؤيتنا" : "01 / MISSION & LONG-TERM VISION"}
+            </span>
+            <span className="about-vision-star" aria-hidden="true">
+              ✳
+            </span>
+          </div>
+          <div>
+            <h2>
+              {ar ? (
+                <>
+                  نبني شركة تقنية تهندس <span>أجهزتها الذكية</span> ومنصاتها البصرية.
+                </>
+              ) : (
+                <>
+                  Engineering our own <span>intelligent devices</span> and vision platforms.
+                </>
+              )}
+            </h2>
+            <p>
+              {ar
+                ? "في DevTech AI، ننطلق من قناعة هندسية واضحة: القيمة الحقيقية للرؤية الحاسوبية تتحقق عندما تتكامل النماذج الذكية مع معالجة الحافة والأجهزة المدمجة والبرمجيات السلسة. رؤيتنا طويلة المدى هي بناء شركة منتجات تقنية قادرة على تصميم وهندسة أجهزتها الذكية ومنصاتها البرمجية الخاصة لخدمة المنازل والشركات والقطاعات الصناعية."
+                : "At DevTech AI, our story is driven by engineering-led innovation and product development. Rather than acting as a general software agency, we focus on where visual perception meets the physical world—combining computer vision models, low-latency Edge AI, smart hardware, and operator software into accessible, practical products."}
+            </p>
+            <Link href="/engineering" className="about-text-link">
+              {ar ? "استكشف خط أنابيب الرؤية الهندسي" : "Explore our vision engineering pipeline"}{" "}
+              <ArrowUpRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 02: Core Focus Pillars */}
+      <section className="about-capabilities-new">
+        <div className="container">
+          <div className="about-capabilities-head">
+            <div>
+              <span className="about-kicker">
+                {ar ? "02 / مرتكزاتنا الهندسية" : "02 / WHAT DRIVES OUR WORK"}
+              </span>
+              <h2>
+                {ar ? (
+                  <>
+                    تخصص عميق في
+                    <br />
+                    <span>الرؤية والحافة والمنتجات.</span>
+                  </>
+                ) : (
+                  <>
+                    Computer Vision. Edge AI.
+                    <br />
+                    <span>Intelligent Products.</span>
+                  </>
+                )}
+              </h2>
+            </div>
+            <p>
+              {ar
+                ? "نربط البحث التطبيقي في الرؤية الحاسوبية بتحسين النماذج للحافة وتطوير المنتجات المتكاملة."
+                : "Every layer we build is designed to make visual intelligence faster, more accessible, and ready for real-world deployment."}
+            </p>
+          </div>
+
+          <div className="about-capability-grid">
+            {pillars.map(([number, title, description, href, Icon]) => (
+              <Link key={number} href={href} className="about-capability">
+                <div className="about-capability-top">
+                  <span>{number} / DEVTECH AI</span>
+                  <Icon size={20} />
+                </div>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </div>
+                <span className="about-capability-arrow">
+                  <MoveUpRight size={18} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 03: Forward-Looking Planned Roadmap */}
+      <section className="about-capabilities-new" id="roadmap" style={{ paddingTop: "10px" }}>
+        <div className="container">
+          <div className="about-capabilities-head">
+            <div>
+              <span className="about-kicker">
+                {ar
+                  ? "03 / خارطة الطريق المستقبلية (اتجاه مخطط)"
+                  : "03 / FORWARD-LOOKING ROADMAP (PLANNED DIRECTION)"}
+              </span>
+              <h2>
+                {ar ? (
+                  <>
+                    مسارنا نحو
+                    <br />
+                    <span>الجيل القادم من أجهزة الرؤية.</span>
+                  </>
+                ) : (
+                  <>
+                    Planned direction from
+                    <br />
+                    <span>vision software to smart hardware.</span>
+                  </>
+                )}
+              </h2>
+            </div>
+            <p>
+              {ar
+                ? "نوضح بشفافية مراحل تطورنا من أنظمة الرؤية البرمجية الحالية إلى النماذج الأولية للأجهزة والمفاهيم المستقبلية."
+                : "Our strategic roadmap clearly distinguishes current software capabilities from planned hardware prototypes and long-term concepts."}
+            </p>
+          </div>
+
+          <div className="about-capability-grid">
+            {roadmapStages.map(([phase, title, description, href, Icon]) => (
+              <Link key={phase} href={href} className="about-capability">
+                <div className="about-capability-top">
+                  <span>{phase}</span>
+                  <Icon size={20} />
+                </div>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </div>
+                <span className="about-capability-arrow">
+                  <MoveUpRight size={18} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 04: Belief / CTA */}
+      <section className="about-belief-new">
+        <div className="container">
+          <div>
+            <span className="about-kicker">
+              {ar ? "04 / التزامنا التقني" : "04 / OUR COMMITMENT"}
+            </span>
+            <h2>
+              {ar ? (
+                <>
+                  تقنيات رؤية ذكية وعملية.
+                  <br />
+                  <span>مصممة للعالم الحقيقي.</span>
+                </>
+              ) : (
+                <>
+                  Accessible intelligent vision.
+                  <br />
+                  <span>Engineered for the real world.</span>
+                </>
+              )}
+            </h2>
+            <p>
+              {ar
+                ? "نواصل الاستثمار في الرؤية الحاسوبية وذكاء الحافة وتكامل العتاد والبرمجيات لبناء منتجات يعتمد عليها الناس والمؤسسات."
+                : "We combine computer vision models, Edge AI optimization, and thoughtful product design to build visual systems people can trust."}
+            </p>
+          </div>
+          <Link href="/contact" className="about-primary-link">
+            {ar ? "تواصل مع فريقنا" : "Start a conversation"}
+            <span>
+              <ArrowUpRight size={17} />
+            </span>
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
 }

@@ -9,8 +9,10 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
     {
       id: "computer-vision",
       title: arabic ? "الرؤية الحاسوبية" : "Computer Vision",
-      subtitle: arabic ? "الكشف · التتبع · التحليلات" : "Detection · Tracking · Analytics",
-      href: "/expertise#vision",
+      subtitle: arabic
+        ? "كشف الأجسام · التتبع · تحليلات الفيديو الفورية"
+        : "Object Detection · Tracking · Video Analytics",
+      href: "/technology#computer-vision",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -45,10 +47,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       ),
     },
     {
-      id: "ai-systems",
-      title: arabic ? "أنظمة ونماذج الذكاء الاصطناعي" : "AI Systems & Models",
-      subtitle: arabic ? "التدريب · التحسين · النشر" : "Training · Optimization · Deployment",
-      href: "/expertise#model",
+      id: "edge-ai",
+      title: arabic ? "ذكاء الحافة (Edge AI)" : "Edge AI",
+      subtitle: arabic
+        ? "استدلال على الجهاز · تحسين النماذج · زمن استجابة منخفض"
+        : "On-Device Inference · Model Optimization · Low Latency",
+      href: "/technology#edge-ai",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -77,12 +81,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       ),
     },
     {
-      id: "software-engineering",
-      title: arabic ? "هندسة البرمجيات" : "Software Engineering",
+      id: "intelligent-devices",
+      title: arabic ? "الأجهزة الذكية" : "Intelligent Devices",
       subtitle: arabic
-        ? "الويب · الجوال · الأنظمة الخلفية · الواجهات"
-        : "Web · Mobile · Backend · APIs",
-      href: "/expertise#systems",
+        ? "الكاميرات الذكية · وحدات معالجة الحافة · إنترنت الأشياء البصري"
+        : "Smart Cameras · Edge AI Units · Vision IoT",
+      href: "/technology#intelligent-devices",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -92,35 +96,39 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
             </linearGradient>
           </defs>
           <rect
-            x="4"
+            x="5"
             y="6"
-            width="24"
-            height="20"
-            rx="4"
+            width="22"
+            height="16"
+            rx="4.5"
             stroke="url(#dt-cap-grad-3)"
             strokeWidth="1.85"
           />
-          <path
-            d="M4 11.5H28"
+          <circle
+            cx="16"
+            cy="14"
+            r="4.2"
             stroke="url(#dt-cap-grad-3)"
-            strokeWidth="1.5"
-            strokeOpacity="0.65"
+            strokeWidth="1.75"
           />
+          <circle cx="16" cy="14" r="1.6" fill="#0754FF" />
+          <circle cx="22.5" cy="9.5" r="1.2" fill="#873BFF" />
           <path
-            d="M12.5 16L9.5 18.8L12.5 21.6M19.5 16L22.5 18.8L19.5 21.6M17 15.2L15 22.4"
+            d="M12 25.5H20M16 22V25.5"
             stroke="url(#dt-cap-grad-3)"
             strokeWidth="1.75"
             strokeLinecap="round"
-            strokeLinejoin="round"
           />
         </svg>
       ),
     },
     {
-      id: "ai-infrastructure",
-      title: arabic ? "البنية التحتية للذكاء الاصطناعي" : "AI Infrastructure",
-      subtitle: arabic ? "قابلية التوسع · الموثوقية · الأمان" : "Scalable · Reliable · Secure",
-      href: "/expertise#infrastructure",
+      id: "vision-software",
+      title: arabic ? "برمجيات الرؤية" : "Vision Software",
+      subtitle: arabic
+        ? "لوحات المراقبة · البث الحي · إدارة الأحداث والتنبيهات"
+        : "Monitoring Dashboards · Live Video · Event Alerts",
+      href: "/technology#vision-software",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -130,29 +138,33 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
             </linearGradient>
           </defs>
           <rect
-            x="5"
-            y="6.5"
-            width="22"
-            height="7.5"
-            rx="2.6"
+            x="4"
+            y="6"
+            width="24"
+            height="19"
+            rx="3.8"
             stroke="url(#dt-cap-grad-4)"
             strokeWidth="1.85"
+          />
+          <path
+            d="M4 11.2H28"
+            stroke="url(#dt-cap-grad-4)"
+            strokeWidth="1.5"
+            strokeOpacity="0.65"
           />
           <rect
-            x="5"
-            y="18"
-            width="22"
-            height="7.5"
-            rx="2.6"
+            x="8"
+            y="14.5"
+            width="8.5"
+            height="6.5"
+            rx="1.5"
             stroke="url(#dt-cap-grad-4)"
-            strokeWidth="1.85"
+            strokeWidth="1.5"
           />
-          <circle cx="9.5" cy="10.25" r="1.4" fill="#1050FF" />
-          <circle cx="9.5" cy="21.75" r="1.4" fill="#873BFF" />
           <path
-            d="M14 10.25H22.5M14 21.75H22.5M11 14V18M21 14V18"
+            d="M19.5 15.5H24M19.5 18.2H24M19.5 20.9H22.5"
             stroke="url(#dt-cap-grad-4)"
-            strokeWidth="1.65"
+            strokeWidth="1.6"
             strokeLinecap="round"
           />
         </svg>
@@ -165,10 +177,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       <div className="container">
         <div className="dt-capabilities-header">
           <span className="dt-section-eyebrow">
-            {arabic ? "قدراتنا الهندسية" : "OUR CAPABILITIES"}
+            {arabic ? "الركائز التقنية الأربع" : "CORE TECHNOLOGY PILLARS"}
           </span>
           <h2 id="dt-capabilities-heading" className="dt-section-title">
-            {arabic ? "هندسة ذكاء اصطناعي متكاملة." : "End-to-end AI engineering."}
+            {arabic
+              ? "الرؤية الحاسوبية. ذكاء الحافة. منتجات ذكية."
+              : "Computer Vision. Edge AI. Intelligent Products."}
           </h2>
         </div>
 

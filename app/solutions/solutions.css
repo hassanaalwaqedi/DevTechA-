@@ -217,6 +217,53 @@
     linear-gradient(165deg, rgba(247, 250, 255, 0.96) 0%, rgba(238, 243, 255, 0.92) 100%);
 }
 
+.solutions-area-05 {
+  grid-column: 1 / -1;
+  background:
+    radial-gradient(circle at 88% 20%, rgba(135, 59, 255, 0.1) 0%, rgba(16, 80, 255, 0.06) 45%, transparent 70%),
+    linear-gradient(165deg, rgba(255, 255, 255, 0.97) 0%, rgba(242, 246, 255, 0.92) 100%);
+}
+
+.solutions-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.solutions-status-active {
+  background: rgba(16, 80, 255, 0.1);
+  border: 1px solid rgba(16, 80, 255, 0.25);
+  color: #0754FF;
+}
+
+.solutions-status-planned {
+  background: rgba(135, 59, 255, 0.1);
+  border: 1px solid rgba(135, 59, 255, 0.25);
+  color: #7A2EE6;
+}
+
+.solutions-scenario-box {
+  margin-top: 16px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: rgba(240, 245, 255, 0.78);
+  border: 1px solid rgba(120, 145, 225, 0.2);
+  color: #1E2C4E;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.solutions-scenario-box strong {
+  color: #080D21;
+  font-weight: 700;
+}
+
 .solutions-area-top {
   width: 100%;
   display: flex;

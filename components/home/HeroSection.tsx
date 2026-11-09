@@ -59,40 +59,44 @@ export function HeroSection({ arabic = false }: HeroSectionProps) {
           <div className="dt-hero-copy">
             <GlassSurface variant="pill" className="dt-hero-pill">
               <span className="dt-hero-pill-dot" aria-hidden="true" />
-              <span>{arabic ? "استوديو هندسة الذكاء الاصطناعي" : "AI Engineering Studio"}</span>
+              <span>
+                {arabic
+                  ? "الرؤية الحاسوبية · ذكاء الحافة"
+                  : "COMPUTER VISION · EDGE INTELLIGENCE"}
+              </span>
             </GlassSurface>
 
             <h1 id="dt-hero-heading" className="dt-hero-title">
               {arabic ? (
                 <>
-                  <span className="dt-hero-title-dark">هندسة الذكاء الاصطناعي.</span>
-                  <span className="dt-hero-title-gradient">مصممة للتشغيل الفعلي.</span>
+                  <span className="dt-hero-title-dark">الذكاء الذي</span>
+                  <span className="dt-hero-title-gradient">يرى العالم.</span>
                 </>
               ) : (
                 <>
-                  <span className="dt-hero-title-dark">AI engineering.</span>
-                  <span className="dt-hero-title-gradient">Built for production.</span>
+                  <span className="dt-hero-title-dark">Intelligence that</span>
+                  <span className="dt-hero-title-gradient">sees the world.</span>
                 </>
               )}
             </h1>
 
             <p className="dt-hero-description">
               {arabic
-                ? "نصمم ونبني ونشغّل أنظمة الذكاء الاصطناعي المتقدمة — من النماذج المخصصة إلى التطبيقات القابلة للتوسع."
-                : "We design, build, and deploy intelligent AI systems — from custom models to scalable applications."}
+                ? "نطور تقنيات الرؤية الحاسوبية وذكاء الحافة (Edge AI) التي تحوّل الكاميرات والأجهزة إلى أنظمة ذكية — من الإدراك البصري الفوري إلى الرؤى القابلة للتنفيذ."
+                : "We build computer vision and Edge AI technologies that turn cameras and devices into intelligent systems — from real-time perception to actionable insights."}
             </p>
 
             <div className="dt-hero-actions">
-              <GradientButton href="/contact" variant="primary" className="dt-hero-btn-primary">
-                <span>{arabic ? "ناقش مشروعك" : "Discuss a project"}</span>
+              <GradientButton href="/technology" variant="primary" className="dt-hero-btn-primary">
+                <span>{arabic ? "استكشف تقنياتنا" : "Explore Our Technology"}</span>
                 <ArrowUpRight size={18} className="dt-btn-arrow" aria-hidden="true" />
               </GradientButton>
 
-              <GradientButton href="/work" variant="secondary" className="dt-hero-btn-secondary">
+              <GradientButton href="/products" variant="secondary" className="dt-hero-btn-secondary">
                 <span className="dt-play-badge" aria-hidden="true">
                   <Play size={11} fill="currentColor" strokeWidth={1.5} />
                 </span>
-                <span>{arabic ? "شاهد أعمالنا" : "See our work"}</span>
+                <span>{arabic ? "اكتشف منتجات الرؤية" : "Discover Our Vision Products"}</span>
               </GradientButton>
             </div>
 
