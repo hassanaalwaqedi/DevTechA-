@@ -19,3 +19,4 @@ export const metadata: Metadata = createPageMetadata({
 export default function AiArchitectLayout({ children }: { children: React.ReactNode }) {
   return children;
 }
+
