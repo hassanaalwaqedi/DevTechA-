@@ -970,9 +970,188 @@ html[lang="ar"] .application-success h2 {
   }
 }
 
+/* ==========================================================================
+   GEMINI AI · SMART CV AUTO-FILL BANNER & HIGHLIGHT STATES
+   ========================================================================== */
+
+.cv-autofill-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 20px 28px;
+  margin-bottom: 20px;
+  padding: 26px 32px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% 20%, rgba(135, 59, 255, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 12% 80%, rgba(16, 80, 255, 0.1) 0%, transparent 55%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.96) 0%, rgba(238, 244, 255, 0.92) 100%);
+  border: 1px solid rgba(16, 80, 255, 0.26);
+  box-shadow:
+    0 18px 42px -14px rgba(16, 80, 255, 0.11),
+    0 4px 12px rgba(135, 59, 255, 0.05),
+    inset 0 1px 0 #FFFFFF;
+}
+
+.cv-autofill-banner.is-success {
+  border-color: rgba(16, 185, 129, 0.38);
+}
+
+.cv-autofill-copy {
+  min-width: 0;
+}
+
+.cv-autofill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(110deg, rgba(7, 84, 255, 0.12) 0%, rgba(146, 54, 239, 0.14) 100%);
+  border: 1px solid rgba(16, 80, 255, 0.24);
+  color: #1050FF;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cv-autofill-copy h3 {
+  margin-top: 10px;
+  color: #080D21;
+  font-family: var(--font-sans), Inter, sans-serif;
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.022em;
+}
+
+.cv-autofill-copy p {
+  max-width: 560px;
+  margin-top: 6px;
+  color: #465473;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.cv-autofill-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.cv-autofill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: linear-gradient(110deg, #0754FF 0%, #3665FF 45%, #9236EF 100%);
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow:
+    0 12px 26px -6px rgba(16, 80, 255, 0.38),
+    0 4px 10px -2px rgba(135, 59, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.cv-autofill-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 32px -6px rgba(16, 80, 255, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.cv-autofill-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.cv-autofill-filename {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1050FF;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.cv-autofill-status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(16, 80, 255, 0.22);
+  color: #1F2D4F;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cv-autofill-status.is-success {
+  background: rgba(236, 253, 245, 0.92);
+  border-color: rgba(16, 185, 129, 0.34);
+  color: #065F46;
+}
+
+.cv-autofill-status svg {
+  color: #1050FF;
+  flex-shrink: 0;
+}
+
+.cv-autofill-status.is-success svg {
+  color: #059669;
+}
+
+.cv-spin {
+  animation: cvSpin 1s linear infinite;
+}
+
+@keyframes cvSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.application-form .field input[data-autofilled="true"],
+.application-form .field select[data-autofilled="true"],
+.application-form .field textarea[data-autofilled="true"] {
+  border-color: rgba(16, 80, 255, 0.42) !important;
+  background: linear-gradient(180deg, #F4F8FF 0%, #FFFFFF 100%) !important;
+  box-shadow: 0 0 0 3px rgba(16, 80, 255, 0.07);
+}
+
+@media (max-width: 720px) {
+  .cv-autofill-banner {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .cv-autofill-actions {
+    align-items: stretch;
+  }
+
+  .cv-autofill-btn {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .application-orbit,
-  .application-signal-core {
+  .application-signal-core,
+  .cv-spin {
     animation: none;
   }
 }
