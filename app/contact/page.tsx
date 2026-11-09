@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Asterisk, Plus } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Plus } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
 
 const categories = [
   "Computer Vision Systems",
@@ -121,11 +122,28 @@ export default function ContactPage() {
             <a className="contact-email" dir="ltr" href="mailto:hello@devtech.ai">
               hello@devtech.ai <ArrowUpRight size={17} />
             </a>
-            <div className="contact-orbit" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <Asterisk />
+            <div className="contact-video-showcase">
+              <HumanAiVideoReel
+                videoSrc="/videos/human-ai-contact.mp4"
+                posterSrc="/human-ai-contact.jpg"
+                badge={
+                  ar
+                    ? "10 ثوانٍ · تواصل مباشر مع فريقنا"
+                    : "10S REEL · DIRECT HUMAN-AI CONNECTION"
+                }
+                title={
+                  ar
+                    ? "مهندسو الرؤية الحاسوبية وذكاء الحافة بانتظارك"
+                    : "Connect With Our Computer Vision & Edge AI Team"
+                }
+                subtitle={
+                  ar
+                    ? "استشارات تقنية · عروض AEGIS AI · شراكات المنتجات"
+                    : "Architecture reviews · AEGIS AI demos · Product partnerships"
+                }
+                telemetry="DIRECT EYE CONTACT"
+                compact
+              />
             </div>
             <div className="contact-intro-bottom">
               <span>

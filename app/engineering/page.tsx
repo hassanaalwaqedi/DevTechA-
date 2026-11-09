@@ -5,6 +5,7 @@ import { getLocale } from "@/lib/locale";
 import { EngineeringLifecycle } from "@/components/engineering-lifecycle";
 import { ArchitectureDiagram } from "@/components/technical-visuals";
 import { HowWeWork } from "@/components/how-we-work";
+import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
 
 export const metadata: Metadata = {
   title: "Engineering — Computer Vision Pipeline, Edge AI Optimization & Stack",
@@ -85,38 +86,66 @@ export default async function EngineeringPage() {
     <main className="editorial-page engineering-page">
       <section className="engineering-hero">
         <div className="container">
-          <div className="art-label">
-            {ar
-              ? "الهندسة / من الكاميرا إلى لوحة التحكم"
-              : "ENGINEERING / FROM CAMERA TO APPLICATION OUTPUT"}
+          <div className="engineering-hero-top-grid">
+            <div>
+              <div className="art-label">
+                {ar
+                  ? "الهندسة / من الكاميرا إلى لوحة التحكم"
+                  : "ENGINEERING / FROM CAMERA TO APPLICATION OUTPUT"}
+              </div>
+              <h1>
+                {ar ? (
+                  <>
+                    مصممة لترى.
+                    <br />
+                    <em>ومبنية لتعمل على الحافة.</em>
+                  </>
+                ) : (
+                  <>
+                    Engineered to see.
+                    <br />
+                    <em>Built for the edge.</em>
+                  </>
+                )}
+              </h1>
+              <div className="engineering-hero-bottom">
+                <p>
+                  {ar
+                    ? "نصمم أنظمة الرؤية الحاسوبية وذكاء الحافة كمسار هندسي متكامل — من التقاط الإطار البصري وتشغيل نماذج YOLO / ONNX إلى لوحات المراقبة والتنبيهات الفورية."
+                    : "We architect computer vision and Edge AI systems end to end—making latency, model precision, privacy boundaries, and hardware constraints explicit at every stage."}
+                </p>
+                <span>
+                  DEVTECH AI
+                  <br />
+                  {ar ? "معمارية الرؤية / 01" : "VISION ARCHITECTURE / 01"}
+                </span>
+              </div>
+            </div>
+
+            <div className="engineering-hero-video-col">
+              <HumanAiVideoReel
+                videoSrc="/videos/human-ai-engineering.mp4"
+                posterSrc="/human-ai-engineering.jpg"
+                badge={
+                  ar
+                    ? "10 ثوانٍ · هندسة الرؤية والحافة"
+                    : "10S REEL · HUMAN-AI EDGE ENGINEERING"
+                }
+                title={
+                  ar
+                    ? "تكامل العدسات البصرية ووحدات معالجة الحافة"
+                    : "Optical Sensors & Edge NPU Hardware Integration"
+                }
+                subtitle={
+                  ar
+                    ? "Python · OpenCV · PyTorch · YOLO · ONNX Runtime · TensorRT"
+                    : "Camera capture → YOLO perception → ONNX / TensorRT Edge AI"
+                }
+                telemetry="EDGE NPU · 11.4ms"
+              />
+            </div>
           </div>
-          <h1>
-            {ar ? (
-              <>
-                مصممة لترى.
-                <br />
-                <em>ومبنية لتعمل على الحافة.</em>
-              </>
-            ) : (
-              <>
-                Engineered to see.
-                <br />
-                <em>Built for the edge.</em>
-              </>
-            )}
-          </h1>
-          <div className="engineering-hero-bottom">
-            <p>
-              {ar
-                ? "نصمم أنظمة الرؤية الحاسوبية وذكاء الحافة كمسار هندسي متكامل — من التقاط الإطار البصري وتشغيل نماذج YOLO / ONNX إلى لوحات المراقبة والتنبيهات الفورية."
-                : "We architect computer vision and Edge AI systems end to end—making latency, model precision, privacy boundaries, and hardware constraints explicit at every stage."}
-            </p>
-            <span>
-              DEVTECH AI
-              <br />
-              {ar ? "معمارية الرؤية / 01" : "VISION ARCHITECTURE / 01"}
-            </span>
-          </div>
+
           <ArchitectureDiagram arabic={ar} />
         </div>
       </section>

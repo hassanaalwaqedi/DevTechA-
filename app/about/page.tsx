@@ -144,6 +144,20 @@ export default async function AboutPage() {
                 "Accessible visual intelligence for homes, business & industry",
               ]
         }
+        videoSrc="/videos/human-ai-about.mp4"
+        videoPoster="/human-ai-about.jpg"
+        videoBadge={ar ? "10 ثوانٍ · الذكاء الذي يرى العالم" : "10S REEL · HUMAN-AI VISION"}
+        videoTitle={
+          ar
+            ? "ذكاء بصري يجمع الإنسان والآلة"
+            : "Intelligence That Sees the World"
+        }
+        videoSubtitle={
+          ar
+            ? "رؤية حاسوبية، ذكاء حافة، وأجهزة ذكية مصممة للإنسان"
+            : "Human-centric computer vision, Edge AI & smart hardware"
+        }
+        videoTelemetry="DEVTECH AI · 60 FPS"
       />
 
       {/* Section 01: Company Story & Long-Term Vision */}

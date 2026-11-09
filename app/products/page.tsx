@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CompanyPageIntro } from "@/components/company-page-intro";
+import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
 import { ArrowUpRight, Camera, Cpu, Glasses, MonitorPlay } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import { getProductsResult } from "@/lib/db";
@@ -234,6 +235,20 @@ export default async function ProductsPage() {
                 "Vision software dashboards & live platforms",
               ]
         }
+        videoSrc="/videos/human-ai-aegis.mp4"
+        videoPoster="/human-ai-aegis.jpg"
+        videoBadge={ar ? "10 ثوانٍ · تواصل بصري ذكي" : "10S REEL · HUMAN-AI EYE CONTACT"}
+        videoTitle={
+          ar
+            ? "AEGIS AI: ذكاء بصري يتفاعل مع الإنسان"
+            : "AEGIS AI — Human-Centric Vision & Safety"
+        }
+        videoSubtitle={
+          ar
+            ? "تحليل الكاميرات، تتبع الأجسام، وتقييم المخاطر المساعد"
+            : "Real-time camera perception, tracking & assisted risk scoring"
+        }
+        videoTelemetry="AEGIS · 60 FPS · 11.8ms"
       />
 
       {/* SECTION 1: AEGIS AI + KHAIR */}
@@ -265,134 +280,50 @@ export default async function ProductsPage() {
             </p>
           </div>
 
-          {/* AEGIS AI Featured Card */}
+          {/* AEGIS AI Featured Card with Live 10-Second Human-AI Eye-Contact Video Reel */}
           <article className="work-aegis-card">
             <div className="work-aegis-stage">
-              <span className="work-aegis-badge-overlay">
-                <i />
-                {ar
-                  ? "AEGIS AI · واجهة المراقبة والتحليل البصري"
-                  : "AEGIS AI · VISION & SAFETY INTERFACE"}
-              </span>
+              <div className="work-aegis-video-stack">
+                <HumanAiVideoReel
+                  videoSrc="/videos/human-ai-aegis.mp4"
+                  posterSrc="/human-ai-aegis.jpg"
+                  badge={
+                    ar
+                      ? "AEGIS AI · عرض مرئي 10 ثوانٍ"
+                      : "AEGIS AI · 10S HUMAN-AI VISION FEED"
+                  }
+                  title={
+                    ar
+                      ? "مراقبة ذكية وتواصل بصري مباشر مع المشغل"
+                      : "Human-in-the-Loop Visual Perception & Safety"
+                  }
+                  subtitle={
+                    ar
+                      ? "كشف الأجسام · تفسير الأحداث · تقييم المخاطر المساعد"
+                      : "Real-time camera analysis · Event interpretation · Operator alerts"
+                  }
+                  telemetry="RISK 0.14 LOW · 60 FPS"
+                />
 
-              <svg
-                viewBox="0 0 620 380"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                aria-label="AEGIS AI Monitoring Interface showing real-time camera analysis, object detection and tracking, event interpretation, risk scoring, and operator alerts"
-              >
-                <defs>
-                  <linearGradient id="aegis-bg" x1="0" y1="0" x2="620" y2="380" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#081642" />
-                    <stop offset="55%" stopColor="#0E2568" />
-                    <stop offset="100%" stopColor="#1D1858" />
-                  </linearGradient>
-                  <linearGradient id="aegis-feed" x1="20" y1="54" x2="390" y2="270" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#0B2058" />
-                    <stop offset="100%" stopColor="#153588" />
-                  </linearGradient>
-                </defs>
-
-                <rect width="620" height="380" rx="16" fill="url(#aegis-bg)" stroke="rgba(92, 225, 255, 0.35)" strokeWidth="1.5" />
-
-                {/* Top Dashboard Header */}
-                <rect x="0" y="0" width="620" height="42" rx="16" fill="rgba(14, 42, 118, 0.55)" />
-                <circle cx="22" cy="21" r="4.5" fill="#35F2A6" />
-                <text x="34" y="25" fill="#FFFFFF" fontSize="11" fontWeight="800" fontFamily="sans-serif" letterSpacing="0.06em">
-                  AEGIS AI · SMART VISION MONITOR
-                </text>
-                <text x="456" y="25" fill="#7CE7FF" fontSize="10" fontWeight="700" fontFamily="sans-serif">
-                  EDGE NPU · 11.8 ms · 60 FPS
-                </text>
-
-                {/* Left Primary Camera Feed */}
-                <rect x="18" y="56" width="376" height="222" rx="12" fill="url(#aegis-feed)" stroke="rgba(92, 225, 255, 0.38)" strokeWidth="1.2" />
-                {/* Perspective floor grid */}
-                <path d="M18 210H394M18 246H394M114 166L44 278M206 166L182 278M298 166L348 278" stroke="rgba(120, 195, 255, 0.16)" strokeWidth="1" />
-
-                {/* Camera Tag */}
-                <rect x="30" y="68" width="132" height="20" rx="5" fill="rgba(7, 20, 58, 0.8)" />
-                <circle cx="41" cy="78" r="3" fill="#35F2A6" />
-                <text x="49" y="81.5" fill="#E8F6FF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif">
-                  CAM-01 · NORTH BAY
-                </text>
-
-                {/* Tracked Person #1 */}
-                <rect x="58" y="108" width="76" height="128" rx="5" fill="rgba(53, 190, 255, 0.14)" stroke="#35BEFF" strokeWidth="1.6" />
-                <rect x="58" y="90" width="84" height="16" rx="4" fill="#0754FF" />
-                <text x="63" y="101" fill="#FFFFFF" fontSize="8" fontWeight="700" fontFamily="sans-serif">
-                  PERSON #01 · 98.7%
-                </text>
-                <circle cx="96" cy="130" r="7" stroke="#5CE1FF" strokeWidth="1.6" />
-                <path d="M96 137V180M78 152L96 144L114 152M96 180L82 222M96 180L110 222" stroke="#5CE1FF" strokeWidth="2" strokeLinecap="round" />
-
-                {/* Tracked Vehicle / Forklift in Zone */}
-                <rect x="196" y="122" width="162" height="106" rx="6" fill="rgba(135, 59, 255, 0.16)" stroke="#B57CFF" strokeWidth="1.6" />
-                <rect x="196" y="104" width="114" height="16" rx="4" fill="#873BFF" />
-                <text x="202" y="115" fill="#FFFFFF" fontSize="8" fontWeight="700" fontFamily="sans-serif">
-                  VEHICLE · TRACKED 96.4%
-                </text>
-                <path d="M218 192L234 156H316L334 192H218Z" fill="rgba(181, 124, 255, 0.3)" stroke="#D6B8FF" strokeWidth="1.5" />
-                <circle cx="242" cy="204" r="8" fill="#081844" stroke="#5CE1FF" strokeWidth="2" />
-                <circle cx="310" cy="204" r="8" fill="#081844" stroke="#5CE1FF" strokeWidth="2" />
-
-                {/* Right Sidebar: Risk Score & Operator Alerts */}
-                <rect x="408" y="56" width="194" height="104" rx="12" fill="rgba(10, 28, 82, 0.85)" stroke="rgba(92, 225, 255, 0.32)" strokeWidth="1.2" />
-                <text x="424" y="78" fill="#9CC8FF" fontSize="9" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
-                  ASSISTED RISK SCORING
-                </text>
-                <text x="424" y="108" fill="#35F2A6" fontSize="24" fontWeight="800" fontFamily="sans-serif">
-                  0.14 · LOW
-                </text>
-                <rect x="424" y="122" width="162" height="8" rx="4" fill="rgba(255, 255, 255, 0.12)" />
-                <rect x="424" y="122" width="44" height="8" rx="4" fill="#35F2A6" />
-                <text x="424" y="146" fill="#B8D8FF" fontSize="8.5" fontWeight="600" fontFamily="sans-serif">
-                  Perimeter clear · 2 active tracks
-                </text>
-
-                {/* Operator Alerts Panel */}
-                <rect x="408" y="172" width="194" height="190" rx="12" fill="rgba(10, 28, 82, 0.85)" stroke="rgba(92, 225, 255, 0.32)" strokeWidth="1.2" />
-                <text x="424" y="194" fill="#9CC8FF" fontSize="9" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
-                  EVENT &amp; ALERT STREAM
-                </text>
-
-                <rect x="420" y="206" width="170" height="42" rx="7" fill="rgba(16, 80, 255, 0.25)" stroke="rgba(92, 225, 255, 0.35)" />
-                <text x="430" y="222" fill="#FFFFFF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif">
-                  14:32:08 · Motion in Zone B
-                </text>
-                <text x="430" y="236" fill="#8CEBFF" fontSize="8" fontFamily="sans-serif">
-                  Vehicle trajectory verified
-                </text>
-
-                <rect x="420" y="256" width="170" height="42" rx="7" fill="rgba(135, 59, 255, 0.22)" stroke="rgba(181, 124, 255, 0.35)" />
-                <text x="430" y="272" fill="#FFFFFF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif">
-                  14:31:45 · Operator Check
-                </text>
-                <text x="430" y="286" fill="#D6B8FF" fontSize="8" fontFamily="sans-serif">
-                  Zone A access acknowledged
-                </text>
-
-                <rect x="420" y="306" width="170" height="42" rx="7" fill="rgba(53, 242, 166, 0.14)" stroke="rgba(53, 242, 166, 0.35)" />
-                <text x="430" y="322" fill="#FFFFFF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif">
-                  14:30:12 · Edge Node Sync
-                </text>
-                <text x="430" y="336" fill="#35F2A6" fontSize="8" fontFamily="sans-serif">
-                  ONNX model active · 60 FPS
-                </text>
-
-                {/* Bottom Event Interpretation Bar */}
-                <rect x="18" y="290" width="376" height="72" rx="12" fill="rgba(10, 28, 82, 0.85)" stroke="rgba(92, 225, 255, 0.32)" strokeWidth="1.2" />
-                <text x="34" y="312" fill="#9CC8FF" fontSize="9" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
-                  EVENT INTERPRETATION ENGINE
-                </text>
-                <text x="34" y="332" fill="#FFFFFF" fontSize="10.5" fontWeight="700" fontFamily="sans-serif">
-                  Authorized personnel &amp; vehicle movement within designated corridor.
-                </text>
-                <text x="34" y="348" fill="#7CE7FF" fontSize="8.8" fontFamily="sans-serif">
-                  Human-in-the-loop review enabled · Configurable alert thresholds
-                </text>
-              </svg>
+                <div className="work-aegis-telemetry-strip">
+                  <div className="work-aegis-metric">
+                    <span>{ar ? "تقييم المخاطر المساعد" : "ASSISTED RISK SCORE"}</span>
+                    <strong className="work-aegis-metric-safe">0.14 · LOW</strong>
+                  </div>
+                  <div className="work-aegis-metric">
+                    <span>{ar ? "الاستدلال على الحافة" : "EDGE NPU INFERENCE"}</span>
+                    <strong>11.8 ms · 60 FPS</strong>
+                  </div>
+                  <div className="work-aegis-metric">
+                    <span>{ar ? "تفسير المشهد" : "EVENT INTERPRETATION"}</span>
+                    <strong>
+                      {ar
+                        ? "إشراف بشري مباشر · تنبيهات فورية"
+                        : "Human-in-the-loop · Active"}
+                    </strong>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="work-khair-copy">

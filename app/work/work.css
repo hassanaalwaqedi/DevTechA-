@@ -197,19 +197,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px;
+  padding: 24px;
   background:
-    radial-gradient(circle at 24% 22%, rgba(53, 190, 255, 0.18), transparent 55%),
-    radial-gradient(circle at 80% 78%, rgba(135, 59, 255, 0.2), transparent 55%),
+    radial-gradient(circle at 24% 22%, rgba(53, 190, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 80% 78%, rgba(135, 59, 255, 0.24), transparent 55%),
     linear-gradient(140deg, #07153E 0%, #0E2566 55%, #1E175A 100%);
 }
 
-.work-aegis-stage svg {
+.work-aegis-video-stack {
   width: 100%;
-  height: auto;
   max-width: 640px;
-  border-radius: 16px;
-  box-shadow: 0 22px 48px -12px rgba(4, 10, 32, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.work-aegis-telemetry-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.work-aegis-metric {
+  padding: 11px 14px;
+  border-radius: 13px;
+  background: rgba(8, 22, 64, 0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(92, 225, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.work-aegis-metric span {
+  color: #9CC8FF;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.work-aegis-metric strong {
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+
+.work-aegis-metric-safe {
+  color: #35F2A6 !important;
+}
+
+@media (max-width: 680px) {
+  .work-aegis-telemetry-strip {
+    grid-template-columns: 1fr;
+  }
 }
 
 .work-aegis-badge-overlay {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
 
 type CompanyPageIntroProps = {
   eyebrow: string;
@@ -11,6 +12,12 @@ type CompanyPageIntroProps = {
   secondaryLabel: string;
   detailsTitle: string;
   details: readonly string[];
+  videoSrc?: string;
+  videoPoster?: string;
+  videoBadge?: string;
+  videoTitle?: string;
+  videoSubtitle?: string;
+  videoTelemetry?: string;
 };
 
 export function CompanyPageIntro(props: CompanyPageIntroProps) {
@@ -41,6 +48,20 @@ export function CompanyPageIntro(props: CompanyPageIntroProps) {
             className="company-page-details dt-page-intro-card"
             aria-label={props.detailsTitle}
           >
+            {props.videoSrc && props.videoPoster ? (
+              <div className="dt-page-intro-video-wrap">
+                <HumanAiVideoReel
+                  videoSrc={props.videoSrc}
+                  posterSrc={props.videoPoster}
+                  badge={props.videoBadge}
+                  title={props.videoTitle}
+                  subtitle={props.videoSubtitle}
+                  telemetryLabel={props.videoTelemetry}
+                  compact
+                />
+              </div>
+            ) : null}
+
             <div className="dt-page-intro-card-head">
               <h2>
                 <i aria-hidden="true" />

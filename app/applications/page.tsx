@@ -209,6 +209,20 @@ export default async function ApplicationsPage() {
                 "Industrial Vision & Inspection (Future Roadmap)",
               ]
         }
+        videoSrc="/videos/human-ai-about.mp4"
+        videoPoster="/human-ai-about.jpg"
+        videoBadge={ar ? "تطبيقات الرؤية الذكية · 10 ثوانٍ" : "REAL-WORLD VISION · 10s LOOP"}
+        videoTitle={
+          ar
+            ? "أنظمة رؤية مصممة للإنسان والبيئات الواقعية"
+            : "Human-Centered Computer Vision in Action"
+        }
+        videoSubtitle={
+          ar
+            ? "من المنازل الذكية والتجزئة إلى السلامة والصناعة"
+            : "Smart Homes · Retail · Workplace · Safety"
+        }
+        videoTelemetry="MULTI-ZONE ACTIVE · 60 FPS"
       />
 
       <section className="solutions-areas-new" id="applications">

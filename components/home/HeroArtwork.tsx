@@ -172,9 +172,21 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             </div>
           </div>
 
-          {/* Computer Vision & Edge AI Product Stage (Replaces generic neural brain) */}
+          {/* Computer Vision & Edge AI Product Stage with Live 10s Human-AI Eye-Contact Video */}
           <div className="dt-brain-visual-stage">
             <div className="dt-brain-core-glow" aria-hidden="true" />
+
+            {/* 10-Second Human-AI Eye-Contact Video Stream inside the central perception stage */}
+            <video
+              className="dt-brain-live-video"
+              src="/videos/human-ai-technology.mp4"
+              poster="/human-ai-technology.jpg"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+            />
 
             <svg
               className="dt-brain-image"
@@ -185,19 +197,20 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             >
               <defs>
                 <linearGradient id="dt-stage-bg" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#07153E" />
-                  <stop offset="48%" stopColor="#0D2568" />
-                  <stop offset="100%" stopColor="#1E185A" />
+                  <stop offset="0%" stopColor="#07153E" stopOpacity="0.82" />
+                  <stop offset="28%" stopColor="#0D2568" stopOpacity="0.18" />
+                  <stop offset="72%" stopColor="#0D2568" stopOpacity="0.22" />
+                  <stop offset="100%" stopColor="#1E185A" stopOpacity="0.86" />
                 </linearGradient>
                 <radialGradient id="dt-stage-flare" cx="52%" cy="48%" r="55%">
-                  <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.32" />
-                  <stop offset="45%" stopColor="#1050FF" stopOpacity="0.18" />
+                  <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.14" />
+                  <stop offset="45%" stopColor="#1050FF" stopOpacity="0.12" />
                   <stop offset="100%" stopColor="#07153E" stopOpacity="0" />
                 </radialGradient>
                 <linearGradient id="dt-fov-cone" x1="118" y1="175" x2="410" y2="175" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#5CE1FF" stopOpacity="0.38" />
-                  <stop offset="45%" stopColor="#1050FF" stopOpacity="0.14" />
-                  <stop offset="100%" stopColor="#873BFF" stopOpacity="0.02" />
+                  <stop offset="0%" stopColor="#5CE1FF" stopOpacity="0.26" />
+                  <stop offset="45%" stopColor="#1050FF" stopOpacity="0.08" />
+                  <stop offset="100%" stopColor="#873BFF" stopOpacity="0.01" />
                 </linearGradient>
                 <linearGradient id="dt-cam-body" x1="36" y1="110" x2="136" y2="240" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="#2A4EA8" />
@@ -222,32 +235,27 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
                 </linearGradient>
               </defs>
 
-              {/* Deep sapphire vision stage background */}
+              {/* Translucent sapphire stage vignette over live Human-AI video */}
               <rect width="640" height="360" rx="18" fill="url(#dt-stage-bg)" />
               <rect width="640" height="360" rx="18" fill="url(#dt-stage-flare)" />
 
               {/* Subtle spatial calibration grid */}
-              <g stroke="rgba(120, 185, 255, 0.11)" strokeWidth="1">
+              <g stroke="rgba(120, 185, 255, 0.1)" strokeWidth="1">
                 <line x1="0" y1="64" x2="640" y2="64" />
-                <line x1="0" y1="124" x2="640" y2="124" />
-                <line x1="0" y1="184" x2="640" y2="184" />
-                <line x1="0" y1="244" x2="640" y2="244" />
                 <line x1="0" y1="304" x2="640" y2="304" />
                 <line x1="148" y1="0" x2="148" y2="360" />
-                <line x1="252" y1="0" x2="252" y2="360" />
-                <line x1="356" y1="0" x2="356" y2="360" />
                 <line x1="460" y1="0" x2="460" y2="360" />
               </g>
 
               {/* Optical Field-of-View (FOV) beam projecting from Smart Camera into the live scene */}
               <polygon
-                points="126,176 202,62 442,62 442,294 202,294"
+                points="126,176 176,58 450,58 450,298 176,298"
                 fill="url(#dt-fov-cone)"
               />
               <path
-                d="M126 176L202 62H442M126 176L202 294H442"
-                stroke="rgba(92, 225, 255, 0.48)"
-                strokeWidth="1.3"
+                d="M126 176L176 58H450M126 176L176 298H450"
+                stroke="rgba(92, 225, 255, 0.45)"
+                strokeWidth="1.2"
                 strokeDasharray="5 4"
               />
 
@@ -262,7 +270,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
                   width="112"
                   height="22"
                   rx="6"
-                  fill="rgba(16, 80, 255, 0.35)"
+                  fill="rgba(7, 20, 58, 0.78)"
                   stroke="rgba(92, 225, 255, 0.55)"
                   strokeWidth="1"
                 />
@@ -333,163 +341,58 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
               </g>
 
               {/* ============================================================
-                  STAGE 2 (CENTER): LIVE COMPUTER VISION PERCEPTION VIEWFINDER
+                  STAGE 2 (CENTER): LIVE HUMAN-AI EYE CONTACT VIEWFINDER HUD
                  ============================================================ */}
               <g>
-                {/* Viewfinder frame */}
+                {/* Clear Viewfinder frame over live Human-AI video */}
                 <rect
-                  x="176"
-                  y="46"
-                  width="274"
-                  height="268"
+                  x="170"
+                  y="42"
+                  width="286"
+                  height="274"
                   rx="14"
-                  fill="rgba(8, 22, 64, 0.58)"
-                  stroke="rgba(92, 225, 255, 0.42)"
+                  fill="rgba(7, 18, 52, 0.12)"
+                  stroke="rgba(92, 225, 255, 0.52)"
                   strokeWidth="1.4"
                 />
 
                 {/* Viewfinder Header Bar */}
                 <rect
-                  x="176"
-                  y="46"
-                  width="274"
-                  height="28"
-                  rx="14"
-                  fill="rgba(16, 62, 168, 0.48)"
+                  x="170"
+                  y="42"
+                  width="286"
+                  height="26"
+                  rx="13"
+                  fill="rgba(8, 24, 72, 0.72)"
                 />
-                <circle cx="192" cy="60" r="3.5" fill="#35F2A6" />
-                <text x="202" y="63.5" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.05em">
-                  LIVE PERCEPTION · ZONE A
+                <circle cx="186" cy="55" r="3.5" fill="#35F2A6" />
+                <text x="196" y="58.5" fill="#FFFFFF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.05em">
+                  HUMAN-AI EYE CONTACT · LIVE 10S
                 </text>
-                <text x="382" y="63.5" fill="#7CE7FF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif">
-                  3 OBJECTS
+                <text x="386" y="58.5" fill="#7CE7FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif">
+                  99.4% LOCK
                 </text>
 
-                {/* Perspective ground mesh inside viewfinder */}
-                <path
-                  d="M186 244H440M186 274H440M234 208L192 302M286 208L264 302M338 208L356 302M390 208L432 302"
-                  stroke="rgba(92, 225, 255, 0.16)"
-                  strokeWidth="1"
-                />
-
-                {/* Monitored Zone Polygon */}
-                <polygon
-                  points="196,232 428,232 440,298 184,298"
-                  fill="rgba(53, 190, 255, 0.08)"
-                  stroke="rgba(53, 190, 255, 0.35)"
-                  strokeWidth="1"
-                  strokeDasharray="4 3"
-                />
-
-                {/* --- DETECTION 1: Tracked Person with Pose Keypoints --- */}
-                <g>
-                  {/* Bounding box */}
-                  <rect
-                    x="198"
-                    y="108"
-                    width="88"
-                    height="148"
-                    rx="6"
-                    fill="rgba(53, 190, 255, 0.12)"
-                    stroke="#35BEFF"
-                    strokeWidth="1.6"
-                  />
-                  {/* Corner HUD brackets */}
-                  <path d="M198 122V108H212" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
-                  <path d="M286 122V108H272" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
-                  <path d="M198 242V256H212" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
-                  <path d="M286 242V256H272" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
-
-                  {/* Detection label pill */}
-                  <rect x="198" y="88" width="92" height="17" rx="4" fill="#0754FF" />
-                  <text x="204" y="99.5" fill="#FFFFFF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif">
-                    PERSON #04 · 98.6%
-                  </text>
-
-                  {/* Human pose skeleton & keypoints */}
-                  <circle cx="242" cy="132" r="8" fill="rgba(92, 225, 255, 0.3)" stroke="#5CE1FF" strokeWidth="1.6" />
-                  <circle cx="242" cy="132" r="2.8" fill="#FFFFFF" />
-                  {/* Torso & limbs */}
-                  <path
-                    d="M242 140V188M220 156L242 148L264 156M220 156L214 182M264 156L270 180M242 188L226 234M242 188L258 234"
-                    stroke="#5CE1FF"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {/* Keypoint joints */}
-                  {[
-                    [242, 148],
-                    [220, 156],
-                    [264, 156],
-                    [214, 182],
-                    [270, 180],
-                    [242, 188],
-                    [226, 234],
-                    [258, 234],
-                  ].map(([kx, ky], i) => (
-                    <circle key={i} cx={kx} cy={ky} r="3" fill="#FFFFFF" stroke="#0754FF" strokeWidth="1.4" />
-                  ))}
-
-                  {/* Motion trajectory vector */}
-                  <path
-                    d="M242 246C262 252 284 256 306 254"
-                    stroke="#35F2A6"
-                    strokeWidth="1.8"
-                    strokeDasharray="3 3"
-                  />
-                  <circle cx="306" cy="254" r="3.2" fill="#35F2A6" />
-                </g>
-
-                {/* --- DETECTION 2: Tracked Autonomous / Fleet Vehicle --- */}
-                <g>
-                  <rect
-                    x="308"
-                    y="128"
-                    width="124"
-                    height="86"
-                    rx="6"
-                    fill="rgba(135, 59, 255, 0.15)"
-                    stroke="#B57CFF"
-                    strokeWidth="1.6"
-                  />
-                  <path d="M308 140V128H320" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M432 140V128H420" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M308 202V214H320" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M432 202V214H420" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-
-                  {/* Label */}
-                  <rect x="308" y="108" width="102" height="17" rx="4" fill="#873BFF" />
-                  <text x="314" y="119.5" fill="#FFFFFF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif">
-                    VEHICLE #12 · 96.4%
-                  </text>
-
-                  {/* Stylized vehicle wireframe silhouette */}
-                  <path
-                    d="M324 184L338 156H398L414 184H324Z"
-                    fill="rgba(181, 124, 255, 0.32)"
-                    stroke="#D6B8FF"
-                    strokeWidth="1.5"
-                  />
-                  <rect x="320" y="180" width="98" height="16" rx="4" fill="rgba(92, 225, 255, 0.35)" stroke="#5CE1FF" strokeWidth="1.3" />
-                  <circle cx="340" cy="198" r="7" fill="#081844" stroke="#5CE1FF" strokeWidth="2" />
-                  <circle cx="398" cy="198" r="7" fill="#081844" stroke="#5CE1FF" strokeWidth="2" />
-                </g>
+                {/* Corner HUD brackets framing the live human eyes */}
+                <path d="M188 106V88H206" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
+                <path d="M438 106V88H420" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
+                <path d="M188 244V262H206" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
+                <path d="M438 244V262H420" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
 
                 {/* Bottom scene status pill inside viewfinder */}
                 <rect
-                  x="192"
-                  y="272"
-                  width="242"
-                  height="28"
+                  x="184"
+                  y="278"
+                  width="258"
+                  height="26"
                   rx="7"
-                  fill="rgba(7, 22, 66, 0.86)"
-                  stroke="rgba(92, 225, 255, 0.38)"
+                  fill="rgba(7, 22, 66, 0.82)"
+                  stroke="rgba(92, 225, 255, 0.42)"
                   strokeWidth="1"
                 />
-                <circle cx="206" cy="286" r="4" fill="#35F2A6" />
-                <text x="216" y="289.5" fill="#E8F6FF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.04em">
-                  EVENT: AUTHORIZED ACTIVITY · RISK SCORE 0.08
+                <circle cx="198" cy="291" r="3.8" fill="#35F2A6" />
+                <text x="208" y="294.5" fill="#E8F6FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.04em">
+                  OPTICAL GAZE &amp; SCENE PERCEPTION · 60 FPS
                 </text>
               </g>
 

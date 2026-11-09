@@ -202,6 +202,20 @@ export default async function TechnologyPage() {
                 "Intelligent Devices & Vision Software platforms",
               ]
         }
+        videoSrc="/videos/human-ai-technology.mp4"
+        videoPoster="/human-ai-technology.jpg"
+        videoBadge={ar ? "رؤية بشرية وذكاء اصطناعي · 10 ثوانٍ" : "HUMAN-AI VISION · 10s LOOP"}
+        videoTitle={
+          ar
+            ? "الإدراك البصري وتتبع التواصل البصري"
+            : "Optical Eye-Contact & Neural Perception"
+        }
+        videoSubtitle={
+          ar
+            ? "دمج الرؤية البشرية مع استدلال الحافة الفوري"
+            : "Bridging human sight and on-device Edge AI"
+        }
+        videoTelemetry="IRIS & GAZE LOCK · 99.4% · 11.4 ms"
       />
 
       <section className="expertise-capabilities-new" id="pillars">
