@@ -554,10 +554,10 @@ export default async function CareersPage() {
               </p>
             </div>
             <a
-              href="mailto:hello@hirzexa.com?subject=Careers%20at%20HIRZEXA"
+              href="mailto:careers@hirzexa.com?subject=Careers%20at%20HIRZEXA"
               className="dt-careers-contact-btn"
             >
-              <span>hello@hirzexa.com</span>
+              <span>careers@hirzexa.com</span>
               <ArrowUpRight size={16} />
             </a>
           </div>
