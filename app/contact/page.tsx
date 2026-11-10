@@ -54,10 +54,10 @@ export default function ContactPage() {
         throw new Error(
           ar
             ? response.status === 503
-              ? "إرسال الرسائل غير مهيأ حالياً. يرجى مراسلتنا على hello@hirzexa.com."
+              ? "إرسال الرسائل غير مهيأ حالياً. يرجى مراسلتنا على contact@hirzexa.com."
               : response.status === 400
               ? "يرجى التحقق من الاسم والبريد الإلكتروني ووصف المشروع."
-              : "تعذر إرسال رسالتك. يرجى مراسلتنا على hello@hirzexa.com."
+              : "تعذر إرسال رسالتك. يرجى مراسلتنا على contact@hirzexa.com."
             : body.error || "Your enquiry could not be sent."
         );
       setStatus("success");
@@ -74,8 +74,8 @@ export default function ContactPage() {
         error instanceof Error && !(error instanceof TypeError)
           ? error.message
           : ar
-          ? "تعذر إرسال رسالتك. يرجى مراسلتنا على hello@hirzexa.com."
-          : "Your enquiry could not be sent. Please email hello@hirzexa.com."
+          ? "تعذر إرسال رسالتك. يرجى مراسلتنا على contact@hirzexa.com."
+          : "Your enquiry could not be sent. Please email contact@hirzexa.com."
       );
     }
   }
@@ -119,8 +119,8 @@ export default function ContactPage() {
                 ? "شاركنا متطلباتك في الرؤية الحاسوبية، أو الاستدلال على الحافة (Edge AI)، أو نظام AEGIS AI، أو تكامل الكاميرات والأجهزة الذكية."
                 : "Tell us about your computer vision use case, Edge AI deployment, AEGIS AI evaluation, or intelligent device partnership."}
             </p>
-            <a className="contact-email" dir="ltr" href="mailto:hello@hirzexa.com">
-              hello@hirzexa.com <ArrowUpRight size={17} />
+            <a className="contact-email" dir="ltr" href="mailto:contact@hirzexa.com">
+              contact@hirzexa.com <ArrowUpRight size={17} />
             </a>
             <div className="contact-video-showcase">
               <HumanAiVideoReel
@@ -309,7 +309,7 @@ export default function ContactPage() {
               </button>
               <p>
                 {ar ? "تفضل البريد الإلكتروني؟ " : "Prefer email? "}
-                <a href="mailto:hello@hirzexa.com">
+                <a href="mailto:contact@hirzexa.com">
                   {ar ? "تواصل معنا مباشرة ↗" : "Get in touch directly ↗"}
                 </a>
               </p>
@@ -318,6 +318,34 @@ export default function ContactPage() {
               {message}
             </p>
           </form>
+        </div>
+      </section>
+
+      <section className="contact-channels-section" aria-labelledby="contact-channels-heading">
+        <div className="container">
+          <div className="contact-channels-header">
+            <span className="studio-eyebrow">{ar ? "دليل التواصل" : "CONTACT DIRECTORY"}</span>
+            <h2 id="contact-channels-heading">{ar ? "تواصل مع القسم المناسب" : "Reach the right team"}</h2>
+            <p>{ar ? "اختر عنوان البريد المناسب لموضوع رسالتك." : "Choose the right address for your enquiry."}</p>
+          </div>
+          <div className="contact-channels-grid">
+            {[
+              { en: "Technical support", ar: "الدعم الفني", email: "support@hirzexa.com" },
+              { en: "Investors & funding", ar: "المستثمرون والتمويل", email: "investors@hirzexa.com" },
+              { en: "Strategic partnerships", ar: "الشراكات الاستراتيجية", email: "partnerships@hirzexa.com" },
+              { en: "Careers", ar: "الوظائف والتوظيف", email: "careers@hirzexa.com" },
+              { en: "Orders & devices", ar: "الطلبات والأجهزة", email: "orders@hirzexa.com" },
+              { en: "Billing & finance", ar: "الفواتير والشؤون المالية", email: "finance@hirzexa.com" },
+              { en: "Privacy requests", ar: "طلبات الخصوصية", email: "privacy@hirzexa.com" },
+              { en: "Legal enquiries", ar: "الاستفسارات القانونية", email: "legal@hirzexa.com" },
+            ].map(({ en, ar: arLabel, email }) => (
+              <a key={email} href={`mailto:${email}`} className="contact-channel" aria-label={`${ar ? arLabel : en}: ${email}`}>
+                <span>{ar ? arLabel : en}</span>
+                <strong dir="ltr">{email}</strong>
+                <ArrowUpRight size={17} aria-hidden="true" />
+              </a>
+            ))}
+          </div>
         </div>
       </section>
     </main>
