@@ -34,8 +34,11 @@ export function SiteFooter({ locale }: { locale: Locale }) {
 
           <div className="footer-contact dt-footer-contact">
             <span>{ar ? "تواصل مباشر" : "Direct"}</span>
-            <a dir="ltr" href="mailto:hello@hirzexa.com">
-              hello@hirzexa.com
+            <a dir="ltr" href="mailto:contact@hirzexa.com">
+              contact@hirzexa.com
+            </a>
+            <a dir="ltr" href="mailto:support@hirzexa.com">
+              support@hirzexa.com
             </a>
             <a
               href="https://www.linkedin.com/company/144674058"
