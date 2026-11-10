@@ -72,28 +72,11 @@ export default async function ApplyPage({params}: {params: Promise<{slug: string
       ];
 
   return <main className="application-page">
-    <section className="application-hero">
-      <div className="application-grid-pattern" aria-hidden="true"/>
-      <div className="container application-hero-grid">
-        <div className="application-hero-copy">
-          <Link href={`/careers/${job.slug}`} className="application-back"><ArrowLeft size={15}/>{ar ? "العودة إلى الوظيفة" : "Back to position"}</Link>
-          <div className="application-eyebrow"><i/>{ar ? "طلب توظيف" : "ROLE APPLICATION"} / <span dir="auto">{job.department}</span></div>
-          <h1>{ar ? <>شاركنا العمل الذي<br/><em>شكّل طريقة تفكيرك.</em></> : <>Show us the work<br/><em>behind your thinking.</em></>}</h1>
-          <p>{ar ? <>أنت تتقدم لوظيفة <strong dir="auto">{job.title}</strong>. الإجابات المدروسة أهم لدينا من الكلمات المثالية.</> : <>You&apos;re applying for <strong>{job.title}</strong>. Thoughtful answers matter more than perfect words.</>}</p>
-        </div>
-        <div className="application-signal" aria-hidden="true">
-          <div className="application-signal-top"><span>{ar ? "إشارة المرشح / 01" : "CANDIDATE SIGNAL / 01"}</span><span>HIRZEXA ✦</span></div>
-          <div className="application-orbit application-orbit-one"/><div className="application-orbit application-orbit-two"/>
-          <div className="application-signal-core"><span>✦</span><strong>{ar ? "أنت" : "YOU"}</strong></div>
-          <div className="application-node application-node-one">{ar ? "الحِرفة" : "CRAFT"}</div>
-          <div className="application-node application-node-two">{ar ? "الأنظمة" : "SYSTEMS"}</div>
-          <div className="application-node application-node-three">{ar ? "الحُكم" : "JUDGMENT"}</div>
-          <div className="application-signal-bottom"><span>{ar ? "مراجعة بشرية" : "HUMAN REVIEWED"}</span><span>{ar ? "مصمم بعناية" : "BUILT WITH INTENT"}</span></div>
-        </div>
-      </div>
-    </section>
-
     <section className="application-workspace">
+      <div className="container application-topbar">
+        <Link href={`/careers/${job.slug}`} className="application-back"><ArrowLeft size={15}/>{ar ? "العودة إلى الوظيفة" : "Back to position"}</Link>
+        <h1>{ar ? "طلب التوظيف" : "Job application"}</h1>
+      </div>
       <div className="container application-layout">
         <aside className="application-rail">
           <div className="application-role-card">
