@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Locale } from "@/lib/locale";
 import { HirzexaLogoMark } from "@/components/navigation/SiteHeader";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 
 export function SiteFooter({ locale }: { locale: Locale }) {
   const ar = locale === "ar";
@@ -34,11 +35,11 @@ export function SiteFooter({ locale }: { locale: Locale }) {
 
           <div className="footer-contact dt-footer-contact">
             <span>{ar ? "تواصل مباشر" : "Direct"}</span>
-            <a dir="ltr" href="mailto:contact@hirzexa.com">
-              contact@hirzexa.com
+            <a dir="ltr" href={companyMailto("general")} aria-label={`${ar ? "البريد العام" : "General email"}: ${COMPANY_EMAILS.general}`}>
+              {COMPANY_EMAILS.general}
             </a>
-            <a dir="ltr" href="mailto:support@hirzexa.com">
-              support@hirzexa.com
+            <a dir="ltr" href={companyMailto("support")} aria-label={`${ar ? "الدعم الفني" : "Technical support"}: ${COMPANY_EMAILS.support}`}>
+              {COMPANY_EMAILS.support}
             </a>
             <a
               href="https://www.linkedin.com/company/144674058"

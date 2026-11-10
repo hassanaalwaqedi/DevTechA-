@@ -8,6 +8,7 @@ import { getLocale } from "@/lib/locale";
 import { getProductsResult } from "@/lib/db";
 import { khairProduct, KHAIR_URL, type Product } from "@/lib/data";
 import { createPageMetadata } from "@/lib/social-metadata";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 import "../work/work.css";
 
 export const metadata: Metadata = createPageMetadata({
@@ -483,13 +484,14 @@ export default async function ProductsPage() {
                   <h3>{title}</h3>
                   <p>{description}</p>
                 </div>
-                <Link
-                  href={`/contact?category=${encodeURIComponent(title)}`}
+                <a
+                  href={companyMailto("partnerships", `Technology partnership: ${title}`)}
                   className="work-text-link"
+                  aria-label={`${ar ? "راسل فريق الشراكات" : "Email partnerships"}: ${COMPANY_EMAILS.partnerships}`}
                 >
                   {ar ? "استفسر عن الشراكة التقنية" : "Inquire about technical partnership"}{" "}
                   <ArrowUpRight size={15} />
-                </Link>
+                </a>
               </article>
             ))}
           </div>
@@ -531,6 +533,14 @@ export default async function ProductsPage() {
               {ar ? "استكشف حالات الاستخدام والتطبيقات" : "Explore real-world applications"}{" "}
               <ArrowUpRight size={16} />
             </Link>
+            <div className="product-email-links">
+              <a href={companyMailto("orders", "HIRZEXA device enquiry")} aria-label={`${ar ? "استفسارات الأجهزة والطلبات" : "Device and order enquiries"}: ${COMPANY_EMAILS.orders}`}>
+                {ar ? "استفسارات الأجهزة والطلبات" : "Device and order enquiries"} <ArrowUpRight size={15} />
+              </a>
+              <a href={companyMailto("support", "HIRZEXA product support")} aria-label={`${ar ? "الدعم الفني" : "Technical support"}: ${COMPANY_EMAILS.support}`}>
+                {ar ? "الدعم الفني" : "Technical support"} <ArrowUpRight size={15} />
+              </a>
+            </div>
           </div>
         </div>
       </section>

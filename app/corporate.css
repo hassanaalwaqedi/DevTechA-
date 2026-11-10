@@ -2901,6 +2901,10 @@ body:has(.startup-contact),
 }
 
 @media (max-width: 640px) {
+  .corporate-site .contact-studio-intro h1 {
+    font-size: clamp(32px, 9vw, 42px);
+  }
+
   .corporate-site .work-steps,
   .corporate-site .contact-Promises {
     grid-template-columns: 1fr;
@@ -2914,6 +2918,12 @@ body:has(.startup-contact),
   .corporate-site .contact-submit {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (max-width: 850px) {
+  .corporate-site .contact-studio-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

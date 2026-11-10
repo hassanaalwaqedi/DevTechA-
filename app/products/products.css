@@ -41,3 +41,6 @@
   .product-gallery-float { inset: 35px 24px auto auto; width: 75%; }
   .product-detail > .details { padding: 28px 24px; }
 }
+.product-email-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 24px; }
+.product-email-links a { display: inline-flex; align-items: center; gap: 7px; color: #1050ff; font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+.product-email-links a:hover, .product-email-links a:focus-visible { color: #873bff; }

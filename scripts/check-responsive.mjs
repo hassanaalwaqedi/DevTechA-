@@ -7,6 +7,7 @@ const chromePath = process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome
 const pageUrl = process.argv[2] || "http://localhost:3100/";
 const screenshotPath = process.argv[3] || join(process.cwd(), "mobile-emulated-check.png");
 const locale = process.argv[4] || "en";
+const scrollSelector = process.argv[5];
 const profile = await mkdtemp(join(tmpdir(), "hirzexa-chrome-"));
 const port = 9223;
 const chrome = spawn(chromePath, [
@@ -57,6 +58,10 @@ try {
   await command("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await command("Page.navigate", { url: pageUrl });
   await new Promise((resolve) => setTimeout(resolve, 3500));
+  if (scrollSelector) {
+    await command("Runtime.evaluate", { expression: `document.querySelector(${JSON.stringify(scrollSelector)})?.scrollIntoView({block: "start"})` });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
   const layout = await command("Runtime.evaluate", { expression: "({innerWidth, scrollWidth:document.documentElement.scrollWidth, title:document.title})", returnByValue: true });
   const shot = await command("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   await writeFile(screenshotPath, Buffer.from(shot.data, "base64"));

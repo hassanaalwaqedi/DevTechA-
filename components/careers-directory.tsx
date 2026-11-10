@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Job } from "@/lib/data";
 import { JobShareActions } from "@/components/job-share-actions";
+import { companyMailto } from "@/lib/company-emails";
 
 function formatLocationAndMode(location?: string, workMode?: string): string {
   const loc = (location || "").trim();
@@ -156,7 +157,7 @@ export function CareersDirectory({
           </p>
         </div>
         <a
-          href="mailto:careers@hirzexa.com?subject=Careers%20at%20HIRZEXA"
+          href={companyMailto("careers", "Careers at HIRZEXA")}
           className="dt-job-view-btn"
         >
           <span>{arabic ? "تواصل معنا" : "Contact recruitment"}</span>

@@ -4,35 +4,17 @@ import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, ArrowUpRight, Plus } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
-
-const categories = [
-  "Computer Vision Systems",
-  "Edge AI & Model Optimization",
-  "AEGIS AI & Safety Vision",
-  "Intelligent Devices & Cameras",
-  "Vision Software & Dashboards",
-  "Technology Partnership",
-  "Other technical challenge",
-];
-const arabicCategories = [
-  "أنظمة الرؤية الحاسوبية",
-  "ذكاء الحافة وتحسين النماذج",
-  "نظام AEGIS AI ورؤية السلامة",
-  "الأجهزة والكاميرات الذكية",
-  "برمجيات الرؤية ولوحات المراقبة",
-  "شراكة تقنية",
-  "تحدٍ تقني آخر",
-];
+import { COMPANY_EMAILS, CONTACT_DIRECTORY, CONTACT_FORM_CATEGORIES, companyMailto } from "@/lib/company-emails";
 
 export default function ContactPage() {
   const ar = useLanguage() === "ar";
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [category, setCategory] = useState(categories[0]);
+  const [category, setCategory] = useState<string>(CONTACT_FORM_CATEGORIES[0].en);
 
   useEffect(() => {
     const value = new URLSearchParams(window.location.search).get("category");
-    if (value && categories.includes(value)) {
+    if (value && CONTACT_FORM_CATEGORIES.some((item) => item.en === value)) {
       setCategory(value);
     }
   }, []);
@@ -54,28 +36,30 @@ export default function ContactPage() {
         throw new Error(
           ar
             ? response.status === 503
-              ? "إرسال الرسائل غير مهيأ حالياً. يرجى مراسلتنا على contact@hirzexa.com."
+              ? "إرسال الرسائل غير مهيأ حالياً."
+              : response.status === 429
+              ? "طلبات كثيرة من هذه الشبكة. يرجى المحاولة لاحقاً."
               : response.status === 400
               ? "يرجى التحقق من الاسم والبريد الإلكتروني ووصف المشروع."
-              : "تعذر إرسال رسالتك. يرجى مراسلتنا على contact@hirzexa.com."
+              : "تعذر إرسال رسالتك."
             : body.error || "Your enquiry could not be sent."
         );
       setStatus("success");
       setMessage(
         ar
-          ? "شكراً لك. تم إرسال استفسارك إلى فريق HIRZEXA."
-          : "Thank you. Your technical enquiry has been sent to the HIRZEXA team."
+          ? "شكراً لك. تم استلام استفسارك للمراجعة."
+          : "Thank you. Your enquiry has been accepted for review."
       );
       form.reset();
-      setCategory(categories[0]);
+      setCategory(CONTACT_FORM_CATEGORIES[0].en);
     } catch (error) {
       setStatus("error");
       setMessage(
         error instanceof Error && !(error instanceof TypeError)
           ? error.message
           : ar
-          ? "تعذر إرسال رسالتك. يرجى مراسلتنا على contact@hirzexa.com."
-          : "Your enquiry could not be sent. Please email contact@hirzexa.com."
+          ? "تعذر إرسال رسالتك."
+          : "Your enquiry could not be sent."
       );
     }
   }
@@ -119,8 +103,8 @@ export default function ContactPage() {
                 ? "شاركنا متطلباتك في الرؤية الحاسوبية، أو الاستدلال على الحافة (Edge AI)، أو نظام AEGIS AI، أو تكامل الكاميرات والأجهزة الذكية."
                 : "Tell us about your computer vision use case, Edge AI deployment, AEGIS AI evaluation, or intelligent device partnership."}
             </p>
-            <a className="contact-email" dir="ltr" href="mailto:contact@hirzexa.com">
-              contact@hirzexa.com <ArrowUpRight size={17} />
+            <a className="contact-email" dir="ltr" href={companyMailto("general")} aria-label={`${ar ? "راسلنا على" : "Email"} ${COMPANY_EMAILS.general}`}>
+              {COMPANY_EMAILS.general} <ArrowUpRight size={17} />
             </a>
             <div className="contact-video-showcase">
               <HumanAiVideoReel
@@ -198,16 +182,16 @@ export default function ContactPage() {
                 {ar ? "ما المجال الذي تستكشفه؟" : "What area are you exploring?"}
               </legend>
               <div className="project-options">
-                {categories.map((item, index) => (
-                  <label key={item} className={category === item ? "selected" : ""}>
+                {CONTACT_FORM_CATEGORIES.map((item) => (
+                  <label key={item.en} className={category === item.en ? "selected" : ""}>
                     <input
                       type="radio"
                       name="category"
-                      value={item}
-                      checked={category === item}
-                      onChange={() => setCategory(item)}
+                      value={item.en}
+                      checked={category === item.en}
+                      onChange={() => setCategory(item.en)}
                     />
-                    <span>{ar ? arabicCategories[index] : item}</span>
+                    <span>{ar ? item.ar : item.en}</span>
                     <Plus size={14} />
                   </label>
                 ))}
@@ -309,13 +293,13 @@ export default function ContactPage() {
               </button>
               <p>
                 {ar ? "تفضل البريد الإلكتروني؟ " : "Prefer email? "}
-                <a href="mailto:contact@hirzexa.com">
+                <a href={companyMailto("general")} aria-label={`${ar ? "راسلنا على" : "Email"} ${COMPANY_EMAILS.general}`}>
                   {ar ? "تواصل معنا مباشرة ↗" : "Get in touch directly ↗"}
                 </a>
               </p>
             </div>
             <p className={`form-status ${status}`} role="status" aria-live="polite">
-              {message}
+              {message}{status === "error" ? <> <a href={companyMailto("general")}>{COMPANY_EMAILS.general}</a></> : null}
             </p>
           </form>
         </div>
@@ -329,21 +313,15 @@ export default function ContactPage() {
             <p>{ar ? "اختر عنوان البريد المناسب لموضوع رسالتك." : "Choose the right address for your enquiry."}</p>
           </div>
           <div className="contact-channels-grid">
-            {[
-              { en: "Technical support", ar: "الدعم الفني", email: "support@hirzexa.com" },
-              { en: "Investors & funding", ar: "المستثمرون والتمويل", email: "investors@hirzexa.com" },
-              { en: "Strategic partnerships", ar: "الشراكات الاستراتيجية", email: "partnerships@hirzexa.com" },
-              { en: "Careers", ar: "الوظائف والتوظيف", email: "careers@hirzexa.com" },
-              { en: "Orders & devices", ar: "الطلبات والأجهزة", email: "orders@hirzexa.com" },
-              { en: "Billing & finance", ar: "الفواتير والشؤون المالية", email: "finance@hirzexa.com" },
-              { en: "Privacy requests", ar: "طلبات الخصوصية", email: "privacy@hirzexa.com" },
-              { en: "Legal enquiries", ar: "الاستفسارات القانونية", email: "legal@hirzexa.com" },
-            ].map(({ en, ar: arLabel, email }) => (
-              <a key={email} href={`mailto:${email}`} className="contact-channel" aria-label={`${ar ? arLabel : en}: ${email}`}>
-                <span>{ar ? arLabel : en}</span>
-                <strong dir="ltr">{email}</strong>
-                <ArrowUpRight size={17} aria-hidden="true" />
-              </a>
+            {CONTACT_DIRECTORY.map((channel) => (
+              <div key={channel.id} className="contact-channel">
+                <span>{ar ? channel.ar : channel.en}</span>
+                <div className="contact-channel-addresses">
+                  {channel.emails.map((key) => <a key={key} href={companyMailto(key)} aria-label={`${ar ? channel.ar : channel.en}: ${COMPANY_EMAILS[key]}`}>
+                    <strong dir="ltr">{COMPANY_EMAILS[key]}</strong><ArrowUpRight size={17} aria-hidden="true" />
+                  </a>)}
+                </div>
+              </div>
             ))}
           </div>
         </div>

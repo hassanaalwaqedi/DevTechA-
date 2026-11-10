@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type ChangeEvent, type FormEvent, type ReactNode, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -353,7 +354,7 @@ export function JobApplicationForm({job, locale}: {job: Job; locale: "en" | "ar"
     }
   }
 
-  if (submitted) return <div className="application-form-column"><div className="application-success"><div><div className="application-success-icon"><CheckCircle2 size={34}/></div><div className="application-card-label">{t.received}</div><h2>{t.thanks}</h2><div className="reference">{reference}</div><p>{t.receivedText} <strong dir="auto">{job.title}</strong>. {t.keepReference}</p><a href="/careers">{t.back} <ArrowUpRight size={15}/></a></div></div></div>;
+  if (submitted) return <div className="application-form-column"><div className="application-success"><div><div className="application-success-icon"><CheckCircle2 size={34}/></div><div className="application-card-label">{t.received}</div><h2>{t.thanks}</h2><div className="reference">{reference}</div><p>{t.receivedText} <strong dir="auto">{job.title}</strong>. {t.keepReference}</p><Link href="/careers">{t.back} <ArrowUpRight size={15}/></Link></div></div></div>;
 
   return <div className="application-form-column">
     <div className="application-form-intro">

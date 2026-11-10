@@ -8,6 +8,7 @@ import { CareersDirectory } from "@/components/careers-directory";
 import { HeroArtwork } from "@/components/home/HeroArtwork";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { createPageMetadata } from "@/lib/social-metadata";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Careers — Build the Future of Intelligent Vision",
@@ -554,10 +555,11 @@ export default async function CareersPage() {
               </p>
             </div>
             <a
-              href="mailto:careers@hirzexa.com?subject=Careers%20at%20HIRZEXA"
+              href={companyMailto("careers", "Careers at HIRZEXA")}
               className="dt-careers-contact-btn"
+              aria-label={`${ar ? "راسل فريق التوظيف" : "Email recruitment"}: ${COMPANY_EMAILS.careers}`}
             >
-              <span>careers@hirzexa.com</span>
+              <span>{COMPANY_EMAILS.careers}</span>
               <ArrowUpRight size={16} />
             </a>
           </div>

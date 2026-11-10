@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createPageMetadata } from "@/lib/social-metadata";
+import { COMPANY_EMAILS } from "@/lib/company-emails";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Contact — Discuss Your Computer Vision & Edge AI Project",
@@ -11,7 +12,7 @@ export const metadata: Metadata = createPageMetadata({
   headline: "Building with intelligent vision? Let's engineer it.",
   summary:
     "Talk directly with our Computer Vision and Edge AI engineers about AEGIS AI, custom vision pipelines, and smart hardware.",
-  chips: ["Computer Vision & Edge AI", "AEGIS AI Demo", "hello@hirzexa.com"],
+  chips: ["Computer Vision & Edge AI", "AEGIS AI Demo", COMPANY_EMAILS.general],
   scene: "contact",
   telemetry: "DIRECT HUMAN-AI CONNECTION",
 });
