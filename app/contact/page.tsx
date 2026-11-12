@@ -1,21 +1,53 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, ArrowUpRight, Plus } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
-import { COMPANY_EMAILS, CONTACT_DIRECTORY, CONTACT_FORM_CATEGORIES, companyMailto } from "@/lib/company-emails";
+import {
+  COMPANY_EMAILS,
+  CONTACT_DIRECTORY,
+  CONTACT_FORM_CATEGORIES,
+  DEPARTMENT_METADATA,
+  companyMailto,
+  recipientForContactCategory,
+  type CompanyEmailChannel,
+} from "@/lib/company-emails";
+
+const DIRECTORY_LINKS: Partial<Record<string, string>> = {
+  business: "/products",
+  support: "/engineering",
+  partnerships: "/partnerships",
+  investors: "/investors",
+  careers: "/careers",
+  orders: "/billing#orders",
+  finance: "/billing",
+  privacy: "/privacy",
+  legal: "/legal",
+};
 
 export default function ContactPage() {
-  const ar = useLanguage() === "ar";
+  const locale = useLanguage();
+  const ar = locale === "ar";
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [errorFallbackEmail, setErrorFallbackEmail] = useState<string>(COMPANY_EMAILS.general);
   const [category, setCategory] = useState<string>(CONTACT_FORM_CATEGORIES[0].en);
+
+  const selectedChannel: CompanyEmailChannel = recipientForContactCategory(category) ?? "general";
+  const selectedEmail = COMPANY_EMAILS[selectedChannel];
+  const selectedDept = DEPARTMENT_METADATA[selectedChannel];
 
   useEffect(() => {
     const value = new URLSearchParams(window.location.search).get("category");
     if (value && CONTACT_FORM_CATEGORIES.some((item) => item.en === value)) {
       setCategory(value);
+    } else if (value && recipientForContactCategory(value)) {
+      const matched = CONTACT_FORM_CATEGORIES.find(
+        (item) => item.recipient === recipientForContactCategory(value)
+      );
+      if (matched) setCategory(matched.en);
     }
   }, []);
 
@@ -24,31 +56,45 @@ export default function ContactPage() {
     setStatus("loading");
     setMessage("");
     const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
+    const rawData = Object.fromEntries(new FormData(form));
+    const currentChannel = recipientForContactCategory(category) ?? "general";
+    setErrorFallbackEmail(COMPANY_EMAILS[currentChannel]);
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...rawData, locale }),
       });
-      const body = (await response.json()) as { error?: string };
-      if (!response.ok)
+      const body = (await response.json()) as {
+        error?: string;
+        fallbackEmail?: string;
+        reference?: string;
+        routedTo?: string;
+      };
+      if (body.fallbackEmail) setErrorFallbackEmail(body.fallbackEmail);
+
+      if (!response.ok) {
         throw new Error(
           ar
             ? response.status === 503
-              ? "إرسال الرسائل غير مهيأ حالياً."
+              ? "إرسال الرسائل غير مهيأ حالياً. يرجى مراسلتنا مباشرة على:"
               : response.status === 429
-              ? "طلبات كثيرة من هذه الشبكة. يرجى المحاولة لاحقاً."
+              ? "طلبات كثيرة من هذه الشبكة. يرجى المحاولة لاحقاً أو مراسلتنا على:"
               : response.status === 400
-              ? "يرجى التحقق من الاسم والبريد الإلكتروني ووصف المشروع."
-              : "تعذر إرسال رسالتك."
+              ? "يرجى التحقق من الاسم والبريد الإلكتروني ووصف المشروع (20 حرفاً على الأقل)."
+              : "تعذر إرسال رسالتك. يرجى التواصل عبر:"
             : body.error || "Your enquiry could not be sent."
         );
+      }
+
+      const refText = body.reference ? ` (${body.reference})` : "";
+      const targetText = body.routedTo || COMPANY_EMAILS[currentChannel];
       setStatus("success");
       setMessage(
         ar
-          ? "شكراً لك. تم استلام استفسارك للمراجعة."
-          : "Thank you. Your enquiry has been accepted for review."
+          ? `شكراً لك. تم استلام رسالتك${refText} وتوجيهها إلى ${targetText}.`
+          : `Thank you. Your enquiry${refText} has been received and routed to ${targetText}.`
       );
       form.reset();
       setCategory(CONTACT_FORM_CATEGORIES[0].en);
@@ -100,10 +146,15 @@ export default function ContactPage() {
             </h1>
             <p>
               {ar
-                ? "شاركنا متطلباتك في الرؤية الحاسوبية، أو الاستدلال على الحافة (Edge AI)، أو نظام AEGIS AI، أو تكامل الكاميرات والأجهزة الذكية."
-                : "Tell us about your computer vision use case, Edge AI deployment, AEGIS AI evaluation, or intelligent device partnership."}
+                ? "شاركنا متطلباتك في الرؤية الحاسوبية، أو الاستدلال على الحافة (Edge AI)، أو نظام AEGIS AI، أو عروض المنتجات والشراكات."
+                : "Tell us about your computer vision use case, Edge AI deployment, AEGIS AI evaluation, product demo, or strategic partnership."}
             </p>
-            <a className="contact-email" dir="ltr" href={companyMailto("general")} aria-label={`${ar ? "راسلنا على" : "Email"} ${COMPANY_EMAILS.general}`}>
+            <a
+              className="contact-email"
+              dir="ltr"
+              href={companyMailto("general")}
+              aria-label={`${ar ? "راسلنا على" : "Email"} ${COMPANY_EMAILS.general}`}
+            >
               {COMPANY_EMAILS.general} <ArrowUpRight size={17} />
             </a>
             <div className="contact-video-showcase">
@@ -153,14 +204,14 @@ export default function ContactPage() {
             <div className="contact-form-head">
               <div>
                 <span className="studio-eyebrow">
-                  {ar ? "استفسار تقني أو شراكة" : "TECHNICAL & PRODUCT INQUIRY"}
+                  {ar ? "استفسار موجه حسب القسم" : "DEPARTMENT-ROUTED INQUIRY"}
                 </span>
                 <h2>
                   {ar ? (
                     <>
                       أخبرنا قليلاً
                       <br />
-                      عن <em>مشروعك البصري.</em>
+                      عن <em>موضوع تواصلك.</em>
                     </>
                   ) : (
                     <>
@@ -179,7 +230,7 @@ export default function ContactPage() {
             <fieldset className="project-types">
               <legend>
                 <span>01</span>{" "}
-                {ar ? "ما المجال الذي تستكشفه؟" : "What area are you exploring?"}
+                {ar ? "ما القسم أو المجال الذي تستكشفه؟" : "What area are you exploring?"}
               </legend>
               <div className="project-options">
                 {CONTACT_FORM_CATEGORIES.map((item) => (
@@ -196,6 +247,23 @@ export default function ContactPage() {
                   </label>
                 ))}
               </div>
+              <p className="contact-route-hint" aria-live="polite">
+                {ar ? (
+                  <>
+                    سيتم التوجيه إلى فريق <strong>{selectedDept.ar}</strong>:{" "}
+                    <a dir="ltr" href={companyMailto(selectedChannel, category)}>
+                      {selectedEmail}
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    Routed to <strong>{selectedDept.en}</strong>:{" "}
+                    <a dir="ltr" href={companyMailto(selectedChannel, category)}>
+                      {selectedEmail}
+                    </a>
+                  </>
+                )}
+              </p>
             </fieldset>
 
             <div className="contact-fields">
@@ -210,6 +278,7 @@ export default function ContactPage() {
                     id="name"
                     name="name"
                     required
+                    maxLength={100}
                     autoComplete="name"
                     placeholder={ar ? "كيف نناديك؟" : "How should we call you?"}
                   />
@@ -223,6 +292,7 @@ export default function ContactPage() {
                     name="email"
                     type="email"
                     required
+                    maxLength={254}
                     autoComplete="email"
                     placeholder="you@company.com"
                     dir="auto"
@@ -233,6 +303,7 @@ export default function ContactPage() {
                   <input
                     id="company"
                     name="company"
+                    maxLength={120}
                     autoComplete="organization"
                     placeholder={ar ? "أين تعمل؟" : "Where you work"}
                   />
@@ -257,7 +328,7 @@ export default function ContactPage() {
               <div className="field">
                 <label htmlFor="overview">
                   {ar
-                    ? "ما الذي تخطط لبنائه أو استكشافه؟ *"
+                    ? "تفاصيل رسالتك أو متطلباتك *"
                     : "What are you planning to build or explore? *"}
                 </label>
                 <textarea
@@ -265,10 +336,11 @@ export default function ContactPage() {
                   name="overview"
                   required
                   minLength={20}
+                  maxLength={3000}
                   placeholder={
                     ar
-                      ? "صف لنا بيئة الكاميرات، أو متطلبات ذكاء الحافة، أو حالة الاستخدام التي تعمل عليها."
-                      : "Describe your camera environment, Edge AI requirements, or application scenario."
+                      ? "صف لنا بيئة الكاميرات، أو متطلبات ذكاء الحافة، أو تفاصيل طلبك أو استفسارك."
+                      : "Describe your camera environment, Edge AI requirements, demo goals, or enquiry details."
                   }
                 />
               </div>
@@ -285,21 +357,33 @@ export default function ContactPage() {
                     ? "جارٍ إرسال رسالتك…"
                     : "Sending your enquiry…"
                   : ar
-                  ? "أرسل الاستفسار التقني"
-                  : "Send technical enquiry"}
+                  ? "أرسل الرسالة للقسم المختص"
+                  : "Send departmental enquiry"}
                 <span>
                   <ArrowRight size={20} />
                 </span>
               </button>
               <p>
-                {ar ? "تفضل البريد الإلكتروني؟ " : "Prefer email? "}
-                <a href={companyMailto("general")} aria-label={`${ar ? "راسلنا على" : "Email"} ${COMPANY_EMAILS.general}`}>
-                  {ar ? "تواصل معنا مباشرة ↗" : "Get in touch directly ↗"}
+                {ar ? "تفضل البريد الإلكتروني؟ " : "Prefer direct email? "}
+                <a
+                  dir="ltr"
+                  href={companyMailto(selectedChannel, category)}
+                  aria-label={`${ar ? "راسلنا على" : "Email"} ${selectedEmail}`}
+                >
+                  {selectedEmail} ↗
                 </a>
               </p>
             </div>
             <p className={`form-status ${status}`} role="status" aria-live="polite">
-              {message}{status === "error" ? <> <a href={companyMailto("general")}>{COMPANY_EMAILS.general}</a></> : null}
+              {message}
+              {status === "error" ? (
+                <>
+                  {" "}
+                  <a dir="ltr" href={`mailto:${errorFallbackEmail}`}>
+                    {errorFallbackEmail}
+                  </a>
+                </>
+              ) : null}
             </p>
           </form>
         </div>
@@ -308,21 +392,44 @@ export default function ContactPage() {
       <section className="contact-channels-section" aria-labelledby="contact-channels-heading">
         <div className="container">
           <div className="contact-channels-header">
-            <span className="studio-eyebrow">{ar ? "دليل التواصل" : "CONTACT DIRECTORY"}</span>
-            <h2 id="contact-channels-heading">{ar ? "تواصل مع القسم المناسب" : "Reach the right team"}</h2>
-            <p>{ar ? "اختر عنوان البريد المناسب لموضوع رسالتك." : "Choose the right address for your enquiry."}</p>
+            <span className="studio-eyebrow">{ar ? "دليل التواصل الرسمي" : "CONTACT DIRECTORY"}</span>
+            <h2 id="contact-channels-heading">
+              {ar ? "تواصل مع القسم المناسب في HIRZEXA" : "Reach the right HIRZEXA team"}
+            </h2>
+            <p>
+              {ar
+                ? "اختر عنوان البريد الرسمي المناسب لموضوع رسالتك."
+                : "Choose the verified HIRZEXA department address for your enquiry."}
+            </p>
           </div>
           <div className="contact-channels-grid">
-            {CONTACT_DIRECTORY.map((channel) => (
-              <div key={channel.id} className="contact-channel">
-                <span>{ar ? channel.ar : channel.en}</span>
-                <div className="contact-channel-addresses">
-                  {channel.emails.map((key) => <a key={key} href={companyMailto(key)} aria-label={`${ar ? channel.ar : channel.en}: ${COMPANY_EMAILS[key]}`}>
-                    <strong dir="ltr">{COMPANY_EMAILS[key]}</strong><ArrowUpRight size={17} aria-hidden="true" />
-                  </a>)}
+            {CONTACT_DIRECTORY.map((channel) => {
+              const pageHref = DIRECTORY_LINKS[channel.id];
+              return (
+                <div key={channel.id} className="contact-channel">
+                  <div className="contact-channel-top">
+                    <span>{ar ? channel.ar : channel.en}</span>
+                    {pageHref ? (
+                      <Link href={pageHref} className="contact-channel-page-link">
+                        {ar ? "صفحة القسم" : "View page"} <ArrowUpRight size={13} />
+                      </Link>
+                    ) : null}
+                  </div>
+                  <div className="contact-channel-addresses">
+                    {channel.emails.map((key) => (
+                      <a
+                        key={key}
+                        href={companyMailto(key)}
+                        aria-label={`${ar ? channel.ar : channel.en}: ${COMPANY_EMAILS[key]}`}
+                      >
+                        <strong dir="ltr">{COMPANY_EMAILS[key]}</strong>
+                        <ArrowUpRight size={17} aria-hidden="true" />
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

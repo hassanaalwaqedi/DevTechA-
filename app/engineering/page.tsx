@@ -7,6 +7,7 @@ import { ArchitectureDiagram } from "@/components/technical-visuals";
 import { HowWeWork } from "@/components/how-we-work";
 import { HumanAiVideoReel } from "@/components/ui/HumanAiVideoReel";
 import { createPageMetadata } from "@/lib/social-metadata";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Engineering — Computer Vision Pipeline, Edge AI Optimization & Stack",
@@ -206,6 +207,35 @@ export default async function EngineeringPage() {
                 : "Launch Interactive AI System Architect"}{" "}
               <ArrowUpRight size={15} />
             </Link>
+          </div>
+
+          <div className="dept-email-strip">
+            <div className="dept-email-strip-copy">
+              <span>{ar ? "قنوات الهندسة والتعاون" : "ENGINEERING & COLLABORATION CHANNELS"}</span>
+              <p>
+                {ar
+                  ? "للدعم التقني وأسئلة المعمارية راسل فريق الدعم، وللتعاون الهندسي والبحثي راسل فريق الشراكات."
+                  : "Reach technical support for engineering questions or partnerships for technical collaborations."}
+              </p>
+            </div>
+            <div className="dept-email-strip-actions">
+              <a
+                href={companyMailto("support", "Engineering & Technical Support")}
+                className="dept-email-chip"
+                aria-label={`${ar ? "الدعم الفني" : "Technical support"}: ${COMPANY_EMAILS.support}`}
+              >
+                {ar ? "الدعم الفني:" : "Technical support:"}{" "}
+                <span dir="ltr">{COMPANY_EMAILS.support}</span> <ArrowUpRight size={15} />
+              </a>
+              <a
+                href={companyMailto("partnerships", "Engineering Collaboration Proposal")}
+                className="dept-email-chip"
+                aria-label={`${ar ? "التعاون الهندسي" : "Collaborations"}: ${COMPANY_EMAILS.partnerships}`}
+              >
+                {ar ? "التعاون الهندسي:" : "Collaborations:"}{" "}
+                <span dir="ltr">{COMPANY_EMAILS.partnerships}</span> <ArrowUpRight size={15} />
+              </a>
+            </div>
           </div>
         </div>
       </section>

@@ -1,4 +1,7 @@
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { CapabilityCard } from "@/components/home/CapabilityCard";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 
 type CapabilitiesSectionProps = {
   arabic?: boolean;
@@ -196,6 +199,30 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
               icon={card.icon}
             />
           ))}
+        </div>
+
+        <div className="dept-email-strip">
+          <div className="dept-email-strip-copy">
+            <span>{arabic ? "الاستفسارات العامة" : "GENERAL INQUIRIES · HIRZEXA"}</span>
+            <p>
+              {arabic
+                ? "للاستفسارات العامة حول تقنيات الرؤية الحاسوبية وذكاء الحافة أو التواصل المؤسسي."
+                : "General inquiries regarding our Computer Vision, Edge AI technologies, or company operations."}
+            </p>
+          </div>
+          <div className="dept-email-strip-actions">
+            <a
+              dir="ltr"
+              href={companyMailto("general", "General inquiry — HIRZEXA")}
+              className="dept-email-chip"
+              aria-label={`${arabic ? "الاستفسارات العامة" : "General inquiries"}: ${COMPANY_EMAILS.general}`}
+            >
+              {COMPANY_EMAILS.general} <ArrowUpRight size={15} />
+            </a>
+            <Link href="/contact?category=General%20Inquiries" className="dept-email-chip">
+              {arabic ? "فتح نموذج التواصل" : "Open inquiry form"} <ArrowUpRight size={15} />
+            </Link>
+          </div>
         </div>
       </div>
     </section>

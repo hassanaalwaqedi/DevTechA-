@@ -365,12 +365,12 @@ export default async function ProductsPage() {
                   <span>{ar ? "ذكاء الحافة" : "EDGE AI"}</span>
                   <span>{ar ? "تحليل السلامة" : "SAFETY INTELLIGENCE"}</span>
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
                   <Link
-                    href="/contact?category=AEGIS%20AI%20%26%20Safety%20Vision"
+                    href="/contact?category=AEGIS%20AI%20Commercial"
                     className="work-primary-link"
                   >
-                    {ar ? "ناقش مشروع AEGIS AI" : "Discuss AEGIS AI"}
+                    {ar ? "عروض واستفسارات AEGIS AI" : "Request AEGIS AI demo"}
                     <span>
                       <ArrowUpRight size={16} />
                     </span>
@@ -379,6 +379,22 @@ export default async function ProductsPage() {
                     {ar ? "المعمارية الهندسية" : "View pipeline architecture"}{" "}
                     <ArrowUpRight size={15} />
                   </Link>
+                </div>
+                <div className="product-email-links" style={{ marginTop: "14px" }}>
+                  <a
+                    href={companyMailto("business", "AEGIS AI commercial inquiry")}
+                    aria-label={`${ar ? "الاستفسارات التجارية لـ AEGIS AI" : "AEGIS AI commercial inquiries"}: ${COMPANY_EMAILS.business}`}
+                  >
+                    {ar ? "الاستفسارات التجارية:" : "Commercial inquiries:"}{" "}
+                    <span dir="ltr">{COMPANY_EMAILS.business}</span> <ArrowUpRight size={14} />
+                  </a>
+                  <a
+                    href={companyMailto("support", "AEGIS AI technical question")}
+                    aria-label={`${ar ? "الأسئلة التقنية لـ AEGIS AI" : "AEGIS AI technical questions"}: ${COMPANY_EMAILS.support}`}
+                  >
+                    {ar ? "الأسئلة التقنية:" : "Technical questions:"}{" "}
+                    <span dir="ltr">{COMPANY_EMAILS.support}</span> <ArrowUpRight size={14} />
+                  </a>
                 </div>
               </div>
             </div>
@@ -534,11 +550,14 @@ export default async function ProductsPage() {
               <ArrowUpRight size={16} />
             </Link>
             <div className="product-email-links">
-              <a href={companyMailto("orders", "HIRZEXA device enquiry")} aria-label={`${ar ? "استفسارات الأجهزة والطلبات" : "Device and order enquiries"}: ${COMPANY_EMAILS.orders}`}>
-                {ar ? "استفسارات الأجهزة والطلبات" : "Device and order enquiries"} <ArrowUpRight size={15} />
+              <a href={companyMailto("business", "HIRZEXA product inquiry & demo")} aria-label={`${ar ? "استفسارات المنتجات والعروض" : "Product inquiries and demos"}: ${COMPANY_EMAILS.business}`}>
+                {ar ? "استفسارات المنتجات والعروض" : "Product inquiries & demos"} ({COMPANY_EMAILS.business}) <ArrowUpRight size={15} />
+              </a>
+              <a href={companyMailto("orders", "HIRZEXA device & purchasing inquiry")} aria-label={`${ar ? "الطلبات والمشتريات" : "Purchases and orders"}: ${COMPANY_EMAILS.orders}`}>
+                {ar ? "الطلبات والمشتريات" : "Purchases & orders"} ({COMPANY_EMAILS.orders}) <ArrowUpRight size={15} />
               </a>
               <a href={companyMailto("support", "HIRZEXA product support")} aria-label={`${ar ? "الدعم الفني" : "Technical support"}: ${COMPANY_EMAILS.support}`}>
-                {ar ? "الدعم الفني" : "Technical support"} <ArrowUpRight size={15} />
+                {ar ? "الدعم الفني" : "Technical support"} ({COMPANY_EMAILS.support}) <ArrowUpRight size={15} />
               </a>
             </div>
           </div>
@@ -567,7 +586,7 @@ export default async function ProductsPage() {
               )}
             </h2>
           </div>
-          <Link href="/contact" className="work-primary-link">
+          <Link href="/contact?category=Product%20Demos%20%26%20Business" className="work-primary-link">
             {ar ? "تواصل معنا" : "Discuss your project"}
             <span>
               <ArrowUpRight size={17} />

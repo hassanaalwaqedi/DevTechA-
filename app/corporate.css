@@ -1418,10 +1418,145 @@
   font-weight: 700;
 }
 
+.corporate-site .dt-footer-email-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.corporate-site .dt-footer-email-row small {
+  font-size: 11px;
+  font-weight: 600;
+  color: #647499;
+}
+
+.corporate-site .dt-footer-social {
+  margin-top: 4px;
+}
+
 .corporate-site .dt-footer-bottom {
   color: #5C6B8E;
   border-top: 1px solid rgba(120, 145, 225, 0.18);
   padding-top: 20px;
+}
+
+.corporate-site .dt-footer-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  align-items: center;
+}
+
+.corporate-site .dt-footer-legal-links a {
+  color: #5C6B8E;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: color 0.18s ease;
+}
+
+.corporate-site .dt-footer-legal-links a:hover {
+  color: var(--accent-blue);
+}
+
+.corporate-site .dept-email-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-top: 32px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(120, 145, 225, 0.24);
+  box-shadow: 0 12px 28px -14px rgba(18, 43, 115, 0.08);
+}
+
+.corporate-site .dept-email-strip-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.corporate-site .dept-email-strip-copy span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #465473;
+}
+
+.corporate-site .dept-email-strip-copy p {
+  margin: 0;
+  font-size: 14px;
+  color: #34415E;
+}
+
+.corporate-site .dept-email-strip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+}
+
+.corporate-site .dept-email-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #F1F4FF;
+  border: 1px solid rgba(16, 80, 255, 0.22);
+  color: #080D21;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.corporate-site .dept-email-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  background: #FFFFFF;
+}
+
+.corporate-site .dept-page-section {
+  padding: 64px 0 88px;
+  background: #FFFFFF;
+}
+
+.corporate-site .dept-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.corporate-site .dept-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 18px;
+  background: #F8F9FF;
+  border: 1px solid rgba(120, 145, 225, 0.22);
+}
+
+.corporate-site .dept-card h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.corporate-site .dept-card p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+@media (max-width: 760px) {
+  .corporate-site .dept-card-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ==========================================================================

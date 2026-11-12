@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import { createPageMetadata } from "@/lib/social-metadata";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 import "../solutions/solutions.css";
 
 export const metadata: Metadata = createPageMetadata({
@@ -45,7 +46,7 @@ export default async function ApplicationsPage() {
           scenario:
             "مثال تطبيقي: كاميرا منزلية ذكية تعالج الفيديو محلياً لتنبيه صاحب المنزل عند وصول طرد أو حركة في المدخل دون إرسال الفيديو الخام للسحابة.",
           tags: ["كشف الأجسام", "الخصوصية على الحافة", "تنبيهات مخصصة", "تطبيق الجوال"],
-          category: "Intelligent Devices & Cameras",
+          category: "Product Demos & Business",
           Icon: Home,
         },
         {
@@ -60,7 +61,7 @@ export default async function ApplicationsPage() {
           scenario:
             "مثال تطبيقي: رصد أوقات الذروة وطوابير الانتظار عبر الكاميرات الحالية وتحويلها إلى مؤشرات تشغيلية في لوحة تحكم المتجر.",
           tags: ["تحليلات الفيديو", "كثافة الحركة", "لوحة تحكم تشغيلية", "Edge AI"],
-          category: "Computer Vision Systems",
+          category: "Product Demos & Business",
           Icon: Store,
         },
         {
@@ -75,7 +76,7 @@ export default async function ApplicationsPage() {
           scenario:
             "مثال تطبيقي: متابعة حركة المركبات والمشاة في ساحات التحميل وإشعار المشرفين عند حدوث ازدحام أو دخول منطقة مقيدة.",
           tags: ["تتبع متعدد الأجسام", "إدارة المناطق", "إشعارات المشغلين", "FastAPI"],
-          category: "Vision Software & Dashboards",
+          category: "Product Demos & Business",
           Icon: Building2,
         },
         {
@@ -90,7 +91,7 @@ export default async function ApplicationsPage() {
           scenario:
             "مثال تطبيقي (AEGIS AI): تحليل فوري للكاميرات مع مؤشر مخاطر مساعد وتنبيهات للمشغل البشري لمراجعة الحدث (نظام مساعد للإنسان وليس قراراً أمنياً ذاتياً).",
           tags: ["AEGIS AI", "تقييم المخاطر المساعد", "الوعي الظرفي", "تنبيهات المشغل"],
-          category: "AEGIS AI & Safety Vision",
+          category: "AEGIS AI Commercial",
           Icon: ShieldAlert,
         },
         {
@@ -105,7 +106,7 @@ export default async function ApplicationsPage() {
           scenario:
             "خارطة الطريق الصناعية: نشر نماذج YOLO / ONNX محسنة على وحدات حافة صناعية لمراقبة جودة المنتجات وسلامة العمليات في الوقت الفعلي.",
           tags: ["الفحص البصري (مخطط)", "مراقبة العمليات", "ONNX / TensorRT", "كاميرات صناعية"],
-          category: "Edge AI & Model Optimization",
+          category: "Product Demos & Business",
           Icon: Factory,
         },
       ] as const)
@@ -122,7 +123,7 @@ export default async function ApplicationsPage() {
           scenario:
             "Product Scenario: On-device camera inference detects activity in defined entry zones and delivers structured event summaries without streaming continuous raw video to the cloud.",
           tags: ["On-Device Privacy", "Configurable Alerts", "Object Recognition", "Mobile App"],
-          category: "Intelligent Devices & Cameras",
+          category: "Product Demos & Business",
           Icon: Home,
         },
         {
@@ -137,7 +138,7 @@ export default async function ApplicationsPage() {
           scenario:
             "Product Scenario: Multi-camera tracking aggregates anonymized zone occupancy and dwell metrics into a live operational dashboard.",
           tags: ["Video Analytics", "Zone Occupancy", "Queue Monitoring", "Operational Dashboard"],
-          category: "Computer Vision Systems",
+          category: "Product Demos & Business",
           Icon: Store,
         },
         {
@@ -152,7 +153,7 @@ export default async function ApplicationsPage() {
           scenario:
             "Product Scenario: Edge vision boxes process facility camera streams to log corridor activity and notify supervisors when configurable rules are triggered.",
           tags: ["Event Detection", "Multi-Object Tracking", "Configurable Rules", "Edge AI"],
-          category: "Vision Software & Dashboards",
+          category: "Product Demos & Business",
           Icon: Building2,
         },
         {
@@ -167,7 +168,7 @@ export default async function ApplicationsPage() {
           scenario:
             "Product Scenario (AEGIS AI): Real-time camera analysis combines object tracking and event interpretation with human-in-the-loop operator alerts—supporting human judgment rather than making autonomous security decisions.",
           tags: ["AEGIS AI", "Assisted Risk Analysis", "Situational Awareness", "Operator Alerts"],
-          category: "AEGIS AI & Safety Vision",
+          category: "AEGIS AI Commercial",
           Icon: ShieldAlert,
         },
         {
@@ -182,7 +183,7 @@ export default async function ApplicationsPage() {
           scenario:
             "Future Application Direction: High-frame-rate optical sensors paired with TensorRT/ONNX edge compute units for real-time surface inspection and process anomaly alerting.",
           tags: ["Visual Inspection (Planned)", "Process Monitoring", "TensorRT / ONNX", "Industrial Edge"],
-          category: "Edge AI & Model Optimization",
+          category: "Product Demos & Business",
           Icon: Factory,
         },
       ] as const);
@@ -392,12 +393,26 @@ export default async function ApplicationsPage() {
               )}
             </h2>
           </div>
-          <Link href="/contact" className="solutions-primary-link">
-            {ar ? "تواصل معنا" : "Discuss your application"}
-            <span>
-              <ArrowUpRight size={17} />
-            </span>
-          </Link>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+            <a
+              href={companyMailto("business", "HIRZEXA Applications Business Inquiry")}
+              className="solutions-primary-link"
+              aria-label={`${ar ? "استفسارات الأعمال للتطبيقات" : "Business inquiries"}: ${COMPANY_EMAILS.business}`}
+            >
+              <span dir="ltr" style={{ width: "auto", height: "auto", background: "transparent", borderRadius: 0, color: "inherit", paddingInline: "6px" }}>
+                {COMPANY_EMAILS.business}
+              </span>
+              <span>
+                <ArrowUpRight size={17} />
+              </span>
+            </a>
+            <Link href="/contact?category=Product%20Demos%20%26%20Business" className="solutions-primary-link">
+              {ar ? "ناقش متطلبات عملك" : "Discuss your application"}
+              <span>
+                <ArrowUpRight size={17} />
+              </span>
+            </Link>
+          </div>
         </div>
       </section>
     </main>

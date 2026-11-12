@@ -6,6 +6,7 @@ import { getJobBySlug } from "@/lib/db";
 import { getLocale } from "@/lib/locale";
 import { JobApplicationForm } from "@/components/job-application-form";
 import { warmJobCard } from "@/lib/social-card-renderer";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 import "./apply.css";
 
 export async function generateMetadata({
@@ -92,7 +93,7 @@ export default async function ApplyPage({params}: {params: Promise<{slug: string
             <span className="application-card-label">{ar ? "طلبك" : "YOUR APPLICATION"}</span>
             {steps.map(([number, label, target]) => <a href={`#${target}`} key={target}><span>{number}</span>{label}</a>)}
           </nav>
-          <div className="application-trust"><ShieldCheck size={18}/><p>{ar ? "تُراجع الطلبات من فريق التوظيف فقط. لا نستخدم قرارات توظيف آلية." : "Applications are reviewed only by the hiring team. We do not make automated hiring decisions."}</p></div>
+          <div className="application-trust"><ShieldCheck size={18}/><p>{ar ? "تُراجع الطلبات من فريق التوظيف فقط. لا نستخدم قرارات توظيف آلية. للاستفسار راسلنا على " : "Applications are reviewed only by the hiring team. We do not make automated hiring decisions. Questions: "}<a dir="ltr" href={companyMailto("careers", `Application question: ${job.title}`)} style={{textDecoration: "underline"}}>{COMPANY_EMAILS.careers}</a></p></div>
         </aside>
         <JobApplicationForm job={job} locale={locale}/>
       </div>

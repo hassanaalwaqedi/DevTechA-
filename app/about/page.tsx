@@ -4,6 +4,7 @@ import { CompanyPageIntro } from "@/components/company-page-intro";
 import { ArrowUpRight, Camera, Cpu, Eye, MonitorPlay, MoveUpRight } from "lucide-react";
 import { getLocale } from "@/lib/locale";
 import { createPageMetadata } from "@/lib/social-metadata";
+import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 import "./about.css";
 
 export const metadata: Metadata = createPageMetadata({
@@ -337,8 +338,34 @@ export default async function AboutPage() {
                 ? "نواصل الاستثمار في الرؤية الحاسوبية وذكاء الحافة وتكامل العتاد والبرمجيات لبناء منتجات يعتمد عليها الناس والمؤسسات."
                 : "We combine computer vision models, Edge AI optimization, and thoughtful product design to build visual systems people can trust."}
             </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 20px", marginTop: "18px", alignItems: "center" }}>
+              <a
+                dir="ltr"
+                href={companyMailto("general", "Corporate inquiry — HIRZEXA")}
+                className="about-text-link"
+                style={{ marginTop: 0 }}
+                aria-label={`${ar ? "الاستفسارات المؤسسية" : "Corporate inquiries"}: ${COMPANY_EMAILS.general}`}
+              >
+                {COMPANY_EMAILS.general} <ArrowUpRight size={15} />
+              </a>
+              <Link href="/partnerships" className="about-text-link" style={{ marginTop: 0 }}>
+                {ar ? "الشراكات" : "Partnerships"} <ArrowUpRight size={15} />
+              </Link>
+              <Link href="/investors" className="about-text-link" style={{ marginTop: 0 }}>
+                {ar ? "المستثمرون" : "Investors"} <ArrowUpRight size={15} />
+              </Link>
+              <Link href="/billing" className="about-text-link" style={{ marginTop: 0 }}>
+                {ar ? "الفوترة والطلبات" : "Billing & Orders"} <ArrowUpRight size={15} />
+              </Link>
+              <Link href="/privacy" className="about-text-link" style={{ marginTop: 0 }}>
+                {ar ? "الخصوصية" : "Privacy"} <ArrowUpRight size={15} />
+              </Link>
+              <Link href="/legal" className="about-text-link" style={{ marginTop: 0 }}>
+                {ar ? "الشؤون القانونية" : "Legal"} <ArrowUpRight size={15} />
+              </Link>
+            </div>
           </div>
-          <Link href="/contact" className="about-primary-link">
+          <Link href="/contact?category=General%20Inquiries" className="about-primary-link">
             {ar ? "تواصل مع فريقنا" : "Start a conversation"}
             <span>
               <ArrowUpRight size={17} />

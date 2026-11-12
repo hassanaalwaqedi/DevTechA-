@@ -2,7 +2,11 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Locale } from "@/lib/locale";
 import { HirzexaLogoMark } from "@/components/navigation/SiteHeader";
-import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
+import {
+  COMPANY_EMAILS,
+  FOOTER_EMAIL_CHANNELS,
+  companyMailto,
+} from "@/lib/company-emails";
 
 export function SiteFooter({ locale }: { locale: Locale }) {
   const ar = locale === "ar";
@@ -34,17 +38,24 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           </div>
 
           <div className="footer-contact dt-footer-contact">
-            <span>{ar ? "تواصل مباشر" : "Direct"}</span>
-            <a dir="ltr" href={companyMailto("general")} aria-label={`${ar ? "البريد العام" : "General email"}: ${COMPANY_EMAILS.general}`}>
-              {COMPANY_EMAILS.general}
-            </a>
-            <a dir="ltr" href={companyMailto("support")} aria-label={`${ar ? "الدعم الفني" : "Technical support"}: ${COMPANY_EMAILS.support}`}>
-              {COMPANY_EMAILS.support}
-            </a>
+            <span>{ar ? "قنوات التواصل الرسمية" : "Official Channels"}</span>
+            {FOOTER_EMAIL_CHANNELS.map(({ channel, labelEn, labelAr }) => (
+              <div className="dt-footer-email-row" key={channel}>
+                <small>{ar ? labelAr : labelEn}</small>
+                <a
+                  dir="ltr"
+                  href={companyMailto(channel)}
+                  aria-label={`${ar ? labelAr : labelEn}: ${COMPANY_EMAILS[channel]}`}
+                >
+                  {COMPANY_EMAILS[channel]}
+                </a>
+              </div>
+            ))}
             <a
               href="https://www.linkedin.com/company/144674058"
               target="_blank"
               rel="noreferrer"
+              className="dt-footer-social"
             >
               LinkedIn <ArrowUpRight size={13} />
             </a>
@@ -53,11 +64,13 @@ export function SiteFooter({ locale }: { locale: Locale }) {
 
         <div className="footer-bottom dt-footer-bottom">
           <span dir="ltr">© {new Date().getFullYear()} HIRZEXA</span>
-          <span>
-            {ar
-              ? "الرؤية الحاسوبية. ذكاء الحافة. منتجات ذكية."
-              : "Computer Vision. Edge AI. Intelligent Products."}
-          </span>
+          <div className="dt-footer-legal-links">
+            <Link href="/privacy">{ar ? "الخصوصية" : "Privacy"}</Link>
+            <Link href="/legal">{ar ? "الشؤون القانونية" : "Legal"}</Link>
+            <Link href="/partnerships">{ar ? "الشراكات" : "Partnerships"}</Link>
+            <Link href="/investors">{ar ? "المستثمرون" : "Investors"}</Link>
+            <Link href="/billing">{ar ? "الفوترة والطلبات" : "Billing & Orders"}</Link>
+          </div>
         </div>
       </div>
     </footer>
