@@ -5,6 +5,8 @@ import { ArrowUpRight, Camera, Cpu, Eye, MonitorPlay, MoveUpRight } from "lucide
 import { getLocale } from "@/lib/locale";
 import { createPageMetadata } from "@/lib/social-metadata";
 import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
+import { RecognitionSection } from "@/components/recognition/RecognitionSection";
+import { FounderAndTeamSection } from "@/components/team/FounderAndTeamSection";
 import "./about.css";
 
 export const metadata: Metadata = createPageMetadata({
@@ -23,7 +25,8 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default async function AboutPage() {
-  const ar = (await getLocale()) === "ar";
+  const locale = await getLocale();
+  const ar = locale === "ar";
 
   const pillars = ar
     ? ([
@@ -310,6 +313,10 @@ export default async function AboutPage() {
           </div>
         </div>
       </section>
+
+      <RecognitionSection locale={locale} variant="full" />
+
+      <FounderAndTeamSection locale={locale} />
 
       {/* Section 04: Belief / CTA */}
       <section className="about-belief-new">

@@ -5,6 +5,8 @@ import { khairProduct } from "@/lib/data";
 import { HeroSection } from "@/components/home/HeroSection";
 import { MetricsRibbon } from "@/components/home/MetricsRibbon";
 import { CapabilitiesSection } from "@/components/home/CapabilitiesSection";
+import { RecognitionSection } from "@/components/recognition/RecognitionSection";
+import { FounderTeamPreview } from "@/components/team/FounderAndTeamSection";
 import { createPageMetadata } from "@/lib/social-metadata";
 
 export const metadata: Metadata = createPageMetadata({
@@ -46,6 +48,8 @@ export default async function Home() {
         openPositionsCount={openPositionsCount}
       />
       <CapabilitiesSection arabic={arabic} />
+      <RecognitionSection locale={locale} variant="compact" />
+      <FounderTeamPreview locale={locale} />
     </main>
   );
 }

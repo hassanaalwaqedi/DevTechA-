@@ -9,23 +9,16 @@ type MetricsRibbonProps = {
 
 export function MetricsRibbon({
   arabic = false,
-  projectCount = null,
   openPositionsCount = null,
 }: MetricsRibbonProps) {
   const items = [
     {
-      id: "projects",
-      href: "/products",
-      title: arabic
-        ? projectCount && projectCount > 0
-          ? `${projectCount} منصات منشورة`
-          : "مشاريع الرؤية والذكاء"
-        : projectCount && projectCount > 0
-        ? `${projectCount} Published ${projectCount === 1 ? "Platform" : "Platforms"}`
-        : "Vision Technologies",
+      id: "aegis-ai",
+      href: "/products/aegis-ai",
+      title: "AEGIS AI",
       subtitle: arabic
-        ? "الرؤية الحاسوبية · ذكاء الحافة · المنصات"
-        : "Smart Vision · Edge AI · Live Platforms",
+        ? "الرؤية الحاسوبية · 95.3% تقييم · إسطنبول 2026"
+        : "Safety Vision · Case Studies · 95.3% Eval",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -35,19 +28,13 @@ export function MetricsRibbon({
             </linearGradient>
           </defs>
           <path
-            d="M14 3.5L23.5 8.75V19.25L14 24.5L4.5 19.25V8.75L14 3.5Z"
+            d="M14 3.2L22.5 6.8V13.4C22.5 18.85 18.85 23.3 14 24.75C9.15 23.3 5.5 18.85 5.5 13.4V6.8L14 3.2Z"
             stroke="url(#dt-metric-grad-1)"
             strokeWidth="1.75"
             strokeLinejoin="round"
           />
-          <path
-            d="M4.5 8.75L14 14L23.5 8.75M14 14V24.5"
-            stroke="url(#dt-metric-grad-1)"
-            strokeWidth="1.65"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="14" cy="14" r="2.2" fill="#1050FF" />
+          <circle cx="14" cy="13.5" r="3.4" stroke="url(#dt-metric-grad-1)" strokeWidth="1.65" />
+          <circle cx="14" cy="13.5" r="1.4" fill="#1050FF" />
         </svg>
       ),
     },

@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { Camera, ScanEye, Cpu } from "lucide-react";
+import { ArrowUpRight, Camera, Cpu, ShieldCheck } from "lucide-react";
 
 type ProjectIndicatorProps = {
   arabic?: boolean;
 };
 
-const visionStages = [Camera, ScanEye, Cpu];
+const visionStages = [ShieldCheck, Camera, Cpu];
 
 export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
   return (
     <Link
-      href="/products"
+      href="/products/aegis-ai"
       className="dt-project-indicator"
       aria-label={
         arabic
-          ? "أنظمة رؤية ذكية ومنتجات حقيقية. استكشف منتجاتنا"
-          : "Intelligent vision systems and products. Explore our products"
+          ? "AEGIS AI — دراسة الحالة والمعمارية ونظام الرؤية. افتح صفحة AEGIS AI"
+          : "AEGIS AI — Explore case studies, system architecture, and live walkthrough"
       }
     >
       <div className="dt-project-avatars" aria-hidden="true">
@@ -29,13 +29,18 @@ export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
         ))}
       </div>
       <div className="dt-project-indicator-text">
-        <strong>
-          {arabic ? "AEGIS AI · دراسة هندسية للرؤية الذكية" : "AEGIS AI · Vision engineering study"}
+        <strong style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+          <span>
+            {arabic
+              ? "AEGIS AI · استكشف النظام والمعمارية"
+              : "AEGIS AI · Case Studies & Architecture"}
+          </span>
+          <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden="true" />
         </strong>
         <span>
           {arabic
-            ? "الرؤية الحاسوبية · ذكاء الحافة · الأجهزة الذكية"
-            : "Computer Vision · Edge AI · Intelligent Devices"}
+            ? "الرؤية الحاسوبية · نتيجة 95.3% المبلّغ عنها · شاهد العرض"
+            : "Computer Vision · 95.3% Evaluation · Interactive Walkthrough"}
         </span>
       </div>
     </Link>

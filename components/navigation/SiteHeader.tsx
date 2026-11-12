@@ -10,6 +10,7 @@ import { GradientButton } from "@/components/ui/GradientButton";
 
 const navItems = [
   { en: "Technology", ar: "التقنية", href: "/technology", aliases: ["/expertise"] },
+  { en: "AEGIS AI", ar: "AEGIS AI", href: "/products/aegis-ai", aliases: [] },
   { en: "Products", ar: "المنتجات", href: "/products", aliases: ["/work"] },
   { en: "Applications", ar: "التطبيقات", href: "/applications", aliases: ["/solutions"] },
   { en: "Engineering", ar: "الهندسة", href: "/engineering", aliases: [] },
@@ -69,7 +70,7 @@ export function SiteHeader() {
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              pathname.startsWith(`${item.href}/`) ||
+              (item.href !== "/products" && pathname.startsWith(`${item.href}/`)) ||
               item.aliases.some((alias) => pathname === alias || pathname.startsWith(`${alias}/`));
             return (
               <Link

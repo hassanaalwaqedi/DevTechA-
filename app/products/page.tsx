@@ -367,13 +367,22 @@ export default async function ProductsPage() {
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
                   <Link
-                    href="/contact?category=AEGIS%20AI%20Commercial"
+                    href="/products/aegis-ai"
                     className="work-primary-link"
                   >
-                    {ar ? "عروض واستفسارات AEGIS AI" : "Request AEGIS AI demo"}
+                    {ar
+                      ? "استكشف دراسة الحالة والمعمارية الكاملة"
+                      : "Explore full AEGIS AI experience"}
                     <span>
                       <ArrowUpRight size={16} />
                     </span>
+                  </Link>
+                  <Link
+                    href="/contact?category=AEGIS%20AI%20Commercial"
+                    className="work-text-link"
+                  >
+                    {ar ? "طلب عرض أو تجربة" : "Request demo or pilot"}{" "}
+                    <ArrowUpRight size={15} />
                   </Link>
                   <Link href="/engineering" className="work-text-link">
                     {ar ? "المعمارية الهندسية" : "View pipeline architecture"}{" "}

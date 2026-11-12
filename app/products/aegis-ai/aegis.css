@@ -1,0 +1,1733 @@
+/* ==========================================================================
+   HIRZEXA — AEGIS AI PRODUCT EXPERIENCE (/products/aegis-ai)
+   Deep-tech editorial styling synced with HIRZEXA brand tokens
+   ========================================================================== */
+
+.corporate-site .aegis-page {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-blue);
+}
+
+.corporate-site .aegis-eyebrow-light {
+  color: #8FB4FF;
+}
+
+.corporate-site .aegis-heading {
+  margin: 12px 0 0;
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.036em;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-heading-light {
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-subcopy {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-subcopy-light {
+  color: #B6C2DC;
+}
+
+.corporate-site .aegis-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  margin-bottom: 44px;
+}
+
+.corporate-site .aegis-band {
+  padding: 96px 0;
+}
+
+.corporate-site .aegis-band-dark {
+  background: #070B19;
+  color: #F8FAFC;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.corporate-site .aegis-band-light {
+  background: #FFFFFF;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-band-soft {
+  background: var(--background);
+  color: var(--text-primary);
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+/* ==========================================================================
+   HERO EXPERIENCE
+   ========================================================================== */
+
+.corporate-site .aegis-hero {
+  position: relative;
+  padding: 138px 0 56px;
+  background:
+    radial-gradient(circle at 82% 24%, rgba(16, 80, 255, 0.16), transparent 44%),
+    radial-gradient(circle at 18% 72%, rgba(135, 59, 255, 0.14), transparent 46%),
+    #060914;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 48px;
+  align-items: center;
+}
+
+.corporate-site .aegis-hero-title {
+  margin: 16px 0 0;
+  font-size: clamp(2.65rem, 5vw, 4.3rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.042em;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-hero-subtitle {
+  margin: 22px 0 0;
+  max-width: 56ch;
+  font-size: 16.5px;
+  line-height: 1.7;
+  color: #C2CEE5;
+}
+
+.corporate-site .aegis-hero-ctas {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.corporate-site .aegis-cta-primary,
+.corporate-site .aegis-cta-secondary-dark,
+.corporate-site .aegis-cta-ghost-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.corporate-site .aegis-cta-primary {
+  background: #FFFFFF;
+  color: #070B19;
+}
+
+.corporate-site .aegis-cta-primary:hover {
+  transform: translateY(-1px);
+  background: #E8EEFF;
+}
+
+.corporate-site .aegis-cta-secondary-dark {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-cta-secondary-dark:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.corporate-site .aegis-cta-ghost-dark {
+  color: #93C5FD;
+  padding: 12px 14px;
+}
+
+.corporate-site .aegis-cta-ghost-dark:hover {
+  color: #FFFFFF;
+}
+
+.corporate-site [dir="rtl"] .aegis-cta-primary svg,
+.corporate-site [dir="rtl"] .aegis-link-arrow svg {
+  transform: scaleX(-1);
+}
+
+.corporate-site .aegis-hero-meta {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.corporate-site .aegis-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: #9FB0D1;
+}
+
+.corporate-site .aegis-hero-stage-card {
+  display: block;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #0B1226;
+  text-decoration: none;
+  box-shadow: 0 32px 64px -32px rgba(0, 0, 0, 0.72);
+}
+
+.corporate-site .aegis-hero-preview-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  object-fit: cover;
+  background: #050812;
+}
+
+.corporate-site .aegis-hero-stage-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #E2E8F0;
+  font-size: 12px;
+}
+
+.corporate-site .aegis-hero-stage-bar > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.corporate-site .aegis-stage-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #35BEFF;
+}
+
+.corporate-site .aegis-stage-play-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--accent-blue);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.corporate-site .aegis-hero-facts-mini {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.corporate-site .aegis-hero-facts-mini > div {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.corporate-site .aegis-hero-facts-mini span {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-hero-facts-mini small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: #9FB0D1;
+}
+
+.corporate-site .aegis-jump-nav {
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.corporate-site .aegis-jump-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #CBD5E1;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.corporate-site .aegis-jump-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-jump-pill.is-back {
+  margin-inline-start: auto;
+  color: #93C5FD;
+}
+
+/* ==========================================================================
+   VIDEO SHOWCASE PLAYER WITH ORIGINAL AUDIO
+   ========================================================================== */
+
+.corporate-site .aegis-video-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.85fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.corporate-site .aegis-player-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0C1226;
+}
+
+.corporate-site .aegis-player-stage {
+  position: relative;
+  background: #040711;
+  aspect-ratio: 16 / 9;
+}
+
+.corporate-site .aegis-player-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-player-overlay-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 0;
+  background: rgba(4, 7, 17, 0.36);
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.corporate-site .aegis-player-overlay-play:hover {
+  background: rgba(4, 7, 17, 0.18);
+}
+
+.corporate-site .aegis-player-play-circle {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 32px rgba(16, 80, 255, 0.45);
+}
+
+.corporate-site .aegis-player-controls {
+  padding: 12px 18px 14px;
+  background: #090E1E;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.corporate-site .aegis-seek-row {
+  margin-bottom: 10px;
+}
+
+.corporate-site .aegis-seek-slider,
+.corporate-site .aegis-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-seek-slider {
+  width: 100%;
+}
+
+.corporate-site .aegis-volume-slider {
+  width: 78px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.corporate-site .aegis-seek-slider::-webkit-slider-thumb,
+.corporate-site .aegis-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid #35BEFF;
+}
+
+.corporate-site .aegis-transport-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.corporate-site .aegis-transport-left,
+.corporate-site .aegis-transport-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.corporate-site .aegis-ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-ctrl-btn:hover {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+.corporate-site .aegis-ctrl-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-time-readout {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #CBD5E1;
+}
+
+.corporate-site .aegis-player-meta {
+  padding: 20px;
+}
+
+.corporate-site .aegis-player-meta-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.corporate-site .aegis-video-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8FB4FF;
+}
+
+.corporate-site .aegis-player-meta h3 {
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-audio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(53, 190, 255, 0.35);
+  background: rgba(53, 190, 255, 0.1);
+  color: #BAE6FD;
+  font-size: 11.5px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.corporate-site .aegis-player-meta > p {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #B6C2DC;
+}
+
+.corporate-site .aegis-transcript-box {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.corporate-site .aegis-transcript-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #E2E8F0;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-transcript-list {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.corporate-site .aegis-transcript-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.corporate-site .aegis-transcript-item strong {
+  font-size: 12px;
+  color: #35BEFF;
+}
+
+.corporate-site .aegis-transcript-item p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #E2E8F0;
+}
+
+.corporate-site .aegis-video-playlist {
+  display: grid;
+  gap: 12px;
+}
+
+.corporate-site .aegis-playlist-card {
+  text-align: start;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #E2E8F0;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.corporate-site .aegis-playlist-card.is-active {
+  border-color: #35BEFF;
+  background: rgba(16, 80, 255, 0.16);
+}
+
+.corporate-site .aegis-playlist-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8FB4FF;
+  margin-bottom: 8px;
+}
+
+.corporate-site .aegis-playlist-card strong {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-playlist-card p {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: #9FB0D1;
+}
+
+/* ==========================================================================
+   CASE STUDY EXPLORER (MEDICAL & RETAIL)
+   ========================================================================== */
+
+.corporate-site .aegis-case-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.corporate-site .aegis-case-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #FFFFFF;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.corporate-site .aegis-case-tab.is-active {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-case-panel {
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #FFFFFF;
+  padding: 34px;
+}
+
+.corporate-site .aegis-case-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-case-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-blue);
+}
+
+.corporate-site .aegis-case-header h3 {
+  margin: 8px 0 10px;
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  font-weight: 700;
+}
+
+.corporate-site .aegis-case-summary {
+  margin: 0;
+  max-width: 64ch;
+  font-size: 15px;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-case-classification {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #F1F5FF;
+  border: 1px solid rgba(16, 80, 255, 0.16);
+  color: #1E3A8A;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.corporate-site .aegis-case-narrative {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.corporate-site .aegis-narrative-block {
+  padding: 20px;
+  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.corporate-site .aegis-narrative-block h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-narrative-block p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-case-matrix {
+  margin: 24px 0 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-case-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.36fr) minmax(0, 1fr);
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-case-row dt {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-case-row dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-case-bottom {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.corporate-site .aegis-case-list-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #FFFFFF;
+}
+
+.corporate-site .aegis-case-list-card h5 {
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-case-list-card ul {
+  margin: 0;
+  padding-inline-start: 18px;
+  display: grid;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-evidence-notice {
+  margin-top: 22px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #F8FAFC;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #475569;
+}
+
+/* ==========================================================================
+   95.3% EVALUATION & PERFORMANCE DASHBOARD
+   ========================================================================== */
+
+.corporate-site .aegis-eval-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.3fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+.corporate-site .aegis-ring-panel,
+.corporate-site .aegis-methodology-panel {
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #F8FAFF;
+}
+
+.corporate-site .aegis-ring-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+
+.corporate-site .aegis-ring-wrap {
+  position: relative;
+  width: 210px;
+  height: 210px;
+}
+
+.corporate-site .aegis-ring-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.corporate-site .aegis-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.corporate-site .aegis-ring-center strong {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-ring-center span {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-blue);
+}
+
+.corporate-site .aegis-ring-note {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-note-toggle {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.corporate-site .aegis-note-drawer {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-align: start;
+}
+
+.corporate-site .aegis-methodology-panel h3 {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.corporate-site .aegis-method-list {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.corporate-site .aegis-method-row {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-method-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.corporate-site .aegis-method-row dt {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-method-state {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #F1F5FF;
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.corporate-site .aegis-method-row dd {
+  margin: 5px 0 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-perf-dashboard {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #FFFFFF;
+}
+
+.corporate-site .aegis-perf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-perf-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-perf-title h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.corporate-site .aegis-tab-bar {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: #F1F5F9;
+}
+
+.corporate-site .aegis-tab-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.corporate-site .aegis-tab-btn.is-active {
+  background: #FFFFFF;
+  color: var(--text-primary);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-telemetry-grid,
+.corporate-site .aegis-benchmark-grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.corporate-site .aegis-telemetry-card,
+.corporate-site .aegis-benchmark-slot {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #F8FAFC;
+}
+
+.corporate-site .aegis-telemetry-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+.corporate-site .aegis-telemetry-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-telemetry-card p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-benchmark-slot-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.corporate-site .aegis-benchmark-slot h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.corporate-site .aegis-slot-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #E2E8F0;
+  color: #334155;
+  flex-shrink: 0;
+}
+
+.corporate-site .aegis-benchmark-slot p {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-slot-placeholder {
+  margin-top: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.corporate-site .aegis-slot-placeholder span {
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.corporate-site .aegis-slot-placeholder span:nth-child(2) {
+  width: 76%;
+}
+
+.corporate-site .aegis-slot-placeholder span:nth-child(3) {
+  width: 52%;
+}
+
+/* ==========================================================================
+   INTERACTIVE ARCHITECTURE EXPLORER
+   ========================================================================== */
+
+.corporate-site .aegis-arch-head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.corporate-site .aegis-mode-switch {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.corporate-site .aegis-mode-switch button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #CBD5E1;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-mode-switch button.is-active {
+  background: #FFFFFF;
+  color: #070B19;
+}
+
+.corporate-site .aegis-arch-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.corporate-site .aegis-arch-stack {
+  display: grid;
+  gap: 4px;
+}
+
+.corporate-site .aegis-arch-node {
+  width: 100%;
+  text-align: start;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #E2E8F0;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.corporate-site .aegis-arch-node.is-linked {
+  border-color: rgba(143, 180, 255, 0.45);
+}
+
+.corporate-site .aegis-arch-node.is-selected {
+  border-color: #35BEFF;
+  background: rgba(16, 80, 255, 0.18);
+}
+
+.corporate-site .aegis-arch-node-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.corporate-site .aegis-arch-step {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8FB4FF;
+}
+
+.corporate-site .aegis-arch-node strong {
+  display: block;
+  font-size: 16px;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-arch-node p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #B6C2DC;
+}
+
+.corporate-site .aegis-arch-connector {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0;
+  color: rgba(143, 180, 255, 0.55);
+}
+
+.corporate-site .aegis-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.corporate-site .aegis-status-chip.is-implemented,
+.corporate-site .aegis-status-chip.is-completed {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34D399;
+}
+
+.corporate-site .aegis-band-light .aegis-status-chip.is-completed {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+.corporate-site .aegis-status-chip.is-in-progress,
+.corporate-site .aegis-status-chip.is-evaluation {
+  background: rgba(53, 190, 255, 0.16);
+  color: #0369A1;
+}
+
+.corporate-site .aegis-status-chip.is-planned {
+  background: rgba(148, 163, 184, 0.2);
+  color: #CBD5E1;
+}
+
+.corporate-site .aegis-band-light .aegis-status-chip.is-planned {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.corporate-site .aegis-arch-inspector {
+  position: sticky;
+  top: 96px;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #0C1226;
+}
+
+.corporate-site .aegis-inspector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.corporate-site .aegis-inspector-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8FB4FF;
+}
+
+.corporate-site .aegis-inspector-head h3 {
+  margin: 6px 0 0;
+  font-size: 22px;
+  color: #FFFFFF;
+}
+
+.corporate-site .aegis-inspector-details {
+  margin: 14px 0 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #CBD5E1;
+}
+
+.corporate-site .aegis-io-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.corporate-site .aegis-io-col {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.corporate-site .aegis-io-col span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #35BEFF;
+  margin-bottom: 10px;
+}
+
+.corporate-site .aegis-io-col ul {
+  margin: 0;
+  padding-inline-start: 16px;
+  display: grid;
+  gap: 7px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #E2E8F0;
+}
+
+.corporate-site .aegis-io-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(143, 180, 255, 0.6);
+}
+
+.corporate-site [dir="rtl"] .aegis-io-arrow svg {
+  transform: scaleX(-1);
+}
+
+.corporate-site .aegis-overview-pills {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.corporate-site .aegis-overview-pills span {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+  color: #E2E8F0;
+}
+
+.corporate-site .aegis-inspector-shot {
+  margin: 22px 0 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #050812;
+}
+
+.corporate-site .aegis-inspector-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.corporate-site .aegis-inspector-shot figcaption {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #9FB0D1;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   TIMELINE, CHALLENGES, EVOLUTION, RECOGNITION BRIDGE, DEPLOYMENT
+   ========================================================================== */
+
+.corporate-site .aegis-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.corporate-site .aegis-timeline-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.corporate-site .aegis-timeline-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.corporate-site .aegis-timeline-rail::after {
+  content: "";
+  position: absolute;
+  top: 26px;
+  bottom: -24px;
+  width: 1px;
+  background: rgba(15, 23, 42, 0.14);
+}
+
+.corporate-site .aegis-timeline-item:last-child .aegis-timeline-rail::after {
+  display: none;
+}
+
+.corporate-site .aegis-timeline-dot {
+  margin-top: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  border: 3px solid #DCE7FF;
+}
+
+.corporate-site .aegis-timeline-item.is-planned .aegis-timeline-dot {
+  background: #94A3B8;
+  border-color: #E2E8F0;
+}
+
+.corporate-site .aegis-timeline-card {
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #F8FAFC;
+}
+
+.corporate-site .aegis-timeline-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.corporate-site .aegis-timeline-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.corporate-site .aegis-timeline-phase {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+.corporate-site .aegis-timeline-date {
+  color: #475569;
+}
+
+.corporate-site .aegis-timeline-version {
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-timeline-body.has-media {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: center;
+}
+
+.corporate-site .aegis-timeline-card h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.corporate-site .aegis-timeline-card p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-timeline-arch-note {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.corporate-site .aegis-timeline-img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+/* Challenges */
+.corporate-site .aegis-challenges-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.corporate-site .aegis-challenge-selector {
+  display: grid;
+  gap: 10px;
+}
+
+.corporate-site .aegis-challenge-tab {
+  text-align: start;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #FFFFFF;
+  cursor: pointer;
+}
+
+.corporate-site .aegis-challenge-tab.is-active {
+  border-color: var(--accent-blue);
+  background: #F0F5FF;
+}
+
+.corporate-site .aegis-challenge-tab span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.corporate-site .aegis-challenge-tab strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.corporate-site .aegis-challenge-detail {
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #FFFFFF;
+}
+
+.corporate-site .aegis-challenge-detail h3 {
+  margin: 8px 0 20px;
+  font-size: 22px;
+}
+
+.corporate-site .aegis-pdir-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.corporate-site .aegis-pdir-step {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #F8FAFC;
+}
+
+.corporate-site .aegis-pdir-step.is-outcome {
+  background: #F0F5FF;
+  border-color: rgba(16, 80, 255, 0.2);
+}
+
+.corporate-site .aegis-pdir-step span {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-blue);
+}
+
+.corporate-site .aegis-pdir-step p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Evolution & Recognition Bridge */
+.corporate-site .aegis-evolution-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.corporate-site .aegis-evolution-card {
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #F8FAFC;
+}
+
+.corporate-site .aegis-evolution-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.corporate-site .aegis-evolution-index {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.corporate-site .aegis-evolution-card h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.corporate-site .aegis-evolution-card p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-recognition-bridge {
+  margin-top: 34px;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: #F8FAFF;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.corporate-site .aegis-recognition-img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+}
+
+.corporate-site .aegis-recognition-copy h3 {
+  margin: 10px 0 8px;
+  font-size: 20px;
+}
+
+.corporate-site .aegis-recognition-copy p {
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.corporate-site .aegis-link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+/* Deployment CTA Band */
+.corporate-site .aegis-deployment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.corporate-site .aegis-deployment-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.corporate-site .aegis-deployment-emails {
+  margin-top: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.corporate-site .aegis-deployment-emails a {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #93C5FD;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1120px) {
+  .corporate-site .aegis-hero-grid,
+  .corporate-site .aegis-video-shell,
+  .corporate-site .aegis-eval-grid,
+  .corporate-site .aegis-arch-layout,
+  .corporate-site .aegis-challenges-layout,
+  .corporate-site .aegis-deployment-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .corporate-site .aegis-arch-head-right {
+    align-items: flex-start;
+  }
+
+  .corporate-site .aegis-arch-inspector {
+    position: static;
+  }
+
+  .corporate-site .aegis-telemetry-grid,
+  .corporate-site .aegis-benchmark-grid,
+  .corporate-site .aegis-evolution-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .corporate-site .aegis-band {
+    padding: 68px 0;
+  }
+
+  .corporate-site .aegis-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .corporate-site .aegis-case-header,
+  .corporate-site .aegis-timeline-body.has-media,
+  .corporate-site .aegis-recognition-bridge {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .corporate-site .aegis-case-narrative,
+  .corporate-site .aegis-case-bottom,
+  .corporate-site .aegis-pdir-grid,
+  .corporate-site .aegis-io-grid,
+  .corporate-site .aegis-hero-facts-mini {
+    grid-template-columns: 1fr;
+  }
+
+  .corporate-site .aegis-io-arrow {
+    display: none;
+  }
+
+  .corporate-site .aegis-case-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 560px) {
+  .corporate-site .aegis-telemetry-grid,
+  .corporate-site .aegis-benchmark-grid,
+  .corporate-site .aegis-evolution-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .corporate-site .aegis-case-panel,
+  .corporate-site .aegis-ring-panel,
+  .corporate-site .aegis-methodology-panel,
+  .corporate-site .aegis-perf-dashboard,
+  .corporate-site .aegis-arch-inspector {
+    padding: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corporate-site .aegis-cta-primary,
+  .corporate-site .aegis-arch-node,
+  .corporate-site .aegis-case-tab {
+    transition: none;
+    transform: none;
+  }
+}
+
