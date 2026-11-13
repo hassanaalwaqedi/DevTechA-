@@ -30,18 +30,18 @@ export const RECOGNITION_COPY = Object.freeze({
     headline: "Recognized for Innovation.",
     secondaryHeading: "2nd Place — AEGIS AI",
     description:
-      "AEGIS AI received Second Place in the Innovation and Invention Competition during the Innovation and Invention Conference in Istanbul, recognizing applied computer vision engineering and real-time safety intelligence.",
+      "Awarded Second Place at the Innovation and Invention Conference in Istanbul for applied computer vision and real-time safety intelligence.",
     competitionLabel: "Competition",
     competitionDetail:
-      "Innovation and Invention Competition · Innovation and Invention Conference",
+      "Innovation and Invention Competition · Istanbul",
     exploreAchievement: "Explore the Achievement",
     exploreFullEvidence: "View documentary evidence",
     heroCaption:
-      "Award ceremony stage at the Innovation and Invention Conference, Istanbul (2026).",
+      "Innovation and Invention Conference stage ceremony, Istanbul (2026).",
     galleryEyebrow: "DOCUMENTARY EVIDENCE",
-    galleryTitle: "Award presentation, certificate, and stage footage.",
+    galleryTitle: "Presentation, certificate & stage footage.",
     gallerySubtitle:
-      "Authentic photography and recorded stage documentation from the recognition ceremony in Istanbul.",
+      "Authentic ceremony photography and podium video from Istanbul.",
     inspectAction: "Inspect",
     expandCertificateAction: "Expand certificate view",
     collapseCertificateAction: "Collapse details",
@@ -59,17 +59,17 @@ export const RECOGNITION_COPY = Object.freeze({
     headline: "تقدير للابتكار الهندسي.",
     secondaryHeading: "المركز الثاني — مشروع AEGIS AI",
     description:
-      "حاز مشروع AEGIS AI على المركز الثاني في مسابقة الإبداع والابتكار ضمن فعاليات مؤتمر الإبداع والابتكار في إسطنبول، تقديراً للهندسة التطبيقية في الرؤية الحاسوبية وذكاء السلامة الفوري.",
+      "المركز الثاني في مسابقة الإبداع والابتكار بإسطنبول تقديراً لتطبيقات الرؤية الحاسوبية وذكاء السلامة الفوري.",
     competitionLabel: "المسابقة",
-    competitionDetail: "مسابقة الإبداع والابتكار · مؤتمر الإبداع والابتكار",
+    competitionDetail: "مسابقة الإبداع والابتكار · إسطنبول",
     exploreAchievement: "استكشف تفاصيل الإنجاز",
     exploreFullEvidence: "عرض التوثيق البصري",
     heroCaption:
-      "منصة حفل التكريم الرئيسي في مؤتمر الإبداع والابتكار، إسطنبول (2026).",
+      "حفل التكريم في مؤتمر الإبداع والابتكار، إسطنبول (2026).",
     galleryEyebrow: "الأدلة والتوثيق",
-    galleryTitle: "صور التكريم، الشهادة الرسمية، ومقطع العرض على المنصة.",
+    galleryTitle: "صور التكريم والشهادة ومقطع العرض.",
     gallerySubtitle:
-      "توثيق فوتوغرافي ومرئي حقيقي من حفل التكريم الرسمي في إسطنبول.",
+      "توثيق فوتوغرافي ومرئي حقيقي من حفل التكريم في إسطنبول.",
     inspectAction: "معاينة",
     expandCertificateAction: "تكبير وعرض الشهادة",
     collapseCertificateAction: "إخفاء التفاصيل",

@@ -206,8 +206,8 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
             <span>{arabic ? "الاستفسارات العامة" : "GENERAL INQUIRIES · HIRZEXA"}</span>
             <p>
               {arabic
-                ? "للاستفسارات العامة حول تقنيات الرؤية الحاسوبية وذكاء الحافة أو التواصل المؤسسي."
-                : "General inquiries regarding our Computer Vision, Edge AI technologies, or company operations."}
+                ? "للاستفسارات العامة والتواصل المؤسسي مع HIRZEXA."
+                : "General and corporate inquiries for HIRZEXA."}
             </p>
           </div>
           <div className="dept-email-strip-actions">

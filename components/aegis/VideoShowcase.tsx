@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  FileText,
   Maximize2,
   Pause,
   Play,
@@ -28,7 +27,6 @@ export function VideoShowcase({ locale }: { locale: Locale }) {
   const [volume, setVolume] = useState(0.9);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [showTranscript, setShowTranscript] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const activeVideo = AEGIS_VIDEOS[selectedIndex] ?? AEGIS_VIDEOS[0];
@@ -46,7 +44,6 @@ export function VideoShowcase({ locale }: { locale: Locale }) {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(Number.isFinite(el.duration) ? el.duration : 0);
-    setShowTranscript(false);
   }, [selectedIndex]);
 
   async function togglePlayPause() {
@@ -255,31 +252,6 @@ export function VideoShowcase({ locale }: { locale: Locale }) {
                 </span>
               </div>
               <p>{activeVideo.caption[locale]}</p>
-
-              {activeVideo.transcript ? (
-                <div className="aegis-transcript-box">
-                  <button
-                    type="button"
-                    className="aegis-transcript-toggle"
-                    aria-expanded={showTranscript}
-                    onClick={() => setShowTranscript((prev) => !prev)}
-                  >
-                    <FileText size={15} aria-hidden="true" />
-                    <span>{showTranscript ? t.hideTranscript : t.showTranscript}</span>
-                  </button>
-
-                  {showTranscript ? (
-                    <div className="aegis-transcript-list">
-                      {activeVideo.transcript[locale].map((entry, idx) => (
-                        <div key={idx} className="aegis-transcript-item">
-                          <strong>{entry.speaker}</strong>
-                          <p>{entry.line}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
             </div>
           </div>
 

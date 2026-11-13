@@ -32,15 +32,15 @@ export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
         <strong style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
           <span>
             {arabic
-              ? "AEGIS AI · استكشف النظام والمعمارية"
-              : "AEGIS AI · Case Studies & Architecture"}
+              ? "AEGIS AI · نظام الرؤية والمعمارية"
+              : "AEGIS AI · Safety Vision System"}
           </span>
           <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden="true" />
         </strong>
         <span>
           {arabic
-            ? "الرؤية الحاسوبية · نتيجة 95.3% المبلّغ عنها · شاهد العرض"
-            : "Computer Vision · 95.3% Evaluation · Interactive Walkthrough"}
+            ? "دراسات الحالة · 95.3% تقييم · شاهد العرض"
+            : "Case Studies · Architecture · 95.3% Evaluation"}
         </span>
       </div>
     </Link>

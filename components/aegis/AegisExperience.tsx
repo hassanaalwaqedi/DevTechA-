@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown, Play, ShieldCheck, Volume2 } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Play } from "lucide-react";
 import type { Locale } from "@/lib/locale";
 import { getAegisCopy } from "@/lib/aegis-data";
 import { VideoShowcase } from "@/components/aegis/VideoShowcase";
@@ -37,17 +37,6 @@ export function AegisExperience({ locale }: { locale: Locale }) {
                 <Play size={14} aria-hidden="true" />
                 <span>{t.ctaWatch}</span>
               </a>
-            </div>
-
-            <div className="aegis-hero-meta">
-              <span className="aegis-meta-pill">
-                <ShieldCheck size={14} aria-hidden="true" />
-                <span>{t.statusChip}</span>
-              </span>
-              <span className="aegis-meta-pill">
-                <Volume2 size={14} aria-hidden="true" />
-                <span>{t.heroAudioHint}</span>
-              </span>
             </div>
           </div>
 

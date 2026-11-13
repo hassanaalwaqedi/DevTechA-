@@ -19,8 +19,7 @@ export const TEAM_SECTION_COPY = Object.freeze({
     kicker: "FOUNDER & TEAM",
     titleBefore: "The people building ",
     titleAccent: "HIRZEXA.",
-    subtitle:
-      "Transparency starts with who is engineering the technology—clearly distinguishing company leadership from current team members.",
+    subtitle: "Leadership and team advancing computer vision and Edge AI at HIRZEXA.",
     founderBadge: "Founder",
     memberBadge: "Team Member",
     focusLabel: "Core Focus",
@@ -33,8 +32,7 @@ export const TEAM_SECTION_COPY = Object.freeze({
     kicker: "المؤسس والفريق",
     titleBefore: "الأشخاص الذين يبنون ",
     titleAccent: "HIRZEXA.",
-    subtitle:
-      "الشفافية تبدأ بالتعريف الحقيقي بمن يقود الهندسة والتطوير — مع توضيح دقيق للأدوار الحالية داخل الشركة.",
+    subtitle: "القيادة والفريق الهندسي لتقنيات الرؤية الحاسوبية وذكاء الحافة في HIRZEXA.",
     founderBadge: "المؤسس",
     memberBadge: "عضو الفريق",
     focusLabel: "التخصصات الأساسية",
