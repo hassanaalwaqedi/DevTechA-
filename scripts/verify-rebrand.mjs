@@ -1,6 +1,6 @@
 const base = process.argv[2] || "http://localhost:3100";
 const publicRoutes = [
-  "/", "/technology", "/products", "/applications", "/engineering",
+  "/", "/book", "/technology", "/products", "/applications", "/engineering",
   "/about", "/careers", "/contact", "/partnerships", "/investors",
   "/billing", "/privacy", "/legal", "/ai-architect", "/expertise",
   "/solutions", "/work", "/services",
@@ -34,8 +34,9 @@ check(
   home.includes("We Engineer Intelligent") && home.includes("Software Systems."),
   "Homepage tagline missing"
 );
-check(home.includes("Explore Our Services"), "Primary Services CTA missing");
-check(home.includes("Discuss a Project"), "Secondary Discuss a Project CTA missing");
+check(home.includes("Book a Discovery Call"), "Primary Book a Discovery Call CTA missing");
+check(home.includes("Explore Our Work"), "Secondary Explore Our Work CTA missing");
+check(home.includes("Request a Proposal"), "Request a Proposal conversion path missing");
 check(
   home.includes("contact@hirzexa.com") &&
     home.includes("business@hirzexa.com") &&
@@ -68,8 +69,10 @@ check(arabicResponse.status === 200 && arabic.includes('lang="ar"') && arabic.in
 check(
   arabic.includes("هندسة الذكاء الاصطناعي والأنظمة البرمجية") &&
     arabic.includes("نُهندس أنظمة برمجية") &&
+    arabic.includes("احجز جلسة اكتشاف") &&
+    arabic.includes("استعرض أعمالنا") &&
     arabic.includes("HIRZEXA"),
-  "Arabic positioning or brand missing"
+  "Arabic positioning, primary/secondary sales CTAs, or brand missing"
 );
 console.log("OK Arabic homepage and RTL metadata");
 

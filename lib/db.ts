@@ -86,7 +86,9 @@ export async function getMetrics() {
     return {...hiringMetrics, analyticsAvailable: false, totalVisitors: 0, visitorsToday: 0, jobPageViews: 0, jobVisitors: 0, topJobs: []};
   }
 
-  const visitorEvents = events || [];
+  const visitorEvents = (events || []).filter(
+    (event) => !String(event.path || "").startsWith("/__crm_lead__/")
+  );
   const jobTitles = new Map((jobs || []).map((job) => [job.slug, job.title]));
   const todayStart = new Date(`${today}T00:00:00Z`).getTime();
   const visitors = new Set<string>();

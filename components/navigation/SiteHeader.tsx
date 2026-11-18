@@ -85,20 +85,20 @@ export function SiteHeader() {
           })}
           <div className="dt-nav-mobile-actions">
             <GradientButton
-              href="/contact"
+              href="/book"
               variant="primary"
               className="dt-nav-mobile-cta"
               onClick={() => setOpen(false)}
             >
-              {ar ? "ناقش مشروعك" : "Discuss a Project"}
+              {ar ? "احجز جلسة اكتشاف" : "Book a Discovery Call"}
             </GradientButton>
           </div>
         </nav>
 
         <div className="dt-nav-actions">
           <LanguageSwitch />
-          <GradientButton href="/contact" variant="nav" className="nav-cta dt-nav-cta">
-            {ar ? "ناقش مشروعك" : "Discuss a Project"}
+          <GradientButton href="/book" variant="nav" className="nav-cta dt-nav-cta">
+            {ar ? "احجز جلسة اكتشاف" : "Book a Discovery Call"}
           </GradientButton>
           <button
             className="menu-button dt-menu-button"

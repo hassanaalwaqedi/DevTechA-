@@ -10,16 +10,15 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
       role="img"
       aria-label={
         arabic
-          ? "تصور تفاعلي لمنظومة هندسة الذكاء الاصطناعي والأنظمة البرمجية والأتمتة ومنتجات الرؤية الذكية"
-          : "Interactive AI and Software Engineering system visualization showing intelligent automation, AI agents, system architecture, and visual perception pipelines"
+          ? "مخطط هندسي ثلاثي الأبعاد يوضح معمارية الأنظمة البرمجية ووكلاء الذكاء الاصطناعي وأتمتة العمليات والتكامل السحابي"
+          : "3D Isometric B2B Software and AI Systems Architecture visualization showing enterprise workflows, AI agents, automated API pipelines, and cloud infrastructure"
       }
     >
-      {/* Ambient background glow clouds */}
+      {/* Restrained ambient architectural lighting */}
       <div className="dt-art-ambient dt-art-ambient-blue" aria-hidden="true" />
       <div className="dt-art-ambient dt-art-ambient-violet" aria-hidden="true" />
-      <div className="dt-art-ambient dt-art-ambient-cyan" aria-hidden="true" />
 
-      {/* Elliptical orbital lines & glowing nodes */}
+      {/* Subtle 3D orbital structural grid */}
       <svg
         className="dt-art-orbits"
         viewBox="0 0 760 560"
@@ -29,133 +28,43 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
       >
         <defs>
           <linearGradient id="dt-orbit-1" x1="40" y1="130" x2="720" y2="430" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#1050FF" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#873BFF" stopOpacity="0.8" />
-          </linearGradient>
-          <linearGradient id="dt-orbit-2" x1="70" y1="400" x2="690" y2="140" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#1050FF" stopOpacity="0.65" />
-            <stop offset="50%" stopColor="#35BEFF" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#873BFF" stopOpacity="0.7" />
+            <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.55" />
+            <stop offset="50%" stopColor="#1050FF" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#873BFF" stopOpacity="0.5" />
           </linearGradient>
           <radialGradient id="dt-node-glow-cyan" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-            <stop offset="35%" stopColor="#35BEFF" stopOpacity="0.95" />
-            <stop offset="70%" stopColor="#1050FF" stopOpacity="0.45" />
+            <stop offset="40%" stopColor="#35BEFF" stopOpacity="0.85" />
             <stop offset="100%" stopColor="#1050FF" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="dt-node-glow-violet" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-            <stop offset="38%" stopColor="#873BFF" stopOpacity="0.9" />
-            <stop offset="72%" stopColor="#1050FF" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#873BFF" stopOpacity="0" />
           </radialGradient>
         </defs>
 
-        {/* Primary tilted elliptical orbit */}
-        <g transform="rotate(-13 380 256)">
+        <g transform="rotate(-11 380 256)">
           <ellipse
             cx="380"
             cy="256"
-            rx="344"
-            ry="132"
+            rx="338"
+            ry="126"
             stroke="url(#dt-orbit-1)"
-            strokeWidth="1.5"
-          />
-          <ellipse
-            cx="380"
-            cy="256"
-            rx="314"
-            ry="112"
-            stroke="url(#dt-orbit-1)"
-            strokeWidth="1.1"
-            strokeDasharray="6 5"
-            opacity="0.75"
+            strokeWidth="1.25"
+            strokeDasharray="6 6"
           />
         </g>
 
-        {/* Secondary counter-tilted elliptical orbit */}
-        <g transform="rotate(17 380 256)">
-          <ellipse
-            cx="380"
-            cy="256"
-            rx="326"
-            ry="116"
-            stroke="url(#dt-orbit-2)"
-            strokeWidth="1.35"
-          />
-        </g>
-
-        {/* Outer whisper halo ring */}
-        <ellipse
-          cx="380"
-          cy="256"
-          rx="362"
-          ry="164"
-          stroke="rgba(53, 190, 255, 0.28)"
-          strokeWidth="1.1"
-        />
-
-        {/* Soft blue/cyan glowing sensor nodes on the orbital lines */}
         <g className="dt-orbit-node dt-orbit-node-1">
-          <circle cx="48" cy="332" r="16" fill="url(#dt-node-glow-cyan)" />
-          <circle cx="48" cy="332" r="5" fill="#FFFFFF" />
+          <circle cx="64" cy="316" r="12" fill="url(#dt-node-glow-cyan)" />
+          <circle cx="64" cy="316" r="4" fill="#FFFFFF" />
         </g>
         <g className="dt-orbit-node dt-orbit-node-2">
-          <circle cx="712" cy="180" r="17" fill="url(#dt-node-glow-cyan)" />
-          <circle cx="712" cy="180" r="5.2" fill="#FFFFFF" />
-        </g>
-        <g className="dt-orbit-node dt-orbit-node-3">
-          <circle cx="118" cy="148" r="15" fill="url(#dt-node-glow-violet)" />
-          <circle cx="118" cy="148" r="4.5" fill="#FFFFFF" />
-        </g>
-        <g className="dt-orbit-node dt-orbit-node-4">
-          <circle cx="672" cy="346" r="15" fill="url(#dt-node-glow-cyan)" />
-          <circle cx="672" cy="346" r="4.5" fill="#FFFFFF" />
-        </g>
-        <g className="dt-orbit-node dt-orbit-node-5">
-          <circle cx="268" cy="118" r="13" fill="url(#dt-node-glow-cyan)" />
-          <circle cx="268" cy="118" r="3.8" fill="#E6F7FF" />
-        </g>
-        <g className="dt-orbit-node dt-orbit-node-1">
-          <circle cx="496" cy="124" r="12" fill="url(#dt-node-glow-violet)" />
-          <circle cx="496" cy="124" r="3.5" fill="#FFFFFF" />
+          <circle cx="696" cy="196" r="13" fill="url(#dt-node-glow-cyan)" />
+          <circle cx="696" cy="196" r="4.2" fill="#FFFFFF" />
         </g>
       </svg>
 
-      {/* Small translucent secondary panels positioned behind and beside the main panel */}
-      <div className="dt-glass-secondary dt-glass-secondary-left" aria-hidden="true">
-        <div className="dt-secondary-header">
-          <span className="dt-dot" />
-          <span className="dt-dot" />
-          <span className="dt-line-short" />
-        </div>
-        <div className="dt-secondary-grid">
-          <span />
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
-
-      <div className="dt-glass-secondary dt-glass-secondary-right" aria-hidden="true">
-        <div className="dt-secondary-header">
-          <span className="dt-line-short" />
-          <span className="dt-dot-cyan" />
-        </div>
-        <div className="dt-secondary-bars">
-          <i style={{ height: "45%" }} />
-          <i style={{ height: "72%" }} />
-          <i style={{ height: "58%" }} />
-          <i style={{ height: "90%" }} />
-          <i style={{ height: "68%" }} />
-        </div>
-      </div>
-
-      {/* Main central floating translucent glass panel: Smart Camera -> CV Scene -> Edge AI Unit */}
+      {/* Main Isometric 3D Engineering Architecture Blueprint Frame */}
       <div className="dt-brain-glass-frame">
         <div className="dt-brain-glass-inner">
-          {/* Subtle glass top chrome */}
+          {/* Top Engineering Console Chrome */}
           <div className="dt-brain-panel-chrome" aria-hidden="true">
             <div className="dt-chrome-dots">
               <span />
@@ -164,7 +73,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             </div>
             <div className="dt-chrome-pill">
               <i className="dt-chrome-pulse" />
-              <span>HIRZEXA · AI &amp; SOFTWARE SYSTEMS</span>
+              <span>HIRZEXA · ENTERPRISE SYSTEM ARCHITECTURE</span>
             </div>
             <div className="dt-chrome-status">
               <span className="dt-chrome-bar" />
@@ -172,22 +81,8 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             </div>
           </div>
 
-          {/* Computer Vision & Edge AI Product Stage with Live 10s Human-AI Eye-Contact Video */}
+          {/* 3D Isometric Engineering Stack & Live Data Movement Stage */}
           <div className="dt-brain-visual-stage">
-            <div className="dt-brain-core-glow" aria-hidden="true" />
-
-            {/* 10-Second Human-AI Eye-Contact Video Stream inside the central perception stage */}
-            <video
-              className="dt-brain-live-video"
-              src="/videos/human-ai-technology.mp4"
-              poster="/human-ai-technology.jpg"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-            />
-
             <svg
               className="dt-brain-image"
               viewBox="0 0 640 360"
@@ -196,284 +91,212 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
               aria-hidden="true"
             >
               <defs>
-                <linearGradient id="dt-stage-bg" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#07153E" stopOpacity="0.82" />
-                  <stop offset="28%" stopColor="#0D2568" stopOpacity="0.18" />
-                  <stop offset="72%" stopColor="#0D2568" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#1E185A" stopOpacity="0.86" />
+                <linearGradient id="dt-iso-bg" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#071233" />
+                  <stop offset="52%" stopColor="#0C1F56" />
+                  <stop offset="100%" stopColor="#161447" />
                 </linearGradient>
-                <radialGradient id="dt-stage-flare" cx="52%" cy="48%" r="55%">
-                  <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.14" />
-                  <stop offset="45%" stopColor="#1050FF" stopOpacity="0.12" />
-                  <stop offset="100%" stopColor="#07153E" stopOpacity="0" />
-                </radialGradient>
-                <linearGradient id="dt-fov-cone" x1="118" y1="175" x2="410" y2="175" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#5CE1FF" stopOpacity="0.26" />
-                  <stop offset="45%" stopColor="#1050FF" stopOpacity="0.08" />
-                  <stop offset="100%" stopColor="#873BFF" stopOpacity="0.01" />
+                <linearGradient id="dt-iso-plane-top" x1="180" y1="60" x2="460" y2="160" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#163B9E" stopOpacity="0.92" />
+                  <stop offset="100%" stopColor="#2B1E78" stopOpacity="0.92" />
                 </linearGradient>
-                <linearGradient id="dt-cam-body" x1="36" y1="110" x2="136" y2="240" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#2A4EA8" />
-                  <stop offset="50%" stopColor="#162E72" />
-                  <stop offset="100%" stopColor="#0B1945" />
+                <linearGradient id="dt-iso-plane-mid" x1="160" y1="140" x2="480" y2="240" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#102C7A" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#1E2568" stopOpacity="0.9" />
                 </linearGradient>
-                <radialGradient id="dt-cam-lens" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#9BEBFF" />
-                  <stop offset="35%" stopColor="#1050FF" />
-                  <stop offset="75%" stopColor="#081B4D" />
-                  <stop offset="100%" stopColor="#1D3F91" />
-                </radialGradient>
-                <linearGradient id="dt-edge-chip" x1="486" y1="92" x2="604" y2="262" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#1A398B" />
-                  <stop offset="50%" stopColor="#122563" />
-                  <stop offset="100%" stopColor="#2A1C74" />
+                <linearGradient id="dt-iso-plane-bot" x1="150" y1="215" x2="490" y2="320" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#0A1D54" stopOpacity="0.94" />
+                  <stop offset="100%" stopColor="#151B4D" stopOpacity="0.94" />
                 </linearGradient>
-                <linearGradient id="dt-stream-line" x1="125" y1="175" x2="505" y2="175" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#5CE1FF" />
-                  <stop offset="55%" stopColor="#3566FF" />
-                  <stop offset="100%" stopColor="#B57CFF" />
+                <linearGradient id="dt-bus-flow" x1="60" y1="180" x2="580" y2="180" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#35BEFF" />
+                  <stop offset="50%" stopColor="#1050FF" />
+                  <stop offset="100%" stopColor="#35F2A6" />
                 </linearGradient>
               </defs>
 
-              {/* Translucent sapphire stage vignette over live Human-AI video */}
-              <rect width="640" height="360" rx="18" fill="url(#dt-stage-bg)" />
-              <rect width="640" height="360" rx="18" fill="url(#dt-stage-flare)" />
+              {/* Deep Architectural Canvas */}
+              <rect width="640" height="360" rx="18" fill="url(#dt-iso-bg)" />
 
-              {/* Subtle spatial calibration grid */}
-              <g stroke="rgba(120, 185, 255, 0.1)" strokeWidth="1">
-                <line x1="0" y1="64" x2="640" y2="64" />
-                <line x1="0" y1="304" x2="640" y2="304" />
-                <line x1="148" y1="0" x2="148" y2="360" />
-                <line x1="460" y1="0" x2="460" y2="360" />
+              {/* Precision Isometric Engineering Blueprint Grid */}
+              <g stroke="rgba(120, 175, 255, 0.1)" strokeWidth="1">
+                <line x1="0" y1="60" x2="640" y2="60" />
+                <line x1="0" y1="120" x2="640" y2="120" />
+                <line x1="0" y1="180" x2="640" y2="180" />
+                <line x1="0" y1="240" x2="640" y2="240" />
+                <line x1="0" y1="300" x2="640" y2="300" />
+                <line x1="128" y1="0" x2="128" y2="360" />
+                <line x1="256" y1="0" x2="256" y2="360" />
+                <line x1="384" y1="0" x2="384" y2="360" />
+                <line x1="512" y1="0" x2="512" y2="360" />
               </g>
 
-              {/* Optical Field-of-View (FOV) beam projecting from Smart Camera into the live scene */}
-              <polygon
-                points="126,176 176,58 450,58 450,298 176,298"
-                fill="url(#dt-fov-cone)"
-              />
-              <path
-                d="M126 176L176 58H450M126 176L176 298H450"
-                stroke="rgba(92, 225, 255, 0.45)"
-                strokeWidth="1.2"
-                strokeDasharray="5 4"
-              />
-
-              {/* ============================================================
-                  STAGE 1 (LEFT): SMART OPTICAL CAMERA & SENSOR UNIT
-                 ============================================================ */}
+              {/* LEFT COLUMN: BUSINESS INPUTS & LEGACY SYSTEMS */}
               <g>
-                {/* Top label badge */}
                 <rect
-                  x="26"
-                  y="54"
-                  width="112"
-                  height="22"
-                  rx="6"
-                  fill="rgba(7, 20, 58, 0.78)"
-                  stroke="rgba(92, 225, 255, 0.55)"
-                  strokeWidth="1"
-                />
-                <circle cx="38" cy="65" r="3.2" fill="#5CE1FF" />
-                <text x="46" y="68.5" fill="#E8F6FF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
-                  OPTICAL SENSOR
-                </text>
-
-                {/* Camera body housing */}
-                <rect
-                  x="30"
-                  y="108"
-                  width="98"
-                  height="136"
-                  rx="22"
-                  fill="url(#dt-cam-body)"
-                  stroke="rgba(115, 205, 255, 0.65)"
-                  strokeWidth="1.6"
-                />
-                {/* Inner bezel */}
-                <rect
-                  x="39"
-                  y="118"
-                  width="80"
-                  height="116"
-                  rx="16"
-                  fill="rgba(7, 20, 58, 0.65)"
-                  stroke="rgba(92, 225, 255, 0.25)"
-                  strokeWidth="1"
-                />
-                {/* Status LED & IR sensor */}
-                <circle cx="53" cy="131" r="3" fill="#35F2A6" />
-                <circle cx="105" cy="131" r="3" fill="#5CE1FF" opacity="0.8" />
-
-                {/* Multi-element optical lens */}
-                <circle
-                  cx="79"
-                  cy="174"
-                  r="31"
-                  fill="url(#dt-cam-lens)"
-                  stroke="#5CE1FF"
-                  strokeWidth="1.8"
-                />
-                <circle
-                  cx="79"
-                  cy="174"
-                  r="22"
-                  stroke="rgba(255, 255, 255, 0.45)"
-                  strokeWidth="1.2"
-                  strokeDasharray="4 3"
-                />
-                <circle cx="79" cy="174" r="11" fill="#061238" stroke="#35BEFF" strokeWidth="1.4" />
-                <circle cx="74" cy="169" r="3.8" fill="#FFFFFF" opacity="0.9" />
-                <circle cx="84" cy="179" r="1.8" fill="#5CE1FF" opacity="0.85" />
-
-                {/* Camera telemetry footer */}
-                <text x="48" y="222" fill="#A9D6FF" fontSize="8.5" fontWeight="600" fontFamily="sans-serif" letterSpacing="0.05em">
-                  CAMERA · SCENE INPUT
-                </text>
-
-                {/* Mounting base */}
-                <path
-                  d="M66 244V264M92 244V264M54 264H104"
-                  stroke="rgba(115, 205, 255, 0.55)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </g>
-
-              {/* ============================================================
-                  STAGE 2 (CENTER): LIVE HUMAN-AI EYE CONTACT VIEWFINDER HUD
-                 ============================================================ */}
-              <g>
-                {/* Clear Viewfinder frame over live Human-AI video */}
-                <rect
-                  x="170"
-                  y="42"
-                  width="286"
-                  height="274"
+                  x="24"
+                  y="52"
+                  width="136"
+                  height="256"
                   rx="14"
-                  fill="rgba(7, 18, 52, 0.12)"
-                  stroke="rgba(92, 225, 255, 0.52)"
-                  strokeWidth="1.4"
+                  fill="rgba(8, 22, 64, 0.85)"
+                  stroke="rgba(92, 225, 255, 0.38)"
+                  strokeWidth="1.2"
                 />
-
-                {/* Viewfinder Header Bar */}
-                <rect
-                  x="170"
-                  y="42"
-                  width="286"
-                  height="26"
-                  rx="13"
-                  fill="rgba(8, 24, 72, 0.72)"
-                />
-                <circle cx="186" cy="55" r="3.5" fill="#35F2A6" />
-                <text x="196" y="58.5" fill="#FFFFFF" fontSize="8.8" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.05em">
-                  CAMERA SCENE ANALYSIS · LIVE
-                </text>
-                <text x="386" y="58.5" fill="#7CE7FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif">
-                  VISION SIGNAL
+                <text x="38" y="74" fill="#7CE7FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.08em">
+                  01 · BUSINESS INPUTS
                 </text>
 
-                {/* Corner HUD brackets framing the live human eyes */}
-                <path d="M188 106V88H206" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
-                <path d="M438 106V88H420" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
-                <path d="M188 244V262H206" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
-                <path d="M438 244V262H420" stroke="#5CE1FF" strokeWidth="2.2" strokeLinecap="round" />
+                {/* Input Block A: CRM & ERP */}
+                <rect x="36" y="88" width="112" height="58" rx="9" fill="rgba(16, 80, 255, 0.22)" stroke="rgba(92, 225, 255, 0.45)" strokeWidth="1" />
+                <circle cx="48" cy="104" r="3.5" fill="#35BEFF" />
+                <text x="58" y="107" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif">
+                  CRM &amp; Operations
+                </text>
+                <text x="48" y="124" fill="#A9D6FF" fontSize="8" fontFamily="sans-serif">
+                  Workflows · Tickets · ERP
+                </text>
 
-                {/* Bottom scene status pill inside viewfinder */}
-                <rect
-                  x="184"
-                  y="278"
-                  width="258"
-                  height="26"
-                  rx="7"
-                  fill="rgba(7, 22, 66, 0.82)"
-                  stroke="rgba(92, 225, 255, 0.42)"
-                  strokeWidth="1"
-                />
-                <circle cx="198" cy="291" r="3.8" fill="#35F2A6" />
-                <text x="208" y="294.5" fill="#E8F6FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.04em">
-                  OPTICAL PERCEPTION · SCENE UNDERSTANDING
+                {/* Input Block B: Knowledge & Docs */}
+                <rect x="36" y="158" width="112" height="58" rx="9" fill="rgba(135, 59, 255, 0.22)" stroke="rgba(185, 145, 255, 0.45)" strokeWidth="1" />
+                <circle cx="48" cy="174" r="3.5" fill="#B57CFF" />
+                <text x="58" y="177" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif">
+                  Enterprise Data
+                </text>
+                <text x="48" y="194" fill="#D5C4FF" fontSize="8" fontFamily="sans-serif">
+                  SQL · Docs · Knowledge
+                </text>
+
+                {/* Input Block C: External APIs & Sensors */}
+                <rect x="36" y="228" width="112" height="58" rx="9" fill="rgba(16, 80, 255, 0.18)" stroke="rgba(92, 225, 255, 0.38)" strokeWidth="1" />
+                <circle cx="48" cy="244" r="3.5" fill="#35F2A6" />
+                <text x="58" y="247" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif">
+                  APIs &amp; Streams
+                </text>
+                <text x="48" y="264" fill="#A9D6FF" fontSize="8" fontFamily="sans-serif">
+                  Webhooks · Vision (AEGIS)
                 </text>
               </g>
 
-              {/* ============================================================
-                  STAGE 3 (RIGHT): EDGE AI PROCESSING UNIT & EVENT OUTPUT
-                 ============================================================ */}
+              {/* CENTER: 3D ISOMETRIC LAYERED ENGINEERING CORE */}
               <g>
-                {/* Data stream lines connecting Viewfinder to Edge AI Unit */}
-                <path
-                  d="M450 130H488M450 180H488M450 230H488"
-                  stroke="url(#dt-stream-line)"
-                  strokeWidth="2"
-                  strokeDasharray="4 3"
-                />
-                <circle cx="468" cy="130" r="3.5" fill="#5CE1FF" />
-                <circle cx="468" cy="180" r="3.5" fill="#FFFFFF" />
-                <circle cx="468" cy="230" r="3.5" fill="#B57CFF" />
+                {/* Vertical 3D structural pillars connecting the 3 isometric planes */}
+                <line x1="230" y1="105" x2="230" y2="265" stroke="rgba(92, 225, 255, 0.35)" strokeWidth="1.4" strokeDasharray="3 3" />
+                <line x1="320" y1="68" x2="320" y2="230" stroke="rgba(92, 225, 255, 0.45)" strokeWidth="1.5" strokeDasharray="3 3" />
+                <line x1="410" y1="105" x2="410" y2="265" stroke="rgba(181, 124, 255, 0.35)" strokeWidth="1.4" strokeDasharray="3 3" />
 
-                {/* Edge AI Hardware Module */}
-                <rect
-                  x="488"
-                  y="88"
-                  width="124"
-                  height="184"
-                  rx="18"
-                  fill="url(#dt-edge-chip)"
-                  stroke="rgba(165, 130, 255, 0.7)"
-                  strokeWidth="1.6"
-                />
-
-                {/* Top label */}
-                <rect
-                  x="502"
-                  y="102"
-                  width="96"
-                  height="20"
-                  rx="5"
-                  fill="rgba(135, 59, 255, 0.35)"
-                  stroke="rgba(185, 145, 255, 0.55)"
-                  strokeWidth="1"
-                />
-                <text x="514" y="115" fill="#FFFFFF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
-                  EDGE AI NPU
-                </text>
-
-                {/* Processor die & neural cores */}
-                <rect
-                  x="512"
-                  y="134"
-                  width="76"
-                  height="76"
-                  rx="12"
-                  fill="rgba(8, 20, 58, 0.85)"
+                {/* Bottom Isometric Plane 03: Cloud Infrastructure, Databases & Microservices */}
+                <polygon
+                  points="320,214 446,260 320,308 194,260"
+                  fill="url(#dt-iso-plane-bot)"
                   stroke="#5CE1FF"
                   strokeWidth="1.5"
                 />
-                {/* Pins around NPU */}
-                <path
-                  d="M528 126V134M550 126V134M572 126V134M528 210V218M550 210V218M572 210V218M504 152H512M504 172H512M504 192H512M588 152H596M588 172H596M588 192H596"
-                  stroke="#5CE1FF"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                />
-                {/* 4 Tensor/Vision Core blocks */}
-                <rect x="522" y="144" width="24" height="24" rx="4" fill="rgba(16, 80, 255, 0.55)" stroke="#7CE7FF" strokeWidth="1" />
-                <rect x="554" y="144" width="24" height="24" rx="4" fill="rgba(135, 59, 255, 0.55)" stroke="#D2B3FF" strokeWidth="1" />
-                <rect x="522" y="176" width="24" height="24" rx="4" fill="rgba(135, 59, 255, 0.55)" stroke="#D2B3FF" strokeWidth="1" />
-                <rect x="554" y="176" width="24" height="24" rx="4" fill="rgba(53, 190, 255, 0.55)" stroke="#FFFFFF" strokeWidth="1" />
-
-                {/* Metrics inside Edge AI Module */}
-                <text x="506" y="236" fill="#A9D6FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif">
-                  ONNX · TensorRT
+                <text x="320" y="258" textAnchor="middle" fill="#A9D6FF" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
+                  CLOUD · POSTGRESQL · DOCKER CI/CD
                 </text>
-                <text x="506" y="252" fill="#35F2A6" fontSize="9.5" fontWeight="800" fontFamily="sans-serif">
-                  ON-DEVICE INFERENCE
+                <text x="320" y="273" textAnchor="middle" fill="#35F2A6" fontSize="8" fontWeight="700" fontFamily="sans-serif">
+                  HIGH-AVAILABILITY INFRASTRUCTURE
+                </text>
+
+                {/* Middle Isometric Plane 02: Process Automation & Custom Backend APIs */}
+                <polygon
+                  points="320,136 446,182 320,230 194,182"
+                  fill="url(#dt-iso-plane-mid)"
+                  stroke="#7CE7FF"
+                  strokeWidth="1.6"
+                />
+                <text x="320" y="180" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.06em">
+                  WORKFLOW AUTOMATION &amp; FASTAPI
+                </text>
+                <text x="320" y="195" textAnchor="middle" fill="#7CE7FF" fontSize="8" fontWeight="600" fontFamily="sans-serif">
+                  API ORCHESTRATION · BUSINESS LOGIC
+                </text>
+
+                {/* Top Isometric Plane 01: AI Agents, Enterprise RAG & Decision Engine */}
+                <polygon
+                  points="320,54 446,100 320,148 194,100"
+                  fill="url(#dt-iso-plane-top)"
+                  stroke="#B57CFF"
+                  strokeWidth="1.8"
+                />
+                <circle cx="320" cy="82" r="4" fill="#35F2A6" />
+                <text x="320" y="102" textAnchor="middle" fill="#FFFFFF" fontSize="9.5" fontWeight="800" fontFamily="sans-serif" letterSpacing="0.06em">
+                  AI AGENTS &amp; ENTERPRISE RAG
+                </text>
+                <text x="320" y="117" textAnchor="middle" fill="#E2D4FF" fontSize="8" fontWeight="600" fontFamily="sans-serif">
+                  LLM INTEGRATION · HUMAN-IN-THE-LOOP
+                </text>
+              </g>
+
+              {/* Animated Data Bus Lines Connecting Inputs -> 3D Core -> Business Outcomes */}
+              <g>
+                <path d="M160 116H212" stroke="url(#dt-bus-flow)" strokeWidth="2" strokeDasharray="4 3" />
+                <path d="M160 184H196" stroke="url(#dt-bus-flow)" strokeWidth="2" strokeDasharray="4 3" />
+                <path d="M160 256H212" stroke="url(#dt-bus-flow)" strokeWidth="2" strokeDasharray="4 3" />
+
+                <path d="M428 116H480" stroke="url(#dt-bus-flow)" strokeWidth="2" strokeDasharray="4 3" />
+                <path d="M444 184H480" stroke="url(#dt-bus-flow)" strokeWidth="2" strokeDasharray="4 3" />
+                <path d="M428 256H480" stroke="url(#dt-bus-flow)" strokeWidth="2" strokeDasharray="4 3" />
+
+                <circle cx="186" cy="116" r="3.5" fill="#5CE1FF">
+                  <animate attributeName="cx" values="164;208;164" dur="3.6s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="178" cy="184" r="3.5" fill="#FFFFFF">
+                  <animate attributeName="cx" values="162;194;162" dur="2.8s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="456" cy="184" r="3.5" fill="#35F2A6">
+                  <animate attributeName="cx" values="444;476;444" dur="2.8s" repeatCount="indefinite" />
+                </circle>
+              </g>
+
+              {/* RIGHT COLUMN: MEASURABLE BUSINESS OUTCOMES & DELIVERED PLATFORMS */}
+              <g>
+                <rect
+                  x="480"
+                  y="52"
+                  width="136"
+                  height="256"
+                  rx="14"
+                  fill="rgba(8, 22, 64, 0.88)"
+                  stroke="rgba(53, 242, 166, 0.45)"
+                  strokeWidth="1.3"
+                />
+                <text x="494" y="74" fill="#35F2A6" fontSize="8.5" fontWeight="700" fontFamily="sans-serif" letterSpacing="0.08em">
+                  02 · BUSINESS OUTPUT
+                </text>
+
+                {/* Output Block A */}
+                <rect x="492" y="88" width="112" height="58" rx="9" fill="rgba(53, 242, 166, 0.12)" stroke="rgba(53, 242, 166, 0.45)" strokeWidth="1" />
+                <text x="502" y="108" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif">
+                  Automated Ops
+                </text>
+                <text x="502" y="124" fill="#A9F9D8" fontSize="8" fontFamily="sans-serif">
+                  Zero Manual Bottlenecks
+                </text>
+
+                {/* Output Block B */}
+                <rect x="492" y="158" width="112" height="58" rx="9" fill="rgba(16, 80, 255, 0.24)" stroke="rgba(92, 225, 255, 0.5)" strokeWidth="1" />
+                <text x="502" y="178" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif">
+                  Custom SaaS &amp; Web
+                </text>
+                <text x="502" y="194" fill="#A9D6FF" fontSize="8" fontFamily="sans-serif">
+                  Production Platforms
+                </text>
+
+                {/* Output Block C */}
+                <rect x="492" y="228" width="112" height="58" rx="9" fill="rgba(135, 59, 255, 0.24)" stroke="rgba(185, 145, 255, 0.5)" strokeWidth="1" />
+                <text x="502" y="248" fill="#FFFFFF" fontSize="9.2" fontWeight="700" fontFamily="sans-serif">
+                  Unified Cloud API
+                </text>
+                <text x="502" y="264" fill="#E2D4FF" fontSize="8" fontFamily="sans-serif">
+                  Observable &amp; Scalable
                 </text>
               </g>
             </svg>
           </div>
 
-          {/* Centered telemetry bar inside main glass panel */}
+          {/* Bottom Console Telemetry Bar */}
           <div className="dt-brain-panel-footer" aria-hidden="true">
             <div className="dt-brain-wave">
               <span />
@@ -486,323 +309,87 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
               <span />
             </div>
             <div className="dt-brain-metrics-mini">
-              <span>AI AGENTS → AUTOMATION → PLATFORM</span>
-              <strong>SYSTEMS LIVE</strong>
+              <span>DISCOVERY → ARCHITECTURE → PRODUCTION</span>
+              <strong>B2B ENGINEERING PARTNER</strong>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sub-panel 1: Floating System Architecture Panel (Top Right) */}
+      {/* Floating Card 1: Top Right — System Architecture & Cloud */}
       <div className="dt-float-card dt-float-worldmap" aria-hidden="true">
         <div className="dt-float-card-head">
-          <span className="dt-float-title">System Architecture</span>
+          <span className="dt-float-title">Cloud &amp; Integrations</span>
           <span className="dt-float-live-dot" />
         </div>
         <div className="dt-worldmap-canvas">
           <svg viewBox="0 0 190 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Stylized camera & edge device topology */}
-            <g fill="rgba(35, 95, 245, 0.28)">
-              <circle cx="28" cy="22" r="2" /><circle cx="34" cy="20" r="2" /><circle cx="40" cy="23" r="2" />
-              <circle cx="25" cy="28" r="2" /><circle cx="31" cy="27" r="2.2" /><circle cx="37" cy="29" r="2" />
-              <circle cx="88" cy="20" r="2" /><circle cx="94" cy="18" r="2" /><circle cx="100" cy="20" r="2" />
-              <circle cx="86" cy="26" r="2" /><circle cx="92" cy="25" r="2.2" /><circle cx="98" cy="26" r="2" />
-              <circle cx="94" cy="39" r="2.2" /><circle cx="101" cy="40" r="2" /><circle cx="108" cy="38" r="2.2" />
-              <circle cx="130" cy="30" r="2" /><circle cx="137" cy="31" r="2" /><circle cx="144" cy="32" r="2" />
-              <circle cx="136" cy="38" r="2.2" /><circle cx="143" cy="39" r="2" /><circle cx="149" cy="40" r="2" />
-            </g>
-
-            {/* Glowing connection arcs between Smart Cameras, Edge Box, and Dashboard */}
-            <path
-              d="M36 28C62 10 82 12 96 25"
-              stroke="#1050FF"
-              strokeWidth="1.35"
-              strokeDasharray="3 2"
-              opacity="0.85"
-            />
-            <path
-              d="M96 25C104 30 106 34 108 38"
-              stroke="#35BEFF"
-              strokeWidth="1.5"
-              opacity="0.95"
-            />
-            <path
-              d="M108 38C122 26 134 28 144 36"
-              stroke="#873BFF"
-              strokeWidth="1.35"
-              strokeDasharray="3 2"
-              opacity="0.85"
-            />
-
-            {/* Active Vision Nodes */}
-            <circle cx="36" cy="28" r="5.5" fill="rgba(53, 190, 255, 0.32)" />
-            <circle cx="36" cy="28" r="2.6" fill="#1050FF" />
-
-            <circle cx="96" cy="25" r="6" fill="rgba(16, 80, 255, 0.32)" />
-            <circle cx="96" cy="25" r="2.8" fill="#35BEFF" />
-
-            <circle cx="108" cy="38" r="7" fill="rgba(53, 190, 255, 0.44)" />
-            <circle cx="108" cy="38" r="3.2" fill="#0754FF" />
-
-            <circle cx="144" cy="36" r="5.5" fill="rgba(135, 59, 255, 0.32)" />
-            <circle cx="144" cy="36" r="2.6" fill="#873BFF" />
+            <path d="M28 46C62 18 86 20 104 42" stroke="#1050FF" strokeWidth="1.5" strokeDasharray="3 2" />
+            <path d="M104 42C124 24 146 26 164 40" stroke="#873BFF" strokeWidth="1.5" strokeDasharray="3 2" />
+            <circle cx="28" cy="46" r="6" fill="rgba(16, 80, 255, 0.22)" />
+            <circle cx="28" cy="46" r="3" fill="#1050FF" />
+            <circle cx="104" cy="42" r="7" fill="rgba(53, 190, 255, 0.32)" />
+            <circle cx="104" cy="42" r="3.4" fill="#0754FF" />
+            <circle cx="164" cy="40" r="6" fill="rgba(135, 59, 255, 0.25)" />
+            <circle cx="164" cy="40" r="3" fill="#873BFF" />
           </svg>
         </div>
         <div className="dt-worldmap-foot">
-          <span>Architecture</span>
-          <strong>Cloud + APIs</strong>
-        </div>
-      </div>
-
-      {/* Sub-panel 2: Miniature AI Agents & Vision Preview (Left / Bottom-Left) */}
-      <div className="dt-float-card dt-float-vision" aria-hidden="true">
-        <div className="dt-float-card-head">
-          <span className="dt-vision-badge">
-            <i /> AI · AGENTS &amp; VISION
-          </span>
-          <span className="dt-vision-fps">REAL TIME</span>
-        </div>
-        <div className="dt-vision-scene">
-          <svg viewBox="0 0 184 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="dt-cv-bg" x1="0" y1="0" x2="184" y2="96" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#0E2563" />
-                <stop offset="58%" stopColor="#184094" />
-                <stop offset="100%" stopColor="#31257E" />
-              </linearGradient>
-              <linearGradient id="dt-cv-scan" x1="0" y1="0" x2="0" y2="96" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#35BEFF" stopOpacity="0" />
-                <stop offset="50%" stopColor="#35BEFF" stopOpacity="0.24" />
-                <stop offset="100%" stopColor="#35BEFF" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <rect width="184" height="96" rx="8" fill="url(#dt-cv-bg)" />
-
-            {/* Perspective grid lines */}
-            <path d="M0 68H184" stroke="rgba(145, 200, 255, 0.18)" strokeWidth="0.8" />
-            <path d="M0 82H184" stroke="rgba(145, 200, 255, 0.18)" strokeWidth="0.8" />
-            <path d="M92 38L18 96" stroke="rgba(145, 200, 255, 0.16)" strokeWidth="0.8" />
-            <path d="M92 38L68 96" stroke="rgba(145, 200, 255, 0.16)" strokeWidth="0.8" />
-            <path d="M92 38L116 96" stroke="rgba(145, 200, 255, 0.16)" strokeWidth="0.8" />
-            <path d="M92 38L166 96" stroke="rgba(145, 200, 255, 0.16)" strokeWidth="0.8" />
-
-            {/* Detected Silhouette 1 */}
-            <rect
-              x="22"
-              y="42"
-              width="58"
-              height="34"
-              rx="4"
-              fill="rgba(53, 190, 255, 0.16)"
-              stroke="#35BEFF"
-              strokeWidth="1.4"
-            />
-            <path d="M22 49V42H29" stroke="#FFFFFF" strokeWidth="1.8" />
-            <path d="M80 49V42H73" stroke="#FFFFFF" strokeWidth="1.8" />
-            <path d="M22 69V76H29" stroke="#FFFFFF" strokeWidth="1.8" />
-            <path d="M80 69V76H73" stroke="#FFFFFF" strokeWidth="1.8" />
-            <path d="M30 64L35 53H65L70 64H30Z" fill="rgba(135, 222, 255, 0.5)" />
-            <circle cx="38" cy="66" r="3.8" fill="#5CE1FF" />
-            <circle cx="62" cy="66" r="3.8" fill="#5CE1FF" />
-            <rect x="22" y="29" width="48" height="12" rx="3" fill="#0754FF" />
-            <text x="26" y="37.5" fill="#FFFFFF" fontSize="7.2" fontWeight="700" fontFamily="sans-serif">
-              OBJ · DETECT
-            </text>
-
-            {/* Detected Silhouette 2 */}
-            <rect
-              x="104"
-              y="26"
-              width="52"
-              height="52"
-              rx="4"
-              fill="rgba(135, 59, 255, 0.18)"
-              stroke="#A578FF"
-              strokeWidth="1.3"
-            />
-            <circle cx="130" cy="37" r="4.2" fill="#5CE1FF" />
-            <path
-              d="M130 42V60M130 47L119 54M130 47L141 54M130 60L122 72M130 60L138 72"
-              stroke="#5CE1FF"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-            <rect x="104" y="13" width="50" height="12" rx="3" fill="#873BFF" />
-            <text x="108" y="21.5" fill="#FFFFFF" fontSize="7.2" fontWeight="700" fontFamily="sans-serif">
-              TRK · TRACK
-            </text>
-
-            <rect width="184" height="22" y="34" fill="url(#dt-cv-scan)" />
-          </svg>
-        </div>
-        <div className="dt-vision-foot">
-          <span>Agents · AEGIS Vision</span>
-          <strong>ACTIVE</strong>
-        </div>
-      </div>
-
-      {/* Sub-panel 3: Workflow & System Telemetry Panel (Bottom Right) */}
-      <div className="dt-float-card dt-float-analytics" aria-hidden="true">
-        <div className="dt-float-card-head">
-          <span className="dt-float-title">Process Automation</span>
-          <span className="dt-analytics-badge">SCALABLE</span>
-        </div>
-        <div className="dt-analytics-chart">
-          <svg viewBox="0 0 180 66" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="dt-chart-fill" x1="90" y1="6" x2="90" y2="62" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#1050FF" stopOpacity="0.34" />
-                <stop offset="65%" stopColor="#873BFF" stopOpacity="0.12" />
-                <stop offset="100%" stopColor="#873BFF" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="dt-chart-stroke" x1="6" y1="50" x2="174" y2="8" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#35BEFF" />
-                <stop offset="50%" stopColor="#1050FF" />
-                <stop offset="100%" stopColor="#873BFF" />
-              </linearGradient>
-            </defs>
-
-            <line x1="6" y1="16" x2="174" y2="16" stroke="rgba(120, 145, 225, 0.16)" strokeDasharray="2 2" />
-            <line x1="6" y1="35" x2="174" y2="35" stroke="rgba(120, 145, 225, 0.16)" strokeDasharray="2 2" />
-            <line x1="6" y1="54" x2="174" y2="54" stroke="rgba(120, 145, 225, 0.16)" />
-
-            <rect x="18" y="40" width="8" height="18" rx="2" fill="rgba(16, 80, 255, 0.12)" />
-            <rect x="44" y="33" width="8" height="25" rx="2" fill="rgba(16, 80, 255, 0.15)" />
-            <rect x="70" y="35" width="8" height="23" rx="2" fill="rgba(16, 80, 255, 0.15)" />
-            <rect x="96" y="25" width="8" height="33" rx="2" fill="rgba(16, 80, 255, 0.18)" />
-            <rect x="122" y="19" width="8" height="39" rx="2" fill="rgba(135, 59, 255, 0.22)" />
-            <rect x="148" y="12" width="8" height="46" rx="2" fill="rgba(16, 80, 255, 0.28)" />
-
-            <path
-              d="M8 50C28 48 38 37 56 35C74 33 84 39 102 26C120 14 138 20 154 11L172 7V58H8V50Z"
-              fill="url(#dt-chart-fill)"
-            />
-            <path
-              d="M8 50C28 48 38 37 56 35C74 33 84 39 102 26C120 14 138 20 154 11L172 7"
-              stroke="url(#dt-chart-stroke)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-            <circle cx="102" cy="26" r="3.5" fill="#FFFFFF" stroke="#1050FF" strokeWidth="2" />
-            <circle cx="154" cy="11" r="4" fill="#FFFFFF" stroke="#873BFF" strokeWidth="2.2" />
-          </svg>
-        </div>
-        <div className="dt-analytics-foot">
-          <span>APIs · Workflows</span>
+          <span>APIs · Microservices</span>
           <strong>Enterprise Scale</strong>
         </div>
       </div>
 
-      {/* Foreground 3D orbital arc sweeping across the composition */}
-      <svg
-        className="dt-art-orbits dt-art-orbits-front"
-        viewBox="0 0 760 560"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id="dt-front-arc" x1="50" y1="320" x2="710" y2="190" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.9" />
-            <stop offset="30%" stopColor="#5CE1FF" stopOpacity="0.45" />
-            <stop offset="70%" stopColor="#3566FF" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#873BFF" stopOpacity="0.9" />
-          </linearGradient>
-        </defs>
-        <g transform="rotate(-13 380 256)">
-          <path
-            d="M 36 256 A 344 132 0 0 0 724 256"
-            stroke="url(#dt-front-arc)"
-            strokeWidth="1.6"
-          />
-        </g>
-        <g className="dt-orbit-node dt-orbit-node-1">
-          <circle cx="175" cy="392" r="13" fill="url(#dt-node-glow-cyan)" />
-          <circle cx="175" cy="392" r="4.2" fill="#FFFFFF" />
-        </g>
-        <g className="dt-orbit-node dt-orbit-node-3">
-          <circle cx="556" cy="348" r="14" fill="url(#dt-node-glow-violet)" />
-          <circle cx="556" cy="348" r="4.2" fill="#FFFFFF" />
-        </g>
-      </svg>
+      {/* Floating Card 2: Bottom Left — AI Agents & Automation */}
+      <div className="dt-float-card dt-float-vision" aria-hidden="true">
+        <div className="dt-float-card-head">
+          <span className="dt-vision-badge">
+            <i /> AI AGENTS &amp; RAG
+          </span>
+          <span className="dt-vision-fps">PRODUCTION</span>
+        </div>
+        <div className="dt-vision-scene">
+          <svg viewBox="0 0 184 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="184" height="96" rx="8" fill="#0E225A" />
+            <rect x="14" y="16" width="156" height="24" rx="5" fill="rgba(53, 190, 255, 0.16)" stroke="#35BEFF" strokeWidth="1.1" />
+            <text x="24" y="31" fill="#FFFFFF" fontSize="8" fontWeight="700" fontFamily="sans-serif">
+              1. Knowledge Retrieval (RAG)
+            </text>
+            <rect x="14" y="52" width="156" height="26" rx="5" fill="rgba(53, 242, 166, 0.15)" stroke="#35F2A6" strokeWidth="1.1" />
+            <text x="24" y="68" fill="#E8FFF5" fontSize="8" fontWeight="700" fontFamily="sans-serif">
+              2. Verified Workflow Execution
+            </text>
+          </svg>
+        </div>
+        <div className="dt-vision-foot">
+          <span>Custom Software</span>
+          <strong>HUMAN-VERIFIED</strong>
+        </div>
+      </div>
 
-      {/* Luminous Circular Platform underneath the main visual */}
-      <div className="dt-luminous-platform" aria-hidden="true">
-        <div className="dt-platform-beam" />
-        <svg
-          className="dt-platform-svg"
-          viewBox="0 0 560 140"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <radialGradient id="dt-plat-core" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#65DCFF" stopOpacity="0.98" />
-              <stop offset="34%" stopColor="#1558FF" stopOpacity="0.68" />
-              <stop offset="70%" stopColor="#873BFF" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#873BFF" stopOpacity="0" />
-            </radialGradient>
-            <linearGradient id="dt-plat-ring" x1="50" y1="70" x2="510" y2="70" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#35BEFF" stopOpacity="0.3" />
-              <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.98" />
-              <stop offset="100%" stopColor="#873BFF" stopOpacity="0.35" />
-            </linearGradient>
-            <linearGradient id="dt-plat-base" x1="80" y1="40" x2="480" y2="110" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#E6EEFF" stopOpacity="0.92" />
-              <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.98" />
-              <stop offset="100%" stopColor="#DCE6FF" stopOpacity="0.9" />
-            </linearGradient>
-          </defs>
-
-          <ellipse cx="280" cy="90" rx="235" ry="40" fill="rgba(16, 60, 180, 0.13)" />
-          <ellipse cx="280" cy="86" rx="185" ry="30" fill="rgba(135, 59, 255, 0.14)" />
-
-          <ellipse
-            cx="280"
-            cy="72"
-            rx="224"
-            ry="42"
-            stroke="rgba(53, 190, 255, 0.42)"
-            strokeWidth="1.2"
-          />
-
-          <ellipse
-            cx="280"
-            cy="74"
-            rx="192"
-            ry="35"
-            fill="url(#dt-plat-base)"
-            stroke="rgba(120, 155, 240, 0.38)"
-            strokeWidth="1.2"
-          />
-
-          <ellipse cx="280" cy="70" rx="176" ry="31" fill="url(#dt-plat-core)" />
-
-          <ellipse
-            cx="280"
-            cy="70"
-            rx="154"
-            ry="25"
-            stroke="url(#dt-plat-ring)"
-            strokeWidth="1.8"
-          />
-          <ellipse
-            cx="280"
-            cy="70"
-            rx="112"
-            ry="18"
-            stroke="rgba(255, 255, 255, 0.88)"
-            strokeWidth="1.4"
-            strokeDasharray="8 5"
-          />
-          <ellipse
-            cx="280"
-            cy="70"
-            rx="66"
-            ry="10"
-            fill="rgba(255, 255, 255, 0.78)"
-          />
-        </svg>
+      {/* Floating Card 3: Bottom Right — Delivery & ROI */}
+      <div className="dt-float-card dt-float-analytics" aria-hidden="true">
+        <div className="dt-float-card-head">
+          <span className="dt-float-title">Operational Efficiency</span>
+          <span className="dt-analytics-badge">AUTOMATED</span>
+        </div>
+        <div className="dt-analytics-chart">
+          <svg viewBox="0 0 180 66" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="6" y1="54" x2="174" y2="54" stroke="rgba(120, 145, 225, 0.2)" />
+            <path
+              d="M10 48C36 44 58 36 86 28C114 20 140 14 170 8"
+              stroke="#1050FF"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            <circle cx="86" cy="28" r="3.5" fill="#FFFFFF" stroke="#1050FF" strokeWidth="2" />
+            <circle cx="170" cy="8" r="4" fill="#FFFFFF" stroke="#873BFF" strokeWidth="2.2" />
+          </svg>
+        </div>
+        <div className="dt-analytics-foot">
+          <span>Manual Work ↓</span>
+          <strong>System Speed ↑</strong>
+        </div>
       </div>
     </div>
   );

@@ -7,18 +7,15 @@ type MetricsRibbonProps = {
   openPositionsCount?: number | null;
 };
 
-export function MetricsRibbon({
-  arabic = false,
-  openPositionsCount = null,
-}: MetricsRibbonProps) {
+export function MetricsRibbon({ arabic = false }: MetricsRibbonProps) {
   const items = [
     {
-      id: "aegis-ai",
-      href: "/products/aegis-ai",
-      title: arabic ? "منتج AEGIS" : "AEGIS · Product",
+      id: "outcomes",
+      href: "#use-cases",
+      title: arabic ? "نتائج أعمال ملموسة" : "Business Outcomes First",
       subtitle: arabic
-        ? "المنتجات والابتكار · السلامة البصرية"
-        : "Products & Innovation · Visual Safety",
+        ? "تقليل العمل اليدوي · رفع الكفاءة التشغيلية"
+        : "Reduce Manual Overhead · Scale Operations",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -28,29 +25,29 @@ export function MetricsRibbon({
             </linearGradient>
           </defs>
           <path
-            d="M14 3.2L22.5 6.8V13.4C22.5 18.85 18.85 23.3 14 24.75C9.15 23.3 5.5 18.85 5.5 13.4V6.8L14 3.2Z"
+            d="M4.5 20.5L10.5 14.5L15 18L23.5 8.5"
             stroke="url(#dt-metric-grad-1)"
-            strokeWidth="1.75"
+            strokeWidth="2"
+            strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <circle cx="14" cy="13.5" r="3.4" stroke="url(#dt-metric-grad-1)" strokeWidth="1.65" />
-          <circle cx="14" cy="13.5" r="1.4" fill="#1050FF" />
+          <path
+            d="M18 8.5H23.5V14"
+            stroke="url(#dt-metric-grad-1)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       ),
     },
     {
-      id: "positions",
-      href: "/careers",
-      title: arabic
-        ? typeof openPositionsCount === "number" && openPositionsCount > 0
-          ? `${openPositionsCount} وظائف متاحة`
-          : "الوظائف المتاحة"
-        : typeof openPositionsCount === "number" && openPositionsCount > 0
-        ? `${openPositionsCount} Open Positions`
-        : "Explore Careers",
+      id: "divisions",
+      href: "#services",
+      title: arabic ? "4 أقسام هندسية متكاملة" : "4 Core Engineering Divisions",
       subtitle: arabic
-        ? "هندسة الذكاء الاصطناعي والبرمجيات"
-        : "AI & Software Engineering · Join Us",
+        ? "الذكاء الاصطناعي · البرمجيات · الأتمتة · السحابة"
+        : "AI Engineering · Custom Software · Automation · Cloud",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -59,37 +56,20 @@ export function MetricsRibbon({
               <stop offset="100%" stopColor="#873BFF" />
             </linearGradient>
           </defs>
-          <rect
-            x="3.5"
-            y="7.5"
-            width="21"
-            height="15.5"
-            rx="3.5"
-            stroke="url(#dt-metric-grad-2)"
-            strokeWidth="1.75"
-          />
-          <path
-            d="M9.5 7.5V5.8C9.5 4.53 10.53 3.5 11.8 3.5H16.2C17.47 3.5 18.5 4.53 18.5 5.8V7.5"
-            stroke="url(#dt-metric-grad-2)"
-            strokeWidth="1.75"
-          />
-          <path
-            d="M3.5 13.5H24.5"
-            stroke="url(#dt-metric-grad-2)"
-            strokeWidth="1.5"
-            strokeOpacity="0.65"
-          />
-          <circle cx="14" cy="13.5" r="2" fill="#873BFF" />
+          <rect x="4" y="4" width="8.5" height="8.5" rx="2.2" stroke="url(#dt-metric-grad-2)" strokeWidth="1.75" />
+          <rect x="15.5" y="4" width="8.5" height="8.5" rx="2.2" stroke="url(#dt-metric-grad-2)" strokeWidth="1.75" />
+          <rect x="4" y="15.5" width="8.5" height="8.5" rx="2.2" stroke="url(#dt-metric-grad-2)" strokeWidth="1.75" />
+          <rect x="15.5" y="15.5" width="8.5" height="8.5" rx="2.2" stroke="url(#dt-metric-grad-2)" strokeWidth="1.75" />
         </svg>
       ),
     },
     {
-      id: "production",
-      href: "/services",
-      title: arabic ? "4 أقسام هندسية" : "4 Engineering Divisions",
+      id: "onboarding",
+      href: "#how-we-work",
+      title: arabic ? "منهجية تعاقد وتسليم شفافة" : "Transparent Client Onboarding",
       subtitle: arabic
-        ? "الوكلاء · الأتمتة · البرمجيات · السحابة"
-        : "AI Agents · Automation · Software · Cloud",
+        ? "استشارة ← عرض فني ← تعاقد ← إطلاق"
+        : "Discovery → Proposal → SOW → Production",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -115,12 +95,12 @@ export function MetricsRibbon({
       ),
     },
     {
-      id: "global",
-      href: "/solutions",
-      title: arabic ? "حلول المؤسسات" : "Enterprise Solutions",
+      id: "proof",
+      href: "#verified-work",
+      title: arabic ? "أعمال ومنتجات مبرهنة" : "Verified Technical Proof",
       subtitle: arabic
-        ? "الأتمتة · المنصات · التكامل · السحابة"
-        : "Automation · SaaS · APIs · Cloud",
+        ? "منصة خير الحية · مشروع AEGIS الفائز بالجوائز"
+        : "Khair Live Platform · Award-Winning AEGIS",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -129,27 +109,9 @@ export function MetricsRibbon({
               <stop offset="100%" stopColor="#873BFF" />
             </linearGradient>
           </defs>
-          <circle
-            cx="14"
-            cy="14"
-            r="10.2"
-            stroke="url(#dt-metric-grad-4)"
-            strokeWidth="1.75"
-          />
-          <ellipse
-            cx="14"
-            cy="14"
-            rx="4.6"
-            ry="10.2"
-            stroke="url(#dt-metric-grad-4)"
-            strokeWidth="1.55"
-          />
-          <path
-            d="M4.2 14H23.8M5.6 9.5H22.4M5.6 18.5H22.4"
-            stroke="url(#dt-metric-grad-4)"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-          />
+          <circle cx="14" cy="14" r="10.2" stroke="url(#dt-metric-grad-4)" strokeWidth="1.75" />
+          <ellipse cx="14" cy="14" rx="4.6" ry="10.2" stroke="url(#dt-metric-grad-4)" strokeWidth="1.55" />
+          <path d="M4.2 14H23.8M5.6 9.5H22.4M5.6 18.5H22.4" stroke="url(#dt-metric-grad-4)" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
       ),
     },
@@ -158,7 +120,7 @@ export function MetricsRibbon({
   return (
     <section
       className="dt-metrics-section"
-      aria-label={arabic ? "مؤشرات الشركة" : "Company information and metrics"}
+      aria-label={arabic ? "ركائز القيمة الهندسية للأعمال" : "B2B engineering value pillars"}
     >
       <div className="container">
         <GlassSurface variant="ribbon" className="dt-metrics-ribbon">
@@ -178,4 +140,3 @@ export function MetricsRibbon({
     </section>
   );
 }
-

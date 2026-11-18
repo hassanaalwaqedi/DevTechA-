@@ -4,6 +4,8 @@ import { SITE_URL } from "@/lib/site";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     "",
+    "/book",
+    "/services",
     "/technology",
     "/products",
     "/products/aegis-ai",

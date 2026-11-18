@@ -85,8 +85,10 @@ create policy "anyone can record page views" on public.visitor_events for insert
 create policy "admins can read page views" on public.visitor_events for select using (exists (select 1 from public.admin_users where id = auth.uid()));
 drop policy if exists "visitors can submit technical briefs" on public.ai_leads;
 drop policy if exists "admins can review technical briefs" on public.ai_leads;
+drop policy if exists "admins can update technical briefs" on public.ai_leads;
 create policy "visitors can submit technical briefs" on public.ai_leads for insert with check (consent = true);
 create policy "admins can review technical briefs" on public.ai_leads for select using (exists (select 1 from public.admin_users where id = auth.uid()));
+create policy "admins can update technical briefs" on public.ai_leads for update using (exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "candidates can upload private cvs" on storage.objects for insert to anon, authenticated with check (bucket_id = 'cvs');
 create policy "admins can read private cvs" on storage.objects for select to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins can delete private cvs" on storage.objects for delete to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));

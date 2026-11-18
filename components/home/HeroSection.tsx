@@ -82,22 +82,33 @@ export function HeroSection({ arabic = false }: HeroSectionProps) {
 
             <p className="dt-hero-description">
               {arabic
-                ? "من الأتمتة المدعومة بالذكاء الاصطناعي إلى المنصات المؤسسية القابلة للتوسع، نصمم ونبني ونشغّل برمجيات ذكية تحل تحديات الأعمال الحقيقية."
-                : "From AI-powered automation to scalable enterprise platforms, we design, build, and deploy intelligent software that solves real business challenges."}
+                ? "نساعد الشركات والمؤسسات على التخلص من الاختناقات التشغيلية وتشتت الأنظمة عبر تصميم وبناء وكلاء الذكاء الاصطناعي، وأتمتة العمليات، والبرمجيات المخصصة، والتكامل السحابي — بمنهجية هندسية واضحة من جلسة الاكتشاف حتى التشغيل."
+                : "Eliminate manual operational bottlenecks and fragmented workflows. We partner with businesses to architect, build, and deploy custom software platforms, AI agents, process automation, and cloud integrations that deliver measurable operational efficiency."}
             </p>
 
             <div className="dt-hero-actions">
-              <GradientButton href="/services" variant="primary" className="dt-hero-btn-primary">
-                <span>{arabic ? "استكشف خدماتنا" : "Explore Our Services"}</span>
+              <GradientButton href="#book-discovery" variant="primary" className="dt-hero-btn-primary">
+                <span>{arabic ? "احجز جلسة اكتشاف" : "Book a Discovery Call"}</span>
                 <ArrowUpRight size={18} className="dt-btn-arrow" aria-hidden="true" />
               </GradientButton>
 
-              <GradientButton href="/contact" variant="secondary" className="dt-hero-btn-secondary">
+              <GradientButton href="#verified-work" variant="secondary" className="dt-hero-btn-secondary">
                 <span className="dt-play-badge" aria-hidden="true">
                   <Play size={11} fill="currentColor" strokeWidth={1.5} />
                 </span>
-                <span>{arabic ? "ناقش مشروعك" : "Discuss a Project"}</span>
+                <span>{arabic ? "استعرض أعمالنا" : "Explore Our Work"}</span>
               </GradientButton>
+            </div>
+
+            <div className="dt-hero-proposal-note">
+              <span>
+                {arabic
+                  ? "هل لديك وثيقة متطلبات جاهزة؟ "
+                  : "Already have detailed technical requirements? "}
+              </span>
+              <a href="/book?mode=proposal">
+                {arabic ? "اطلب عرضاً فنياً ومالياً ←" : "Request a Proposal →"}
+              </a>
             </div>
 
             <ProjectIndicator arabic={arabic} />
