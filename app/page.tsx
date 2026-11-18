@@ -10,18 +10,18 @@ import { FounderTeamPreview } from "@/components/team/FounderAndTeamSection";
 import { createPageMetadata } from "@/lib/social-metadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "HIRZEXA | Computer Vision & Edge AI Technologies",
+  title: "HIRZEXA | AI & Software Engineering",
   description:
-    "HIRZEXA develops computer vision and Edge AI technologies for intelligent cameras, devices, and real-world visual intelligence applications.",
+    "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations.",
   path: "/",
-  eyebrow: "HIRZEXA · COMPUTER VISION · EDGE INTELLIGENCE",
-  badge: "INTELLIGENCE THAT SEES THE WORLD",
-  headline: "Intelligence that sees the world.",
+  eyebrow: "HIRZEXA · AI & SOFTWARE ENGINEERING",
+  badge: "WE ENGINEER INTELLIGENT SOFTWARE SYSTEMS",
+  headline: "We Engineer Intelligent Software Systems.",
   summary:
-    "We build computer vision and Edge AI technologies that turn cameras and devices into intelligent systems — from real-time perception to actionable insights.",
-  chips: ["Computer Vision", "On-Device Edge AI", "AEGIS AI & Smart Devices"],
+    "From AI-powered automation to scalable enterprise platforms, we design, build, and deploy intelligent software that solves real business challenges.",
+  chips: ["AI Engineering & Agents", "Process Automation", "Custom Software & Cloud"],
   scene: "technology",
-  telemetry: "OPTICAL PERCEPTION · ON-DEVICE AI",
+  telemetry: "AI & SOFTWARE ENGINEERING",
 });
 
 export default async function Home() {

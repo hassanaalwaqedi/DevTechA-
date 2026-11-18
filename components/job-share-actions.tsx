@@ -46,7 +46,7 @@ export function JobShareActions({
         title: ar ? `فرصة وظيفية في HIRZEXA: ${title}` : `We’re hiring: ${title} at HIRZEXA`,
         text: ar
           ? `استكشف وظيفة ${title} لدى HIRZEXA وقدّم الآن:`
-          : `Explore the ${title} role at HIRZEXA — Computer Vision & Edge Intelligence:`,
+          : `Explore the ${title} role at HIRZEXA — AI & Software Engineering:`,
         url,
       });
       return;
@@ -55,8 +55,8 @@ export function JobShareActions({
   }
 
   const whatsappMessage = ar
-    ? `✨ *HIRZEXA — شركة الرؤية الحاسوبية وذكاء الحافة*\n📌 *فرصة وظيفية:* ${title}\nاستكشف التفاصيل وقدّم الآن:\n${url}`
-    : `✨ *HIRZEXA — Computer Vision & Edge Intelligence*\n📌 *We’re Hiring:* ${title}\nExplore the role & apply:\n${url}`;
+    ? `✨ *هيرزيكسا — هندسة الذكاء الاصطناعي والأنظمة البرمجية*\n📌 *فرصة وظيفية:* ${title}\nاستكشف التفاصيل وقدّم الآن:\n${url}`
+    : `✨ *HIRZEXA — AI & Software Engineering*\n📌 *We’re Hiring:* ${title}\nExplore the role & apply:\n${url}`;
 
   const encodedUrl = encodeURIComponent(url);
   const encodedWhatsapp = encodeURIComponent(whatsappMessage);

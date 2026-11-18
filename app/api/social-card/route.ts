@@ -27,32 +27,32 @@ export async function GET(request: Request) {
   const title = cleanParam(
     url,
     "title",
-    mode === "page" ? "Intelligence that sees the world." : "Build what comes next",
+    mode === "page" ? "We Engineer Intelligent Software Systems." : "Build what comes next",
     110
   );
   const department = cleanParam(
     url,
     "department",
-    mode === "page" ? "HIRZEXA · COMPUTER VISION & EDGE AI" : "HIRZEXA CAREERS",
+    mode === "page" ? "HIRZEXA · AI & SOFTWARE ENGINEERING" : "HIRZEXA CAREERS",
     80
   );
   const summary = cleanParam(
     url,
     "summary",
-    "Computer vision models, low-latency Edge AI inference, smart devices, and vision software platforms.",
+    "AI agents, business process automation, custom software platforms, and cloud system architecture.",
     165
   );
-  const location = cleanParam(url, "location", mode === "page" ? "Computer Vision" : "Remote", 38);
+  const location = cleanParam(url, "location", mode === "page" ? "AI Engineering" : "Remote", 38);
   const employment = cleanParam(
     url,
     "employment",
-    mode === "page" ? "On-Device Edge AI" : "Full-time",
+    mode === "page" ? "Process Automation" : "Full-time",
     38
   );
   const skill = cleanParam(
     url,
     "skill",
-    mode === "page" ? "AEGIS AI & Smart Devices" : "Vision & AI",
+    mode === "page" ? "Custom Software & Cloud" : "AI & Software",
     38
   );
   const category = normalizeVisualCategory(url.searchParams.get("category"));

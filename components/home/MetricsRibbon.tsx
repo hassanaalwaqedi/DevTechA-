@@ -15,10 +15,10 @@ export function MetricsRibbon({
     {
       id: "aegis-ai",
       href: "/products/aegis-ai",
-      title: "AEGIS AI",
+      title: arabic ? "منتج AEGIS" : "AEGIS · Product",
       subtitle: arabic
-        ? "الرؤية الحاسوبية · 95.3% تقييم · إسطنبول 2026"
-        : "Safety Vision · Case Studies · 95.3% Eval",
+        ? "المنتجات والابتكار · السلامة البصرية"
+        : "Products & Innovation · Visual Safety",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -49,8 +49,8 @@ export function MetricsRibbon({
         ? `${openPositionsCount} Open Positions`
         : "Explore Careers",
       subtitle: arabic
-        ? "انضم إلى فريق الهندسة والتطوير"
-        : "Engineering · Join Our Team",
+        ? "هندسة الذكاء الاصطناعي والبرمجيات"
+        : "AI & Software Engineering · Join Us",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -85,11 +85,11 @@ export function MetricsRibbon({
     },
     {
       id: "production",
-      href: "/technology",
-      title: arabic ? "4 ركائز تقنية" : "4 Core Pillars",
+      href: "/services",
+      title: arabic ? "4 أقسام هندسية" : "4 Engineering Divisions",
       subtitle: arabic
-        ? "الرؤية · ذكاء الحافة · الأجهزة · البرمجيات"
-        : "Vision · Edge AI · Devices · Software",
+        ? "الوكلاء · الأتمتة · البرمجيات · السحابة"
+        : "AI Agents · Automation · Software · Cloud",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -116,11 +116,11 @@ export function MetricsRibbon({
     },
     {
       id: "global",
-      href: "/applications",
-      title: arabic ? "5 قطاعات تطبيقية" : "5 Application Domains",
+      href: "/solutions",
+      title: arabic ? "حلول المؤسسات" : "Enterprise Solutions",
       subtitle: arabic
-        ? "المنازل · التجزئة · بيئات العمل · السلامة · الصناعة"
-        : "Homes · Retail · Workplace · Safety · Industry",
+        ? "الأتمتة · المنصات · التكامل · السحابة"
+        : "Automation · SaaS · APIs · Cloud",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>

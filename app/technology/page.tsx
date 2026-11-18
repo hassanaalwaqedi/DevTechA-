@@ -7,18 +7,18 @@ import { createPageMetadata } from "@/lib/social-metadata";
 import "../expertise/expertise.css";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Technology — Computer Vision, Edge AI, Intelligent Devices & Vision Software",
+  title: "Services — AI Engineering, Process Automation, Custom Software & Cloud",
   description:
-    "Explore HIRZEXA's four core technology pillars: Computer Vision, Edge AI inference, Intelligent Devices, and Vision Software.",
+    "Explore HIRZEXA's four core engineering divisions: AI Engineering & Intelligent Agents, Business Process Automation, Custom Software Engineering, and System Architecture & Cloud Engineering.",
   path: "/technology",
-  eyebrow: "HIRZEXA / CORE TECHNOLOGY",
-  badge: "4 CORE TECHNOLOGY PILLARS",
-  headline: "Computer Vision & Edge Intelligence.",
+  eyebrow: "HIRZEXA / CORE SERVICES & ENGINEERING",
+  badge: "4 CORE ENGINEERING DIVISIONS",
+  headline: "We Engineer Intelligent Software Systems.",
   summary:
-    "Real-time object detection, multi-object tracking, low-latency on-device Edge AI inference, smart cameras, and vision software.",
-  chips: ["Computer Vision", "Edge AI Optimization", "Intelligent Devices"],
+    "AI agents, enterprise RAG, business process automation, full-stack software platforms, distributed backend systems, and cloud architecture.",
+  chips: ["AI Agents & Enterprise RAG", "Process Automation", "Custom Software & Cloud"],
   scene: "technology",
-  telemetry: "4 PILLARS · ONNX & TENSORRT · REAL TIME",
+  telemetry: "4 ENGINEERING DIVISIONS · AI & SOFTWARE",
 });
 
 export default async function TechnologyPage() {
@@ -27,205 +27,199 @@ export default async function TechnologyPage() {
   const pillars = ar
     ? ([
         {
-          id: "computer-vision",
+          id: "ai-engineering",
           number: "01",
-          title: "الرؤية الحاسوبية (Computer Vision)",
+          title: "هندسة الذكاء الاصطناعي والوكلاء الأذكياء (AI Engineering & Intelligent Agents)",
           description:
-            "نماذج إدراك بصري مصممة لتحويل البث المرئي من الكاميرات والحساسات إلى إشارات منظمة وتحليلات دقيقة في الوقت الفعلي.",
+            "تصميم وبناء أنظمة ذكاء اصطناعي تطبيقية ووكلاء مستقلين يتكاملون مع بيانات المؤسسة ومسارات عملها الفعلية ضمن حدود تشغيل واضحة.",
           capabilities: [
-            "كشف الأجسام (Object detection)",
-            "تتبع الأجسام (Object tracking)",
-            "تحليلات الفيديو الفورية",
-            "فهم الأحداث البصرية",
-            "التعرف على الأنشطة والحركة",
-            "نماذج الرؤية واللغة (VLMs)",
-            "التنبيهات الذكية القابلة للتخصيص",
+            "وكلاء الذكاء الاصطناعي وسير العمل متعدد الوكلاء (AI Agents & Multi-Agent Workflows)",
+            "تطبيقات الذكاء الاصطناعي التوليدي (Generative AI Applications)",
+            "أنظمة الاسترجاع المعزز للمعرفة المؤسسية (Enterprise RAG & Knowledge Systems)",
+            "تكامل وتشغيل النماذج اللغوية الكبيرة (LLM Integration & Deployment)",
+            "تطبيقات الأعمال المدعومة بالذكاء الاصطناعي (AI-Powered Business Applications)",
+            "حلول ذكاء اصطناعي مخصصة (Custom AI Solutions)",
           ],
-          tags: ["YOLO", "PyTorch", "OpenCV", "Multi-Object Tracking", "Vision-Language"],
+          tags: ["AI Agents", "Enterprise RAG", "LLM Integration", "Python", "Applied AI"],
+          note: "إفصاح الشفافية: تمثل هذه القائمة قدراتنا الهندسية والتقنية القابلة للتنفيذ؛ ونميّز بوضوح بين القدرات الهندسية والمنتجات المبرهنة وبين دراسات الحالة التجارية للعملاء.",
+          Icon: Cpu,
+        },
+        {
+          id: "process-automation",
+          number: "02",
+          title: "أتمتة العمليات التجارية (Business Process Automation)",
+          description:
+            "هندسة مسارات أتمتة موثوقة تقلل العمل اليدوي المتكرر، وتربط أنظمة المؤسسة، وتحول المستندات والبيانات التشغيلية إلى إجراءات وتقارير دقيقة.",
+          capabilities: [
+            "أتمتة سير العمل الداخلي للمؤسسات (Internal Business Workflow Automation)",
+            "أتمتة أنظمة إدارة العملاء والعمليات التشغيلية (CRM & Operational Automation)",
+            "التقارير الآلية ومعالجة المستندات الذكية (Automated Reporting & Document Processing)",
+            "مسارات العمل المعتمدة على الواجهات البرمجية (API-Driven Workflows)",
+            "التكامل بين الأنظمة والمنصات المتعددة (Cross-Platform Integration)",
+            "أنظمة دعم وخدمة العملاء الذكية (Intelligent Customer Support Systems)",
+          ],
+          tags: ["Workflow Automation", "CRM Pipelines", "Document Processing", "Webhooks", "APIs"],
+          note: null,
+          Icon: MonitorPlay,
+        },
+        {
+          id: "custom-software",
+          number: "03",
+          title: "هندسة البرمجيات المخصصة (Custom Software Engineering)",
+          description:
+            "تطوير منصات برمجية متكاملة وتطبيقات ويب مؤسسية وأنظمة خلفية عالية الاعتمادية مصممة خصيصاً لمتطلبات العمل وقابلة للتوسع المستمر.",
+          capabilities: [
+            "تطبيقات الويب المؤسسية (Enterprise Web Applications)",
+            "تطوير منصات البرمجيات كخدمة (SaaS Platform Development)",
+            "الأنظمة الخلفية والواجهات البرمجية (Backend Systems & APIs)",
+            "منصات إدارة الأعمال المخصصة (Custom Business Management Platforms)",
+            "تطوير التطبيقات المتكاملة (Full-Stack Application Development)",
+            "بنية برمجية قابلة للتوسع (Scalable Software Infrastructure)",
+          ],
+          tags: ["TypeScript", "Next.js", "React", "FastAPI", "SaaS Platforms"],
           note: null,
           Icon: Eye,
         },
         {
-          id: "edge-ai",
-          number: "02",
-          title: "ذكاء الحافة (Edge AI)",
-          description:
-            "تشغيل نماذج الرؤية مباشرة على أجهزة الحافة لمعالجة الفيديو محلياً بزمن استجابة منخفض مع الحفاظ على الخصوصية وتقليل استهلاك النطاق الترددي.",
-          capabilities: [
-            "الاستدلال على الجهاز (On-device inference)",
-            "معالجة الفيديو محلياً",
-            "تحسين وضغط النماذج (Quantization)",
-            "النشر على أجهزة الحافة (Edge deployment)",
-            "استدلال بزمن استجابة منخفض",
-            "معمارية تراعي الخصوصية",
-            "معالجة هجينة بين الحافة والسحابة",
-          ],
-          tags: ["ONNX Runtime", "TensorRT", "FP16 / INT8", "Low-Latency Edge", "Hybrid Cloud"],
-          note: null,
-          Icon: Cpu,
-        },
-        {
-          id: "intelligent-devices",
-          number: "03",
-          title: "الأجهزة الذكية (Intelligent Devices)",
-          description:
-            "تطوير وتكامل الكاميرات الذكية ووحدات معالجة الحافة وأجهزة المراقبة المعتمدة على الذكاء الاصطناعي للمنازل والشركات والقطاعات الصناعية.",
-          capabilities: [
-            "الكاميرات الذكية (تصور مستقبلي)",
-            "أجهزة المراقبة المدعومة بالذكاء الاصطناعي (تصور مستقبلي)",
-            "وحدات معالجة ذكاء الحافة (Edge AI Units)",
-            "أجهزة إنترنت الأشياء البصرية (Vision IoT)",
-            "منتجات الرؤية القابلة للارتداء (مفهوم مستقبلي)",
-          ],
-          tags: ["Smart Cameras", "Edge AI Boxes", "Vision IoT", "Hardware + Software"],
-          note: "ملاحظة الشفافية: نميّز بوضوح بين الأنظمة المطورة حالياً والنماذج الأولية والمفاهيم المستقبلية — الأجهزة المذكورة قيد البحث والتطوير وليست مطروحة تجارياً بعد.",
-          Icon: Camera,
-        },
-        {
-          id: "vision-software",
+          id: "cloud-architecture",
           number: "04",
-          title: "برمجيات الرؤية (Vision Software)",
+          title: "معمارية الأنظمة والهندسة السحابية (System Architecture & Cloud Engineering)",
           description:
-            "المنظومة البرمجية الداعمة لمنتجات الرؤية الذكية: من لوحات المراقبة الحية وإدارة الأجهزة إلى تنبيهات الأحداث وتطبيقات الهواتف والاتصال السحابي.",
+            "بناء الأساس المعماري والسحابي الذي يضمن استقرار الأنظمة وأمانها وقابليتها للتوسع والتكامل السلس مع الخدمات الخارجية.",
           capabilities: [
-            "تطبيقات إدارة الأجهزة والكاميرات",
-            "لوحات المراقبة والتحليلات (Dashboards)",
-            "واجهات البث المرئي الحي",
-            "إدارة الأحداث وسجلات الرؤية",
-            "نظام الإشعارات والتنبيهات الفورية",
-            "خدمات الاستدلال السحابي",
-            "تطبيقات الهواتف الذكية",
-            "بروتوكولات اتصال الأجهزة بالسحابة",
+            "الأنظمة الموزعة والخدمات المصغرة (Distributed Systems & Microservices)",
+            "المعمارية السحابية والنشر (Cloud Architecture & Deployment)",
+            "أتمتة العمليات والتكامل والنشر المستمر (DevOps & CI/CD)",
+            "معمارية قواعد البيانات (Database Architecture)",
+            "تكامل الواجهات البرمجية والأنظمة الخارجية (API & Third-Party Integrations)",
+            "أداء الأنظمة وقابليتها للتوسع (System Performance & Scalability)",
           ],
-          tags: ["Monitoring Dashboards", "Live Video UI", "FastAPI", "Device APIs", "Mobile Apps"],
-          note: null,
-          Icon: MonitorPlay,
+          tags: ["Cloud Architecture", "Microservices", "Docker & CI/CD", "PostgreSQL", "System Integration"],
+          note: "تظل خبرتنا في الرؤية الحاسوبية وذكاء الحافة (كما في منتج AEGIS) جزءاً أصيلاً من رصيدنا الهندسي ضمن محفظة المنتجات والابتكار.",
+          Icon: Camera,
         },
       ] as const)
     : ([
         {
-          id: "computer-vision",
+          id: "ai-engineering",
           number: "01",
-          title: "Computer Vision",
+          title: "AI Engineering & Intelligent Agents",
           description:
-            "Visual perception models engineered to transform raw camera feeds into structured spatial data, real-time object tracking, and actionable event understanding.",
+            "Designing and engineering production-grade AI systems, multi-agent workflows, and retrieval architectures that connect cleanly to your business data and operational rules.",
           capabilities: [
-            "Object detection",
-            "Object tracking",
-            "Real-time video analytics",
-            "Visual event understanding",
-            "Activity recognition",
-            "Vision-language models",
-            "Intelligent alerting",
+            "AI Agents and multi-agent workflows",
+            "Generative AI applications",
+            "Enterprise RAG and knowledge systems",
+            "LLM integration and deployment",
+            "AI-powered business applications",
+            "Custom AI solutions",
           ],
-          tags: ["YOLO", "PyTorch", "OpenCV", "Multi-Object Tracking", "Vision-Language"],
+          tags: ["AI Agents", "Enterprise RAG", "LLM Integration", "Python", "Applied AI"],
+          note: "Transparency Note: Listed services represent HIRZEXA's engineering capabilities; we explicitly distinguish demonstrated engineering capabilities and internal products from commercial client case studies.",
+          Icon: Cpu,
+        },
+        {
+          id: "process-automation",
+          number: "02",
+          title: "Business Process Automation",
+          description:
+            "Replacing manual bottlenecks with resilient, API-driven workflows that synchronize CRM systems, process documents, automate reporting, and streamline customer operations.",
+          capabilities: [
+            "Internal business workflow automation",
+            "CRM and operational automation",
+            "Automated reporting and document processing",
+            "API-driven workflows",
+            "Cross-platform integration",
+            "Intelligent customer support systems",
+          ],
+          tags: ["Workflow Automation", "CRM Pipelines", "Document Processing", "Webhooks", "APIs"],
+          note: null,
+          Icon: MonitorPlay,
+        },
+        {
+          id: "custom-software",
+          number: "03",
+          title: "Custom Software Engineering",
+          description:
+            "End-to-end software engineering for enterprise web applications, SaaS platforms, custom internal tools, and high-reliability backend services built to support business growth.",
+          capabilities: [
+            "Enterprise web applications",
+            "SaaS platform development",
+            "Backend systems and APIs",
+            "Custom business management platforms",
+            "Full-stack application development",
+            "Scalable software infrastructure",
+          ],
+          tags: ["TypeScript", "Next.js", "React", "FastAPI", "SaaS Platforms"],
           note: null,
           Icon: Eye,
         },
         {
-          id: "edge-ai",
-          number: "02",
-          title: "Edge AI",
-          description:
-            "On-device intelligence that processes video streams locally at the camera or edge node—delivering millisecond latency, bandwidth efficiency, and privacy-conscious operation.",
-          capabilities: [
-            "On-device AI inference",
-            "Local video processing",
-            "Model optimization",
-            "Edge deployment",
-            "Low-latency inference",
-            "Privacy-conscious architecture",
-            "Hybrid edge-cloud processing",
-          ],
-          tags: ["ONNX Runtime", "TensorRT", "FP16 / INT8", "Low-Latency Edge", "Hybrid Cloud"],
-          note: null,
-          Icon: Cpu,
-        },
-        {
-          id: "intelligent-devices",
-          number: "03",
-          title: "Intelligent Devices",
-          description:
-            "Hardware-software vision systems combining optical sensors, edge compute units, and embedded firmware into practical intelligent devices.",
-          capabilities: [
-            "Smart cameras (Roadmap concept)",
-            "AI-enabled monitoring devices (Roadmap concept)",
-            "Edge AI processing units (Architecture concept)",
-            "Vision-enabled IoT devices (Roadmap concept)",
-            "Future wearable vision products (Concept)",
-          ],
-          tags: ["Smart Cameras", "Edge AI Units", "Vision IoT", "Embedded Vision"],
-          note: "These device directions are future concepts. No HIRZEXA hardware product is currently offered for purchase.",
-          Icon: Camera,
-        },
-        {
-          id: "vision-software",
+          id: "cloud-architecture",
           number: "04",
-          title: "Vision Software",
+          title: "System Architecture & Cloud Engineering",
           description:
-            "The supporting software ecosystem for our intelligent vision products—connecting edge devices to live operator dashboards, mobile apps, and cloud workflows.",
+            "Architecting distributed backend systems, database schemas, CI/CD pipelines, and third-party API integrations engineered for security, observability, and long-term scale.",
           capabilities: [
-            "Device management applications",
-            "Monitoring dashboards",
-            "Live video interfaces",
-            "Event management",
-            "Notifications",
-            "Cloud inference services",
-            "Mobile applications",
-            "Device-to-cloud communication",
+            "Distributed systems and microservices",
+            "Cloud architecture and deployment",
+            "DevOps and CI/CD",
+            "Database architecture",
+            "API and third-party integrations",
+            "System performance and scalability",
           ],
-          tags: ["Monitoring Dashboards", "Live Video UI", "FastAPI", "Device APIs", "Mobile Apps"],
-          note: null,
-          Icon: MonitorPlay,
+          tags: ["Cloud Architecture", "Microservices", "Docker & CI/CD", "PostgreSQL", "System Integration"],
+          note: "Our applied Computer Vision and Edge AI experience remains an active part of our engineering heritage and is demonstrated in our AEGIS product.",
+          Icon: Camera,
         },
       ] as const);
 
   return (
     <main className="expertise-new">
       <CompanyPageIntro
-        eyebrow={ar ? "HIRZEXA / التقنية الأساسية" : "HIRZEXA / CORE TECHNOLOGY"}
+        eyebrow={ar ? "هيرزيكسا — هندسة الذكاء الاصطناعي والأنظمة البرمجية" : "HIRZEXA / CORE ENGINEERING SERVICES"}
         title={
           ar
-            ? "الرؤية الحاسوبية وذكاء الحافة."
-            : "Computer Vision & Edge Intelligence."
+            ? "نُهندس أنظمة برمجية ذكية تصنع الفارق."
+            : "We Engineer Intelligent Software Systems."
         }
         description={
           ar
-            ? "ترتكز منظومتنا التقنية على أربع ركائز مترابطة — الرؤية الحاسوبية، وذكاء الحافة، والأجهزة الذكية، وبرمجيات الرؤية — لتحويل الكاميرات والأجهزة إلى أنظمة ذكية."
-            : "Our technology stack integrates four core pillars—Computer Vision, Edge AI, Intelligent Devices, and Vision Software—turning cameras and sensors into intelligent systems."
+            ? "تتوزع قدراتنا الهندسية على أربعة أقسام رئيسية — هندسة الذكاء الاصطناعي والوكلاء، وأتمتة العمليات التجارية، وهندسة البرمجيات المخصصة، ومعمارية الأنظمة والسحابة — لمساعدة المؤسسات على بناء حلول تقنية موثوقة."
+            : "Our engineering practice spans four core divisions—AI Engineering & Intelligent Agents, Business Process Automation, Custom Software Engineering, and System Architecture & Cloud Engineering—helping businesses design, build, and deploy reliable technology solutions."
         }
-        actionLabel={ar ? "استكشف الركائز الأربع" : "Explore the 4 pillars"}
+        actionLabel={ar ? "استكشف الأقسام الأربعة" : "Explore the 4 divisions"}
         actionHref="#pillars"
-        secondaryLabel={ar ? "استكشف منتجات الرؤية" : "Explore vision products"}
-        secondaryHref="/products"
-        detailsTitle={ar ? "الركائز التقنية الأربع" : "FOUR TECHNOLOGY PILLARS"}
+        secondaryLabel={ar ? "ناقش مشروعك" : "Discuss a project"}
+        secondaryHref="/contact"
+        detailsTitle={ar ? "الأقسام الهندسية الأربعة" : "FOUR ENGINEERING DIVISIONS"}
         details={
           ar
             ? [
-                "الرؤية الحاسوبية وتحليلات الفيديو الفورية",
-                "الاستدلال على الحافة (Edge AI) وتحسين النماذج",
-                "الأجهزة الذكية ومنصات برمجيات الرؤية",
+                "هندسة الذكاء الاصطناعي والوكلاء وأنظمة المعرفة (RAG)",
+                "أتمتة العمليات التجارية وتكامل الأنظمة",
+                "هندسة البرمجيات المخصصة والمعمارية السحابية",
               ]
             : [
-                "Computer Vision & real-time video analytics",
-                "On-device Edge AI inference & model optimization",
-                "Intelligent Devices & Vision Software platforms",
+                "AI Engineering, Intelligent Agents & Enterprise RAG",
+                "Business Process & Workflow Automation",
+                "Custom Software, SaaS & Cloud System Architecture",
               ]
         }
         videoSrc="/videos/human-ai-technology.mp4"
         videoPoster="/human-ai-technology.jpg"
-        videoBadge={ar ? "رؤية بشرية وذكاء اصطناعي · 10 ثوانٍ" : "HUMAN-AI VISION · 10s LOOP"}
+        videoBadge={ar ? "هندسة الذكاء الاصطناعي والبرمجيات" : "AI & SOFTWARE ENGINEERING"}
         videoTitle={
           ar
-            ? "الإدراك البصري وتتبع التواصل البصري"
-            : "Optical Eye-Contact & Neural Perception"
+            ? "أنظمة ذكية ومعمارية برمجية متكاملة"
+            : "Intelligent Systems & Scalable Software Architecture"
         }
         videoSubtitle={
           ar
-            ? "دمج الرؤية البشرية مع استدلال الحافة الفوري"
-            : "Bridging human sight and on-device Edge AI"
+            ? "وكلاء الذكاء الاصطناعي · الأتمتة · البرمجيات · السحابة"
+            : "AI Agents · Process Automation · Custom Software · Cloud"
         }
-        videoTelemetry="VISUAL PERCEPTION · EDGE INFERENCE"
+        videoTelemetry="AI & SOFTWARE ENGINEERING"
       />
 
       <section className="expertise-capabilities-new" id="pillars">
@@ -233,24 +227,24 @@ export default async function TechnologyPage() {
           <div className="expertise-capabilities-head">
             <div>
               <span className="expertise-kicker">
-                {ar ? "01 / الركائز التقنية" : "01 / CORE TECHNOLOGY PILLARS"}
+                {ar ? "01 / الأقسام الهندسية الأساسية" : "01 / CORE ENGINEERING DIVISIONS"}
               </span>
               <h2>
                 {ar ? (
                   <>
-                    الذكاء البصري في كل <span>طبقة.</span>
+                    انضباط هندسي في كل <span>طبقة.</span>
                   </>
                 ) : (
                   <>
-                    Visual intelligence in every <span>layer.</span>
+                    Engineering discipline in every <span>layer.</span>
                   </>
                 )}
               </h2>
             </div>
             <p>
               {ar
-                ? "نجمع بين نماذج الرؤية الحاسوبية، والمعالجة على الحافة، والأجهزة الذكية، والبرمجيات في معمارية واحدة متكاملة."
-                : "From optical capture and on-device neural inference to smart hardware and operator dashboards."}
+                ? "نجمع بين هندسة الذكاء الاصطناعي، وأتمتة سير العمل، وتطوير البرمجيات المتكاملة، والبنية السحابية في منظومة هندسية واحدة."
+                : "From intelligent agents and workflow automation to custom full-stack platforms and cloud infrastructure."}
             </p>
           </div>
 
@@ -263,7 +257,7 @@ export default async function TechnologyPage() {
               >
                 <div>
                   <div className="expertise-card-top">
-                    <span>{number} / TECHNOLOGY PILLAR</span>
+                    <span>{number} / ENGINEERING DIVISION</span>
                     <span className="expertise-card-icon">
                       <Icon size={21} />
                     </span>
@@ -299,7 +293,7 @@ export default async function TechnologyPage() {
         <div className="container expertise-vision-layout">
           <div>
             <span className="expertise-kicker">
-              {ar ? "02 / من الكاميرا إلى القرار" : "02 / FROM CAMERA TO INSIGHT"}
+              {ar ? "02 / من المعمارية إلى التشغيل" : "02 / FROM ARCHITECTURE TO PRODUCTION"}
             </span>
             <div className="expertise-vision-mark" aria-hidden="true">
               ✳
@@ -309,26 +303,26 @@ export default async function TechnologyPage() {
             <h2>
               {ar ? (
                 <>
-                  النموذج البصري هو البداية فقط.
+                  النموذج هو البداية فقط.
                   <br />
-                  <span>نبني النظام الكامل حوله.</span>
+                  <span>نحن نهندس النظام البرمجي الكامل.</span>
                 </>
               ) : (
                 <>
-                  Perception is only the start.
+                  An AI model is only one component.
                   <br />
-                  <span>We engineer the complete vision system.</span>
+                  <span>We engineer the complete software system.</span>
                 </>
               )}
             </h2>
             <p>
               {ar
-                ? "نربط نماذج الرؤية الحاسوبية بمسارات الفيديو، ومحركات الاستدلال على الحافة (ONNX / TensorRT)، وتطبيقات المراقبة الحية لنساعد الفرق والمؤسسات على فهم المشاهد البصرية واتخاذ قرارات أدق."
-                : "We connect computer vision models with low-latency video pipelines, edge inference runtimes (ONNX Runtime, TensorRT), and live operator software—turning visual streams into reliable operational intelligence."}
+                ? "نربط نماذج الذكاء الاصطناعي والوكلاء الأذكياء بالواجهات البرمجية، وقواعد البيانات، ومسارات الأتمتة، وتطبيقات الويب المؤسسية لنساعد الشركات على تحسين الكفاءة التشغيلية ودعم النمو."
+                : "We connect AI models and intelligent agents with resilient backend APIs, database architectures, automated workflows, and modern web applications—delivering software systems businesses can rely on."}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
               <Link href="/engineering" className="expertise-text-link">
-                {ar ? "استكشف خط أنابيب الرؤية الهندسي" : "Explore our vision engineering pipeline"}{" "}
+                {ar ? "استكشف منهجيتنا الهندسية" : "Explore our engineering methodology"}{" "}
                 <ArrowUpRight size={16} />
               </Link>
               <Link href="/ai-architect" className="expertise-text-link">
@@ -344,18 +338,18 @@ export default async function TechnologyPage() {
         <div className="container">
           <div>
             <span className="expertise-kicker">
-              {ar ? "تطبيقات ومنتجات الرؤية" : "VISION PRODUCTS & APPLICATIONS"}
+              {ar ? "مشاريع الذكاء الاصطناعي والبرمجيات" : "AI & SOFTWARE ENGINEERING PROJECTS"}
             </span>
             <h2>
               {ar ? (
                 <>
-                  هل تطور منتج رؤية أو نظام حافة؟
+                  هل تخطط لبناء نظام ذكي أو منصة برمجية؟
                   <br />
                   <span>لنتحدث عن معماريتك.</span>
                 </>
               ) : (
                 <>
-                  Building a vision product or edge system?
+                  Planning an AI, automation, or software project?
                   <br />
                   <span>Let&apos;s architect it together.</span>
                 </>
@@ -363,7 +357,7 @@ export default async function TechnologyPage() {
             </h2>
           </div>
           <Link href="/contact" className="expertise-primary-link">
-            {ar ? "تواصل مع فريقنا الهندسي" : "Talk to our vision engineers"}
+            {ar ? "تواصل مع فريقنا الهندسي" : "Discuss your project"}
             <span>
               <ArrowUpRight size={17} />
             </span>

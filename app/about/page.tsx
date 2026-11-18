@@ -10,18 +10,18 @@ import { FounderAndTeamSection } from "@/components/team/FounderAndTeamSection";
 import "./about.css";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "About — Computer Vision & Edge Intelligence Company",
+  title: "About — AI & Software Engineering Company",
   description:
-    "HIRZEXA is a Computer Vision and Edge AI technology company developing accessible visual intelligence, edge inference systems, smart devices, and vision software platforms.",
+    "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations.",
   path: "/about",
   eyebrow: "HIRZEXA / ABOUT THE COMPANY",
-  badge: "INTELLIGENCE THAT SEES THE WORLD",
-  headline: "Intelligence that sees the world.",
+  badge: "WE ENGINEER INTELLIGENT SOFTWARE SYSTEMS",
+  headline: "We Engineer Intelligent Software Systems.",
   summary:
-    "Developing accessible, intelligent visual technologies that combine computer vision models, Edge AI, smart hardware, and software.",
-  chips: ["Computer Vision Company", "Edge AI & Smart Hardware", "Vision Software Platforms"],
+    "HIRZEXA helps businesses design, build, and deploy intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations.",
+  chips: ["AI & Software Engineering", "Intelligent Automation", "Custom Platforms & Cloud"],
   scene: "about",
-  telemetry: "PRODUCT-ORIENTED VISION COMPANY",
+  telemetry: "AI & SOFTWARE ENGINEERING COMPANY",
 });
 
 export default async function AboutPage() {
@@ -32,94 +32,94 @@ export default async function AboutPage() {
     ? ([
         [
           "01",
-          "الابتكار بقيادة الهندسة والخبرة في الرؤية الحاسوبية",
-          "نطوّر نماذج كشف الأجسام وتتبعها وتحليلات الفيديو الفورية المبنية للعمل في البيئات الواقعية.",
-          "/technology#computer-vision",
-          Eye,
-        ],
-        [
-          "02",
-          "الالتزام طويل المدى بذكاء الحافة (Edge AI)",
-          "نحسّن نماذج الرؤية لتعمل محلياً على أجهزة الحافة بزمن استجابة منخفض وبنية تراعي الخصوصية.",
-          "/technology#edge-ai",
+          "هندسة الذكاء الاصطناعي والوكلاء والأتمتة",
+          "نصمم ونبني وكلاء الذكاء الاصطناعي، وأنظمة المعرفة المؤسسية (RAG)، ومسارات أتمتة العمليات التجارية التي ترفع الكفاءة التشغيلية.",
+          "/services#ai-engineering",
           Cpu,
         ],
         [
+          "02",
+          "هندسة البرمجيات المخصصة والمعمارية السحابية",
+          "نطوّر تطبيقات الويب المؤسسية، ومنصات SaaS، والأنظمة الخلفية الموزعة، وتكاملات الواجهات البرمجية القابلة للتوسع.",
+          "/services#custom-software",
+          MonitorPlay,
+        ],
+        [
           "03",
-          "تكامل الأجهزة الذكية والبرمجيات",
-          "نجمع بين الكاميرات ووحدات المعالجة المحلية ولوحات المراقبة وتطبيقات الهواتف في منظومة متكاملة.",
+          "المنتجات والابتكار التطبيقي (خير وAEGIS)",
+          "نبرهن قدراتنا الهندسية عبر منصات برمجية حية مثل (خير) ومنتجات الذكاء الاصطناعي والرؤية الحاسوبية مثل (AEGIS).",
           "/products",
-          Camera,
+          Eye,
         ],
       ] as const)
     : ([
         [
           "01",
-          "Computer Vision Expertise & Engineering-Led Innovation",
-          "We engineer object detection, multi-object tracking, and real-time video analytics models built for real operating environments.",
-          "/technology#computer-vision",
-          Eye,
-        ],
-        [
-          "02",
-          "Long-Term Commitment to Edge AI",
-          "We optimize neural perception to run locally at the camera and edge node—delivering low latency, bandwidth efficiency, and privacy-conscious operation.",
-          "/technology#edge-ai",
+          "AI Engineering, Intelligent Agents & Automation",
+          "We design and deploy AI agents, Enterprise RAG knowledge systems, LLM integrations, and workflow automation that streamline real operations.",
+          "/services#ai-engineering",
           Cpu,
         ],
         [
+          "02",
+          "Custom Software & Cloud System Architecture",
+          "We engineer enterprise web applications, SaaS platforms, resilient backend APIs, and distributed cloud infrastructure built for scale.",
+          "/services#custom-software",
+          MonitorPlay,
+        ],
+        [
           "03",
-          "Hardware + Software Product Integration",
-          "We unite optical sensors, edge processing units, monitoring dashboards, and mobile applications into cohesive products.",
+          "Products & Applied Innovation (Khair & AEGIS)",
+          "We demonstrate our engineering depth through live platforms like Khair and applied AI products like AEGIS (Visual Safety & Computer Vision).",
           "/products",
-          Camera,
+          Eye,
         ],
       ] as const);
 
   const roadmapStages = ar
     ? ([
         [
-          "المرحلة 01 · حالي",
-          "أنظمة الرؤية الحاسوبية وذكاء السلامة (AEGIS AI)",
-          "تطوير نماذج الإدراك البصري الفوري، وتتبع الأجسام، وتقييم المخاطر المساعد، ولوحات المراقبة البرمجية.",
-          "/products#aegis-ai",
-          MonitorPlay,
-        ],
-        [
-          "المرحلة 02 · اتجاه مخطط (مفهوم مستقبلي)",
-          "وحدات معالجة ذكاء الحافة والكاميرات الذكية",
-          "استكشاف تصورات لأجهزة معالجة الحافة والكاميرات الذكية للمنازل والشركات مع تطبيقات إدارة متكاملة.",
-          "/products#product-roadmap",
+          "الركيزة 01 · خدماتنا الهندسية",
+          "أنظمة الذكاء الاصطناعي وأتمتة العمليات والبرمجيات المخصصة",
+          "تصميم وبناء وتكامل تطبيقات الذكاء الاصطناعي، ومسارات الأتمتة، والمنصات البرمجية القابلة للتوسع للمؤسسات.",
+          "/services",
           Cpu,
         ],
         [
-          "المرحلة 03 · رؤية طويلة المدى (مفهوم مستقبلي)",
-          "الأجهزة البصرية المتقدمة والتقنيات القابلة للارتداء",
-          "بناء جيل جديد من الأجهزة الذكية المملوكة للشركة ومنتجات الرؤية القابلة للارتداء وتطبيقات الفحص الصناعي.",
-          "/applications#industrial-vision",
+          "الركيزة 02 · المنتجات والمنصات",
+          "منصة خير (Khair) ومنتج السلامة البصرية (AEGIS)",
+          "تطوير وتشغيل منصاتنا البرمجية الحية ومنتجات الابتكار في الرؤية الحاسوبية وتحليل الفيديو الذكي.",
+          "/products",
+          MonitorPlay,
+        ],
+        [
+          "الركيزة 03 · البحث والتطوير المستقبلي",
+          "الأنظمة الذكية المتقدمة وتكامل البرمجيات والعتاد",
+          "مواصلة البحث الهندسي في الوكلاء المستقلين، والأنظمة الموزعة، وتكامل البرمجيات مع الأجهزة الطرفية الذكية.",
+          "/engineering",
           Camera,
         ],
       ] as const)
     : ([
         [
-          "PHASE 01 · CURRENT FOCUS",
-          "Computer Vision & Safety Intelligence Software (AEGIS AI)",
-          "Advancing real-time camera analysis, object tracking, event interpretation, assisted risk scoring, and operator monitoring dashboards.",
-          "/products#aegis-ai",
-          MonitorPlay,
-        ],
-        [
-          "PHASE 02 · PLANNED DIRECTION (CONCEPT)",
-          "Edge AI Devices & Smart Camera Concepts",
-          "Exploring local Edge AI units, privacy-conscious smart cameras, and mobile/web device management concepts.",
-          "/products#product-roadmap",
+          "FOCUS 01 · CORE ENGINEERING SERVICES",
+          "AI Engineering, Process Automation & Custom Software",
+          "Helping businesses design, build, and deploy AI agents, workflow automation, custom SaaS platforms, and cloud integrations.",
+          "/services",
           Cpu,
         ],
         [
-          "PHASE 03 · LONG-TERM VISION (CONCEPT)",
-          "Proprietary Intelligent Devices & Wearable Vision",
-          "Building a product-oriented technology company capable of engineering its own intelligent cameras, industrial vision systems, and future wearable vision hardware.",
-          "/applications#industrial-vision",
+          "FOCUS 02 · PRODUCTS & INNOVATION",
+          "Live Platforms (Khair) & Applied Vision Products (AEGIS)",
+          "Advancing our proprietary software portfolio including the live Khair community platform and the award-winning AEGIS visual safety system.",
+          "/products",
+          MonitorPlay,
+        ],
+        [
+          "FOCUS 03 · ONGOING R&D DIRECTION",
+          "Autonomous Systems & Edge-Cloud Architectures",
+          "Continuing applied research across multi-agent orchestration, high-reliability distributed software, and intelligent edge-cloud systems.",
+          "/engineering",
           Camera,
         ],
       ] as const);
@@ -129,49 +129,49 @@ export default async function AboutPage() {
       <CompanyPageIntro
         eyebrow={
           ar
-            ? "HIRZEXA / شركة الرؤية الحاسوبية وذكاء الحافة"
-            : "HIRZEXA / COMPUTER VISION & EDGE INTELLIGENCE"
+            ? "هيرزيكسا — هندسة الذكاء الاصطناعي والأنظمة البرمجية"
+            : "HIRZEXA / AI & SOFTWARE ENGINEERING"
         }
         title={
-          ar ? "الذكاء الذي يرى العالم." : "Intelligence that sees the world."
+          ar ? "نُهندس أنظمة برمجية ذكية تصنع الفارق." : "We Engineer Intelligent Software Systems."
         }
         description={
           ar
-            ? "مهمتنا هي تطوير تقنيات رؤية ذكية يسهل الوصول إليها، تجمع بين نماذج الرؤية الحاسوبية، والحوسبة على الحافة (Edge AI)، والأجهزة الذكية، والبرمجيات في منتجات عملية للمنازل والشركات والصناعة."
-            : "Our mission is to develop accessible, intelligent visual technologies that combine computer vision models, edge computing, smart hardware, and software into practical products for homes, businesses, and industry."
+            ? "هيرزيكسا (HIRZEXA) هي شركة متخصصة في هندسة الذكاء الاصطناعي والأنظمة البرمجية، نركز على الأتمتة الذكية، والتطبيقات المدعومة بالذكاء الاصطناعي، والمنصات البرمجية القابلة للتوسع، وتكامل الأنظمة المعقدة. نساعد المؤسسات على تصميم وبناء وتشغيل حلول تقنية موثوقة تعزز الكفاءة التشغيلية وتدعم نمو الأعمال."
+            : "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations. We help businesses design, build, and deploy reliable technology solutions that improve operational efficiency and support business growth."
         }
-        actionLabel={ar ? "استكشف ركائزنا التقنية" : "Explore our technology"}
-        actionHref="/technology"
-        secondaryLabel={ar ? "اكتشف منتجاتنا" : "Discover our products"}
+        actionLabel={ar ? "استكشف خدماتنا الهندسية" : "Explore our services"}
+        actionHref="/services"
+        secondaryLabel={ar ? "المنتجات والابتكار" : "Products & Innovation"}
         secondaryHref="/products"
-        detailsTitle={ar ? "هويتنا التقنية" : "COMPANY POSITIONING"}
+        detailsTitle={ar ? "هويتنا الهندسية" : "COMPANY POSITIONING"}
         details={
           ar
             ? [
-                "شركة تقنية متخصصة في الرؤية الحاسوبية وذكاء الحافة",
-                "تكامل العتاد الذكي والبرمجيات البصرية",
-                "رؤية طويلة المدى لهندسة أجهزة ومنصات ذكية خاصة",
+                "هندسة الذكاء الاصطناعي والوكلاء وأتمتة العمليات",
+                "تطوير البرمجيات المخصصة والمنصات والمعمارية السحابية",
+                "محفظة منتجات وابتكارات تطبيقية (منصة خير ومنتج AEGIS)",
               ]
             : [
-                "Computer Vision & Edge Intelligence Company",
-                "Hardware + software product engineering",
-                "Accessible visual intelligence for homes, business & industry",
+                "AI & Software Engineering Company",
+                "Intelligent Automation, Enterprise AI & Custom Software",
+                "Scalable Cloud Architecture & Products (Khair & AEGIS)",
               ]
         }
         videoSrc="/videos/human-ai-about.mp4"
         videoPoster="/human-ai-about.jpg"
-        videoBadge={ar ? "10 ثوانٍ · الذكاء الذي يرى العالم" : "10S REEL · HUMAN-AI VISION"}
+        videoBadge={ar ? "هندسة الذكاء الاصطناعي والبرمجيات" : "AI & SOFTWARE ENGINEERING"}
         videoTitle={
           ar
-            ? "ذكاء بصري يجمع الإنسان والآلة"
-            : "Intelligence That Sees the World"
+            ? "نُهندس أنظمة برمجية ذكية تصنع الفارق"
+            : "We Engineer Intelligent Software Systems"
         }
         videoSubtitle={
           ar
-            ? "رؤية حاسوبية، ذكاء حافة، وأجهزة ذكية مصممة للإنسان"
-            : "Human-centric computer vision, Edge AI & smart hardware"
+            ? "وكلاء الذكاء الاصطناعي، الأتمتة، والمنصات البرمجية القابلة للتوسع"
+            : "Intelligent automation, AI applications & scalable software platforms"
         }
-        videoTelemetry="HIRZEXA · REAL TIME"
+        videoTelemetry="HIRZEXA · ENGINEERING"
       />
 
       {/* Section 01: Company Story & Long-Term Vision */}
@@ -179,7 +179,7 @@ export default async function AboutPage() {
         <div className="container about-vision-grid">
           <div className="about-vision-label">
             <span className="about-kicker">
-              {ar ? "01 / مهمتنا ورؤيتنا" : "01 / MISSION & LONG-TERM VISION"}
+              {ar ? "01 / مهمتنا وهويتنا الهندسية" : "01 / MISSION & ENGINEERING IDENTITY"}
             </span>
             <span className="about-vision-star" aria-hidden="true">
               ✳
@@ -189,21 +189,21 @@ export default async function AboutPage() {
             <h2>
               {ar ? (
                 <>
-                  نبني شركة تقنية تهندس <span>أجهزتها الذكية</span> ومنصاتها البصرية.
+                  نبني أنظمة برمجية ذكية تجمع بين <span>الذكاء الاصطناعي</span> والمعمارية الرصينة.
                 </>
               ) : (
                 <>
-                  Engineering our own <span>intelligent devices</span> and vision platforms.
+                  Engineering reliable <span>AI systems</span> and scalable software platforms.
                 </>
               )}
             </h2>
             <p>
               {ar
-                ? "في HIRZEXA، ننطلق من قناعة هندسية واضحة: القيمة الحقيقية للرؤية الحاسوبية تتحقق عندما تتكامل النماذج الذكية مع معالجة الحافة والأجهزة المدمجة والبرمجيات السلسة. رؤيتنا طويلة المدى هي بناء شركة منتجات تقنية قادرة على تصميم وهندسة أجهزتها الذكية ومنصاتها البرمجية الخاصة لخدمة المنازل والشركات والقطاعات الصناعية."
-                : "At HIRZEXA, our story is driven by engineering-led innovation and product development. Rather than acting as a general software agency, we focus on where visual perception meets the physical world—combining computer vision models, low-latency Edge AI, smart hardware, and operator software into accessible, practical products."}
+                ? "في HIRZEXA، ننطلق من انضباط هندسي واضح: القيمة الحقيقية للذكاء الاصطناعي تتحقق عندما يُبنى داخل معمارية برمجية متينة وقابلة للتوسع. نساعد الشركات على أتمتة عملياتها، وتطوير تطبيقاتها ومنصاتها المخصصة، وربط أنظمتها المعقدة — مع الاستمرار في تطوير منتجاتنا الخاصة مثل منصة (خير) ونظام (AEGIS)."
+                : "At HIRZEXA, our work is grounded in software architecture competence and practical engineering. We combine applied AI—including intelligent agents, RAG systems, and computer vision—with full-stack software engineering, process automation, and cloud infrastructure to solve real operational challenges."}
             </p>
             <Link href="/engineering" className="about-text-link">
-              {ar ? "استكشف خط أنابيب الرؤية الهندسي" : "Explore our vision engineering pipeline"}{" "}
+              {ar ? "استكشف منهجيتنا ومعماريتنا الهندسية" : "Explore our software & AI engineering practice"}{" "}
               <ArrowUpRight size={16} />
             </Link>
           </div>
@@ -221,23 +221,23 @@ export default async function AboutPage() {
               <h2>
                 {ar ? (
                   <>
-                    تخصص عميق في
+                    هندسة الذكاء الاصطناعي. الأتمتة.
                     <br />
-                    <span>الرؤية والحافة والمنتجات.</span>
+                    <span>الأنظمة البرمجية المتكاملة.</span>
                   </>
                 ) : (
                   <>
-                    Computer Vision. Edge AI.
+                    AI Engineering. Automation.
                     <br />
-                    <span>Intelligent Products.</span>
+                    <span>Scalable Software Systems.</span>
                   </>
                 )}
               </h2>
             </div>
             <p>
               {ar
-                ? "نربط البحث التطبيقي في الرؤية الحاسوبية بتحسين النماذج للحافة وتطوير المنتجات المتكاملة."
-                : "Every layer we build is designed to make visual intelligence faster, more accessible, and ready for real-world deployment."}
+                ? "نربط الذكاء الاصطناعي التطبيقي بأتمتة العمليات ومعمارية البرمجيات الحديثة لبناء حلول يعتمد عليها."
+                : "Every system we design prioritizes operational efficiency, architectural clarity, and production reliability."}
             </p>
           </div>
 
@@ -268,29 +268,29 @@ export default async function AboutPage() {
             <div>
               <span className="about-kicker">
                 {ar
-                  ? "03 / خارطة الطريق المستقبلية (اتجاه مخطط)"
-                  : "03 / FORWARD-LOOKING ROADMAP (PLANNED DIRECTION)"}
+                  ? "03 / نطاق أعمالنا ومحفظتنا التقنية"
+                  : "03 / SERVICES, PRODUCTS & R&D PORTFOLIO"}
               </span>
               <h2>
                 {ar ? (
                   <>
-                    مسارنا نحو
+                    من حلول المؤسسات إلى
                     <br />
-                    <span>الجيل القادم من أجهزة الرؤية.</span>
+                    <span>المنتجات والابتكار التطبيقي.</span>
                   </>
                 ) : (
                   <>
-                    Planned direction from
+                    From enterprise software systems
                     <br />
-                    <span>vision software to smart hardware.</span>
+                    <span>to applied product innovation.</span>
                   </>
                 )}
               </h2>
             </div>
             <p>
               {ar
-                ? "نوضح بشفافية مراحل تطورنا من تقنيات الرؤية البرمجية إلى تصورات الأجهزة المستقبلية."
-                : "Our roadmap distinguishes current vision software work from future intelligent device concepts."}
+                ? "نميّز بشفافية بين خدماتنا الهندسية للمؤسسات وبين منتجاتنا المبرهنة واتجاهات البحث المستقبلية."
+                : "We clearly distinguish our engineering divisions from our internal product portfolio and ongoing R&D."}
             </p>
           </div>
 
@@ -323,27 +323,27 @@ export default async function AboutPage() {
         <div className="container">
           <div>
             <span className="about-kicker">
-              {ar ? "04 / التزامنا التقني" : "04 / OUR COMMITMENT"}
+              {ar ? "04 / التزامنا الهندسي" : "04 / OUR COMMITMENT"}
             </span>
             <h2>
               {ar ? (
                 <>
-                  تقنيات رؤية ذكية وعملية.
+                  أنظمة برمجية وذكاء اصطناعي.
                   <br />
-                  <span>مصممة للعالم الحقيقي.</span>
+                  <span>مصممة لتحديات الأعمال الحقيقية.</span>
                 </>
               ) : (
                 <>
-                  Accessible intelligent vision.
+                  Intelligent software systems.
                   <br />
-                  <span>Engineered for the real world.</span>
+                  <span>Engineered for real business growth.</span>
                 </>
               )}
             </h2>
             <p>
               {ar
-                ? "نواصل الاستثمار في الرؤية الحاسوبية وذكاء الحافة وتكامل العتاد والبرمجيات لبناء منتجات يعتمد عليها الناس والمؤسسات."
-                : "We combine computer vision models, Edge AI optimization, and thoughtful product design to build visual systems people can trust."}
+                ? "نجمع بين هندسة الذكاء الاصطناعي، وأتمتة العمليات، ومعمارية البرمجيات القابلة للتوسع لبناء حلول ومنتجات تقنية تعتمد عليها المؤسسات."
+                : "We combine AI engineering, intelligent automation, and scalable software architecture to build reliable technology systems that businesses trust."}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 20px", marginTop: "18px", alignItems: "center" }}>
               <a

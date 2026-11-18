@@ -10,18 +10,18 @@ import { createPageMetadata } from "@/lib/social-metadata";
 import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Engineering — Computer Vision Pipeline, Edge AI Optimization & Stack",
+  title: "Engineering — AI Architecture, Automation, Full-Stack & Cloud",
   description:
-    "How HIRZEXA builds computer vision and Edge AI systems from camera input to application output using Python, OpenCV, PyTorch, YOLO, ONNX Runtime, TensorRT, FastAPI, and Docker.",
+    "How HIRZEXA engineers intelligent software systems—from AI agents, Enterprise RAG, and workflow automation to scalable full-stack platforms, cloud infrastructure, and applied computer vision.",
   path: "/engineering",
-  eyebrow: "HIRZEXA / VISION ENGINEERING",
-  badge: "CAMERA TO DASHBOARD PIPELINE",
-  headline: "Engineered to see. Built for the edge.",
+  eyebrow: "HIRZEXA / AI & SOFTWARE ENGINEERING",
+  badge: "END-TO-END SYSTEM ARCHITECTURE",
+  headline: "Engineered for reliability. Built to scale.",
   summary:
-    "End-to-end computer vision and Edge AI engineering: optical capture, OpenCV, YOLO & PyTorch, ONNX / TensorRT, and FastAPI dashboards.",
-  chips: ["Python · PyTorch · YOLO", "ONNX · TensorRT Edge", "FastAPI · Docker"],
+    "End-to-end AI and software engineering: intelligent agents, LLM & RAG workflows, process automation, TypeScript/Next.js, Python/FastAPI, and Dockerized cloud deployment.",
+  chips: ["AI Agents & RAG", "TypeScript · Python · FastAPI", "Cloud · Docker · CI/CD"],
   scene: "engineering",
-  telemetry: "6-STAGE PIPELINE · ON DEVICE EDGE NPU",
+  telemetry: "6-STAGE ARCHITECTURE · AI & SOFTWARE",
 });
 
 export default async function EngineeringPage() {
@@ -30,66 +30,66 @@ export default async function EngineeringPage() {
   const stackItems = ar
     ? [
         [
-          "VISION & ML CORE",
-          "Python · PyTorch · YOLO",
-          "تدريب وتخصيص نماذج كشف الأجسام، وتتبع المسارات المتعددة، والتعرف على الأنشطة البصرية.",
+          "AI & INTELLIGENT AGENTS",
+          "LLMs · Enterprise RAG · Multi-Agent Workflows",
+          "تصميم وتشغيل وكلاء الذكاء الاصطناعي، وأنظمة الاسترجاع المعزز للمعرفة (RAG)، وتكامل النماذج اللغوية في تطبيقات الأعمال.",
         ],
         [
-          "VIDEO PIPELINE",
-          "OpenCV · Stream Processing",
-          "استقبال بث الكاميرات (RTSP/IP)، فك ترميز الإطارات، ومعالجة الفيديو في الوقت الفعلي.",
+          "PROCESS AUTOMATION",
+          "Workflow Engines · Document AI · CRM Pipelines",
+          "أتمتة العمليات التشغيلية وربط الأنظمة عبر الواجهات البرمجية ومعالجة المستندات وإصدار التقارير الآلية.",
         ],
         [
-          "EDGE AI INFERENCE",
-          "ONNX Runtime · TensorRT",
-          "تحسين وضغط النماذج للتشغيل على أجهزة الحافة بزمن استجابة منخفض (عند توفر دعم العتاد).",
+          "CUSTOM SOFTWARE & SAAS",
+          "TypeScript · Next.js · React · Modern Web",
+          "تطوير تطبيقات الويب المؤسسية ومنصات البرمجيات كخدمة (SaaS) ولوحات إدارة الأعمال المتكاملة.",
         ],
         [
-          "BACKEND & APIS",
-          "FastAPI · Device Communication APIs",
-          "واجهات برمجية عالية الأداء لمزامنة الأحداث، وإدارة الأجهزة، وتوصيل التنبيهات الفورية.",
+          "BACKEND & DATA SYSTEMS",
+          "Python · FastAPI · Node.js · PostgreSQL",
+          "بناء الأنظمة الخلفية عالية الأداء، وواجهات البرمجة (APIs)، ومعمارية قواعد البيانات الموثوقة.",
         ],
         [
-          "DEPLOYMENT & CONTAINERS",
-          "Docker · Edge-Cloud Runtime",
-          "تغليف خدمات الاستدلال والأنظمة الخلفية لضمان التشغيل الموثوق على الحافة أو السحابة.",
+          "CLOUD & DEVOPS",
+          "Docker · Microservices · CI/CD · Cloud Runtime",
+          "هندسة الأنظمة الموزعة، والحاويات، وخطوط النشر المستمر، والتكامل الآمن مع الخدمات الخارجية.",
         ],
         [
-          "MONITORING INTERFACES",
-          "Live Dashboards & Operator Alerts",
-          "واجهات ويب وجوال لاستعراض الكاميرات، وتقييم المخاطر المساعد، ومراجعة سجل الأحداث.",
+          "APPLIED VISION & EDGE R&D",
+          "PyTorch · YOLO · OpenCV · ONNX (AEGIS)",
+          "خبرة تطبيقية في الرؤية الحاسوبية وتحليل الفيديو الذكي كما تتجسد في منتجنا الحائز على الجوائز AEGIS.",
         ],
       ]
     : [
         [
-          "VISION & ML CORE",
-          "Python · PyTorch · YOLO",
-          "Training, fine-tuning, and evaluating object detection, multi-object tracking, and activity recognition models.",
+          "AI & INTELLIGENT AGENTS",
+          "LLMs · Enterprise RAG · Multi-Agent Workflows",
+          "Designing and deploying intelligent agents, retrieval-augmented knowledge systems, and generative AI business workflows.",
         ],
         [
-          "VIDEO PROCESSING",
-          "OpenCV · Frame Pipelines",
-          "Real-time RTSP/optical stream ingestion, frame decoding, spatial calibration, and region-of-interest filtering.",
+          "PROCESS AUTOMATION",
+          "Workflow Engines · Document AI · CRM Pipelines",
+          "Automating internal business processes, CRM synchronization, document extraction, and API-driven cross-platform pipelines.",
         ],
         [
-          "EDGE AI INFERENCE",
-          "ONNX Runtime · TensorRT",
-          "Model quantization, graph optimization, and low-latency local inference on supported edge accelerators.",
+          "CUSTOM SOFTWARE & SAAS",
+          "TypeScript · Next.js · React · Full-Stack",
+          "Engineering enterprise web applications, multi-tenant SaaS platforms, and custom business management interfaces.",
         ],
         [
-          "PLATFORM & DEVICE APIS",
-          "FastAPI · Device Communication APIs",
-          "Asynchronous event ingestion, device-to-cloud telemetry, webhook alerts, and operator control APIs.",
+          "BACKEND & DATA ARCHITECTURE",
+          "Python · FastAPI · Node.js · PostgreSQL",
+          "Building resilient backend services, REST/webhook APIs, structured database schemas, and third-party system integrations.",
         ],
         [
-          "CONTAINERIZED RUNTIME",
-          "Docker · Hybrid Edge-Cloud",
-          "Reproducible packaging for on-premise edge appliances and scalable cloud inference services.",
+          "CLOUD & DEVOPS",
+          "Docker · Microservices · CI/CD · Cloud Runtime",
+          "Architecting distributed services, containerized deployments, automated CI/CD pipelines, and performance observability.",
         ],
         [
-          "OPERATOR SOFTWARE",
-          "Monitoring Dashboards & Mobile UI",
-          "Real-time visual overlays, event timelines, assisted risk scoring, and human-in-the-loop alert workflows.",
+          "APPLIED VISION & EDGE R&D",
+          "PyTorch · YOLO · OpenCV · ONNX (AEGIS)",
+          "Applied computer vision, object tracking, and intelligent video analysis demonstrated in our AEGIS product.",
         ],
       ];
 
@@ -101,34 +101,34 @@ export default async function EngineeringPage() {
             <div>
               <div className="art-label">
                 {ar
-                  ? "الهندسة / من الكاميرا إلى لوحة التحكم"
-                  : "ENGINEERING / FROM CAMERA TO APPLICATION OUTPUT"}
+                  ? "الهندسة / معمارية الذكاء الاصطناعي والأنظمة البرمجية"
+                  : "ENGINEERING / AI & SOFTWARE SYSTEM ARCHITECTURE"}
               </div>
               <h1>
                 {ar ? (
                   <>
-                    مصممة لترى.
+                    مصممة للموثوقية.
                     <br />
-                    <em>ومبنية لتعمل على الحافة.</em>
+                    <em>ومبنية للتوسع والأداء.</em>
                   </>
                 ) : (
                   <>
-                    Engineered to see.
+                    Engineered for reliability.
                     <br />
-                    <em>Built for the edge.</em>
+                    <em>Built for enterprise scale.</em>
                   </>
                 )}
               </h1>
               <div className="engineering-hero-bottom">
                 <p>
                   {ar
-                    ? "نصمم أنظمة الرؤية الحاسوبية وذكاء الحافة كمسار هندسي متكامل — من التقاط الإطار البصري وتشغيل نماذج YOLO / ONNX إلى لوحات المراقبة والتنبيهات الفورية."
-                    : "We architect computer vision and Edge AI systems end to end—making latency, model precision, privacy boundaries, and hardware constraints explicit at every stage."}
+                    ? "نصمم الأنظمة البرمجية الذكية كمنظومة هندسية متكاملة — من وكلاء الذكاء الاصطناعي ومسارات الأتمتة إلى الأنظمة الخلفية والبنية السحابية وتطبيقات المؤسسات."
+                    : "We architect intelligent software systems end to end—making data boundaries, API contracts, AI reliability, security, and scalability explicit at every stage."}
                 </p>
                 <span>
                   HIRZEXA
                   <br />
-                  {ar ? "معمارية الرؤية / 01" : "VISION ARCHITECTURE / 01"}
+                  {ar ? "معمارية الأنظمة / 01" : "SYSTEM ARCHITECTURE / 01"}
                 </span>
               </div>
             </div>
@@ -139,20 +139,20 @@ export default async function EngineeringPage() {
                 posterSrc="/human-ai-engineering.jpg"
                 badge={
                   ar
-                    ? "10 ثوانٍ · هندسة الرؤية والحافة"
-                    : "10S REEL · HUMAN-AI EDGE ENGINEERING"
+                    ? "هندسة الذكاء الاصطناعي والأنظمة البرمجية"
+                    : "AI & SOFTWARE ENGINEERING ARCHITECTURE"
                 }
                 title={
                   ar
-                    ? "تكامل العدسات البصرية ووحدات معالجة الحافة"
-                    : "Optical Sensors & Edge NPU Hardware Integration"
+                    ? "تكامل الذكاء الاصطناعي والأتمتة والأنظمة السحابية"
+                    : "AI Agents, Workflow Automation & Scalable Software"
                 }
                 subtitle={
                   ar
-                    ? "Python · OpenCV · PyTorch · YOLO · ONNX Runtime · TensorRT"
-                    : "Camera capture → YOLO perception → ONNX / TensorRT Edge AI"
+                    ? "LLMs & RAG · FastAPI · TypeScript · Docker · Cloud"
+                    : "Data & APIs → AI & Automation → Scalable Platforms"
                 }
-                telemetry="EDGE NPU · ON DEVICE"
+                telemetry="PRODUCTION ARCHITECTURE"
               />
             </div>
           </div>
@@ -169,24 +169,24 @@ export default async function EngineeringPage() {
       <section className="engineering-stack-section" id="stack">
         <div className="container">
           <div className="art-label">
-            {ar ? "التقنيات والأدوات الهندسية" : "VISION & EDGE ENGINEERING STACK"}
+            {ar ? "التقنيات والأدوات الهندسية" : "AI & SOFTWARE ENGINEERING STACK"}
           </div>
           <div className="how-work-head" style={{ marginTop: "14px", marginBottom: "24px" }}>
             <h2>
               {ar ? (
                 <>
-                  حزمة تقنية مبنية <span>للأداء الفوري.</span>
+                  حزمة تقنية مبنية <span>للموثوقية والتوسع.</span>
                 </>
               ) : (
                 <>
-                  Production stack for <span>real-time perception.</span>
+                  Production stack for <span>intelligent software.</span>
                 </>
               )}
             </h2>
             <p>
               {ar
-                ? "نعتمد على أدوات قياسية ومجربة في تطوير نماذج الرؤية الحاسوبية، وتحسين الاستدلال على الحافة، وبناء الأنظمة الخلفية."
-                : "We combine proven computer vision frameworks, edge inference runtimes, and modern backend services."}
+                ? "نعتمد على تقنيات حديثة ومجربة في هندسة الذكاء الاصطناعي، وأتمتة العمليات، وتطوير المنصات البرمجية، والبنية السحابية."
+                : "We combine modern AI orchestration, full-stack frameworks, resilient backend APIs, and cloud-native infrastructure."}
             </p>
           </div>
 
@@ -252,39 +252,39 @@ export default async function EngineeringPage() {
               <span>01</span>
               <h3>
                 {ar
-                  ? "القياس على مشاهد حقيقية."
-                  : "Benchmark on real scenes."}
+                  ? "معمارية برمجية واضحة وقابلة للتوسع."
+                  : "Architecture before implementation."}
               </h3>
               <p>
                 {ar
-                  ? "نختبر نماذج الرؤية تحت ظروف الإضاءة والزوايا ومعدلات الإطارات الواقعية وليس فقط على مجموعات البيانات القياسية."
-                  : "We evaluate detection, tracking, and false-positive rates against real camera angles, lighting conditions, and edge hardware budgets."}
+                  ? "نحدد عقود البيانات، وحدود الخدمات، ومتطلبات الأداء والأمان بوضوح قبل بناء النماذج أو واجهات التطبيقات."
+                  : "We define data contracts, service boundaries, performance budgets, and security constraints before writing production code."}
               </p>
             </article>
             <article>
               <span>02</span>
               <h3>
                 {ar
-                  ? "كفاءة الحافة والخصوصية."
-                  : "Edge efficiency & privacy by design."}
+                  ? "الموثوقية وأمن البيانات من التصميم."
+                  : "Reliability & data security by design."}
               </h3>
               <p>
                 {ar
-                  ? "معالجة الفيديو محلياً على الحافة تقلل زمن الاستجابة وتوفر النطاق الترددي وتحمي خصوصية الأفراد والمؤسسات."
-                  : "Processing video streams locally at the edge reduces latency, conserves bandwidth, and keeps sensitive visual feeds within defined boundaries."}
+                  ? "نصمم مسارات الذكاء الاصطناعي والأتمتة والواجهات البرمجية لتعمل بموثوقية عالية مع حماية بيانات المؤسسة."
+                  : "Every AI workflow, API integration, and cloud service is built with structured validation, error recovery, and strict data governance."}
               </p>
             </article>
             <article>
               <span>03</span>
               <h3>
                 {ar
-                  ? "الذكاء كأداة مساعدة للإنسان."
-                  : "Human-in-the-loop intelligence."}
+                  ? "ذكاء اصطناعي خاضع للإشراف البشري."
+                  : "Human-in-the-loop governance."}
               </h3>
               <p>
                 {ar
-                  ? "نصمم التنبيهات وتقييم المخاطر لتوضيح السياق ومساعدة المشغلين البشريين على اتخاذ قرارات مدروسة."
-                  : "Our vision software and alerts are built to surface structured context and assist human operators—never to replace human judgment."}
+                  ? "نصمم الوكلاء الأذكياء وأنظمة الأتمتة ومنتجات الرؤية لتعزيز إنتاجية الفرق البشرية ودعم قراراتها بشفافية."
+                  : "Our intelligent agents, automation pipelines, and vision systems surface structured context and keep human operators in control."}
               </p>
             </article>
           </div>

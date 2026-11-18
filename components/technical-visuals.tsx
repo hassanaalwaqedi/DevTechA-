@@ -57,65 +57,65 @@ export function ArchitectureDiagram({ arabic = false }: { arabic?: boolean }) {
       className="architecture-diagram"
       aria-label={
         arabic
-          ? "مخطط خط أنابيب الرؤية الحاسوبية وذكاء الحافة"
-          : "Computer Vision and Edge AI pipeline architecture diagram"
+          ? "مخطط معمارية أنظمة الذكاء الاصطناعي والبرمجيات"
+          : "AI and Software Systems architecture diagram"
       }
     >
       <div className="diagram-heading diagram-top">
         <span>
           {arabic
-            ? "خط أنابيب هندسة الرؤية (من الكاميرا إلى التطبيق)"
-            : "VISION ENGINEERING PIPELINE · CAMERA TO DASHBOARD"}
+            ? "معمارية الأنظمة البرمجية والذكاء الاصطناعي (من البيانات إلى المنصة)"
+            : "AI & SOFTWARE ARCHITECTURE · DATA TO ENTERPRISE PLATFORM"}
         </span>
         <span>01 — 06</span>
       </div>
 
       <div className="diagram-flow diagram-flow-6">
         <div>
-          <span>01 / {arabic ? "الالتقاط" : "INPUT"}</span>
-          <strong>{arabic ? "الكاميرا / الحساس" : "Camera / Sensor"}</strong>
-          <small>{arabic ? "بث بصري · RTSP / الكاميرات" : "Optical & RTSP video streams"}</small>
+          <span>01 / {arabic ? "المدخلات" : "INPUT"}</span>
+          <strong>{arabic ? "البيانات والواجهات" : "Data & APIs"}</strong>
+          <small>{arabic ? "قواعد البيانات · المستندات · البث" : "Databases · Documents · Streams"}</small>
         </div>
 
         <div>
-          <span>02 / {arabic ? "المعالجة" : "INGEST"}</span>
-          <strong>{arabic ? "معالجة الفيديو" : "Video Processing"}</strong>
-          <small>{arabic ? "OpenCV · فك الترميز وتجهيز الإطارات" : "OpenCV · Frame decoding & prep"}</small>
+          <span>02 / {arabic ? "الهيكلة" : "INDEX"}</span>
+          <strong>{arabic ? "معالجة وفهرسة البيانات" : "Data & Knowledge"}</strong>
+          <small>{arabic ? "تجهيز البيانات · فهرسة RAG" : "Pipelines · Vector & SQL indexing"}</small>
         </div>
 
         <div className="highlight">
-          <span>03 / {arabic ? "الإدراك" : "PERCEPTION"}</span>
-          <strong>{arabic ? "نماذج الرؤية الحاسوبية" : "Computer Vision Models"}</strong>
-          <small>{arabic ? "YOLO · PyTorch · الكشف والتتبع" : "YOLO · PyTorch · Detection & tracking"}</small>
+          <span>03 / {arabic ? "الذكاء" : "INTELLIGENCE"}</span>
+          <strong>{arabic ? "الوكلاء ونماذج AI" : "AI Agents & Models"}</strong>
+          <small>{arabic ? "LLMs · RAG · الرؤية الحاسوبية" : "LLMs · Enterprise RAG · Applied CV"}</small>
         </div>
 
         <div className="highlight">
-          <span>04 / {arabic ? "ذكاء الحافة" : "EDGE AI"}</span>
-          <strong>{arabic ? "الاستدلال على الحافة" : "Edge Inference"}</strong>
-          <small>{arabic ? "ONNX Runtime · TensorRT · زمن منخفض" : "ONNX Runtime · TensorRT optimization"}</small>
+          <span>04 / {arabic ? "الأتمتة" : "AUTOMATION"}</span>
+          <strong>{arabic ? "أتمتة العمليات" : "Process Automation"}</strong>
+          <small>{arabic ? "محركات سير العمل · تكامل CRM" : "Workflow orchestration · CRM & APIs"}</small>
         </div>
 
         <div>
-          <span>05 / {arabic ? "الفهم" : "REASONING"}</span>
-          <strong>{arabic ? "ذكاء الأحداث" : "Event Intelligence"}</strong>
-          <small>{arabic ? "تفسير المشهد · تقييم المخاطر والتنبيهات" : "Scene logic · Risk scoring & rules"}</small>
+          <span>05 / {arabic ? "الخدمات" : "BACKEND"}</span>
+          <strong>{arabic ? "الأنظمة الخلفية" : "Backend & Cloud"}</strong>
+          <small>{arabic ? "FastAPI · الخدمات المصغرة · الأمان" : "FastAPI · Microservices · Security"}</small>
         </div>
 
         <div>
-          <span>06 / {arabic ? "المخرجات" : "OUTPUT"}</span>
-          <strong>{arabic ? "التطبيق / لوحة المراقبة" : "Application / Dashboard"}</strong>
-          <small>{arabic ? "FastAPI · واجهات المراقبة والتنبيهات" : "FastAPI · Live UI, alerts & APIs"}</small>
+          <span>06 / {arabic ? "المنصة" : "PLATFORM"}</span>
+          <strong>{arabic ? "تطبيقات المؤسسات" : "Web & SaaS Apps"}</strong>
+          <small>{arabic ? "Next.js · لوحات التحكم · التكامل" : "Next.js · Dashboards · Client Apps"}</small>
         </div>
       </div>
 
       <div className="diagram-monitor">
         <span>
-          {arabic ? "التشغيل والمراقبة المستمرة" : "EDGE-TO-CLOUD TELEMETRY & OBSERVABILITY"}
+          {arabic ? "التشغيل السحابي والمراقبة المستمرة" : "CLOUD DEPLOYMENT, CI/CD & OBSERVABILITY"}
         </span>
         <span>
           {arabic
-            ? "استدلال محلي منخفض الكمون · مزامنة الأحداث · تحديث النماذج ↺"
-            : "Low-latency local inference · Event sync · Model iteration ↺"}
+            ? "تكامل الأنظمة · مراقبة الأداء · التوسع المستمر ↺"
+            : "Containerized runtime · API telemetry · Continuous delivery ↺"}
         </span>
       </div>
     </div>

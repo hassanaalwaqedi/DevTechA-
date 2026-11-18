@@ -10,12 +10,12 @@ type CapabilitiesSectionProps = {
 export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps) {
   const cards = [
     {
-      id: "computer-vision",
-      title: arabic ? "الرؤية الحاسوبية" : "Computer Vision",
+      id: "ai-engineering",
+      title: arabic ? "هندسة الذكاء الاصطناعي والوكلاء" : "AI Engineering & Intelligent Agents",
       subtitle: arabic
-        ? "كشف الأجسام · التتبع · تحليلات الفيديو الفورية"
-        : "Object Detection · Tracking · Video Analytics",
-      href: "/technology#computer-vision",
+        ? "وكلاء أذكياء · أنظمة RAG المؤسسية · تكامل النماذج اللغوية"
+        : "AI Agents · Enterprise RAG · LLM Integration",
+      href: "/services#ai-engineering",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -50,12 +50,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       ),
     },
     {
-      id: "edge-ai",
-      title: arabic ? "ذكاء الحافة (Edge AI)" : "Edge AI",
+      id: "process-automation",
+      title: arabic ? "أتمتة العمليات التجارية" : "Business Process Automation",
       subtitle: arabic
-        ? "استدلال على الجهاز · تحسين النماذج · زمن استجابة منخفض"
-        : "On-Device Inference · Model Optimization · Low Latency",
-      href: "/technology#edge-ai",
+        ? "أتمتة سير العمل · أنظمة CRM · معالجة المستندات والتقارير"
+        : "Workflow & CRM Automation · Document AI · API Pipelines",
+      href: "/services#process-automation",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -84,12 +84,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       ),
     },
     {
-      id: "intelligent-devices",
-      title: arabic ? "الأجهزة الذكية" : "Intelligent Devices",
+      id: "custom-software",
+      title: arabic ? "هندسة البرمجيات المخصصة" : "Custom Software Engineering",
       subtitle: arabic
-        ? "الكاميرات الذكية · وحدات معالجة الحافة · إنترنت الأشياء البصري"
-        : "Smart Cameras · Edge AI Units · Vision IoT",
-      href: "/technology#intelligent-devices",
+        ? "تطبيقات المؤسسات · منصات SaaS · الأنظمة الخلفية والواجهات"
+        : "Enterprise Web Apps · SaaS Platforms · Backend & APIs",
+      href: "/services#custom-software",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -126,12 +126,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       ),
     },
     {
-      id: "vision-software",
-      title: arabic ? "برمجيات الرؤية" : "Vision Software",
+      id: "cloud-architecture",
+      title: arabic ? "معمارية الأنظمة والسحابة" : "System Architecture & Cloud",
       subtitle: arabic
-        ? "لوحات المراقبة · البث الحي · إدارة الأحداث والتنبيهات"
-        : "Monitoring Dashboards · Live Video · Event Alerts",
-      href: "/technology#vision-software",
+        ? "الأنظمة الموزعة · الهندسة السحابية · DevOps والتكامل"
+        : "Distributed Systems · Cloud & DevOps · System Integrations",
+      href: "/services#cloud-architecture",
       icon: (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -180,12 +180,12 @@ export function CapabilitiesSection({ arabic = false }: CapabilitiesSectionProps
       <div className="container">
         <div className="dt-capabilities-header">
           <span className="dt-section-eyebrow">
-            {arabic ? "الركائز التقنية الأربع" : "CORE TECHNOLOGY PILLARS"}
+            {arabic ? "الأقسام الهندسية الأربع" : "CORE ENGINEERING DIVISIONS"}
           </span>
           <h2 id="dt-capabilities-heading" className="dt-section-title">
             {arabic
-              ? "الرؤية الحاسوبية. ذكاء الحافة. منتجات ذكية."
-              : "Computer Vision. Edge AI. Intelligent Products."}
+              ? "هندسة الذكاء الاصطناعي. الأتمتة. البرمجيات المخصصة."
+              : "AI Engineering. Automation. Custom Software."}
           </h2>
         </div>
 

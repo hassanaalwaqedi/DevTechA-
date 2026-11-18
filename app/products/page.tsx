@@ -12,18 +12,18 @@ import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 import "../work/work.css";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Products — Vision Systems & Device Roadmap",
+  title: "Products & Innovation — AEGIS, Software Platforms & R&D",
   description:
-    "Explore AEGIS AI as HIRZEXA's vision engineering project, our published software portfolio, and future intelligent device concepts.",
+    "Explore HIRZEXA's Products & Innovation portfolio: AEGIS (AI-Powered Visual Safety & Computer Vision), Khair (live software platform), and ongoing R&D.",
   path: "/products",
-  eyebrow: "HIRZEXA / PRODUCTS & SYSTEMS",
-  badge: "VISION TECHNOLOGY & PRODUCT ROADMAP",
-  headline: "Intelligent vision products & platforms.",
+  eyebrow: "HIRZEXA / PRODUCTS & INNOVATION",
+  badge: "PRODUCTS, PLATFORMS & APPLIED R&D",
+  headline: "Products & Innovation by HIRZEXA.",
   summary:
-    "AEGIS AI is a vision engineering project. Smart cameras and edge devices are future product concepts, not products for sale.",
-  chips: ["AEGIS AI Project", "Software Portfolio", "Device Concepts"],
+    "AEGIS (AI-Powered Visual Safety & Computer Vision), Khair (live software platform), and internal R&D concepts.",
+  chips: ["AEGIS · Visual Safety", "Khair · Live Platform", "Applied AI & Software R&D"],
   scene: "aegis",
-  telemetry: "AEGIS AI · VISION ENGINEERING",
+  telemetry: "PRODUCTS & INNOVATION · HIRZEXA",
 });
 
 function PublishedPortfolio({ products, arabic }: { products: Product[]; arabic: boolean }) {
@@ -217,49 +217,49 @@ export default async function ProductsPage() {
   return (
     <main className="work-new">
       <CompanyPageIntro
-        eyebrow={ar ? "HIRZEXA / المنتجات والأنظمة" : "HIRZEXA / PRODUCTS & SYSTEMS"}
+        eyebrow={ar ? "HIRZEXA / المنتجات والابتكار" : "HIRZEXA / PRODUCTS & INNOVATION"}
         title={
           ar
-            ? "منتجات الرؤية الذكية والمنصات."
-            : "Intelligent vision products & platforms."
+            ? "المنتجات والابتكار والمنصات البرمجية."
+            : "Products, platforms & applied innovation."
         }
         description={
           ar
-            ? "نطور أنظمة الرؤية الحاسوبية وذكاء السلامة البصرية، إلى جانب منصاتنا البرمجية وخارطة طريق الأجهزة الذكية."
-            : "Explore AEGIS AI as a vision engineering project, our published software portfolio, and future intelligent device concepts."
+            ? "إلى جانب خدماتنا في هندسة الذكاء الاصطناعي والأنظمة البرمجية، نطور منتجات ومنصات خاصة تبرهن قدراتنا الهندسية — ومنها AEGIS في مجال السلامة البصرية والرؤية الحاسوبية، ومنصة خير الحية."
+            : "Alongside our AI and software engineering services, we build proprietary products and platforms—including AEGIS (AI-Powered Visual Safety & Computer Vision) and Khair (live software platform)."
         }
-        actionLabel={ar ? "استكشف نظام AEGIS AI" : "Explore AEGIS AI"}
+        actionLabel={ar ? "استكشف منتج AEGIS" : "Explore AEGIS"}
         actionHref="#aegis-ai"
-        secondaryLabel={ar ? "خارطة طريق المنتجات" : "Future product roadmap"}
-        secondaryHref="#product-roadmap"
-        detailsTitle={ar ? "محاور المنتجات" : "PRODUCT FOCUS"}
+        secondaryLabel={ar ? "ناقش مشروعك" : "Discuss a project"}
+        secondaryHref="/contact"
+        detailsTitle={ar ? "محفظة المنتجات والابتكار" : "PRODUCTS & INNOVATION"}
         details={
           ar
             ? [
-                "AEGIS AI: نظام الرؤية الذكية وتحليل السلامة",
-                "الأجهزة الذكية ووحدات ذكاء الحافة (تصورات مستقبلية)",
-                "منصات وتطبيقات إدارة الرؤية والمجتمعات",
+                "AEGIS: السلامة البصرية المدعومة بالذكاء الاصطناعي والرؤية الحاسوبية",
+                "خير (Khair): منصة برمجية حية للفعاليات والمجتمعات",
+                "أبحاث وتصورات مستقبلية للأنظمة والأجهزة الذكية",
               ]
             : [
-                "AEGIS AI: Smart vision & safety intelligence",
-                "Smart cameras & Edge AI devices (Roadmap concepts)",
-                "Vision software dashboards & live platforms",
+                "AEGIS: AI-Powered Visual Safety & Computer Vision",
+                "Khair: Live web & mobile community platform",
+                "Applied R&D & future product concepts",
               ]
         }
         videoSrc="/videos/human-ai-aegis.mp4"
         videoPoster="/human-ai-aegis.jpg"
-        videoBadge={ar ? "10 ثوانٍ · تواصل بصري ذكي" : "10S REEL · HUMAN-AI EYE CONTACT"}
+        videoBadge={ar ? "المنتجات والابتكار · AEGIS" : "PRODUCTS & INNOVATION · AEGIS"}
         videoTitle={
           ar
-            ? "AEGIS AI: ذكاء بصري يتفاعل مع الإنسان"
-            : "AEGIS AI — Human-Centric Vision & Safety"
+            ? "AEGIS: السلامة البصرية والرؤية الحاسوبية"
+            : "AEGIS — AI-Powered Visual Safety & Computer Vision"
         }
         videoSubtitle={
           ar
-            ? "تحليل الكاميرات، تتبع الأجسام، وتقييم المخاطر المساعد"
-            : "Real-time camera perception, tracking & assisted risk scoring"
+            ? "تحليل الفيديو الذكي، كشف الأجسام وتتبعها، ومراقبة الأحداث"
+            : "Intelligent video analysis, object detection, tracking & event monitoring"
         }
-        videoTelemetry="AEGIS AI · CONCEPT PREVIEW"
+        videoTelemetry="PRODUCTS & INNOVATION · AEGIS"
       />
 
       {/* SECTION 1: AEGIS AI + KHAIR */}
@@ -269,25 +269,25 @@ export default async function ProductsPage() {
             <div>
               <span className="work-kicker">
                 {ar
-                  ? "01 / مشروع الرؤية الذكية والسلامة"
-                  : "01 / SMART VISION & SAFETY INTELLIGENCE"}
+                  ? "01 / المنتجات والابتكار · السلامة البصرية والرؤية الحاسوبية"
+                  : "01 / PRODUCTS & INNOVATION · AI-POWERED VISUAL SAFETY & COMPUTER VISION"}
               </span>
               <h2>
                 {ar ? (
                   <>
-                    إدراك بصري فوري مع <span>AEGIS AI.</span>
+                    تحليل الفيديو الذكي ومراقبة الأحداث مع <span>AEGIS.</span>
                   </>
                 ) : (
                   <>
-                    Visual situational awareness with <span>AEGIS AI.</span>
+                    Intelligent video analysis &amp; safety monitoring with <span>AEGIS.</span>
                   </>
                 )}
               </h2>
             </div>
             <p>
               {ar
-                ? "نظام رؤية حاسوبية وذكاء سلامة يحلل بث الكاميرات في الوقت الفعلي لكشف الأجسام وتتبعها وتفسير الأحداث وتقييم المخاطر لدعم المشغلين."
-                : "Our smart vision and safety intelligence project combining real-time camera analysis, object tracking, event interpretation, and assisted risk scoring."}
+                ? "منتج هندسي يبرهن قدراتنا في تحليل الفيديو الذكي، وكشف الأجسام وتتبعها، ومراقبة الأحداث البصرية لدعم المشغلين."
+                : "An engineering product demonstrating intelligent video analysis, object detection, tracking, and event monitoring."}
             </p>
           </div>
 
@@ -342,14 +342,14 @@ export default async function ProductsPage() {
                 <div className="work-khair-label">
                   <span>✳</span>{" "}
                   {ar
-                    ? "دراسة هندسية للرؤية والسلامة"
-                    : "AEGIS AI / ENGINEERING STUDY"}
+                    ? "المنتجات والابتكار · السلامة البصرية والرؤية الحاسوبية"
+                    : "PRODUCTS & INNOVATION · AI-POWERED VISUAL SAFETY & COMPUTER VISION"}
                 </div>
-                <h3>AEGIS AI</h3>
+                <h3>AEGIS</h3>
                 <p>
                   {ar
-                    ? "دراسة هندسية تستكشف معالجة بث الكاميرات وكشف الأجسام وتتبعها وتفسير الأحداث وتقييم المخاطر بمساعدة المشغلين. الواجهة المرئية توضيحية."
-                    : "A vision engineering study exploring camera input, detection and tracking, event interpretation, assisted risk scoring, and operator alerts. The visual interface is illustrative."}
+                    ? "منتج هندسي ضمن محفظة HIRZEXA يستعرض تحليل الفيديو الذكي، وكشف الأجسام وتتبعها، ومراقبة الأحداث وتقييم المخاطر بمساعدة المشغلين."
+                    : "An engineering product in HIRZEXA's portfolio demonstrating intelligent video analysis, object detection, tracking, and event monitoring with human-in-the-loop operator alerts."}
                 </p>
 
                 <ul className="work-aegis-capabilities">
@@ -527,7 +527,7 @@ export default async function ProductsPage() {
         <div className="container work-vision-layout">
           <div>
             <span className="work-kicker">
-              {ar ? "03 / رؤيتنا للمنتجات" : "03 / PRODUCT VISION"}
+              {ar ? "03 / فلسفتنا في بناء المنتجات" : "03 / PRODUCT ENGINEERING PHILOSOPHY"}
             </span>
             <span className="work-vision-mark" aria-hidden="true">
               ✳
@@ -537,32 +537,32 @@ export default async function ProductsPage() {
             <h2>
               {ar ? (
                 <>
-                  نجمع بين الكاميرا،
+                  نجمع بين الذكاء الاصطناعي،
                   <br />
-                  <span>وذكاء الحافة، والبرمجيات.</span>
+                  <span>ومعمارية البرمجيات، والتطبيق العملي.</span>
                 </>
               ) : (
                 <>
-                  Uniting optical hardware,
+                  Uniting AI engineering,
                   <br />
-                  <span>Edge AI, and software.</span>
+                  <span>software architecture, and real utility.</span>
                 </>
               )}
             </h2>
             <p>
               {ar
-                ? "هدفنا طويل المدى هو بناء شركة تقنية قادرة على هندسة أجهزتها الذكية ومنصاتها البرمجية الخاصة — لتقديم تقنيات رؤية ذكية يسهل الوصول إليها للمنازل والشركات والصناعة."
-                : "Our long-term vision is to engineer integrated intelligent devices and vision software platforms—delivering accessible, practical visual intelligence for homes, businesses, and industry."}
+                ? "تمثل منتجاتنا الداخلية — من منصة خير الرقمية إلى نظام AEGIS للسلامة البصرية — برهاناً عملياً على التزامنا بهندسة أنظمة برمجية ذكية وموثوقة."
+                : "Our internal products—from the live Khair platform to the award-winning AEGIS visual safety system—demonstrate our commitment to engineering reliable, production-grade software and AI."}
             </p>
-            <Link href="/applications" className="work-text-link">
-              {ar ? "استكشف حالات الاستخدام والتطبيقات" : "Explore real-world applications"}{" "}
+            <Link href="/services" className="work-text-link">
+              {ar ? "استكشف خدماتنا الهندسية للمؤسسات" : "Explore our AI & software engineering services"}{" "}
               <ArrowUpRight size={16} />
             </Link>
             <div className="product-email-links">
               <a href={companyMailto("business", "HIRZEXA product inquiry & demo")} aria-label={`${ar ? "استفسارات المنتجات والعروض" : "Product inquiries and demos"}: ${COMPANY_EMAILS.business}`}>
                 {ar ? "استفسارات المنتجات والعروض" : "Product inquiries & demos"} ({COMPANY_EMAILS.business}) <ArrowUpRight size={15} />
               </a>
-              <a href={companyMailto("orders", "HIRZEXA device & purchasing inquiry")} aria-label={`${ar ? "الطلبات والمشتريات" : "Purchases and orders"}: ${COMPANY_EMAILS.orders}`}>
+              <a href={companyMailto("orders", "HIRZEXA purchasing inquiry")} aria-label={`${ar ? "الطلبات والمشتريات" : "Purchases and orders"}: ${COMPANY_EMAILS.orders}`}>
                 {ar ? "الطلبات والمشتريات" : "Purchases & orders"} ({COMPANY_EMAILS.orders}) <ArrowUpRight size={15} />
               </a>
               <a href={companyMailto("support", "HIRZEXA product support")} aria-label={`${ar ? "الدعم الفني" : "Technical support"}: ${COMPANY_EMAILS.support}`}>
@@ -577,18 +577,18 @@ export default async function ProductsPage() {
         <div className="container">
           <div>
             <span className="work-kicker">
-              {ar ? "لنبني المستقبل البصري" : "BUILD WITH HIRZEXA"}
+              {ar ? "ابنِ مع HIRZEXA" : "BUILD WITH HIRZEXA"}
             </span>
             <h2>
               {ar ? (
                 <>
-                  هل تبحث عن نظام رؤية مخصص؟
+                  هل تخطط لتطوير منصة برمجية أو نظام ذكاء اصطناعي؟
                   <br />
                   <span>لنتحدث اليوم.</span>
                 </>
               ) : (
                 <>
-                  Exploring a computer vision product?
+                  Planning a custom software or AI system?
                   <br />
                   <span>Let&apos;s build it.</span>
                 </>

@@ -124,9 +124,9 @@ export default function ContactPage() {
             <h1>
               {ar ? (
                 <>
-                  هل تطور
+                  هل تخطط لبناء
                   <br />
-                  <span>نظام رؤية ذكي؟</span>
+                  <span>نظام برمجي ذكي؟</span>
                   <br />
                   لنهندسه
                   <br />
@@ -134,9 +134,9 @@ export default function ContactPage() {
                 </>
               ) : (
                 <>
-                  Building with
+                  Building an
                   <br />
-                  <span>intelligent vision?</span>
+                  <span>intelligent system?</span>
                   <br />
                   Let&apos;s engineer
                   <br />
@@ -146,8 +146,8 @@ export default function ContactPage() {
             </h1>
             <p>
               {ar
-                ? "شاركنا متطلباتك في الرؤية الحاسوبية، أو الاستدلال على الحافة (Edge AI)، أو نظام AEGIS AI، أو عروض المنتجات والشراكات."
-                : "Tell us about your computer vision use case, Edge AI deployment, AEGIS AI evaluation, product demo, or strategic partnership."}
+                ? "شاركنا متطلباتك في هندسة الذكاء الاصطناعي والوكلاء، أو أتمتة العمليات التجارية، أو تطوير البرمجيات المخصصة والمنصات السحابية، أو عروض منتج AEGIS."
+                : "Tell us about your AI engineering initiative, business process automation, custom software platform, cloud integration, or AEGIS product inquiry."}
             </p>
             <a
               className="contact-email"
@@ -163,20 +163,20 @@ export default function ContactPage() {
                 posterSrc="/human-ai-contact.jpg"
                 badge={
                   ar
-                    ? "10 ثوانٍ · تواصل مباشر مع فريقنا"
-                    : "10S REEL · DIRECT HUMAN-AI CONNECTION"
+                    ? "تواصل مباشر مع فريقنا الهندسي"
+                    : "DIRECT ENGINEERING CONNECTION"
                 }
                 title={
                   ar
-                    ? "مهندسو الرؤية الحاسوبية وذكاء الحافة بانتظارك"
-                    : "Connect With Our Computer Vision & Edge AI Team"
+                    ? "مهندسو الذكاء الاصطناعي والأنظمة البرمجية بانتظارك"
+                    : "Connect With Our AI & Software Engineering Team"
                 }
                 subtitle={
                   ar
-                    ? "استشارات تقنية · عروض AEGIS AI · شراكات المنتجات"
-                    : "Architecture reviews · AEGIS AI demos · Product partnerships"
+                    ? "الوكلاء والأتمتة · البرمجيات المخصصة · المعمارية السحابية · AEGIS"
+                    : "AI Agents & Automation · Custom Software · Cloud Architecture · AEGIS"
                 }
-                telemetry="DIRECT EYE CONTACT"
+                telemetry="AI & SOFTWARE ENGINEERING"
                 compact
               />
             </div>
@@ -184,15 +184,15 @@ export default function ContactPage() {
               <span>
                 {ar ? (
                   <>
-                    الرؤية الحاسوبية · ذكاء الحافة
+                    هندسة الذكاء الاصطناعي · الأتمتة
                     <br />
-                    الأجهزة والبرمجيات الذكية
+                    الأنظمة البرمجية والسحابة
                   </>
                 ) : (
                   <>
-                    COMPUTER VISION · EDGE AI
+                    AI &amp; SOFTWARE ENGINEERING
                     <br />
-                    INTELLIGENT PRODUCTS
+                    INTELLIGENT SYSTEMS
                   </>
                 )}
               </span>
@@ -211,13 +211,13 @@ export default function ContactPage() {
                     <>
                       أخبرنا قليلاً
                       <br />
-                      عن <em>موضوع تواصلك.</em>
+                      عن <em>مشروعك أو استفسارك.</em>
                     </>
                   ) : (
                     <>
                       Tell us about your
                       <br />
-                      <em>vision challenge.</em>
+                      <em>project or challenge.</em>
                     </>
                   )}
                 </h2>
@@ -339,8 +339,8 @@ export default function ContactPage() {
                   maxLength={3000}
                   placeholder={
                     ar
-                      ? "صف لنا بيئة الكاميرات، أو متطلبات ذكاء الحافة، أو تفاصيل طلبك أو استفسارك."
-                      : "Describe your camera environment, Edge AI requirements, demo goals, or enquiry details."
+                      ? "صف لنا متطلبات مشروعك في الذكاء الاصطناعي أو أتمتة العمليات أو تطوير البرمجيات أو تفاصيل استفسارك."
+                      : "Describe your AI, automation, custom software, or integration goals, or share your enquiry details."
                   }
                 />
               </div>

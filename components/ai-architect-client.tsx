@@ -29,7 +29,7 @@ export function AiArchitectClient() {
     consent: "أوافق على حفظ HIRZEXA لهذا الموجز للرد على استفساري.", submit: "إرسال الموجز التقني",
     success: "تم استلام موجزك التقني ويمكن لمهندس من HIRZEXA مراجعته الآن.", submitError: "تعذر إرسال الموجز.",
   } : {
-    kicker: "HIRZEXA / VISUAL INTELLIGENCE / 01", title: "Map the system", accent: "before you build it.",
+    kicker: "HIRZEXA / AI & SOFTWARE ARCHITECTURE / 01", title: "Map the system", accent: "before you build it.",
     intro: "Turn an early technical idea into a reviewable engineering brief. This is a preliminary analysis—not a quote, guarantee, or automated decision.",
     structured: "Structured output", review: "Human review required", bilingual: "English / العربية",
     category: "System category", problem: "What are you trying to solve?",

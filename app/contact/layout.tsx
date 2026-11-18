@@ -3,18 +3,18 @@ import { createPageMetadata } from "@/lib/social-metadata";
 import { COMPANY_EMAILS } from "@/lib/company-emails";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Contact — Discuss Your Computer Vision & Edge AI Project",
+  title: "Contact — Discuss Your AI & Software Engineering Project",
   description:
-    "Connect with HIRZEXA's engineering team to discuss computer vision systems, Edge AI deployment, AEGIS AI evaluations, or smart device partnerships.",
+    "Connect with HIRZEXA's engineering team to discuss AI agents, business process automation, custom software platforms, cloud architecture, or AEGIS product demos.",
   path: "/contact",
   eyebrow: "HIRZEXA / OPEN A CONVERSATION",
   badge: "DIRECT ENGINEERING CONSULTATION",
-  headline: "Building with intelligent vision? Let's engineer it.",
+  headline: "Planning an intelligent software system? Let's engineer it.",
   summary:
-    "Talk directly with our Computer Vision and Edge AI engineers about AEGIS AI, custom vision pipelines, and smart hardware.",
-  chips: ["Computer Vision & Edge AI", "AEGIS AI Demo", COMPANY_EMAILS.general],
+    "Talk directly with our AI and software engineers about intelligent automation, custom platforms, cloud integrations, and AEGIS.",
+  chips: ["AI & Software Engineering", "Process Automation", COMPANY_EMAILS.general],
   scene: "contact",
-  telemetry: "DIRECT HUMAN-AI CONNECTION",
+  telemetry: "DIRECT ENGINEERING CONSULTATION",
 });
 
 export default function ContactLayout({ children }: { children: React.ReactNode }) {

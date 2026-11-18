@@ -15,18 +15,18 @@ import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 import "../solutions/solutions.css";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Applications — Smart Homes, Retail, Workplace, Safety & Industrial Vision",
+  title: "Solutions — Enterprise AI, Process Automation, Custom Platforms & Cloud",
   description:
-    "Explore real-world applications of HIRZEXA's computer vision and Edge AI systems across Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and Industrial Vision.",
+    "Explore HIRZEXA's engineering solutions across Intelligent Agents & Enterprise RAG, Business Process Automation, Custom Web & SaaS Platforms, System Integration, and AEGIS Visual Safety.",
   path: "/applications",
-  eyebrow: "HIRZEXA / REAL-WORLD APPLICATIONS",
-  badge: "5 VISION APPLICATION DOMAINS",
-  headline: "Where computer vision meets the real world.",
+  eyebrow: "HIRZEXA / SOLUTIONS & APPLICATIONS",
+  badge: "INTELLIGENT SOFTWARE SOLUTIONS",
+  headline: "Intelligent software solutions for real business operations.",
   summary:
-    "Practical visual intelligence for Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and Industrial Vision.",
-  chips: ["Smart Homes & Retail", "Safety & Security", "Industrial Inspection"],
+    "AI agents, enterprise RAG, automated operational workflows, custom SaaS platforms, cloud integrations, and AEGIS visual safety.",
+  chips: ["Enterprise AI & Agents", "Workflow Automation", "Custom SaaS & Cloud"],
   scene: "aegis",
-  telemetry: "5 DOMAINS · EDGE + CLOUD VISION",
+  telemetry: "SOLUTIONS · AI & SOFTWARE ENGINEERING",
 });
 
 export default async function ApplicationsPage() {
@@ -35,205 +35,205 @@ export default async function ApplicationsPage() {
   const applications = ar
     ? ([
         {
-          id: "smart-homes",
+          id: "ai-assistants-rag",
           number: "01",
-          domain: "المنازل الذكية · Smart Homes",
-          status: "نطاق تطبيقي قيد التطوير · Active R&D",
+          domain: "الوكلاء الأذكياء وإدارة المعرفة · AI Agents & Enterprise RAG",
+          status: "قدرة هندسية وتطبيقية · Engineering Capability",
           statusType: "active",
-          title: "مراقبة منزلية ذكية وتنبيهات قابلة للتخصيص.",
+          title: "وكلاء ذكاء اصطناعي وأنظمة استرجاع معرفة مؤسسية (Enterprise RAG).",
           description:
-            "تحويل الكاميرات المنزلية إلى أنظمة تفهم المشهد محلياً على الحافة (Edge AI) مع الحفاظ على الخصوصية، لتمييز الأشخاص والمركبات والطرود وإرسال تنبيهات دقيقة قابلة للتخصيص.",
+            "تصميم تطبيقات ذكاء اصطناعي توليدي ووكلاء متعددي المهام يرتبطون بمستندات المؤسسة وقواعد بياناتها للإجابة الدقيقة، وأتمتة البحث الداخلي، ودعم اتخاذ القرار.",
           scenario:
-            "مثال تطبيقي: كاميرا منزلية ذكية تعالج الفيديو محلياً لتنبيه صاحب المنزل عند وصول طرد أو حركة في المدخل دون إرسال الفيديو الخام للسحابة.",
-          tags: ["كشف الأجسام", "الخصوصية على الحافة", "تنبيهات مخصصة", "تطبيق الجوال"],
+            "نطاق الحل: بناء مسار استرجاع معزز (RAG) ووكلاء أذكياء مقيدين بصلاحيات المؤسسة ومصادرها الرسمية مع مراجعة بشرية واضحة.",
+          tags: ["وكلاء الذكاء الاصطناعي", "Enterprise RAG", "تكامل LLMs", "تطبيقات الأعمال"],
           category: "Product Demos & Business",
           Icon: Home,
         },
         {
-          id: "retail-intelligence",
+          id: "workflow-automation",
           number: "02",
-          domain: "ذكاء التجزئة · Retail Intelligence",
-          status: "عرض تقني وتطبيقي · Active Demonstration",
+          domain: "أتمتة العمليات وسير العمل · Business Process Automation",
+          status: "قدرة هندسية وتطبيقية · Engineering Capability",
           statusType: "active",
-          title: "مراقبة بصرية وتحليلات تشغيلية للمتاجر.",
+          title: "أتمتة سير العمل الداخلي، أنظمة CRM، ومعالجة المستندات.",
           description:
-            "استخدام الرؤية الحاسوبية لتحليل تدفق الزوار، ومستويات الإشغال، ومناطق التفاعل داخل المتاجر وصالات العرض لدعم القرارات التشغيلية.",
+            "استبدال العمليات اليدوية المتكررة بمسارات عمل آلية تربط أنظمة إدارة العملاء (CRM)، وتستخرج البيانات من المستندات، وتنشئ التقارير التشغيلية، وتدعم خدمة العملاء الذكية.",
           scenario:
-            "مثال تطبيقي: رصد أوقات الذروة وطوابير الانتظار عبر الكاميرات الحالية وتحويلها إلى مؤشرات تشغيلية في لوحة تحكم المتجر.",
-          tags: ["تحليلات الفيديو", "كثافة الحركة", "لوحة تحكم تشغيلية", "Edge AI"],
+            "نطاق الحل: ربط نماذج الإدخال وأنظمة CRM وواجهات البرمجة (APIs) في مسار أتمتة موحد يقلل زمن المعالجة والأخطاء التشغيلية.",
+          tags: ["أتمتة سير العمل", "تكامل CRM", "معالجة المستندات", "واجهات APIs"],
           category: "Product Demos & Business",
           Icon: Store,
         },
         {
-          id: "workplace-monitoring",
+          id: "custom-saas-platforms",
           number: "03",
-          domain: "مراقبة بيئات العمل · Workplace Monitoring",
-          status: "عرض تقني وتطبيقي · Active Demonstration",
+          domain: "المنصات البرمجية وتطبيقات المؤسسات · Custom Software & SaaS",
+          status: "منصات برمجية حية وقدرة هندسية · Live Platform & Capability",
           statusType: "active",
-          title: "كشف الأحداث وإشراف تشغيلي قابل للضبط.",
+          title: "تطوير تطبيقات الويب المؤسسية ومنصات SaaS وأنظمة الإدارة.",
           description:
-            "أنظمة رؤية مرنة للمكاتب والمرافق اللوجستية تتيح كشف الأحداث البصرية، متابعة المناطق المخصصة، وتنظيم التنبيهات وفق قواعد تشغيلية واضحة.",
+            "هندسة منصات برمجية متكاملة (Full-Stack) وتطبيقات ويب مخصصة بواجهات حديثة وأنظمة خلفية متينة لإدارة العمليات والمجتمعات والخدمات الرقمية.",
           scenario:
-            "مثال تطبيقي: متابعة حركة المركبات والمشاة في ساحات التحميل وإشعار المشرفين عند حدوث ازدحام أو دخول منطقة مقيدة.",
-          tags: ["تتبع متعدد الأجسام", "إدارة المناطق", "إشعارات المشغلين", "FastAPI"],
+            "مثال حي (منصة خير — Khair): منصة رقمية حية لاكتشاف الفعاليات وإدارة المجتمعات والمنظمين، تبرهن قدراتنا في هندسة المنصات المتكاملة.",
+          tags: ["منصات SaaS", "تطبيقات المؤسسات", "Full-Stack", "واجهات خلفية APIs"],
           category: "Product Demos & Business",
           Icon: Building2,
         },
         {
-          id: "safety-security",
+          id: "cloud-system-integration",
           number: "04",
-          domain: "السلامة والأمن البصري · Safety & Security",
-          status: "نموذج AEGIS AI التوضيحي · AEGIS AI Demonstration",
+          domain: "معمارية الأنظمة والتكامل السحابي · System & Cloud Integration",
+          status: "قدرة هندسية وتطبيقية · Engineering Capability",
           statusType: "active",
-          title: "وعي ظرفي وكشف أحداث بصري وتحليل مخاطر مساعد.",
+          title: "أنظمة موزعة، بنية سحابية، وتكامل مع الأنظمة الخارجية.",
           description:
-            "يعمل نظام AEGIS AI على تحليل بث الكاميرات في الوقت الفعلي لكشف الأجسام وتتبعها وتفسير الأحداث وتقديم تقييم مخاطر مساعد يدعم المشغلين البشريين.",
+            "تصميم وتنفيذ الأنظمة الخلفية، والخدمات المصغرة (Microservices)، ومعمارية قواعد البيانات، وخطوط النشر المستمر (CI/CD) لضمان الأداء العالي وقابلية التوسع.",
           scenario:
-            "مثال تطبيقي (AEGIS AI): تحليل فوري للكاميرات مع مؤشر مخاطر مساعد وتنبيهات للمشغل البشري لمراجعة الحدث (نظام مساعد للإنسان وليس قراراً أمنياً ذاتياً).",
-          tags: ["AEGIS AI", "تقييم المخاطر المساعد", "الوعي الظرفي", "تنبيهات المشغل"],
-          category: "AEGIS AI Commercial",
-          Icon: ShieldAlert,
-        },
-        {
-          id: "industrial-vision",
-          number: "05",
-          domain: "الرؤية الصناعية · Industrial Vision",
-          status: "مجال تطبيقي مستقبلي · Planned Application",
-          statusType: "planned",
-          title: "تطبيقات الفحص البصري ومراقبة العمليات الصناعية.",
-          description:
-            "توسيع معمارية الرؤية الحاسوبية وذكاء الحافة نحو خطوط الإنتاج والمرافق الصناعية للفحص البصري الآلي، ومراقبة سير العمليات، ورصد الحالات غير الاعتيادية بزمن استجابة منخفض.",
-          scenario:
-            "خارطة الطريق الصناعية: نشر نماذج YOLO / ONNX محسنة على وحدات حافة صناعية لمراقبة جودة المنتجات وسلامة العمليات في الوقت الفعلي.",
-          tags: ["الفحص البصري (مخطط)", "مراقبة العمليات", "ONNX / TensorRT", "كاميرات صناعية"],
+            "نطاق الحل: توحيد البيانات والخدمات المتفرقة عبر طبقة API آمنة وقابلة للتوسع مع مراقبة مستمرة للأداء.",
+          tags: ["الأنظمة الموزعة", "المعمارية السحابية", "DevOps & CI/CD", "قواعد البيانات"],
           category: "Product Demos & Business",
           Icon: Factory,
+        },
+        {
+          id: "safety-security",
+          number: "05",
+          domain: "المنتجات والابتكار · AEGIS — السلامة البصرية والرؤية الحاسوبية",
+          status: "منتج هندسي مبرهن · Demonstrated Engineering Product",
+          statusType: "active",
+          title: "تحليل الفيديو الذكي، كشف الأجسام وتتبعها، ومراقبة الأحداث (AEGIS).",
+          description:
+            "يستعرض منتج AEGIS خبرتنا التقنية في الرؤية الحاسوبية وذكاء الحافة من خلال تحليل بث الكاميرات وكشف الأجسام وتتبعها وتقييم المخاطر المساعد للمشغلين.",
+          scenario:
+            "منتج AEGIS: حاصل على المركز الثاني في مسابقة الإبداع والابتكار (إسطنبول 2026) مع نتيجة تقييم داخلية 95.3% في اختبارات المراقبة المنضبطة.",
+          tags: ["AEGIS", "السلامة البصرية", "الرؤية الحاسوبية", "مراقبة الأحداث"],
+          category: "AEGIS AI Commercial",
+          Icon: ShieldAlert,
         },
       ] as const)
     : ([
         {
-          id: "smart-homes",
+          id: "ai-assistants-rag",
           number: "01",
-          domain: "Smart Homes",
-          status: "Active R&D · Configurable Vision",
+          domain: "AI Agents & Enterprise Knowledge",
+          status: "Demonstrated Engineering Capability",
           statusType: "active",
-          title: "Home monitoring and configurable alerts.",
+          title: "Multi-agent workflows and Enterprise RAG knowledge systems.",
           description:
-            "Turning residential cameras and edge nodes into privacy-conscious visual systems that recognize people, vehicles, and deliveries locally while sending configurable mobile notifications.",
+            "Engineering generative AI applications and intelligent agents grounded in your organization's internal documents, databases, and APIs for accurate retrieval and decision support.",
           scenario:
-            "Product Scenario: On-device camera inference detects activity in defined entry zones and delivers structured event summaries without streaming continuous raw video to the cloud.",
-          tags: ["On-Device Privacy", "Configurable Alerts", "Object Recognition", "Mobile App"],
+            "Solution Scope: Permission-aware RAG pipelines and tool-using AI agents with structured output validation and human-in-the-loop review.",
+          tags: ["AI Agents", "Enterprise RAG", "LLM Integration", "Knowledge Systems"],
           category: "Product Demos & Business",
           Icon: Home,
         },
         {
-          id: "retail-intelligence",
+          id: "workflow-automation",
           number: "02",
-          domain: "Retail Intelligence",
-          status: "Active Vision Demonstration",
+          domain: "Business Process Automation",
+          status: "Demonstrated Engineering Capability",
           statusType: "active",
-          title: "Visual monitoring and operational analytics.",
+          title: "Internal workflow, CRM, and document automation.",
           description:
-            "Computer vision analytics that help retail spaces understand foot-traffic patterns, queue activity, and zone occupancy using existing IP camera infrastructure.",
+            "Eliminating repetitive operational tasks with API-driven pipelines that synchronize CRM platforms, process documents, generate automated reports, and power intelligent customer support.",
           scenario:
-            "Product Scenario: Multi-camera tracking aggregates anonymized zone occupancy and dwell metrics into a live operational dashboard.",
-          tags: ["Video Analytics", "Zone Occupancy", "Queue Monitoring", "Operational Dashboard"],
+            "Solution Scope: End-to-end event and webhook orchestration connecting intake forms, document extraction, CRM updates, and team notifications.",
+          tags: ["Workflow Automation", "CRM Integration", "Document Processing", "API Pipelines"],
           category: "Product Demos & Business",
           Icon: Store,
         },
         {
-          id: "workplace-monitoring",
+          id: "custom-saas-platforms",
           number: "03",
-          domain: "Workplace Monitoring",
-          status: "Active Vision Demonstration",
+          domain: "Custom Software & SaaS Platforms",
+          status: "Live Platform & Engineering Capability",
           statusType: "active",
-          title: "Event detection and configurable workplace oversight.",
+          title: "Enterprise web applications, SaaS platforms, and backend APIs.",
           description:
-            "Configurable visual monitoring for commercial facilities, warehouses, and campuses—detecting zone events, vehicle movement, and operational bottlenecks in real time.",
+            "Full-stack software engineering for custom business management systems, multi-tenant SaaS products, and high-reliability backend services tailored to operational requirements.",
           scenario:
-            "Product Scenario: Edge vision boxes process facility camera streams to log corridor activity and notify supervisors when configurable rules are triggered.",
-          tags: ["Event Detection", "Multi-Object Tracking", "Configurable Rules", "Edge AI"],
+            "Demonstrated Platform (Khair): Our live web and mobile-ready community and events platform demonstrating full-stack product architecture and deployment.",
+          tags: ["Enterprise Web Apps", "SaaS Platforms", "Full-Stack", "Backend & APIs"],
           category: "Product Demos & Business",
           Icon: Building2,
         },
         {
-          id: "safety-security",
+          id: "cloud-system-integration",
           number: "04",
-          domain: "Safety & Security",
-          status: "AEGIS AI Demonstration",
+          domain: "System Architecture & Cloud Integration",
+          status: "Demonstrated Engineering Capability",
           statusType: "active",
-          title: "Situational awareness, visual event detection, and assisted risk analysis.",
+          title: "Distributed systems, cloud deployment, and third-party integrations.",
           description:
-            "Powered by our AEGIS AI architecture, cameras and edge processors work together to highlight relevant visual events, compute assisted risk scores, and surface clear alerts for human operators.",
+            "Designing scalable software infrastructure, database schemas, containerized microservices, and CI/CD pipelines that keep complex systems fast, observable, and maintainable.",
           scenario:
-            "Product Scenario (AEGIS AI): Real-time camera analysis combines object tracking and event interpretation with human-in-the-loop operator alerts—supporting human judgment rather than making autonomous security decisions.",
-          tags: ["AEGIS AI", "Assisted Risk Analysis", "Situational Awareness", "Operator Alerts"],
-          category: "AEGIS AI Commercial",
-          Icon: ShieldAlert,
-        },
-        {
-          id: "industrial-vision",
-          number: "05",
-          domain: "Industrial Vision",
-          status: "Planned Application · Future Roadmap",
-          statusType: "planned",
-          title: "Future visual inspection and process-monitoring applications.",
-          description:
-            "Extending our low-latency Edge AI and optical perception pipeline into manufacturing and industrial environments for automated visual inspection, equipment monitoring, and workflow verification.",
-          scenario:
-            "Future Application Direction: High-frame-rate optical sensors paired with TensorRT/ONNX edge compute units for real-time surface inspection and process anomaly alerting.",
-          tags: ["Visual Inspection (Planned)", "Process Monitoring", "TensorRT / ONNX", "Industrial Edge"],
+            "Solution Scope: Unifying legacy and third-party services behind resilient API gateways, structured data layers, and automated cloud deployments.",
+          tags: ["Distributed Systems", "Cloud & DevOps", "Database Architecture", "API Integration"],
           category: "Product Demos & Business",
           Icon: Factory,
+        },
+        {
+          id: "safety-security",
+          number: "05",
+          domain: "Products & Innovation · AEGIS",
+          status: "Demonstrated Engineering Product",
+          statusType: "active",
+          title: "AI-Powered Visual Safety & Computer Vision (AEGIS).",
+          description:
+            "AEGIS is an engineering product in HIRZEXA's portfolio demonstrating intelligent video analysis, object detection, multi-object tracking, and human-in-the-loop event monitoring.",
+          scenario:
+            "Product Achievement (AEGIS): Recognized with 2nd Place in Istanbul (2026) and a 95.3% reported internal evaluation result across controlled testing scenarios.",
+          tags: ["AEGIS Product", "Visual Safety", "Computer Vision", "Event Monitoring"],
+          category: "AEGIS AI Commercial",
+          Icon: ShieldAlert,
         },
       ] as const);
 
   return (
     <main className="solutions-new">
       <CompanyPageIntro
-        eyebrow={ar ? "HIRZEXA / التطبيقات" : "HIRZEXA / APPLICATIONS"}
+        eyebrow={ar ? "هيرزيكسا — الحلول والتطبيقات الهندسية" : "HIRZEXA / SOLUTIONS & APPLICATIONS"}
         title={
           ar
-            ? "تقنيات الرؤية في العالم الحقيقي."
-            : "Computer vision for real-world environments."
+            ? "حلول برمجية وذكاء اصطناعي لتحديات الأعمال."
+            : "Intelligent software solutions for real business challenges."
         }
         description={
           ar
-            ? "نصمم أنظمة الرؤية الحاسوبية وذكاء الحافة لتناسب البيئات الواقعية — من المنازل الذكية والتجزئة إلى بيئات العمل والسلامة والرؤية الصناعية."
-            : "We engineer computer vision and Edge AI systems around real operating environments—spanning Smart Homes, Retail Intelligence, Workplace Monitoring, Safety & Security, and future Industrial Vision."
+            ? "نساعد المؤسسات على تصميم وبناء وتشغيل أنظمة الأتمتة الذكية، وتطبيقات الذكاء الاصطناعي، والمنصات البرمجية المخصصة، وتكامل الأنظمة — إلى جانب منتجاتنا الابتكارية مثل AEGIS وخير."
+            : "We help businesses design, build, and deploy intelligent automation, AI-powered applications, scalable software platforms, and system integrations—alongside our proprietary products like Khair and AEGIS."
         }
-        actionLabel={ar ? "استكشف حالات الاستخدام" : "Explore applications"}
+        actionLabel={ar ? "استكشف مجالات الحلول" : "Explore solutions"}
         actionHref="#applications"
-        secondaryLabel={ar ? "استكشف نظام AEGIS AI" : "Explore AEGIS AI"}
-        secondaryHref="/products#aegis-ai"
-        detailsTitle={ar ? "قطاعات التطبيق الخمسة" : "FIVE APPLICATION DOMAINS"}
+        secondaryLabel={ar ? "ناقش مشروعك" : "Discuss a project"}
+        secondaryHref="/contact"
+        detailsTitle={ar ? "مجالات الحلول والمنتجات" : "SOLUTIONS & PRODUCT DOMAINS"}
         details={
           ar
             ? [
-                "المنازل الذكية وذكاء التجزئة",
-                "مراقبة بيئات العمل والسلامة البصرية (AEGIS AI)",
-                "الرؤية الصناعية وفحص العمليات (تطبيقات مستقبلية)",
+                "وكلاء الذكاء الاصطناعي وأنظمة المعرفة المؤسسية (RAG)",
+                "أتمتة العمليات التجارية وتطوير المنصات البرمجية المخصصة",
+                "معمارية السحابة وتكامل الأنظمة ومنتجات الابتكار (AEGIS وخير)",
               ]
             : [
-                "Smart Homes & Retail Intelligence",
-                "Workplace Monitoring & Safety Vision (AEGIS AI)",
-                "Industrial Vision & Inspection (Future Roadmap)",
+                "AI Agents, Enterprise RAG & Intelligent Automation",
+                "Custom Web Applications, SaaS Platforms & Backend APIs",
+                "Cloud Architecture, Integrations & Products (Khair & AEGIS)",
               ]
         }
         videoSrc="/videos/human-ai-about.mp4"
         videoPoster="/human-ai-about.jpg"
-        videoBadge={ar ? "تطبيقات الرؤية الذكية · 10 ثوانٍ" : "REAL-WORLD VISION · 10s LOOP"}
+        videoBadge={ar ? "حلول الذكاء الاصطناعي والبرمجيات" : "AI & SOFTWARE SOLUTIONS"}
         videoTitle={
           ar
-            ? "أنظمة رؤية مصممة للإنسان والبيئات الواقعية"
-            : "Human-Centered Computer Vision in Action"
+            ? "برمجيات ذكية مصممة للكفاءة التشغيلية والنمو"
+            : "Software Systems Engineered for Operational Efficiency"
         }
         videoSubtitle={
           ar
-            ? "من المنازل الذكية والتجزئة إلى السلامة والصناعة"
-            : "Smart Homes · Retail · Workplace · Safety"
+            ? "الوكلاء الأذكياء · الأتمتة · المنصات · التكامل السحابي"
+            : "AI Agents · Automation · Custom Platforms · Cloud"
         }
-        videoTelemetry="MULTI-ZONE ACTIVE · REAL TIME"
+        videoTelemetry="ENTERPRISE AI & SOFTWARE"
       />
 
       <section className="solutions-areas-new" id="applications">
@@ -241,24 +241,24 @@ export default async function ApplicationsPage() {
           <div className="solutions-areas-head">
             <div>
               <span className="solutions-kicker">
-                {ar ? "01 / حالات الاستخدام الواقعية" : "01 / REAL-WORLD USE CASES"}
+                {ar ? "01 / الحلول الهندسية وتطبيقات الأعمال" : "01 / ENGINEERING SOLUTIONS & APPLICATIONS"}
               </span>
               <h2>
                 {ar ? (
                   <>
-                    حيث تلتقي الرؤية الذكية <span>بالحياة اليومية.</span>
+                    حيث تلتقي هندسة البرمجيات <span>باحتياجات المؤسسات.</span>
                   </>
                 ) : (
                   <>
-                    Where visual intelligence meets <span>real operations.</span>
+                    Where software engineering meets <span>operational impact.</span>
                   </>
                 )}
               </h2>
             </div>
             <p>
               {ar
-                ? "نميّز بوضوح بين العروض التقنية الحالية قيد العرض والتطوير وبين مجالات التطبيق المستقبلية المخطط لها."
-                : "Each application combines optical capture, Edge AI inference, and operator software—clearly distinguishing active demonstrations from planned application areas."}
+                ? "نميّز بشفافية بين قدراتنا الهندسية القابلة للتنفيذ للمؤسسات وبين منصاتنا ومنتجاتنا المبرهنة (مثل منصة خير ومنتج AEGIS)."
+                : "We clearly distinguish our core engineering capabilities for client systems from our demonstrated internal products and live platforms (Khair and AEGIS)."}
             </p>
           </div>
 
@@ -317,7 +317,7 @@ export default async function ApplicationsPage() {
                     href={`/contact?category=${encodeURIComponent(category)}`}
                     className="solutions-area-link"
                   >
-                    {ar ? "ناقش هذا التطبيق" : "Discuss this application"}{" "}
+                    {ar ? "ناقش هذا الحل" : "Discuss this solution"}{" "}
                     <ArrowUpRight size={15} />
                   </Link>
                   <div className="solutions-area-art" aria-hidden="true">
@@ -336,7 +336,7 @@ export default async function ApplicationsPage() {
         <div className="container solutions-vision-layout">
           <div>
             <span className="solutions-kicker">
-              {ar ? "02 / تصميم مسؤول وعملاني" : "02 / RESPONSIBLE VISION DESIGN"}
+              {ar ? "02 / معاييرنا الهندسية" : "02 / ENGINEERING STANDARDS"}
             </span>
             <div className="solutions-vision-mark" aria-hidden="true">
               ✳
@@ -346,25 +346,25 @@ export default async function ApplicationsPage() {
             <h2>
               {ar ? (
                 <>
-                  إدراك بصري يدعم الإنسان
+                  أنظمة ذكية موثوقة
                   <br />
-                  <span>ويحترم الخصوصية.</span>
+                  <span>ومصممة للنمو والتوسع.</span>
                 </>
               ) : (
                 <>
-                  Visual intelligence that assists people
+                  Reliable software systems
                   <br />
-                  <span>and respects privacy.</span>
+                  <span>engineered for scale and clarity.</span>
                 </>
               )}
             </h2>
             <p>
               {ar
-                ? "نصمم أنظمة الرؤية الحاسوبية وذكاء الحافة لتعمل كأدوات مساعدة للمشغلين والمستخدمين — مع معالجة محلية على الحافة لتقليل نقل البيانات، وتنبيهات قابلة للتعديل، وإشراف بشري واضح."
-                : "Our vision systems are engineered to assist human operators with structured perception and configurable alerts—prioritizing local edge processing, clear operating boundaries, and human-in-the-loop oversight."}
+                ? "نلتزم بمعايير هندسة البرمجيات الرصينة: معمارية واضحة، وتكامل آمن للواجهات البرمجية، وإشراف بشري منظم على مخرجات الذكاء الاصطناعي والأتمتة."
+                : "Every solution we architect prioritizes clean system boundaries, secure API integrations, observable performance, and human-in-the-loop governance for AI workflows."}
             </p>
             <Link href="/engineering" className="solutions-text-link">
-              {ar ? "تعرّف على خط أنابيب الرؤية الهندسي" : "Explore our vision engineering pipeline"}{" "}
+              {ar ? "تعرّف على منهجيتنا الهندسية" : "Explore our software & AI engineering practice"}{" "}
               <ArrowUpRight size={16} />
             </Link>
           </div>
@@ -375,18 +375,18 @@ export default async function ApplicationsPage() {
         <div className="container">
           <div>
             <span className="solutions-kicker">
-              {ar ? "تطبيقات مخصصة" : "CUSTOM VISION DEPLOYMENTS"}
+              {ar ? "حلول مخصصة للأعمال" : "CUSTOM ENGINEERING SOLUTIONS"}
             </span>
             <h2>
               {ar ? (
                 <>
-                  هل لديك بيئة تشغيل تتطلب رؤية ذكية؟
+                  هل لديك تحدٍ تقني أو تشغيلي؟
                   <br />
                   <span>لنتحدث عن المتطلبات.</span>
                 </>
               ) : (
                 <>
-                  Have a real-world vision use case?
+                  Have a software or automation challenge?
                   <br />
                   <span>Let&apos;s scope the system.</span>
                 </>
@@ -395,9 +395,9 @@ export default async function ApplicationsPage() {
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
             <a
-              href={companyMailto("business", "HIRZEXA Applications Business Inquiry")}
+              href={companyMailto("business", "HIRZEXA Solutions & Engineering Inquiry")}
               className="solutions-primary-link"
-              aria-label={`${ar ? "استفسارات الأعمال للتطبيقات" : "Business inquiries"}: ${COMPANY_EMAILS.business}`}
+              aria-label={`${ar ? "استفسارات الأعمال والحلول" : "Business inquiries"}: ${COMPANY_EMAILS.business}`}
             >
               <span dir="ltr" style={{ width: "auto", height: "auto", background: "transparent", borderRadius: 0, color: "inherit", paddingInline: "6px" }}>
                 {COMPANY_EMAILS.business}
@@ -407,7 +407,7 @@ export default async function ApplicationsPage() {
               </span>
             </a>
             <Link href="/contact?category=Product%20Demos%20%26%20Business" className="solutions-primary-link">
-              {ar ? "ناقش متطلبات عملك" : "Discuss your application"}
+              {ar ? "ناقش متطلبات عملك" : "Discuss your project"}
               <span>
                 <ArrowUpRight size={17} />
               </span>

@@ -9,10 +9,10 @@ import { LanguageSwitch, useLanguage } from "@/components/language-provider";
 import { GradientButton } from "@/components/ui/GradientButton";
 
 const navItems = [
-  { en: "Technology", ar: "التقنية", href: "/technology", aliases: ["/expertise"] },
-  { en: "AEGIS AI", ar: "AEGIS AI", href: "/products/aegis-ai", aliases: [] },
+  { en: "Services", ar: "الخدمات", href: "/services", aliases: ["/technology", "/expertise"] },
+  { en: "Solutions", ar: "الحلول", href: "/solutions", aliases: ["/applications"] },
   { en: "Products", ar: "المنتجات", href: "/products", aliases: ["/work"] },
-  { en: "Applications", ar: "التطبيقات", href: "/applications", aliases: ["/solutions"] },
+  { en: "AEGIS", ar: "AEGIS", href: "/products/aegis-ai", aliases: [] },
   { en: "Engineering", ar: "الهندسة", href: "/engineering", aliases: [] },
   { en: "About", ar: "الشركة", href: "/about", aliases: [] },
   { en: "Careers", ar: "الوظائف", href: "/careers", aliases: [] },
@@ -85,20 +85,20 @@ export function SiteHeader() {
           })}
           <div className="dt-nav-mobile-actions">
             <GradientButton
-              href="/products"
+              href="/contact"
               variant="primary"
               className="dt-nav-mobile-cta"
               onClick={() => setOpen(false)}
             >
-              {ar ? "استكشف منتجات الرؤية" : "Explore Vision Products"}
+              {ar ? "ناقش مشروعك" : "Discuss a Project"}
             </GradientButton>
           </div>
         </nav>
 
         <div className="dt-nav-actions">
           <LanguageSwitch />
-          <GradientButton href="/products" variant="nav" className="nav-cta dt-nav-cta">
-            {ar ? "منتجات الرؤية" : "Vision Products"}
+          <GradientButton href="/contact" variant="nav" className="nav-cta dt-nav-cta">
+            {ar ? "ناقش مشروعك" : "Discuss a Project"}
           </GradientButton>
           <button
             className="menu-button dt-menu-button"

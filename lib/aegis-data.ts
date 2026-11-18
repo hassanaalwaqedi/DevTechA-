@@ -76,10 +76,10 @@ export type EngineeringChallenge = {
 
 export const AEGIS_UI_COPY = Object.freeze({
   en: {
-    eyebrow: "AEGIS AI · COMPUTER VISION",
+    eyebrow: "PRODUCTS & INNOVATION · AEGIS — AI-POWERED VISUAL SAFETY & COMPUTER VISION",
     heroHeadline: "From Research to Real-World Impact.",
     heroSubtitle:
-      "Real-time computer vision, video analytics, and Edge AI architecture engineered by HIRZEXA.",
+      "An engineering product in HIRZEXA's portfolio demonstrating intelligent video analysis, object detection, tracking, and event monitoring.",
     ctaPrimary: "Explore Case Studies",
     ctaSecondary: "View System Architecture",
     ctaWatch: "Watch AEGIS in Action",
@@ -154,10 +154,10 @@ export const AEGIS_UI_COPY = Object.freeze({
     },
   },
   ar: {
-    eyebrow: "AEGIS AI · الرؤية الحاسوبية",
+    eyebrow: "المنتجات والابتكار · AEGIS — السلامة البصرية والرؤية الحاسوبية",
     heroHeadline: "من البحث الهندسي إلى الأثر الواقعي.",
     heroSubtitle:
-      "منظومة الرؤية الحاسوبية وتحليل الفيديو الذكي وذكاء الحافة من HIRZEXA.",
+      "منتج هندسي ضمن محفظة HIRZEXA يستعرض تحليل الفيديو الذكي، وكشف الأجسام وتتبعها، ومراقبة الأحداث.",
     ctaPrimary: "استكشف دراسات الحالة",
     ctaSecondary: "استعرض معمارية النظام",
     ctaWatch: "شاهد AEGIS AI أثناء العمل",

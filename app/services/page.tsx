@@ -1,4 +1,4 @@
-import ApplicationsPage, { metadata } from "@/app/applications/page";
+import TechnologyPage, { metadata } from "@/app/technology/page";
 
 export { metadata };
-export default ApplicationsPage;
+export default TechnologyPage;

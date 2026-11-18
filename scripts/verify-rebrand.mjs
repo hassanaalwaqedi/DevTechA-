@@ -30,9 +30,12 @@ for (const route of publicRoutes) {
 }
 
 const { body: home } = await request("/");
-check(home.includes("Intelligence that sees the world."), "Homepage tagline missing");
-check(home.includes("Explore Our Technology"), "Technology CTA missing");
-check(home.includes("Discover Our Vision Products"), "Products CTA missing");
+check(
+  home.includes("We Engineer Intelligent") && home.includes("Software Systems."),
+  "Homepage tagline missing"
+);
+check(home.includes("Explore Our Services"), "Primary Services CTA missing");
+check(home.includes("Discuss a Project"), "Secondary Discuss a Project CTA missing");
 check(
   home.includes("contact@hirzexa.com") &&
     home.includes("business@hirzexa.com") &&
@@ -41,7 +44,7 @@ check(
   "Footer missing one of the four required official emails"
 );
 const title = home.match(/<title>(.*?)<\/title>/)?.[1];
-check(title === "HIRZEXA | Computer Vision &amp; Edge AI Technologies", `Browser title incorrect: ${title}`);
+check(title === "HIRZEXA | AI &amp; Software Engineering", `Browser title incorrect: ${title}`);
 check(home.includes('<link rel="canonical" href="https://hirzexa.com"'), "Homepage canonical incorrect");
 check(home.includes("/brand/favicon-32.png"), "Favicon link missing");
 const ogUrl = home.match(/<meta property="og:image" content="([^"]+)"/)?.[1]?.replaceAll("&amp;", "&");
@@ -62,7 +65,12 @@ console.log("OK icons, manifest, sitemap, robots");
 
 const { response: arabicResponse, body: arabic } = await request("/", { headers: { Cookie: "devtech_locale=ar" } });
 check(arabicResponse.status === 200 && arabic.includes('lang="ar"') && arabic.includes('dir="rtl"'), "Arabic RTL page failed");
-check(arabic.includes("الرؤية الحاسوبية") && arabic.includes("HIRZEXA"), "Arabic specialization or brand missing");
+check(
+  arabic.includes("هندسة الذكاء الاصطناعي والأنظمة البرمجية") &&
+    arabic.includes("نُهندس أنظمة برمجية") &&
+    arabic.includes("HIRZEXA"),
+  "Arabic positioning or brand missing"
+);
 console.log("OK Arabic homepage and RTL metadata");
 
 const { body: careers } = await request("/careers");

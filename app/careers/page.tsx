@@ -11,16 +11,16 @@ import { createPageMetadata } from "@/lib/social-metadata";
 import { COMPANY_EMAILS, companyMailto } from "@/lib/company-emails";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Careers — Build the Future of Intelligent Vision",
+  title: "Careers — Build the Future of Intelligent Software Systems",
   description:
-    "Join HIRZEXA in developing computer vision technologies, intelligent edge systems, and the software behind next-generation devices.",
+    "Join HIRZEXA in engineering AI agents, intelligent automation workflows, scalable software platforms, cloud architectures, and applied vision systems.",
   path: "/careers",
   eyebrow: "HIRZEXA / CAREERS",
-  badge: "CAREERS · VISION ENGINEERING",
-  headline: "Build the future of intelligent vision.",
+  badge: "CAREERS · AI & SOFTWARE ENGINEERING",
+  headline: "Build the future of intelligent software.",
   summary:
-    "Explore opportunities in Computer Vision, Machine Learning, Edge AI Optimization, Embedded Systems, Backend, Mobile, and Hardware.",
-  chips: ["Computer Vision & ML", "Edge AI & Embedded", "Platform & Mobile"],
+    "Explore opportunities in AI Engineering, Process Automation, Full-Stack & SaaS, Backend Systems, Cloud Architecture, and Applied Computer Vision.",
+  chips: ["AI & LLM Engineering", "Full-Stack & Backend", "Cloud & Automation"],
   scene: "engineering",
   telemetry: "JOIN OUR ENGINEERING TEAM",
 });
@@ -46,75 +46,75 @@ export default async function CareersPage() {
     ? [
         [
           "01",
-          "هندسة الرؤية الحاسوبية (Computer Vision Engineering)",
-          "كشف الأجسام، التتبع متعدد الأجسام، فهم المشاهد، وتحليلات الفيديو الفورية.",
+          "هندسة الذكاء الاصطناعي والوكلاء (AI & Intelligent Agents Engineering)",
+          "بناء وكلاء الذكاء الاصطناعي، وسير العمل متعدد الوكلاء، وأنظمة الاسترجاع المعزز (Enterprise RAG)، وتكامل النماذج اللغوية.",
         ],
         [
           "02",
-          "هندسة التعلم الآلي (Machine Learning Engineering)",
-          "تدريب وتخصيص نماذج الإدراك البصري ونماذج الرؤية واللغة (VLMs) باستخدام PyTorch وYOLO.",
+          "أتمتة العمليات التجارية (Business Process Automation)",
+          "هندسة مسارات الأتمتة المعتمدة على الواجهات البرمجية، وتكامل أنظمة CRM، ومعالجة المستندات والتقارير الآلية.",
         ],
         [
           "03",
-          "تحسين ذكاء الحافة (Edge AI Optimization)",
-          "ضغط النماذج، التكميم (Quantization)، والنشر عالي الكفاءة عبر ONNX Runtime وTensorRT.",
+          "هندسة البرمجيات وتطبيقات الويب (Full-Stack & SaaS Engineering)",
+          "تطوير تطبيقات الويب المؤسسية، ومنصات البرمجيات كخدمة (SaaS)، ولوحات إدارة الأعمال باستخدام TypeScript وNext.js وReact.",
         ],
         [
           "04",
-          "الأنظمة المدمجة (Embedded Systems)",
-          "برمجيات الحافة والأنظمة المدمجة لربط الكاميرات والحساسات بوحدات المعالجة المحلية.",
+          "الأنظمة الخلفية والواجهات البرمجية (Backend & API Engineering)",
+          "تصميم الأنظمة الخلفية عالية الاعتمادية، والواجهات البرمجية (FastAPI / Node.js)، ومعمارية قواعد البيانات.",
         ],
         [
           "05",
-          "هندسة المنصات والأنظمة الخلفية (Backend / Platform Engineering)",
-          "خدمات FastAPI، أنظمة إدارة الأحداث، وبروتوكولات اتصال الأجهزة بالسحابة.",
+          "معمارية الأنظمة والهندسة السحابية (System Architecture & Cloud / DevOps)",
+          "بناء الأنظمة الموزعة، والخدمات المصغرة، وخطوط التكامل والنشر المستمر (CI/CD)، وتحسين الأداء والقابلية للتوسع.",
         ],
         [
           "06",
-          "تطوير تطبيقات الجوال والويب (Mobile Application Development)",
-          "تطبيقات المراقبة الحية، لوحات التحكم، وأنظمة التنبيهات الفورية للمستخدمين والمشغلين.",
+          "الرؤية الحاسوبية التطبيقية (Applied Computer Vision & Edge AI)",
+          "تطوير نماذج تحليل الفيديو الذكي وكشف الأجسام ومراقبة الأحداث التي تقف خلف منتجاتنا مثل AEGIS.",
         ],
         [
           "07",
-          "هندسة الأجهزة الذكية (Hardware Engineering)",
-          "تصميم وتكامل الكاميرات الذكية ووحدات معالجة ذكاء الحافة وأجهزة الرؤية المستقبلية.",
+          "إدارة المنتجات وبحوث السوق (Product, UX & Market Research)",
+          "تحليل احتياجات المؤسسات، وتصميم تجربة المستخدم، وبحوث السوق والتسويق التقني.",
         ],
       ]
     : [
         [
           "01",
-          "Computer Vision Engineering",
-          "Object detection, multi-object tracking, activity recognition, and real-time video analytics.",
+          "AI Engineering & Intelligent Agents",
+          "AI agents, multi-agent workflows, Enterprise RAG knowledge systems, LLM integration, and custom AI applications.",
         ],
         [
           "02",
-          "Machine Learning Engineering",
-          "Training, fine-tuning, and benchmarking visual perception and vision-language models with PyTorch and YOLO.",
+          "Business Process Automation",
+          "Internal workflow automation, CRM and operational pipelines, automated reporting, document processing, and API integrations.",
         ],
         [
           "03",
-          "Edge AI Optimization",
-          "Model quantization, graph optimization, and low-latency deployment via ONNX Runtime and TensorRT.",
+          "Full-Stack & SaaS Engineering",
+          "Enterprise web applications, SaaS platforms, and custom business management systems built with TypeScript, Next.js, and React.",
         ],
         [
           "04",
-          "Embedded Systems",
-          "Camera stream ingestion, sensor integration, and resilient runtime software for edge compute units.",
+          "Backend & Distributed Systems",
+          "High-reliability backend architectures, REST and webhook APIs, database design, and complex third-party integrations.",
         ],
         [
           "05",
-          "Backend / Platform Engineering",
-          "FastAPI microservices, device-to-cloud communication APIs, event pipelines, and cloud inference.",
+          "Cloud Architecture & DevOps",
+          "Distributed microservices, cloud deployment, Docker, CI/CD automation, observability, and system scalability.",
         ],
         [
           "06",
-          "Mobile Application Development",
-          "Smart camera management apps, live video monitoring interfaces, and configurable alert workflows.",
+          "Applied Computer Vision & Edge AI",
+          "Intelligent video analysis, object detection, tracking, and visual safety systems demonstrated in our AEGIS product.",
         ],
         [
           "07",
-          "Hardware Engineering",
-          "Prototyping and engineering smart cameras, Edge AI monitoring appliances, and future vision devices.",
+          "Product, UX & Market Strategy",
+          "Technical product scoping, enterprise user experience, market research, and strategic positioning.",
         ],
       ];
 
@@ -122,35 +122,35 @@ export default async function CareersPage() {
     ? [
         [
           "01",
-          "دقة هندسية على مشاهد واقعية",
-          "نبني ونقيّم أنظمة الرؤية الحاسوبية وذكاء الحافة بناءً على الأداء الفعلي وزمن الاستجابة.",
+          "انضباط هندسي ومعمارية واضحة",
+          "نبني ونقيّم الأنظمة البرمجية وحلول الذكاء الاصطناعي بناءً على الموثوقية والأداء الفعلي وقابلية التوسع.",
         ],
         [
           "02",
-          "تكامل العتاد والبرمجيات",
-          "نعمل عبر طبقات الكاميرات، ونماذج الذكاء الاصطناعي، وأنظمة الحافة، وتطبيقات المستخدمين.",
+          "حلول عملية لتحديات الأعمال",
+          "نعمل عبر طبقات الذكاء الاصطناعي، ومسارات الأتمتة، والأنظمة الخلفية، وتطبيقات المستخدمين لتحقيق أثر تشغيلي ملموس.",
         ],
         [
           "03",
-          "تعاون مهني مباشر",
-          "نؤمن بالتواصل الواضح، وتوثيق القرارات المعمارية، والتركيز على بناء منتجات ذات أثر ملموس.",
+          "تعاون مهني ومسؤولية عالية",
+          "نؤمن بالتواصل الواضح، وتوثيق القرارات المعمارية، والتركيز على بناء أنظمة ومنتجات يعتمد عليها.",
         ],
       ]
     : [
         [
           "01",
-          "Real-world vision benchmarks",
-          "Define requirements, measure latency and precision on real scenes, and ground technical decisions in evidence.",
+          "Architectural clarity & reliability",
+          "Define requirements clearly, engineer clean system boundaries, and ground technical decisions in measurable performance.",
         ],
         [
           "02",
-          "Hardware + software integration",
-          "Collaborate across computer vision models, edge runtimes, intelligent device architectures, and operator apps.",
+          "End-to-end systems ownership",
+          "Collaborate across AI agents, automation workflows, backend APIs, cloud infrastructure, and modern web applications.",
         ],
         [
           "03",
           "Direct engineering culture",
-          "Clear communication, documented system boundaries, and high ownership across every product stage.",
+          "Clear communication, documented system architecture, and high ownership across every project and product stage.",
         ],
       ];
 
@@ -160,14 +160,14 @@ export default async function CareersPage() {
       href: "/products",
       title: ar
         ? projectCount > 0
-          ? `AEGIS AI + ${projectCount} مشاريع`
-          : "مشاريع الرؤية الذكية"
+          ? `AEGIS + ${projectCount} منصات`
+          : "المنتجات والمنصات"
         : projectCount > 0
-        ? `AEGIS AI + ${projectCount} Systems`
-        : "Vision & AI Systems",
+        ? `AEGIS + ${projectCount} Platforms`
+        : "Products & Platforms",
       subtitle: ar
-        ? "الرؤية الحاسوبية · ذكاء الحافة · المنصات"
-        : "Smart Vision · Edge AI · Live Platforms",
+        ? "المنتجات والابتكار · المنصات البرمجية"
+        : "Products & Innovation · Live Platforms",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -240,11 +240,11 @@ export default async function CareersPage() {
     },
     {
       id: "capabilities",
-      href: "/technology",
-      title: ar ? "4 ركائز تقنية" : "4 Core Pillars",
+      href: "/services",
+      title: ar ? "4 أقسام هندسية" : "4 Core Divisions",
       subtitle: ar
-        ? "الرؤية · ذكاء الحافة · الأجهزة · البرمجيات"
-        : "Vision · Edge AI · Devices · Software",
+        ? "الوكلاء · الأتمتة · البرمجيات · السحابة"
+        : "AI Agents · Automation · Software · Cloud",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -297,10 +297,10 @@ export default async function CareersPage() {
     {
       id: "global",
       href: "#disciplines",
-      title: ar ? "7 تخصصات هندسية" : "7 Vision Disciplines",
+      title: ar ? "7 تخصصات هندسية" : "7 Engineering Disciplines",
       subtitle: ar
-        ? "الرؤية · الحافة · الأنظمة المدمجة · المنصات"
-        : "CV · Edge AI · Embedded · Platforms",
+        ? "الذكاء الاصطناعي · الأتمتة · البرمجيات · السحابة"
+        : "AI · Automation · Full-Stack · Cloud",
       icon: (
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -361,14 +361,14 @@ export default async function CareersPage() {
                 <>
                   ابنِ الجيل القادم من{" "}
                   <span className="dt-careers-headline-gradient">
-                    الرؤية الذكية.
+                    الأنظمة البرمجية الذكية.
                   </span>
                 </>
               ) : (
                 <>
                   Build the future of{" "}
                   <span className="dt-careers-headline-gradient">
-                    intelligent vision.
+                    intelligent software.
                   </span>
                 </>
               )}
@@ -376,8 +376,8 @@ export default async function CareersPage() {
 
             <p className="dt-careers-description">
               {ar
-                ? "انضم إلينا في تطوير نماذج الرؤية الحاسوبية، وأنظمة ذكاء الحافة (Edge AI)، والبرمجيات المشغّلة للأجهزة الذكية."
-                : "Join HIRZEXA in developing computer vision technologies, intelligent edge systems, and the software behind next-generation devices."}
+                ? "انضم إلينا في هندسة وكلاء الذكاء الاصطناعي، وأتمتة العمليات التجارية، وتطوير المنصات البرمجية القابلة للتوسع، والمعمارية السحابية."
+                : "Join HIRZEXA in engineering AI agents, intelligent automation workflows, scalable software platforms, and cloud architectures."}
             </p>
 
             <div className="dt-careers-actions">
@@ -478,12 +478,12 @@ export default async function CareersPage() {
               <h2 id="disciplines-title" className="dt-careers-section-title">
                 {ar
                   ? "مجالات الهندسة التي نبحث عنها"
-                  : "Disciplines powering our vision systems"}
+                  : "Disciplines powering our software & AI systems"}
               </h2>
             </div>
 
-            <Link href="/technology" className="dt-careers-text-link">
-              <span>{ar ? "استكشف ركائزنا التقنية" : "Explore our technology pillars"}</span>
+            <Link href="/services" className="dt-careers-text-link">
+              <span>{ar ? "استكشف أقسامنا الهندسية" : "Explore our engineering divisions"}</span>
               <ArrowUpRight size={16} />
             </Link>
           </div>
@@ -545,8 +545,8 @@ export default async function CareersPage() {
               </span>
               <h2>
                 {ar
-                  ? "هل تتخصص في الرؤية الحاسوبية أو ذكاء الحافة؟"
-                  : "Specialize in Computer Vision, Edge AI, or Smart Hardware?"}
+                  ? "هل تتخصص في هندسة الذكاء الاصطناعي أو البرمجيات أو الأنظمة السحابية؟"
+                  : "Specialize in AI Engineering, Automation, Full-Stack, or Cloud Architecture?"}
               </h2>
               <p>
                 {ar

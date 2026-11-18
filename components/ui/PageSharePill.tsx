@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 export function PageSharePill({ arabic = false }: { arabic?: boolean }) {
   const pathname = usePathname();
   const [pageUrl, setPageUrl] = useState("");
-  const [pageTitle, setPageTitle] = useState("HIRZEXA — Computer Vision & Edge Intelligence");
+  const [pageTitle, setPageTitle] = useState("HIRZEXA — AI & Software Engineering");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -34,8 +34,8 @@ export function PageSharePill({ arabic = false }: { arabic?: boolean }) {
   }
 
   const whatsappText = arabic
-    ? `✨ *${pageTitle}*\nالذكاء الذي يرى العالم — الرؤية الحاسوبية وذكاء الحافة:\n${pageUrl}`
-    : `✨ *${pageTitle}*\nIntelligence that sees the world — Computer Vision & Edge AI:\n${pageUrl}`;
+    ? `✨ *${pageTitle}*\nنُهندس أنظمة برمجية ذكية تصنع الفارق — هندسة الذكاء الاصطناعي والبرمجيات:\n${pageUrl}`
+    : `✨ *${pageTitle}*\nWe Engineer Intelligent Software Systems — AI & Software Engineering:\n${pageUrl}`;
 
   return (
     <div className="share-actions share-actions-compact">

@@ -5,18 +5,18 @@ import { AegisExperience } from "@/components/aegis/AegisExperience";
 import "./aegis.css";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "AEGIS AI — Computer Vision, Case Studies & System Architecture",
+  title: "AEGIS — AI-Powered Visual Safety & Computer Vision | Products & Innovation",
   description:
-    "Explore the engineering, controlled medical and retail evaluations, 95.3% reported test result, interactive architecture, and real system walkthrough of AEGIS AI by HIRZEXA.",
+    "AEGIS is an engineering product under HIRZEXA's Products & Innovation portfolio demonstrating intelligent video analysis, object detection, tracking, event monitoring, and a 95.3% reported evaluation result.",
   path: "/products/aegis-ai",
-  eyebrow: "HIRZEXA / AEGIS AI",
-  badge: "FROM RESEARCH TO REAL-WORLD IMPACT",
+  eyebrow: "HIRZEXA / PRODUCTS & INNOVATION · AEGIS",
+  badge: "AI-POWERED VISUAL SAFETY & COMPUTER VISION",
   headline: "From Research to Real-World Impact.",
   summary:
-    "Interactive system architecture, case studies, real evaluation reporting, and live voice-enabled system walkthrough for AEGIS AI.",
-  chips: ["Computer Vision & Edge AI", "95.3% Reported Result", "2nd Place · Istanbul 2026"],
+    "An engineering product demonstrating intelligent video analysis, object detection, tracking, and event monitoring.",
+  chips: ["Products & Innovation", "95.3% Reported Result", "2nd Place · Istanbul 2026"],
   scene: "aegis",
-  telemetry: "AEGIS AI · FULL ENGINEERING CASE STUDY",
+  telemetry: "AEGIS · AI-POWERED VISUAL SAFETY",
 });
 
 export default async function AegisAiProductPage() {

@@ -4,54 +4,54 @@ import { ArrowUpRight } from "lucide-react";
 const steps = [
   [
     "01",
-    "Optical & Scene Scoping",
-    "We analyze camera placement, frame rates, lighting conditions, privacy boundaries, and target visual events before selecting a model architecture.",
-    "CAMERA / SCENE CALIBRATION",
+    "System & Architecture Scoping",
+    "We analyze operational workflows, data sources, integration requirements, security boundaries, and target business outcomes before selecting a technical architecture.",
+    "DISCOVERY / SYSTEM DESIGN",
   ],
   [
     "02",
-    "Vision Model Engineering",
-    "We train, fine-tune, and benchmark object detection, multi-object tracking, and activity recognition models using PyTorch, YOLO, and OpenCV.",
-    "PYTORCH / YOLO / OPENCV",
+    "AI & Automation Engineering",
+    "We design and evaluate AI agents, Enterprise RAG pipelines, LLM integrations, and automated business workflows tailored to your operational rules.",
+    "AI AGENTS / RAG / AUTOMATION",
   ],
   [
     "03",
-    "Edge Optimization & Runtime",
-    "We export and quantize models for ONNX Runtime and TensorRT (when supported) to achieve low-latency, on-device inference within hardware constraints.",
-    "ONNX RUNTIME / TENSORRT",
+    "Full-Stack & Backend Development",
+    "We engineer scalable web applications, SaaS platforms, database schemas, and high-performance APIs using TypeScript, Next.js, Python, and FastAPI.",
+    "FULL-STACK / APIS / DATABASES",
   ],
   [
     "04",
-    "Event APIs & Monitoring UI",
-    "We connect edge inference pipelines to FastAPI services, Dockerized deployments, device communication APIs, and live operator dashboards.",
-    "FASTAPI / DOCKER / DASHBOARD",
+    "Cloud Deployment & Observability",
+    "We package and deploy systems via Docker, CI/CD pipelines, and cloud infrastructure with monitoring, reliability guards, and human-in-the-loop controls.",
+    "CLOUD / DOCKER / CI-CD",
   ],
 ] as const;
 
 const arabicSteps = [
   [
     "01",
-    "تحديد المشهد والكاميرات",
-    "ندرس زوايا الكاميرات ومعدل الإطارات وظروف الإضاءة وحدود الخصوصية والأحداث المستهدفة قبل اختيار معمارية النموذج.",
-    "الكاميرات / معايرة المشهد",
+    "تحليل المتطلبات وتصميم المعمارية",
+    "ندرس مسارات العمل التشغيلية، ومصادر البيانات، ومتطلبات التكامل والأمان، والأهداف التجارية قبل تحديد المعمارية البرمجية.",
+    "التحليل / تصميم المعمارية",
   ],
   [
     "02",
-    "هندسة نماذج الرؤية",
-    "ندرب ونخصص نماذج كشف الأجسام وتتبعها والتعرف على الأنشطة باستخدام PyTorch وYOLO وOpenCV.",
-    "PYTORCH / YOLO / OPENCV",
+    "هندسة الذكاء الاصطناعي والأتمتة",
+    "نصمم ونقيّم وكلاء الذكاء الاصطناعي، وأنظمة استرجاع المعرفة (RAG)، ومسارات أتمتة العمليات التجارية وفق قواعد العمل.",
+    "الوكلاء / RAG / الأتمتة",
   ],
   [
     "03",
-    "تحسين النماذج للحافة",
-    "نحول النماذج ونضغطها لتعمل عبر ONNX Runtime وTensorRT لتحقيق استدلال محلي سريع ضمن قيود العتاد.",
-    "ONNX RUNTIME / TENSORRT",
+    "تطوير البرمجيات والأنظمة الخلفية",
+    "نبني تطبيقات الويب المؤسسية، ومنصات SaaS، وقواعد البيانات، والواجهات البرمجية باستخدام TypeScript وNext.js وPython وFastAPI.",
+    "Full-Stack / APIs / قواعد البيانات",
   ],
   [
     "04",
-    "واجهات الأحداث ولوحات المراقبة",
-    "نربط محركات الاستدلال بخدمات FastAPI وحاويات Docker وواجهات اتصال الأجهزة ولوحات المراقبة الحية.",
-    "FASTAPI / DOCKER / DASHBOARD",
+    "النشر السحابي والمراقبة المستمرة",
+    "ننشر الأنظمة عبر حاويات Docker وخطوط CI/CD والبنية السحابية مع مراقبة الأداء وضوابط الاعتمادية والإشراف البشري.",
+    "السحابة / Docker / CI-CD",
   ],
 ] as const;
 
@@ -62,28 +62,28 @@ export function HowWeWork({ arabic = false }: { arabic?: boolean }) {
         <div className="how-work-heading how-work-head">
           <div>
             <div className="art-label">
-              {arabic ? "01 / منهجية هندسة الرؤية" : "01 / VISION ENGINEERING METHODOLOGY"}
+              {arabic ? "01 / منهجيتنا الهندسية" : "01 / ENGINEERING METHODOLOGY"}
             </div>
             <h2>
               {arabic ? (
                 <>
-                  من عدسة الكاميرا
+                  من تحدي الأعمال
                   <br />
-                  <em>إلى ذكاء لحظي قابل للتنفيذ.</em>
+                  <em>إلى نظام برمجي ذكي وقابل للتوسع.</em>
                 </>
               ) : (
                 <>
-                  From camera frame
+                  From business challenge
                   <br />
-                  <em>to actionable edge intelligence.</em>
+                  <em>to scalable intelligent software.</em>
                 </>
               )}
             </h2>
           </div>
           <p>
             {arabic
-              ? "بناء نظام رؤية حاسوبية موثوق يتطلب ربط البصريات ومعالجة الفيديو وتحسين النماذج للحافة وتطبيقات المراقبة في مسار هندسي واحد."
-              : "Reliable computer vision is an end-to-end engineering discipline—connecting frame capture, model optimization, edge deployment, and operator software."}
+              ? "بناء نظام برمجي وذكاء اصطناعي موثوق يتطلب ربط تصميم المعمارية، وهندسة النماذج والأتمتة، والأنظمة الخلفية، والتشغيل السحابي في مسار هندسي واحد."
+              : "Reliable AI and software delivery is an end-to-end engineering discipline—connecting system architecture, intelligent automation, backend APIs, and production deployment."}
           </p>
         </div>
         <div className="work-steps">
@@ -100,8 +100,8 @@ export function HowWeWork({ arabic = false }: { arabic?: boolean }) {
             </article>
           ))}
         </div>
-        <Link href="/technology" className="art-inline-link">
-          {arabic ? "استكشف الركائز التقنية الأربع" : "Explore our four technology pillars"}{" "}
+        <Link href="/services" className="art-inline-link">
+          {arabic ? "استكشف أقسامنا الهندسية الأربعة" : "Explore our four engineering divisions"}{" "}
           <ArrowUpRight size={15} />
         </Link>
       </div>

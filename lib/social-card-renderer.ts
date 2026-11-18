@@ -55,7 +55,7 @@ const arabicCategoryLabels: Partial<Record<JobVisualCategory, string>> = {
   design: "التصميم",
   operations: "العمليات",
   "customer-success": "نجاح العملاء",
-  default: "الرؤية الحاسوبية وذكاء الحافة",
+  default: "هندسة الذكاء الاصطناعي والأنظمة البرمجية",
 };
 
 function xml(value: string) {
@@ -162,8 +162,8 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
   const defaultBadge =
     input.mode === "page"
       ? arabic
-        ? "الرؤية الحاسوبية وذكاء الحافة"
-        : "COMPUTER VISION & EDGE AI"
+        ? "هندسة الذكاء الاصطناعي والبرمجيات"
+        : "AI & SOFTWARE ENGINEERING"
       : arabic
       ? "فرصة وظيفية متاحة"
       : "WE'RE HIRING · OPEN ROLE";
@@ -172,7 +172,7 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
   const taskLabel =
     input.mode === "page"
       ? arabic
-        ? "القدرات والتقنيات / 01"
+        ? "القدرات والأنظمة / 01"
         : "CAPABILITIES & FOCUS / 01"
       : arabic
       ? "المهمة والدور / 01"
@@ -189,10 +189,10 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
 
   const categoryLabel =
     input.mode === "page"
-      ? (input.telemetry || "HUMAN-AI VISION · REAL TIME · ON DEVICE").slice(0, 42)
+      ? (input.telemetry || "AI AGENTS · AUTOMATION · SOFTWARE").slice(0, 42)
       : arabic && arabicCategoryLabels[category]
       ? arabicCategoryLabels[category]!
-      : (jobVisualCategoryLabels[category] || "Computer Vision & Edge AI").toUpperCase();
+      : (jobVisualCategoryLabels[category] || "AI & Software Engineering").toUpperCase();
 
   const titleFontSize = input.title.length > 46 ? 44 : input.title.length > 30 ? 50 : 56;
   const titleY = titleLines.length === 1 ? 262 : 232;
@@ -274,7 +274,7 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
     <g transform="translate(74 56)">
       <image href="${logoDataUri}" x="0" y="0" width="42" height="42"/>
       <text x="56" y="23" font-size="22" font-weight="700" fill="#080D21">HIRZEXA</text>
-      <text x="56" y="39" font-size="10.5" font-weight="700" letter-spacing="1.4" fill="#526285">COMPUTER VISION &amp; EDGE INTELLIGENCE</text>
+      <text x="56" y="39" font-size="10.5" font-weight="700" letter-spacing="1.4" fill="#526285">AI &amp; SOFTWARE ENGINEERING</text>
     </g>
 
     <g transform="translate(866 56)">
@@ -363,7 +363,7 @@ export async function renderSocialCardBuffer(input: SocialCardRenderInput): Prom
 
     <line x1="74" y1="498" x2="1126" y2="498" stroke="rgba(120, 145, 225, 0.28)" stroke-width="1.2"/>
     <text x="74" y="552" font-size="14.5" font-weight="700" fill="#080D21">
-      Intelligence that sees the world. <tspan font-weight="400" fill="#526285">· Computer Vision, Edge AI &amp; Smart Devices</tspan>
+      We Engineer Intelligent Software Systems. <tspan font-weight="400" fill="#526285">· AI Engineering, Automation &amp; Custom Software</tspan>
     </text>
 
     <g transform="translate(888 520)">
@@ -410,7 +410,7 @@ function jobExcerpt(value: string, limit = 135) {
 }
 
 export function buildJobCardInput(job: JobLike | null | undefined, format: "jpeg" | "png" = "jpeg"): SocialCardRenderInput {
-  const title = job?.title || "Engineer the Systems Behind Intelligent Vision";
+  const title = job?.title || "Engineer Intelligent Software Systems at HIRZEXA";
   return {
     mode: "job",
     title,
@@ -418,11 +418,11 @@ export function buildJobCardInput(job: JobLike | null | undefined, format: "jpeg
     summary: jobExcerpt(
       job?.responsibilities?.[0] ||
         job?.description ||
-        "Join HIRZEXA in building computer vision models, Edge AI inference systems, and intelligent devices."
+        "Join HIRZEXA in building AI agents, intelligent automation, scalable software platforms, and system integrations."
     ),
     location: job ? `${job.location} · ${job.workMode}` : "Remote · Global",
     employment: job?.employmentType || "Full-time",
-    skill: job?.skills?.[0] || "Computer Vision & AI",
+    skill: job?.skills?.[0] || "AI & Software Engineering",
     category: job?.visualCategory || "computer-vision",
     accent: job?.accentColor || "blue",
     arabic: /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff]/.test(title),

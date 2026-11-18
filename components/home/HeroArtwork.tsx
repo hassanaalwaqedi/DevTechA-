@@ -10,8 +10,8 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
       role="img"
       aria-label={
         arabic
-          ? "تصور تفاعلي لنظام الرؤية الحاسوبية، الكاميرا الذكية، وحدة معالجة ذكاء الحافة، ولوحة المراقبة الحية"
-          : "Interactive Computer Vision and Edge AI system visualization showing a smart optical camera, real-time object detection and tracking scene, Edge AI NPU processor, and live event monitoring panels"
+          ? "تصور تفاعلي لمنظومة هندسة الذكاء الاصطناعي والأنظمة البرمجية والأتمتة ومنتجات الرؤية الذكية"
+          : "Interactive AI and Software Engineering system visualization showing intelligent automation, AI agents, system architecture, and visual perception pipelines"
       }
     >
       {/* Ambient background glow clouds */}
@@ -164,7 +164,7 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
             </div>
             <div className="dt-chrome-pill">
               <i className="dt-chrome-pulse" />
-              <span>AEGIS VISION · EDGE AI PIPELINE</span>
+              <span>HIRZEXA · AI &amp; SOFTWARE SYSTEMS</span>
             </div>
             <div className="dt-chrome-status">
               <span className="dt-chrome-bar" />
@@ -486,17 +486,17 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
               <span />
             </div>
             <div className="dt-brain-metrics-mini">
-              <span>CAMERA → EDGE AI → DASHBOARD</span>
-              <strong>ON-DEVICE LIVE</strong>
+              <span>AI AGENTS → AUTOMATION → PLATFORM</span>
+              <strong>SYSTEMS LIVE</strong>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sub-panel 1: Floating Edge Vision Mesh Panel (Top Right) */}
+      {/* Sub-panel 1: Floating System Architecture Panel (Top Right) */}
       <div className="dt-float-card dt-float-worldmap" aria-hidden="true">
         <div className="dt-float-card-head">
-          <span className="dt-float-title">Edge Vision Mesh</span>
+          <span className="dt-float-title">System Architecture</span>
           <span className="dt-float-live-dot" />
         </div>
         <div className="dt-worldmap-canvas">
@@ -550,15 +550,15 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
         </div>
         <div className="dt-worldmap-foot">
           <span>Architecture</span>
-          <strong>Edge + Cloud</strong>
+          <strong>Cloud + APIs</strong>
         </div>
       </div>
 
-      {/* Sub-panel 2: Miniature Computer-Vision Detection Preview (Left / Bottom-Left) */}
+      {/* Sub-panel 2: Miniature AI Agents & Vision Preview (Left / Bottom-Left) */}
       <div className="dt-float-card dt-float-vision" aria-hidden="true">
         <div className="dt-float-card-head">
           <span className="dt-vision-badge">
-            <i /> CV · DETECT &amp; TRACK
+            <i /> AI · AGENTS &amp; VISION
           </span>
           <span className="dt-vision-fps">REAL TIME</span>
         </div>
@@ -636,16 +636,16 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
           </svg>
         </div>
         <div className="dt-vision-foot">
-          <span>Detection · Tracking</span>
-          <strong>ON DEVICE</strong>
+          <span>Agents · AEGIS Vision</span>
+          <strong>ACTIVE</strong>
         </div>
       </div>
 
-      {/* Sub-panel 3: Edge Inference Telemetry Panel (Bottom Right) */}
+      {/* Sub-panel 3: Workflow & System Telemetry Panel (Bottom Right) */}
       <div className="dt-float-card dt-float-analytics" aria-hidden="true">
         <div className="dt-float-card-head">
-          <span className="dt-float-title">Edge Optimization</span>
-          <span className="dt-analytics-badge">ON-DEVICE</span>
+          <span className="dt-float-title">Process Automation</span>
+          <span className="dt-analytics-badge">SCALABLE</span>
         </div>
         <div className="dt-analytics-chart">
           <svg viewBox="0 0 180 66" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -688,8 +688,8 @@ export function HeroArtwork({ arabic = false }: HeroArtworkProps) {
           </svg>
         </div>
         <div className="dt-analytics-foot">
-          <span>ONNX · TensorRT</span>
-          <strong>Low-Latency Edge</strong>
+          <span>APIs · Workflows</span>
+          <strong>Enterprise Scale</strong>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "HIRZEXA",
     short_name: "HIRZEXA",
-    description: "Intelligence that sees the world.",
+    description: "We Engineer Intelligent Software Systems.",
     start_url: "/",
     display: "standalone",
     background_color: "#F8F9FF",

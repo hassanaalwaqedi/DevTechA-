@@ -6,78 +6,78 @@ import { useLanguage } from "@/components/language-provider";
 const stages = [
   [
     "01",
-    "Camera / Sensor Input",
-    "Ingest live video streams from IP cameras, optical sensors, or local RTSP endpoints with resilient reconnection, frame pacing, and exposure handling.",
-    "RTSP / Optical Sensor Streams",
+    "Data, APIs & Signal Ingestion",
+    "Connect enterprise databases, third-party APIs, documents, webhooks, or live sensor streams with resilient validation and access controls.",
+    "REST / Webhooks / Document & Stream Connectors",
   ],
   [
     "02",
-    "Video Processing",
-    "Decode, resize, normalize, and batch video frames using OpenCV and hardware-accelerated pipelines while filtering motion regions of interest.",
-    "OpenCV · Frame Decoding & ROI",
+    "Data Processing & Knowledge Indexing",
+    "Normalize, structure, and index business data, documents, and operational events for fast retrieval, analytics, and downstream workflows.",
+    "Data Pipelines · Vector & Relational Indexing",
   ],
   [
     "03",
-    "Computer Vision Models",
-    "Execute object detection, multi-object tracking, pose estimation, and visual event recognition built with PyTorch and YOLO architectures.",
-    "PyTorch · YOLO · Object Tracking",
+    "AI Models & Intelligent Agents",
+    "Execute LLM workflows, Enterprise RAG retrieval, multi-agent reasoning, or specialized computer vision models (such as AEGIS) within strict guardrails.",
+    "AI Agents · Enterprise RAG · Applied ML & Vision",
   ],
   [
     "04",
-    "Edge Inference Optimization",
-    "Run quantized (FP16/INT8) models locally via ONNX Runtime and TensorRT (when supported) for low-latency, privacy-conscious edge execution.",
-    "ONNX Runtime · TensorRT · Local NPU",
+    "Workflow & Process Automation",
+    "Orchestrate automated business logic, CRM updates, document generation, and cross-platform triggers with deterministic fallback handling.",
+    "Workflow Orchestration · CRM & API Automation",
   ],
   [
     "05",
-    "Event Intelligence",
-    "Translate raw bounding boxes and trajectories into structured temporal events, zone rules, assisted risk scores, and configurable alert triggers.",
-    "Temporal Rules · Risk Scoring",
+    "Backend Services & System Integration",
+    "Expose structured business logic, role-based permissions, and audit trails through high-performance backend services and distributed APIs.",
+    "FastAPI · Node.js · PostgreSQL · Microservices",
   ],
   [
     "06",
-    "Application / Dashboard",
-    "Deliver structured events, live annotated video streams, and operator notifications through FastAPI, Dockerized microservices, and web/mobile interfaces.",
-    "FastAPI · Docker · Live Monitoring UI",
+    "Enterprise Applications & Cloud Runtime",
+    "Deliver responsive web applications, SaaS platforms, operator dashboards, and containerized cloud deployments with continuous observability.",
+    "Next.js · TypeScript · Docker · Cloud CI/CD",
   ],
 ] as const;
 
 const arabicStages = [
   [
     "01",
-    "مدخلات الكاميرا والحساسات",
-    "استقبال البث المرئي الحي من كاميرات IP والحساسات البصرية أو بروتوكولات RTSP مع إدارة استقرار الاتصال ومعدل الإطارات.",
-    "RTSP / البث البصري المباشر",
+    "استقبال البيانات والواجهات البرمجية",
+    "ربط قواعد بيانات المؤسسة، والواجهات البرمجية الخارجية (APIs)، والمستندات، وتدفقات البيانات مع التحقق الآمن وإدارة الصلاحيات.",
+    "REST / Webhooks / موصلات البيانات والمستندات",
   ],
   [
     "02",
-    "معالجة الفيديو (Video Processing)",
-    "فك ترميز الإطارات وتحجيمها ومعالجتها المسبقة باستخدام OpenCV مع تحديد مناطق الاهتمام والحركة.",
-    "OpenCV · تجهيز الإطارات",
+    "هيكلة البيانات وفهرسة المعرفة",
+    "تنظيف وتنظيم وفهرسة بيانات الأعمال والمستندات والأحداث التشغيلية لتمكين البحث السريع والتحليل ومسارات العمل.",
+    "مسارات البيانات · الفهرسة العلائقية والمتجهة",
   ],
   [
     "03",
-    "نماذج الرؤية الحاسوبية",
-    "تشغيل نماذج كشف الأجسام وتتبع المسارات المتعددة والتعرف على الأنشطة المبنية باستخدام PyTorch ومعماريات YOLO.",
-    "PyTorch · YOLO · التتبع البصري",
+    "نماذج الذكاء الاصطناعي والوكلاء الأذكياء",
+    "تشغيل الوكلاء الأذكياء، وأنظمة استرجاع المعرفة (Enterprise RAG)، والنماذج اللغوية، أو نماذج الرؤية التطبيقية (مثل AEGIS) ضمن ضوابط دقيقة.",
+    "وكلاء الذكاء الاصطناعي · Enterprise RAG · النماذج التطبيقية",
   ],
   [
     "04",
-    "الاستدلال المحسّن على الحافة (Edge Inference)",
-    "تشغيل النماذج المضغوطة محلياً عبر ONNX Runtime وTensorRT لتحقيق زمن استجابة منخفض وحماية الخصوصية على الجهاز.",
-    "ONNX Runtime · TensorRT · معالجة محلية",
+    "أتمتة العمليات وسير العمل",
+    "تنسيق منطق الأعمال الآلي، وتحديثات CRM، ومعالجة المستندات، والتكامل بين المنصات مع معالجة موثوقة للأخطاء.",
+    "محركات سير العمل · أتمتة CRM والواجهات",
   ],
   [
     "05",
-    "ذكاء الأحداث (Event Intelligence)",
-    "تحويل الإحداثيات والمسارات إلى أحداث زمنية مفهومة، وقواعد مناطق، وتقييم مخاطر مساعد، وتنبيهات ذكية.",
-    "تفسير الأحداث · تقييم المخاطر",
+    "الأنظمة الخلفية وتكامل الأنظمة",
+    "تقديم خدمات خلفية عالية الأداء، وإدارة الصلاحيات، وسجلات التدقيق عبر واجهات برمجية (APIs) وأنظمة موزعة.",
+    "FastAPI · Node.js · PostgreSQL · الخدمات المصغرة",
   ],
   [
     "06",
-    "التطبيق ولوحة المراقبة (Dashboard)",
-    "توصيل الأحداث المنظمة والبث الحي والتنبيهات عبر خدمات FastAPI وحاويات Docker وواجهات الويب والجوال.",
-    "FastAPI · Docker · لوحة تحكم المشغل",
+    "تطبيقات المؤسسات والتشغيل السحابي",
+    "توصيل تطبيقات الويب المؤسسية، ومنصات SaaS، ولوحات التحكم، والنشر السحابي عبر Docker وخطوط CI/CD مع مراقبة مستمرة.",
+    "Next.js · TypeScript · Docker · السحابة",
   ],
 ] as const;
 
@@ -91,31 +91,31 @@ export function EngineeringLifecycle() {
     <section className="lifecycle section" aria-labelledby="lifecycle-title">
       <div className="container">
         <div className="section-kicker">
-          {ar ? "خط أنابيب الرؤية التفاعلي" : "Interactive Vision Pipeline"}
+          {ar ? "مسار هندسة الأنظمة التفاعلي" : "Interactive System Architecture"}
         </div>
         <div className="section-title-row lifecycle-intro">
           <h2 id="lifecycle-title">
             {ar ? (
               <>
-                من إشارة الكاميرا إلى <span>لوحة التحكم والتطبيق.</span>
+                من مصادر البيانات إلى <span>المنصة البرمجية المتكاملة.</span>
               </>
             ) : (
               <>
-                From camera sensor to <span>live application output.</span>
+                From data and APIs to <span>intelligent software platforms.</span>
               </>
             )}
           </h2>
           <p>
             {ar
-              ? "استكشف المراحل الست التي تحول البث المرئي الخام إلى أحداث ذكية وتنبيهات فورية."
-              : "Inspect each stage of our six-step computer vision and Edge AI architecture."}
+              ? "استكشف المراحل الست التي تجمع بين الذكاء الاصطناعي والأتمتة ومعمارية البرمجيات السحابية."
+              : "Inspect each stage of our six-layer AI and software engineering architecture."}
           </p>
         </div>
 
         <div className="lifecycle-shell">
           <div
             className="lifecycle-rail"
-            aria-label={ar ? "مراحل خط أنابيب الرؤية" : "Vision pipeline stages"}
+            aria-label={ar ? "مراحل المعمارية الهندسية" : "System architecture stages"}
           >
             {currentStages.map(([number, title], index) => (
               <button
@@ -136,9 +136,9 @@ export function EngineeringLifecycle() {
             <div>
               <div className="detail-index detail-top">
                 <span>
-                  {stage[0]} / {ar ? "مرحلة خط الأنابيب" : "PIPELINE STAGE"}
+                  {stage[0]} / {ar ? "طبقة المعمارية" : "ARCHITECTURE LAYER"}
                 </span>
-                <span>HIRZEXA VISION</span>
+                <span>HIRZEXA ENGINEERING</span>
               </div>
               <h3>{stage[1]}</h3>
               <p>{stage[2]}</p>

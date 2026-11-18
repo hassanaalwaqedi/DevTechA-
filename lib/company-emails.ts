@@ -34,14 +34,14 @@ export const DEPARTMENT_METADATA: Record<
   business: {
     en: "Business Development & Sales",
     ar: "تطوير الأعمال والمبيعات",
-    roleEn: "Product inquiries, AEGIS AI demos & commercial proposals",
-    roleAr: "استفسارات المنتجات، عروض AEGIS AI التجارية، وطلبات الأعمال",
+    roleEn: "AI & software projects, automation solutions, product demos & commercial proposals",
+    roleAr: "مشاريع الذكاء الاصطناعي والبرمجيات، حلول الأتمتة، عروض المنتجات، وطلبات الأعمال",
   },
   support: {
     en: "Technical Support",
     ar: "الدعم الفني",
-    roleEn: "Engineering support, AEGIS AI technical questions & Edge AI",
-    roleAr: "الدعم الهندسي والأسئلة التقنية لنظام AEGIS AI وذكاء الحافة",
+    roleEn: "Engineering support, system architecture, cloud integration & product technical questions",
+    roleAr: "الدعم الهندسي، معمارية الأنظمة، التكامل السحابي، والأسئلة التقنية للمنتجات",
   },
   investors: {
     en: "Investors & Fundraising",
@@ -117,12 +117,14 @@ export const CONTACT_DIRECTORY = [
 ] as const satisfies ReadonlyArray<{ id: string; en: string; ar: string; emails: ReadonlyArray<CompanyEmailChannel> }>;
 
 export const CONTACT_FORM_CATEGORIES = [
-  { en: "Product Demos & Business", ar: "عروض المنتجات والأعمال", recipient: "business" },
-  { en: "AEGIS AI Commercial", ar: "الاستفسارات التجارية لـ AEGIS AI", recipient: "business" },
-  { en: "AEGIS AI Technical Support", ar: "الدعم التقني لنظام AEGIS AI", recipient: "support" },
+  { en: "Product Demos & Business", ar: "مشاريع الأعمال وعروض المنتجات", recipient: "business" },
+  { en: "AI Engineering & Intelligent Agents", ar: "هندسة الذكاء الاصطناعي والوكلاء الأذكياء", recipient: "business" },
+  { en: "Business Process Automation", ar: "أتمتة العمليات التجارية وسير العمل", recipient: "business" },
+  { en: "Custom Software & SaaS Engineering", ar: "هندسة البرمجيات المخصصة ومنصات SaaS", recipient: "business" },
+  { en: "System Architecture & Cloud Integration", ar: "معمارية الأنظمة والهندسة السحابية", recipient: "support" },
+  { en: "AEGIS AI Commercial", ar: "الاستفسارات التجارية لمنتج AEGIS", recipient: "business" },
+  { en: "AEGIS AI Technical Support", ar: "الدعم التقني لمنتج AEGIS", recipient: "support" },
   { en: "Computer Vision Systems", ar: "أنظمة الرؤية الحاسوبية", recipient: "support" },
-  { en: "Edge AI & Model Optimization", ar: "ذكاء الحافة وتحسين النماذج", recipient: "support" },
-  { en: "Vision Software & Dashboards", ar: "برمجيات الرؤية ولوحات المراقبة", recipient: "support" },
   { en: "Partnerships & Collaborations", ar: "الشراكات والتعاون التقني", recipient: "partnerships" },
   { en: "Orders & Purchasing", ar: "الطلبات والمشتريات", recipient: "orders" },
   { en: "Investors & Fundraising", ar: "المستثمرون والتمويل", recipient: "investors" },
@@ -134,6 +136,8 @@ export const CONTACT_FORM_CATEGORIES = [
 ] as const satisfies ReadonlyArray<{ en: string; ar: string; recipient: CompanyEmailChannel }>;
 
 const LEGACY_CATEGORY_ALIASES: Record<string, CompanyEmailChannel> = {
+  "Edge AI & Model Optimization": "support",
+  "Vision Software & Dashboards": "support",
   "AEGIS AI & Safety Vision": "support",
   "Intelligent Devices & Cameras": "orders",
   "Technology Partnership": "partnerships",

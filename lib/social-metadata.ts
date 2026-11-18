@@ -27,7 +27,7 @@ export function buildPageSocialImageUrl(
     employment: config.chips[1],
     skill: config.chips[2],
     scene: config.scene,
-    telemetry: config.telemetry || "VISUAL INTELLIGENCE · EDGE AI",
+    telemetry: config.telemetry || "AI & SOFTWARE ENGINEERING",
   });
   return `/api/social-card?${params.toString()}`;
 }

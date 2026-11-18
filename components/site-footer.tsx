@@ -21,15 +21,15 @@ export function SiteFooter({ locale }: { locale: Locale }) {
             </Link>
             <p>
               {ar
-                ? "الذكاء الذي يرى العالم. نطور تقنيات الرؤية الحاسوبية وذكاء الحافة (Edge AI) والأجهزة الذكية ومنصات البرمجيات البصرية."
-                : "Intelligence that sees the world. We build computer vision models, Edge AI systems, intelligent devices, and vision software platforms."}
+                ? "نُهندس أنظمة برمجية ذكية تصنع الفارق. شركة متخصصة في هندسة الذكاء الاصطناعي والأنظمة البرمجية، والأتمتة الذكية، والمنصات القابلة للتوسع، وتكامل الأنظمة."
+                : "We Engineer Intelligent Software Systems. HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and system integrations."}
             </p>
           </div>
 
           <div className="footer-links dt-footer-links">
-            <Link href="/technology">{ar ? "التقنية" : "Technology"}</Link>
-            <Link href="/products">{ar ? "المنتجات" : "Products"}</Link>
-            <Link href="/applications">{ar ? "التطبيقات" : "Applications"}</Link>
+            <Link href="/services">{ar ? "الخدمات" : "Services"}</Link>
+            <Link href="/solutions">{ar ? "الحلول" : "Solutions"}</Link>
+            <Link href="/products">{ar ? "المنتجات والابتكار" : "Products & Innovation"}</Link>
             <Link href="/engineering">{ar ? "الهندسة" : "Engineering"}</Link>
             <Link href="/about">{ar ? "الشركة" : "About"}</Link>
             <Link href="/careers">{ar ? "الوظائف" : "Careers"}</Link>

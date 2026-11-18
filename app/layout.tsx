@@ -18,19 +18,20 @@ const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const defaultSocialImage = buildPageSocialImageUrl({
   path: "/",
-  title: "HIRZEXA | Computer Vision & Edge AI Technologies",
-  eyebrow: "HIRZEXA / COMPUTER VISION & EDGE INTELLIGENCE",
-  badge: "INTELLIGENCE THAT SEES THE WORLD",
-  headline: "Intelligence that sees the world.",
-  summary: "Computer vision and Edge AI technologies for intelligent cameras and devices.",
-  chips: ["Computer Vision", "Edge AI", "Intelligent Devices"],
+  title: "HIRZEXA | AI & Software Engineering",
+  eyebrow: "HIRZEXA / AI & SOFTWARE ENGINEERING",
+  badge: "WE ENGINEER INTELLIGENT SOFTWARE SYSTEMS",
+  headline: "We Engineer Intelligent Software Systems.",
+  summary: "From AI-powered automation to scalable enterprise platforms, we design, build, and deploy intelligent software that solves real business challenges.",
+  chips: ["AI Engineering & Agents", "Process Automation", "Custom Software & Cloud"],
   scene: "technology",
+  telemetry: "AI & SOFTWARE ENGINEERING",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "HIRZEXA | Computer Vision & Edge AI Technologies", template: "%s | HIRZEXA" },
-  description: "HIRZEXA develops computer vision and Edge AI technologies for intelligent cameras, devices, and real-world visual intelligence applications.",
+  title: { default: "HIRZEXA | AI & Software Engineering", template: "%s | HIRZEXA" },
+  description: "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations.",
   applicationName: "HIRZEXA",
   manifest: "/manifest.webmanifest",
   icons: {
@@ -38,17 +39,17 @@ export const metadata: Metadata = {
     apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    title: "HIRZEXA | Computer Vision & Edge AI Technologies",
-    description: "HIRZEXA develops computer vision and Edge AI technologies for intelligent cameras, devices, and real-world visual intelligence applications.",
+    title: "HIRZEXA | AI & Software Engineering",
+    description: "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations.",
     type: "website",
     siteName: "HIRZEXA",
-    images: [{ url: defaultSocialImage, width: 1200, height: 630, type: "image/jpeg", alt: "HIRZEXA — Intelligence that sees the world" }],
+    images: [{ url: defaultSocialImage, width: 1200, height: 630, type: "image/jpeg", alt: "HIRZEXA — We Engineer Intelligent Software Systems." }],
   },
   alternates: { canonical: "/" },
   twitter: {
     card: "summary_large_image",
-    title: "HIRZEXA | Computer Vision & Edge AI Technologies",
-    description: "HIRZEXA develops computer vision and Edge AI technologies for intelligent cameras and devices.",
+    title: "HIRZEXA | AI & Software Engineering",
+    description: "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations.",
     images: [defaultSocialImage],
   },
 };
@@ -57,6 +58,6 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
-  const organization = {"@context": "https://schema.org", "@type": "Organization", name: "HIRZEXA", url: SITE_URL, logo: `${SITE_URL}/brand/hirzexa-mark.png`, email: CONTACT_EMAIL, description: "HIRZEXA engineers computer vision, Edge AI, intelligent devices, and vision software."};
+  const organization = {"@context": "https://schema.org", "@type": "Organization", name: "HIRZEXA", url: SITE_URL, logo: `${SITE_URL}/brand/hirzexa-mark.png`, email: CONTACT_EMAIL, description: "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations."};
   return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><body className={`corporate-site ${sans.variable}`}><LanguageProvider locale={locale}><SiteHeader /><VisitorTracker />{children}<SiteFooter locale={locale} /></LanguageProvider><script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(organization)}} /></body></html>;
 }

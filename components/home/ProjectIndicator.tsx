@@ -14,8 +14,8 @@ export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
       className="dt-project-indicator"
       aria-label={
         arabic
-          ? "AEGIS AI — دراسة الحالة والمعمارية ونظام الرؤية. افتح صفحة AEGIS AI"
-          : "AEGIS AI — Explore case studies, system architecture, and live walkthrough"
+          ? "المنتجات والابتكار: AEGIS — نظام السلامة البصرية والرؤية الحاسوبية"
+          : "Products & Innovation: AEGIS — AI-Powered Visual Safety & Computer Vision"
       }
     >
       <div className="dt-project-avatars" aria-hidden="true">
@@ -32,15 +32,15 @@ export function ProjectIndicator({ arabic = false }: ProjectIndicatorProps) {
         <strong style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
           <span>
             {arabic
-              ? "AEGIS AI · نظام الرؤية والمعمارية"
-              : "AEGIS AI · Safety Vision System"}
+              ? "المنتجات والابتكار · AEGIS"
+              : "Products & Innovation · AEGIS"}
           </span>
           <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden="true" />
         </strong>
         <span>
           {arabic
-            ? "دراسات الحالة · 95.3% تقييم · شاهد العرض"
-            : "Case Studies · Architecture · 95.3% Evaluation"}
+            ? "السلامة البصرية والرؤية الحاسوبية · 95.3% تقييم"
+            : "AI-Powered Visual Safety & Computer Vision · 95.3% Evaluation"}
         </span>
       </div>
     </Link>

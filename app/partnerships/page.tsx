@@ -4,16 +4,16 @@ import { getLocale } from "@/lib/locale";
 import { createPageMetadata } from "@/lib/social-metadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Partnerships — Technology & Research Collaborations",
+  title: "Partnerships — Technology & Engineering Collaborations",
   description:
-    "Partner with HIRZEXA on computer vision research, Edge AI hardware integration, and intelligent vision software deployments.",
+    "Partner with HIRZEXA on AI engineering, intelligent automation, enterprise software integration, and applied R&D.",
   path: "/partnerships",
   eyebrow: "HIRZEXA / PARTNERSHIPS",
   badge: "STRATEGIC & TECHNICAL PARTNERSHIPS",
   headline: "Collaborate with HIRZEXA.",
   summary:
-    "Engineering collaborations, hardware-software integration, and technology partnership proposals.",
-  chips: ["Edge Hardware Partners", "Research Collaboration", "Vision Integration"],
+    "Engineering collaborations, system integrations, and strategic technology partnership proposals.",
+  chips: ["AI & Software Partners", "System Integration", "Applied R&D"],
   scene: "technology",
   telemetry: "PARTNERSHIPS@HIRZEXA.COM",
 });
@@ -27,8 +27,8 @@ export default async function PartnershipsPage() {
       eyebrowAr="HIRZEXA / الشراكات"
       titleEn="Technology & strategic partnerships."
       titleAr="الشراكات التقنية والاستراتيجية."
-      descriptionEn="We collaborate with engineering teams, hardware integrators, and applied research groups advancing real-world computer vision and Edge AI."
-      descriptionAr="نتعاون مع الفرق الهندسية ومطوري العتاد والمجموعات البحثية لتطوير تطبيقات الرؤية الحاسوبية وذكاء الحافة."
+      descriptionEn="We collaborate with technology providers, enterprise teams, and engineering partners on AI integration, workflow automation, custom software platforms, and applied product innovation."
+      descriptionAr="نتعاون مع مزودي التقنية والفرق المؤسسية والشركاء الهندسيين في مجالات تكامل الذكاء الاصطناعي، وأتمتة العمليات، والمنصات البرمجية، والابتكار التطبيقي."
       actionHref="/contact?category=Partnerships%20%26%20Collaborations"
       actionLabelEn="Submit partnership proposal"
       actionLabelAr="إرسال مقترح شراكة"
@@ -38,14 +38,14 @@ export default async function PartnershipsPage() {
       detailsTitleEn="PARTNERSHIP FOCUS"
       detailsTitleAr="مجالات الشراكة"
       detailsEn={[
-        "Optical sensor & Edge NPU integration",
-        "AEGIS AI technical & pilot collaborations",
-        "Vision software & device ecosystem engineering",
+        "Enterprise AI, LLM & automation integrations",
+        "Custom software platforms & cloud ecosystem engineering",
+        "Product collaborations across Khair and AEGIS",
       ]}
       detailsAr={[
-        "تكامل الحساسات البصرية ومعالجات الحافة (Edge AI)",
-        "تعاون تقني وتجريبي حول معمارية AEGIS AI",
-        "تطوير منظومات برمجيات الرؤية والأجهزة الذكية",
+        "تكامل أنظمة الذكاء الاصطناعي والأتمتة المؤسسية",
+        "تطوير المنصات البرمجية المخصصة والمعمارية السحابية",
+        "تعاون تقني وتجريبي حول منتجاتنا (منصة خير ومنتج AEGIS)",
       ]}
       cards={[
         {
@@ -53,23 +53,23 @@ export default async function PartnershipsPage() {
           titleEn: "Partnership Proposals",
           titleAr: "مقترحات الشراكات",
           descriptionEn:
-            "Share technical or strategic partnership proposals covering camera hardware, Edge AI silicon, deployment channels, or joint R&D.",
+            "Share technical or strategic partnership proposals covering AI platforms, cloud infrastructure, enterprise integrations, or joint R&D.",
           descriptionAr:
-            "شاركنا مقترحات الشراكة التقنية أو الاستراتيجية في مجالات الكاميرات، ومعالجات الحافة، أو البحث والتطوير المشترك.",
+            "شاركنا مقترحات الشراكة التقنية أو الاستراتيجية في مجالات الذكاء الاصطناعي، والبنية السحابية، وتكامل الأنظمة، أو البحث والتطوير المشترك.",
           channel: "partnerships",
           subject: "Partnership Proposal — HIRZEXA",
           contactCategory: "Partnerships & Collaborations",
         },
         {
           id: "commercial",
-          titleEn: "Commercial Deployments & Demos",
-          titleAr: "المشاريع التجارية والعروض التوضيحية",
+          titleEn: "Commercial Projects & Product Demos",
+          titleAr: "المشاريع التجارية وعروض المنتجات",
           descriptionEn:
-            "For commercial licensing, enterprise product evaluations, or business development inquiries across our vision platforms.",
+            "For custom software & AI engineering projects, process automation inquiries, or AEGIS product evaluations.",
           descriptionAr:
-            "للاستفسارات التجارية وتقييم المنتجات وطلب العروض التوضيحية لمنصات الرؤية.",
+            "لمشاريع هندسة البرمجيات والذكاء الاصطناعي، وحلول أتمتة العمليات، وطلب العروض التوضيحية للمنتجات.",
           channel: "business",
-          subject: "Commercial & Product Demo Inquiry — HIRZEXA",
+          subject: "Commercial & Engineering Inquiry — HIRZEXA",
           contactCategory: "Product Demos & Business",
         },
       ]}
