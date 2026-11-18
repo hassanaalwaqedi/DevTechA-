@@ -3,18 +3,34 @@ import { GradientButton } from "@/components/ui/GradientButton";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { ProjectIndicator } from "@/components/home/ProjectIndicator";
 import { HeroArtwork } from "@/components/home/HeroArtwork";
+import { LivingEngineeringHero } from "@/components/home/LivingEngineeringHero";
+import type { InteractiveDemoConfig } from "@/lib/demo-config-types";
 
 type HeroSectionProps = {
   arabic?: boolean;
+  demoConfig?: InteractiveDemoConfig;
 };
 
-export function HeroSection({ arabic = false }: HeroSectionProps) {
+export function HeroSection({ arabic = false, demoConfig }: HeroSectionProps) {
+  const showBgEffects = demoConfig?.settings.backgroundEffectsEnabled ?? true;
+  const simulationEnabled = demoConfig?.settings.enabled ?? true;
+
   return (
-    <section className="dt-hero" aria-labelledby="dt-hero-heading">
-      {/* Subtle flowing atmospheric background shapes */}
+    <section className="dt-hero dt-hero-living" aria-labelledby="dt-hero-heading">
+      {/* Subtle flowing atmospheric background shapes & animated engineering grid */}
       <div className="dt-hero-atmosphere" aria-hidden="true">
-        <div className="dt-hero-glow-top" />
-        <div className="dt-hero-glow-right" />
+        {showBgEffects ? (
+          <>
+            <div className="dt-hero-eng-grid" />
+            <div className="dt-hero-signal-rails">
+              <span className="dt-signal-beam dt-signal-beam-1" />
+              <span className="dt-signal-beam dt-signal-beam-2" />
+              <span className="dt-signal-beam dt-signal-beam-3" />
+            </div>
+          </>
+        ) : null}
+        <div className={`dt-hero-glow-top ${showBgEffects ? "dt-ambient-drift" : ""}`} />
+        <div className={`dt-hero-glow-right ${showBgEffects ? "dt-ambient-drift-alt" : ""}`} />
         <div className="dt-hero-glow-left" />
         <svg
           className="dt-hero-waves"
@@ -115,8 +131,12 @@ export function HeroSection({ arabic = false }: HeroSectionProps) {
           </div>
 
           {/* Right Column */}
-          <div className="dt-hero-visual-col">
-            <HeroArtwork arabic={arabic} />
+          <div className="dt-hero-visual-col dt-hero-visual-living">
+            {simulationEnabled ? (
+              <LivingEngineeringHero arabic={arabic} config={demoConfig} />
+            ) : (
+              <HeroArtwork arabic={arabic} />
+            )}
           </div>
         </div>
       </div>

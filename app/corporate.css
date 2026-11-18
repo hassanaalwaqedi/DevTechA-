@@ -5798,3 +5798,881 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
     display: none;
   }
 }
+
+/* ==========================================================================
+   PREMIUM INTERACTIVE ENGINEERING HERO & LIVING ARCHITECTURE ECOSYSTEM
+   ========================================================================== */
+
+/* Balanced Two-Column Hero Layout (Prevents Headline Overlap & Fits Viewport) */
+.corporate-site .dt-hero-living {
+  padding: 20px 0 26px;
+}
+
+.corporate-site .dt-hero-living .dt-hero-grid {
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+  align-items: center;
+  gap: clamp(28px, 3.4vw, 56px);
+  min-height: 430px;
+}
+
+.corporate-site .dt-hero-living .dt-hero-copy {
+  min-width: 0;
+  max-width: 560px;
+}
+
+.corporate-site .dt-hero-living .dt-hero-title {
+  margin-top: 14px;
+  font-size: clamp(38px, 3.55vw, 56px);
+  line-height: 1.07;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.corporate-site .dt-hero-living .dt-hero-title-dark,
+.corporate-site .dt-hero-living .dt-hero-title-gradient {
+  white-space: normal;
+}
+
+.corporate-site .dt-hero-living .dt-hero-description {
+  max-width: 500px;
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.58;
+}
+
+.corporate-site .dt-hero-living .dt-hero-actions {
+  margin-top: 20px;
+}
+
+.corporate-site .dt-hero-living .dt-project-indicator {
+  margin-top: 16px;
+}
+
+/* Subtle Bright Engineering Grid & Ambient Drifting Atmosphere */
+.corporate-site .dt-hero-eng-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(16, 80, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 80, 255, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 84% 72% at 64% 40%, #000 28%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 84% 72% at 64% 40%, #000 28%, transparent 80%);
+  opacity: 0.68;
+  animation: dtGridDrift 28s linear infinite;
+}
+
+.corporate-site .dt-hero-signal-rails {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.corporate-site .dt-signal-beam {
+  position: absolute;
+  height: 1.5px;
+  width: 240px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(53, 190, 255, 0.42) 45%,
+    rgba(135, 59, 255, 0.6) 75%,
+    transparent 100%
+  );
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.corporate-site .dt-signal-beam-1 {
+  top: 22%;
+  left: -240px;
+  animation: dtSignalSweep 11s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.corporate-site .dt-signal-beam-2 {
+  top: 56%;
+  left: -240px;
+  width: 190px;
+  animation: dtSignalSweep 14s cubic-bezier(0.4, 0, 0.2, 1) infinite 4.2s;
+}
+
+.corporate-site .dt-signal-beam-3 {
+  top: 78%;
+  left: -240px;
+  width: 280px;
+  animation: dtSignalSweep 16s cubic-bezier(0.4, 0, 0.2, 1) infinite 8.5s;
+}
+
+.corporate-site .dt-ambient-drift {
+  animation: dtAmbientFloat 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.corporate-site .dt-ambient-drift-alt {
+  animation: dtAmbientFloatAlt 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes dtGridDrift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 46px 46px;
+  }
+}
+
+@keyframes dtSignalSweep {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.68;
+  }
+  70% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate3d(calc(100vw + 480px), 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes dtAmbientFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(24px, 12px, 0) scale(1.05);
+  }
+}
+
+@keyframes dtAmbientFloatAlt {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(-22px, 16px, 0) scale(1.05);
+  }
+}
+
+/* ==========================================================================
+   CLEAN 3D-INSPIRED INTERACTIVE ARCHITECTURE VISUALIZATION
+   ========================================================================== */
+
+.corporate-site .dt-hero-visual-living {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.corporate-site .dt-living-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 632px;
+  --living-primary: #1050FF;
+  --living-secondary: #873BFF;
+  --living-canvas-bg:
+    radial-gradient(circle at 50% 45%, rgba(16, 80, 255, 0.1) 0%, rgba(135, 59, 255, 0.06) 40%, rgba(255, 255, 255, 0.72) 78%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.86) 0%, rgba(240, 245, 255, 0.76) 100%);
+  --living-border: rgba(255, 255, 255, 0.9);
+}
+
+/* Approved Bright Presentation Themes (Admin-Selectable) */
+.corporate-site .dt-living-theme-architectural-indigo {
+  --living-primary: #2B45E8;
+  --living-secondary: #6D28D9;
+  --living-canvas-bg:
+    radial-gradient(circle at 50% 45%, rgba(43, 69, 232, 0.12) 0%, rgba(109, 40, 217, 0.07) 44%, rgba(255, 255, 255, 0.74) 80%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.88) 0%, rgba(235, 241, 255, 0.8) 100%);
+}
+
+.corporate-site .dt-living-theme-vivid-violet {
+  --living-primary: #1D4ED8;
+  --living-secondary: #9333EA;
+  --living-canvas-bg:
+    radial-gradient(circle at 50% 45%, rgba(147, 51, 234, 0.12) 0%, rgba(29, 78, 216, 0.07) 42%, rgba(255, 255, 255, 0.74) 80%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.88) 0%, rgba(244, 238, 255, 0.8) 100%);
+}
+
+/* Compact Three-Scenario Switcher Pill Bar */
+.corporate-site .dt-living-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.corporate-site .dt-living-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(120, 145, 225, 0.22);
+  box-shadow:
+    0 10px 26px -12px rgba(15, 42, 128, 0.16),
+    inset 0 1px 0 #FFFFFF;
+}
+
+.corporate-site .dt-living-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #3E4E70;
+  font-size: 12.2px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.corporate-site .dt-living-tab:hover {
+  color: #080D21;
+  background: rgba(235, 241, 255, 0.7);
+}
+
+.corporate-site .dt-living-tab.active {
+  background: linear-gradient(110deg, var(--living-primary) 0%, var(--living-secondary) 100%);
+  color: #FFFFFF;
+  box-shadow:
+    0 8px 18px -6px rgba(16, 80, 255, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.corporate-site .dt-living-tab-dot {
+  width: 5.5px;
+  height: 5.5px;
+  border-radius: 999px;
+  background: #8B9CC4;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.corporate-site .dt-living-tab.active .dt-living-tab-dot {
+  background: #FFFFFF;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.92);
+}
+
+/* Floating 3D-Inspired Translucent Architecture Stage (No Nested Frames) */
+.corporate-site .dt-living-canvas-shell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 680 / 415;
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--living-canvas-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--living-border);
+  box-shadow:
+    0 30px 68px -28px rgba(15, 42, 128, 0.22),
+    0 10px 26px -12px rgba(135, 59, 255, 0.12),
+    inset 0 1px 0 #FFFFFF,
+    inset 0 0 0 1px rgba(120, 145, 225, 0.18);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.corporate-site .dt-living-canvas-glow {
+  position: absolute;
+  inset: 14% 18% 22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(53, 190, 255, 0.18) 0%,
+    rgba(135, 59, 255, 0.1) 46%,
+    transparent 74%
+  );
+  filter: blur(26px);
+  pointer-events: none;
+}
+
+.corporate-site .dt-living-canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(16, 80, 255, 0.16) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 76% 74% at 50% 46%, #000 30%, transparent 86%);
+  -webkit-mask-image: radial-gradient(ellipse 76% 74% at 50% 46%, #000 30%, transparent 86%);
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.corporate-site .dt-living-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.corporate-site .dt-live-path-glow {
+  filter: drop-shadow(0 0 6px rgba(16, 80, 255, 0.48));
+}
+
+.corporate-site .dt-living-nodes-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Minimal Floating Glass Architecture Modules (Short Names Only) */
+.corporate-site .dt-arch-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px 7px 8px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(120, 145, 225, 0.28);
+  box-shadow:
+    0 12px 26px -12px rgba(14, 34, 98, 0.18),
+    0 2px 6px rgba(16, 80, 255, 0.05),
+    inset 0 1px 0 #FFFFFF;
+  color: #0B1533;
+  font-family: var(--font-sans), Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  z-index: 2;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.corporate-site .dt-arch-node:hover {
+  transform: translate(-50%, calc(-50% - 3px)) scale(1.03);
+  border-color: rgba(16, 80, 255, 0.54);
+  background: #FFFFFF;
+  box-shadow:
+    0 16px 32px -10px rgba(16, 80, 255, 0.24),
+    inset 0 1px 0 #FFFFFF;
+  z-index: 5;
+}
+
+.corporate-site .dt-arch-node.is-selected {
+  border-color: var(--living-primary);
+  box-shadow:
+    0 0 0 3px rgba(16, 80, 255, 0.2),
+    0 16px 30px -10px rgba(16, 80, 255, 0.28);
+  z-index: 6;
+}
+
+.corporate-site .dt-arch-node-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.corporate-site .dt-arch-accent-blue .dt-arch-node-icon {
+  background: rgba(16, 80, 255, 0.11);
+  color: #0E4AE6;
+}
+
+.corporate-site .dt-arch-accent-violet .dt-arch-node-icon {
+  background: rgba(135, 59, 255, 0.12);
+  color: #742AE8;
+}
+
+.corporate-site .dt-arch-accent-cyan .dt-arch-node-icon {
+  background: rgba(14, 165, 233, 0.13);
+  color: #0377B5;
+}
+
+.corporate-site .dt-arch-accent-emerald .dt-arch-node-icon {
+  background: rgba(16, 185, 129, 0.13);
+  color: #047857;
+}
+
+/* Central HIRZEXA Engineering Core Node */
+.corporate-site .dt-arch-node-core {
+  padding: 10px 15px 10px 11px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0A4FFF 0%, #3E5BFF 52%, #873BFF 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.78);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  box-shadow:
+    0 18px 38px -8px rgba(16, 80, 255, 0.48),
+    0 0 0 6px rgba(16, 80, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  z-index: 4;
+}
+
+.corporate-site .dt-arch-node-core:hover {
+  background: linear-gradient(135deg, #0746E8 0%, #3B55FF 50%, #8130F5 100%);
+  border-color: #FFFFFF;
+  box-shadow:
+    0 22px 44px -8px rgba(16, 80, 255, 0.56),
+    0 0 0 7px rgba(135, 59, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.corporate-site .dt-arch-node-core .dt-arch-node-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
+}
+
+/* Active & Target Node Glow */
+.corporate-site .dt-arch-node.is-active:not(.dt-arch-node-core) {
+  border-color: rgba(16, 80, 255, 0.54);
+  background: linear-gradient(160deg, #FFFFFF 0%, #EEF4FF 100%);
+  box-shadow:
+    0 12px 28px -8px rgba(16, 80, 255, 0.26),
+    0 0 0 3px rgba(53, 190, 255, 0.16),
+    inset 0 1px 0 #FFFFFF;
+  z-index: 4;
+}
+
+.corporate-site .dt-arch-node.is-target:not(.dt-arch-node-core) {
+  border-color: var(--living-secondary);
+  box-shadow:
+    0 14px 30px -8px rgba(135, 59, 255, 0.32),
+    0 0 0 4px rgba(135, 59, 255, 0.16),
+    inset 0 1px 0 #FFFFFF;
+  z-index: 5;
+}
+
+.corporate-site .dt-arch-node-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 1.5px solid rgba(16, 80, 255, 0.45);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.corporate-site .dt-arch-node.is-target .dt-arch-node-pulse,
+.corporate-site .dt-arch-node-core.is-active .dt-arch-node-pulse {
+  animation: dtArchPulse 1.7s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes dtArchPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.16);
+    opacity: 0;
+  }
+}
+
+.corporate-site .dt-arch-node-label {
+  line-height: 1.15;
+}
+
+/* Compact Click-to-Inspect Node Popover Tooltip */
+.corporate-site .dt-node-popover {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(310px, calc(100% - 24px));
+  z-index: 9;
+  padding: 12px 14px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(16, 80, 255, 0.3);
+  box-shadow:
+    0 18px 40px -12px rgba(10, 28, 86, 0.24),
+    inset 0 1px 0 #FFFFFF;
+  animation: dtPopoverIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.corporate-site .dt-node-popover.is-top {
+  top: 12px;
+}
+
+.corporate-site .dt-node-popover.is-bottom {
+  bottom: 54px;
+}
+
+@keyframes dtPopoverIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.corporate-site .dt-node-popover-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.corporate-site .dt-node-popover-role {
+  display: block;
+  font-size: 9.8px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--living-primary);
+}
+
+.corporate-site .dt-node-popover-head h4 {
+  margin: 2px 0 0;
+  color: #080D21;
+  font-size: 13.8px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.corporate-site .dt-node-popover-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid rgba(120, 145, 225, 0.24);
+  background: #F4F7FF;
+  color: #364566;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.corporate-site .dt-node-popover-close:hover {
+  color: #080D21;
+  border-color: rgba(16, 80, 255, 0.45);
+}
+
+.corporate-site .dt-node-popover-desc {
+  margin: 0;
+  color: #425275;
+  font-size: 11.8px;
+  line-height: 1.48;
+}
+
+.corporate-site .dt-node-popover-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.corporate-site .dt-node-popover-tags span {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #F1F5FF;
+  border: 1px solid rgba(120, 145, 225, 0.22);
+  color: #2B3C63;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+/* Integrated Minimal Execution-Progress Pill */
+.corporate-site .dt-living-progress-pill {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 24px);
+  height: 32px;
+  padding: 0 7px 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(120, 145, 225, 0.26);
+  box-shadow:
+    0 10px 24px -10px rgba(14, 34, 98, 0.16),
+    inset 0 1px 0 #FFFFFF;
+}
+
+.corporate-site .dt-living-progress-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0754FF 0%, #873BFF 100%);
+  box-shadow: 0 0 8px rgba(16, 80, 255, 0.65);
+  flex-shrink: 0;
+}
+
+.corporate-site .dt-living-progress-label {
+  color: #162447;
+  font-size: 11.2px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 175px;
+}
+
+.corporate-site .dt-living-progress-steps {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.corporate-site .dt-living-progress-seg {
+  height: 4.5px;
+  width: 13px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(120, 145, 225, 0.28);
+  cursor: pointer;
+  transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1), background 0.22s ease;
+}
+
+.corporate-site .dt-living-progress-seg.is-done {
+  background: rgba(16, 80, 255, 0.42);
+}
+
+.corporate-site .dt-living-progress-seg.is-active {
+  width: 24px;
+  background: linear-gradient(110deg, var(--living-primary) 0%, var(--living-secondary) 100%);
+}
+
+.corporate-site .dt-living-progress-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 145, 225, 0.24);
+  background: #F4F7FF;
+  color: #2B3C63;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.corporate-site .dt-living-progress-toggle:hover {
+  border-color: rgba(16, 80, 255, 0.45);
+  color: var(--living-primary);
+  background: #FFFFFF;
+}
+
+/* ==========================================================================
+   PREMIUM MOTION SYSTEM POLISH — SERVICE CARDS & PRIMARY BUTTONS
+   ========================================================================== */
+
+.corporate-site .dt-capability-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.corporate-site .dt-capability-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 85% 15%,
+    rgba(53, 190, 255, 0.12) 0%,
+    rgba(135, 59, 255, 0.08) 45%,
+    transparent 72%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.corporate-site .dt-capability-card:hover::after {
+  opacity: 1;
+}
+
+.corporate-site .dt-capability-icon,
+.corporate-site .dt-capability-arrow {
+  transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.26s ease, box-shadow 0.26s ease;
+}
+
+.corporate-site .dt-capability-card:hover .dt-capability-icon {
+  transform: translateY(-2px) scale(1.06);
+  border-color: rgba(16, 80, 255, 0.36);
+  box-shadow: 0 10px 22px -6px rgba(16, 80, 255, 0.22);
+}
+
+.corporate-site .dt-capability-card:hover .dt-capability-arrow {
+  transform: translate(2px, -2px);
+}
+
+.corporate-site .dt-btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.corporate-site .dt-btn-primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 85%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.26) 50%,
+    transparent 80%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.corporate-site .dt-btn-primary:hover::after {
+  left: 140%;
+}
+
+/* ==========================================================================
+   RESPONSIVE, RTL & REDUCED-MOTION ADAPTATIONS FOR LIVING HERO
+   ========================================================================== */
+
+[dir="rtl"] .corporate-site .dt-capability-card:hover .dt-capability-arrow {
+  transform: translate(-2px, -2px);
+}
+
+[dir="rtl"] .corporate-site .dt-living-progress-pill {
+  padding: 0 12px 0 7px;
+}
+
+@media (max-width: 1120px) {
+  .corporate-site .dt-hero-living .dt-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    min-height: auto;
+  }
+
+  .corporate-site .dt-hero-living .dt-hero-copy {
+    max-width: 640px;
+  }
+
+  .corporate-site .dt-hero-visual-living {
+    justify-content: center;
+  }
+
+  .corporate-site .dt-living-hero {
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 680px) {
+  .corporate-site .dt-hero-living .dt-hero-title {
+    font-size: clamp(32px, 8.6vw, 42px);
+  }
+
+  .corporate-site .dt-living-tabs {
+    width: 100%;
+    border-radius: 16px;
+  }
+
+  .corporate-site .dt-living-tab {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+
+  .corporate-site .dt-living-canvas-shell {
+    border-radius: 20px;
+  }
+
+  .corporate-site .dt-arch-node {
+    padding: 4px 7px 4px 5px;
+    gap: 4px;
+    border-radius: 9px;
+    font-size: 9px;
+  }
+
+  .corporate-site .dt-arch-node-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+  }
+
+  .corporate-site .dt-arch-node-core {
+    padding: 6px 9px 6px 7px;
+    font-size: 9.8px;
+    border-radius: 12px;
+  }
+
+  .corporate-site .dt-arch-node-core .dt-arch-node-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .corporate-site .dt-living-progress-pill {
+    bottom: 8px;
+    height: 28px;
+    gap: 7px;
+    padding: 0 6px 0 9px;
+  }
+
+  .corporate-site .dt-living-progress-label {
+    font-size: 10px;
+    max-width: 120px;
+  }
+
+  .corporate-site .dt-living-progress-seg {
+    width: 9px;
+  }
+
+  .corporate-site .dt-living-progress-seg.is-active {
+    width: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corporate-site .dt-hero-eng-grid,
+  .corporate-site .dt-signal-beam,
+  .corporate-site .dt-ambient-drift,
+  .corporate-site .dt-ambient-drift-alt,
+  .corporate-site .dt-arch-node-pulse {
+    animation: none !important;
+  }
+
+  .corporate-site .dt-living-canvas-shell,
+  .corporate-site .dt-arch-node,
+  .corporate-site .dt-btn-primary::after {
+    transition: none !important;
+  }
+}

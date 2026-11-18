@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale } from "@/lib/locale";
+import { getPublishedDemoConfig } from "@/lib/demo-config";
 import { HeroSection } from "@/components/home/HeroSection";
 import { MetricsRibbon } from "@/components/home/MetricsRibbon";
 import { CapabilitiesSection } from "@/components/home/CapabilitiesSection";
@@ -9,6 +10,8 @@ import { DiscoveryBookingSection } from "@/components/booking/DiscoveryBookingSe
 import { RecognitionSection } from "@/components/recognition/RecognitionSection";
 import { FounderTeamPreview } from "@/components/team/FounderAndTeamSection";
 import { createPageMetadata } from "@/lib/social-metadata";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = createPageMetadata({
   title: "HIRZEXA | AI & Software Engineering",
@@ -26,12 +29,15 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default async function Home() {
-  const locale = await getLocale();
+  const [locale, demoConfig] = await Promise.all([
+    getLocale(),
+    getPublishedDemoConfig(),
+  ]);
   const arabic = locale === "ar";
 
   return (
     <main className="dt-home">
-      <HeroSection arabic={arabic} />
+      <HeroSection arabic={arabic} demoConfig={demoConfig} />
       <MetricsRibbon arabic={arabic} />
       <CapabilitiesSection arabic={arabic} />
       <B2BProcessSection arabic={arabic} />

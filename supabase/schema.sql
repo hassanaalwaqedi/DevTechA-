@@ -92,3 +92,18 @@ create policy "admins can update technical briefs" on public.ai_leads for update
 create policy "candidates can upload private cvs" on storage.objects for insert to anon, authenticated with check (bucket_id = 'cvs');
 create policy "admins can read private cvs" on storage.objects for select to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));
 create policy "admins can delete private cvs" on storage.objects for delete to authenticated using (bucket_id = 'cvs' and exists (select 1 from public.admin_users where id = auth.uid()));
+
+
+-- Interactive Engineering Demonstrations configuration (draft & published)
+create table if not exists public.interactive_demo_configs (
+  key text primary key,
+  draft_config jsonb not null,
+  published_config jsonb not null,
+  last_published_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.interactive_demo_configs enable row level security;
+drop policy if exists "public can read published demo config" on public.interactive_demo_configs;
+drop policy if exists "admins manage demo configs" on public.interactive_demo_configs;
+create policy "public can read published demo config" on public.interactive_demo_configs for select using (true);
+create policy "admins manage demo configs" on public.interactive_demo_configs for all using (exists (select 1 from public.admin_users where id = auth.uid())) with check (exists (select 1 from public.admin_users where id = auth.uid()));
