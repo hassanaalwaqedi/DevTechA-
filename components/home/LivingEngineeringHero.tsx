@@ -351,6 +351,7 @@ export function LivingEngineeringHero({
       </div>
 
       {/* Floating 3D-Inspired Interactive Engineering Architecture Canvas */}
+      <div className="dt-living-stage-wrap">
       <div
         ref={tiltRef}
         className="dt-living-canvas-shell"
@@ -577,76 +578,77 @@ export function LivingEngineeringHero({
             </div>
           </div>
         ) : null}
+      </div>
 
-        {/* Sleek Integrated Execution-Progress Indicator */}
-        {config.settings.showSimulationPanel ? (
+      {/* Sleek Integrated Execution-Progress Indicator */}
+      {config.settings.showSimulationPanel ? (
+        <div
+          className="dt-living-progress-pill"
+          dir={arabic ? "rtl" : "ltr"}
+          aria-live="polite"
+        >
+          <span className="dt-living-progress-dot" aria-hidden="true" />
+          <span className="dt-living-progress-label">
+            {arabic ? currentStep.label.ar : currentStep.label.en}
+          </span>
+
           <div
-            className="dt-living-progress-pill"
-            dir={arabic ? "rtl" : "ltr"}
-            aria-live="polite"
+            className="dt-living-progress-steps"
+            role="group"
+            aria-label={
+              arabic ? "مراحل تنفيذ المحاكاة" : "Simulated execution progress"
+            }
           >
-            <span className="dt-living-progress-dot" aria-hidden="true" />
-            <span className="dt-living-progress-label">
-              {arabic ? currentStep.label.ar : currentStep.label.en}
-            </span>
-
-            <div
-              className="dt-living-progress-steps"
-              role="group"
-              aria-label={
-                arabic ? "مراحل تنفيذ المحاكاة" : "Simulated execution progress"
-              }
-            >
-              {steps.map((step, idx) => {
-                const state =
-                  idx < safeStepIndex
-                    ? "done"
-                    : idx === safeStepIndex
-                    ? "active"
-                    : "idle";
-                return (
-                  <button
-                    key={step.id}
-                    type="button"
-                    className={`dt-living-progress-seg is-${state}`}
-                    onClick={() => {
-                      setActiveStepIndex(idx);
-                      setIsPaused(true);
-                    }}
-                    title={arabic ? step.label.ar : step.label.en}
-                    aria-label={arabic ? step.label.ar : step.label.en}
-                  />
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              className="dt-living-progress-toggle"
-              onClick={() => setIsPaused((p) => !p)}
-              aria-label={
-                isPaused
-                  ? arabic
-                    ? "تشغيل المحاكاة"
-                    : "Resume simulation"
-                  : arabic
-                  ? "إيقاف المحاكاة مؤقتاً"
-                  : "Pause simulation"
-              }
-              title={
-                isPaused
-                  ? arabic
-                    ? "تشغيل"
-                    : "Play"
-                  : arabic
-                  ? "إيقاف مؤقت"
-                  : "Pause"
-              }
-            >
-              {isPaused ? <Play size={11} /> : <Pause size={11} />}
-            </button>
+            {steps.map((step, idx) => {
+              const state =
+                idx < safeStepIndex
+                  ? "done"
+                  : idx === safeStepIndex
+                  ? "active"
+                  : "idle";
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  className={`dt-living-progress-seg is-${state}`}
+                  onClick={() => {
+                    setActiveStepIndex(idx);
+                    setIsPaused(true);
+                  }}
+                  title={arabic ? step.label.ar : step.label.en}
+                  aria-label={arabic ? step.label.ar : step.label.en}
+                />
+              );
+            })}
           </div>
-        ) : null}
+
+          <button
+            type="button"
+            className="dt-living-progress-toggle"
+            onClick={() => setIsPaused((p) => !p)}
+            aria-label={
+              isPaused
+                ? arabic
+                  ? "تشغيل المحاكاة"
+                  : "Resume simulation"
+                : arabic
+                ? "إيقاف المحاكاة مؤقتاً"
+                : "Pause simulation"
+            }
+            title={
+              isPaused
+                ? arabic
+                  ? "تشغيل"
+                  : "Play"
+                : arabic
+                ? "إيقاف مؤقت"
+                : "Pause"
+            }
+          >
+            {isPaused ? <Play size={11} /> : <Pause size={11} />}
+          </button>
+        </div>
+      ) : null}
       </div>
     </div>
   );

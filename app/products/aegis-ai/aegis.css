@@ -1707,6 +1707,14 @@
 }
 
 @media (max-width: 560px) {
+  .corporate-site .aegis-band {
+    padding: 48px 0;
+  }
+
+  .corporate-site .aegis-hero {
+    padding: 28px 0 48px;
+  }
+
   .corporate-site .aegis-telemetry-grid,
   .corporate-site .aegis-benchmark-grid,
   .corporate-site .aegis-evolution-grid {
@@ -1717,8 +1725,31 @@
   .corporate-site .aegis-ring-panel,
   .corporate-site .aegis-methodology-panel,
   .corporate-site .aegis-perf-dashboard,
-  .corporate-site .aegis-arch-inspector {
-    padding: 20px;
+  .corporate-site .aegis-arch-inspector,
+  .corporate-site .aegis-challenge-detail,
+  .corporate-site .aegis-timeline-card,
+  .corporate-site .aegis-recognition-bridge {
+    padding: 18px;
+  }
+
+  .corporate-site .aegis-timeline-item {
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .corporate-site .aegis-case-tabs,
+  .corporate-site .aegis-hero-actions {
+    width: 100%;
+  }
+
+  .corporate-site .aegis-cta-primary,
+  .corporate-site .aegis-cta-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .corporate-site .aegis-deployment-emails a {
+    overflow-wrap: anywhere;
   }
 }
 

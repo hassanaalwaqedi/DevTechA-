@@ -1081,16 +1081,28 @@ html[dir="rtl"] .role-back-link svg {
   .job-sidebar {
     position: static;
   }
+
+  .career-role:has(.career-role-visual) {
+    grid-template-columns: 1fr;
+  }
+
+  .career-role:has(.career-role-visual) .career-role-meta,
+  .career-role:has(.career-role-visual) .career-role-link,
+  .career-role:has(.career-role-visual) .career-role-visual {
+    grid-column: auto;
+    grid-row: auto;
+  }
 }
 
 @media (max-width: 560px) {
   .role-aware-copy {
-    padding: 24px;
+    padding: 20px 18px;
   }
 
   .role-intro,
-  .role-section {
-    padding: 22px;
+  .role-section,
+  .job-sidebar {
+    padding: 20px 18px;
   }
 
   .role-aware-grid > .role-visual {
