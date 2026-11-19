@@ -7666,3 +7666,340 @@ body.corporate-site {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   PREMIUM FLOATING DISCOVERY CALL INVITATION CARD & CALENDAR LAUNCHER
+   ========================================================================== */
+
+html[data-discovery-card-open="true"] .corporate-site .dt-sticky-booking-bar {
+  display: none;
+}
+
+.corporate-site .dt-float-discovery-root {
+  position: fixed;
+  bottom: max(22px, env(safe-area-inset-bottom));
+  inset-inline-end: max(22px, env(safe-area-inset-right));
+  z-index: 54;
+  pointer-events: none;
+}
+
+html[dir="rtl"] .corporate-site .dt-float-discovery-root {
+  inset-inline-end: max(22px, env(safe-area-inset-left));
+}
+
+/* Lift compact launcher cleanly above StickyBookingBar on tablet/mobile widths */
+@media (max-width: 1180px) {
+  .corporate-site .dt-float-discovery-root.is-above-sticky {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Expanded Floating Discovery Call Card (340–380px desktop) */
+.corporate-site .dt-float-discovery-card {
+  pointer-events: auto;
+  position: relative;
+  width: min(364px, calc(100vw - 28px));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 20px 17px;
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(135, 59, 255, 0.12) 0%, transparent 52%),
+    radial-gradient(circle at 14% 16%, rgba(16, 80, 255, 0.1) 0%, transparent 56%),
+    rgba(255, 255, 255, 0.93);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(120, 145, 225, 0.34);
+  box-shadow:
+    0 26px 58px -18px rgba(10, 32, 104, 0.24),
+    0 8px 24px -8px rgba(135, 59, 255, 0.14),
+    0 0 0 1px rgba(255, 255, 255, 0.85) inset;
+  animation: dtFloatDiscoveryEnter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes dtFloatDiscoveryEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.corporate-site .dt-float-discovery-accent-bar {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+}
+
+.corporate-site .dt-float-discovery-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.corporate-site .dt-float-discovery-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: var(--gradient-primary);
+  color: #FFFFFF;
+  box-shadow:
+    0 10px 22px -6px rgba(16, 80, 255, 0.48),
+    0 0 0 4px rgba(16, 80, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.corporate-site .dt-float-discovery-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid rgba(120, 145, 225, 0.24);
+  background: rgba(244, 247, 255, 0.9);
+  color: #465473;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.corporate-site .dt-float-discovery-close:hover {
+  color: #080D21;
+  background: #FFFFFF;
+  border-color: rgba(16, 80, 255, 0.42);
+}
+
+.corporate-site .dt-float-discovery-body h3 {
+  margin: 0;
+  color: #080D21;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.026em;
+}
+
+html[dir="rtl"] .corporate-site .dt-float-discovery-body h3 {
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.corporate-site .dt-float-discovery-body p {
+  margin: 6px 0 0;
+  color: #465473;
+  font-size: 13.6px;
+  line-height: 1.56;
+}
+
+.corporate-site .dt-float-discovery-cta {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+.corporate-site .dt-float-discovery-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #5C6B8E;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.corporate-site .dt-float-discovery-live-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0754FF 0%, #873BFF 100%);
+  box-shadow: 0 0 8px rgba(16, 80, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.corporate-site .dt-float-discovery-timer-track {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  height: 2.5px;
+  background: rgba(120, 145, 225, 0.14);
+  overflow: hidden;
+}
+
+.corporate-site .dt-float-discovery-timer-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-primary);
+  transform-origin: left center;
+  animation: dtFloatDiscoveryCountdown 12s linear forwards;
+}
+
+html[dir="rtl"] .corporate-site .dt-float-discovery-timer-fill {
+  transform-origin: right center;
+}
+
+@keyframes dtFloatDiscoveryCountdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Collapsed Compact Calendar Launcher */
+.corporate-site .dt-float-discovery-launcher {
+  pointer-events: auto;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.72);
+  background: var(--gradient-primary);
+  color: #FFFFFF;
+  cursor: pointer;
+  box-shadow:
+    0 16px 34px -8px rgba(16, 80, 255, 0.52),
+    0 6px 16px -4px rgba(135, 59, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
+  animation: dtFloatDiscoveryEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.corporate-site .dt-float-discovery-launcher:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow:
+    0 20px 40px -8px rgba(16, 80, 255, 0.6),
+    0 8px 20px -4px rgba(135, 59, 255, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52);
+}
+
+.corporate-site .dt-float-discovery-launcher-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 19px;
+  border: 1.5px solid rgba(16, 80, 255, 0.4);
+  pointer-events: none;
+  animation: dtFloatLauncherPulse 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes dtFloatLauncherPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+.corporate-site .dt-float-discovery-launcher-tooltip {
+  position: absolute;
+  inset-inline-end: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(120, 145, 225, 0.28);
+  box-shadow: 0 12px 26px -10px rgba(14, 34, 98, 0.2);
+  color: #080D21;
+  font-size: 12.2px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+html[dir="rtl"] .corporate-site .dt-float-discovery-launcher-tooltip {
+  transform: translateY(-50%) translateX(-4px);
+}
+
+.corporate-site .dt-float-discovery-launcher:hover .dt-float-discovery-launcher-tooltip,
+.corporate-site .dt-float-discovery-launcher:focus-visible .dt-float-discovery-launcher-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Mobile Adaptation for Floating Discovery Call Card */
+@media (max-width: 600px) {
+  .corporate-site .dt-float-discovery-root {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    inset-inline-end: max(14px, env(safe-area-inset-right));
+  }
+
+  html[dir="rtl"] .corporate-site .dt-float-discovery-root {
+    inset-inline-end: max(14px, env(safe-area-inset-left));
+  }
+
+  .corporate-site .dt-float-discovery-root:has(.dt-float-discovery-card) {
+    inset-inline: 14px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .corporate-site .dt-float-discovery-card {
+    width: 100%;
+    max-width: 390px;
+    padding: 18px 16px 15px;
+    border-radius: 20px;
+    gap: 12px;
+  }
+
+  .corporate-site .dt-float-discovery-body h3 {
+    font-size: 16.5px;
+  }
+
+  .corporate-site .dt-float-discovery-body p {
+    font-size: 13px;
+  }
+
+  .corporate-site .dt-float-discovery-cta {
+    min-height: 48px;
+  }
+
+  .corporate-site .dt-float-discovery-launcher {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+  }
+
+  .corporate-site .dt-float-discovery-launcher-tooltip {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corporate-site .dt-float-discovery-card,
+  .corporate-site .dt-float-discovery-launcher,
+  .corporate-site .dt-float-discovery-launcher-pulse,
+  .corporate-site .dt-float-discovery-timer-fill {
+    animation: none !important;
+  }
+
+  .corporate-site .dt-float-discovery-launcher,
+  .corporate-site .dt-float-discovery-launcher-tooltip,
+  .corporate-site .dt-float-discovery-close {
+    transition: none !important;
+  }
+}
