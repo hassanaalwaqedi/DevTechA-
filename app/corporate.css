@@ -5219,6 +5219,20 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   gap: 36px;
   align-items: start;
+  width: 100%;
+  min-width: 0;
+}
+
+.corporate-site .dt-booking-info,
+.corporate-site .dt-booking-card,
+.corporate-site .dt-booking-form,
+.corporate-site .dt-booking-schedule-box,
+.corporate-site .dt-booking-fields-grid,
+.corporate-site .dt-booking-field,
+.corporate-site .dt-booking-confirmation {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .corporate-site .dt-booking-title {
@@ -5313,6 +5327,10 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
 }
 
 .corporate-site .dt-booking-card {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   padding: 28px;
   border-radius: 22px;
   background: #FFFFFF;
@@ -5322,12 +5340,14 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
 
 .corporate-site .dt-booking-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   padding: 6px;
   border-radius: 13px;
   background: #F1F4FF;
   margin-bottom: 22px;
+  width: 100%;
+  min-width: 0;
 }
 
 .corporate-site .dt-booking-tab {
@@ -5336,15 +5356,22 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
   justify-content: center;
   gap: 8px;
   min-height: 42px;
-  padding: 0 14px;
+  min-width: 0;
+  padding: 6px 12px;
   border-radius: 10px;
   border: 0;
   background: transparent;
   color: var(--text-secondary);
   font-size: 13.8px;
   font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.corporate-site .dt-booking-tab svg {
+  flex-shrink: 0;
 }
 
 .corporate-site .dt-booking-tab.active {
@@ -5354,6 +5381,10 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
 }
 
 .corporate-site .dt-booking-schedule-box {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   padding: 18px;
   border-radius: 15px;
   background: #F8FAFF;
@@ -5440,7 +5471,12 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
 .corporate-site .dt-booking-dates-rail {
   display: flex;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
   margin-bottom: 12px;
 }
@@ -5552,6 +5588,9 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
 .corporate-site .dt-booking-field select,
 .corporate-site .dt-booking-field textarea {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 11px 13px;
   border-radius: 10px;
   border: 1px solid rgba(120, 145, 225, 0.28);
@@ -5769,7 +5808,7 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
   }
 
   .corporate-site .dt-booking-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -5786,7 +5825,7 @@ html[dir="rtl"] :is(.dt-btn-arrow, .dt-capability-arrow svg) {
   .corporate-site .dt-verified-work-grid,
   .corporate-site .dt-b2b-process-grid,
   .corporate-site .dt-booking-fields-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .corporate-site .dt-booking-times-grid {
@@ -7197,7 +7236,52 @@ body.corporate-site {
   /* B2B Homepage Sections & Booking Experience */
   .corporate-site .dt-b2b-section,
   .corporate-site .dt-booking-section {
-    padding: 48px 0;
+    padding: 44px 0;
+  }
+
+  .corporate-site .dt-booking-standalone {
+    padding: 20px 0 56px;
+  }
+
+  .corporate-site .dt-booking-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .corporate-site .dt-booking-title {
+    font-size: clamp(24px, 6.8vw, 32px);
+    line-height: 1.18;
+  }
+
+  .corporate-site .dt-booking-lead {
+    font-size: 14.5px;
+    margin-bottom: 18px;
+  }
+
+  .corporate-site .dt-booking-agenda {
+    padding: 16px 14px;
+    margin-bottom: 16px;
+  }
+
+  .corporate-site .dt-booking-guarantee-pill {
+    display: flex;
+    align-items: flex-start;
+    border-radius: 14px;
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .corporate-site .dt-booking-guarantee-pill svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .corporate-site .dt-booking-direct-mail a,
+  .corporate-site .dt-booking-confirm-details a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    flex-wrap: wrap;
   }
 
   .corporate-site .dt-b2b-process-card,
@@ -7205,18 +7289,21 @@ body.corporate-site {
   .corporate-site .dt-verified-card,
   .corporate-site .dt-booking-card,
   .corporate-site .dt-booking-highlights {
-    padding: 20px 16px;
+    padding: 18px 14px;
     border-radius: 18px;
   }
 
   .corporate-site .dt-booking-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
+    margin-bottom: 16px;
   }
 
   .corporate-site .dt-booking-tab {
-    padding: 10px 8px;
-    font-size: 12.5px;
+    padding: 8px 6px;
+    font-size: 12.2px;
     min-height: 44px;
+    gap: 6px;
   }
 
   .corporate-site .dt-booking-schedule-box {
@@ -7230,7 +7317,9 @@ body.corporate-site {
   }
 
   .corporate-site .dt-booking-duration-group {
+    flex-wrap: wrap;
     justify-content: space-between;
+    gap: 8px;
   }
 
   .corporate-site .dt-booking-duration-pills button {
@@ -7240,14 +7329,22 @@ body.corporate-site {
 
   .corporate-site .dt-booking-tz-select {
     width: 100%;
+    min-width: 0;
   }
 
   .corporate-site .dt-booking-tz-select select {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 42px;
   }
 
   .corporate-site .dt-booking-dates-rail {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
     padding-bottom: 10px;
@@ -7262,6 +7359,13 @@ body.corporate-site {
   .corporate-site .dt-booking-time-btn {
     min-height: 44px;
     font-size: 13.5px;
+  }
+
+  .corporate-site .dt-booking-fallback-toggle {
+    display: block;
+    width: 100%;
+    text-align: start;
+    line-height: 1.45;
   }
 
   .corporate-site .dt-booking-calendar-actions {
@@ -7541,11 +7645,11 @@ body.corporate-site {
   }
 
   .corporate-site .dt-booking-tabs {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .corporate-site .dt-booking-times-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .corporate-site .dt-sticky-booking-copy {
