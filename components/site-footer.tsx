@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Locale } from "@/lib/locale";
 import { HirzexaLogoMark } from "@/components/navigation/SiteHeader";
+import { CookieSettingsButton } from "@/components/cookie-settings-button";
 import {
   COMPANY_EMAILS,
   FOOTER_EMAIL_CHANNELS,
@@ -66,6 +67,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           <span dir="ltr">© {new Date().getFullYear()} HIRZEXA</span>
           <div className="dt-footer-legal-links">
             <Link href="/privacy">{ar ? "الخصوصية" : "Privacy"}</Link>
+            <CookieSettingsButton arabic={ar} />
             <Link href="/legal">{ar ? "الشؤون القانونية" : "Legal"}</Link>
             <Link href="/partnerships">{ar ? "الشراكات" : "Partnerships"}</Link>
             <Link href="/investors">{ar ? "المستثمرون" : "Investors"}</Link>

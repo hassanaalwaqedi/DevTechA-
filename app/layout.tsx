@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { VisitorTracker } from "@/components/visitor-tracker";
 import { LanguageProvider } from "@/components/language-provider";
 import { StickyBookingBar } from "@/components/booking/StickyBookingBar";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { getLocale } from "@/lib/locale";
 import { buildPageSocialImageUrl } from "@/lib/social-metadata";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
@@ -60,5 +61,5 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
   const organization = {"@context": "https://schema.org", "@type": "Organization", name: "HIRZEXA", url: SITE_URL, logo: `${SITE_URL}/brand/hirzexa-mark.png`, email: CONTACT_EMAIL, description: "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations."};
-  return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><body className={`corporate-site ${sans.variable}`}><LanguageProvider locale={locale}><SiteHeader /><VisitorTracker />{children}<StickyBookingBar /><SiteFooter locale={locale} /></LanguageProvider><script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(organization)}} /></body></html>;
+  return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><body className={`corporate-site ${sans.variable}`}><LanguageProvider locale={locale}><SiteHeader /><VisitorTracker />{children}<StickyBookingBar /><CookieConsentBanner /><SiteFooter locale={locale} /></LanguageProvider><script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(organization)}} /></body></html>;
 }

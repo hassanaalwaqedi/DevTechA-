@@ -96,12 +96,6 @@ export function HeroSection({ arabic = false, demoConfig }: HeroSectionProps) {
               )}
             </h1>
 
-            <p className="dt-hero-description">
-              {arabic
-                ? "نساعد الشركات والمؤسسات على التخلص من الاختناقات التشغيلية وتشتت الأنظمة عبر تصميم وبناء وكلاء الذكاء الاصطناعي، وأتمتة العمليات، والبرمجيات المخصصة، والتكامل السحابي — بمنهجية هندسية واضحة من جلسة الاكتشاف حتى التشغيل."
-                : "Eliminate manual operational bottlenecks and fragmented workflows. We partner with businesses to architect, build, and deploy custom software platforms, AI agents, process automation, and cloud integrations that deliver measurable operational efficiency."}
-            </p>
-
             <div className="dt-hero-actions">
               <GradientButton href="#book-discovery" variant="primary" className="dt-hero-btn-primary">
                 <span>{arabic ? "احجز جلسة اكتشاف" : "Book a Discovery Call"}</span>
