@@ -16,6 +16,7 @@ import {
   type SynchronizedTimeSlot,
 } from "@/lib/crm-types";
 import { isAutomatedAckEnabled } from "@/lib/email-templates";
+import { isLocalFallbackAllowed } from "@/lib/intelligence/store";
 import { SITE_URL } from "@/lib/site";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
@@ -25,6 +26,7 @@ const localStoreDir = join(process.cwd(), ".data");
 const localStoreFile = join(localStoreDir, "crm-leads.json");
 
 async function readLocalLeads(): Promise<CrmLeadRecord[]> {
+  if (!isLocalFallbackAllowed()) return [];
   try {
     const raw = await readFile(localStoreFile, "utf8");
     const parsed = JSON.parse(raw);
@@ -35,6 +37,7 @@ async function readLocalLeads(): Promise<CrmLeadRecord[]> {
 }
 
 async function writeLocalLead(lead: CrmLeadRecord): Promise<void> {
+  if (!isLocalFallbackAllowed()) return;
   try {
     await mkdir(localStoreDir, { recursive: true });
     const existing = await readLocalLeads();
@@ -563,30 +566,100 @@ function parseAiLeadRowToCrm(row: Record<string, unknown>): CrmLeadRecord | null
   };
 }
 
+function mapNormalizedLeadRow(row: Record<string, unknown>): CrmLeadRecord | null {
+  if (!row || !row.id || !row.reference_id) return null;
+  const companyObj = Array.isArray(row.crm_companies)
+    ? (row.crm_companies[0] as Record<string, unknown> | undefined)
+    : (row.crm_companies as Record<string, unknown> | null);
+  const contactObj = Array.isArray(row.crm_contacts)
+    ? (row.crm_contacts[0] as Record<string, unknown> | undefined)
+    : (row.crm_contacts as Record<string, unknown> | null);
+  const ownerObj = Array.isArray(row.employees)
+    ? (row.employees[0] as Record<string, unknown> | undefined)
+    : (row.employees as Record<string, unknown> | null);
+  const stage = isCrmStage(row.stage) ? row.stage : "new_lead";
+
+  return {
+    id: String(row.id),
+    referenceId: String(row.reference_id),
+    leadType: row.lead_type === "proposal_request" ? "proposal_request" : "discovery_call",
+    stage,
+    fullName: String(contactObj?.full_name || ""),
+    email: String(contactObj?.email || ""),
+    phone: contactObj?.phone ? String(contactObj.phone) : undefined,
+    company: String(companyObj?.name || ""),
+    roleTitle: contactObj?.role_title ? String(contactObj.role_title) : undefined,
+    serviceTrack: String(row.service_track || "AI & Software Engineering"),
+    budgetRange: row.budget_range ? String(row.budget_range) : undefined,
+    timeline: row.timeline ? String(row.timeline) : undefined,
+    durationMinutes: row.duration_minutes === 20 ? 20 : 30,
+    scheduledSlotIso: row.scheduled_slot_iso ? String(row.scheduled_slot_iso) : null,
+    preferredWindow: row.preferred_window ? String(row.preferred_window) : undefined,
+    timezone: String(row.timezone || "UTC"),
+    meetingLink: row.meeting_link ? String(row.meeting_link) : undefined,
+    projectSummary: String(row.project_summary || ""),
+    currentStack: row.current_stack ? String(row.current_stack) : undefined,
+    consent: Boolean(contactObj?.consent ?? true),
+    consentTimestamp: String(contactObj?.consent_at || row.created_at || new Date().toISOString()),
+    locale: contactObj?.locale === "ar" ? "ar" : "en",
+    reminder24hSent: false,
+    reminder1hSent: false,
+    nextFollowUpAt: row.next_follow_up_at ? String(row.next_follow_up_at) : null,
+    notes: String(row.notes || ""),
+    ownerId: row.owner_employee_id ? String(row.owner_employee_id) : null,
+    ownerEmail: ownerObj?.email ? String(ownerObj.email) : null,
+    ownerName: ownerObj?.full_name ? String(ownerObj.full_name) : null,
+    activities: Array.isArray(row.activities) ? (row.activities as CrmActivityItem[]) : [],
+    createdAt: String(row.created_at || new Date().toISOString()),
+    updatedAt: String(row.updated_at || row.created_at || new Date().toISOString()),
+  };
+}
+
 export async function listCrmLeads(): Promise<CrmLeadRecord[]> {
   const combined = new Map<string, CrmLeadRecord>();
 
-  // 1. Load durable local file cache (.data/crm-leads.json)
-  const diskLeads = await readLocalLeads();
-  for (const item of diskLeads) {
-    combined.set(item.id, item);
-    memoryLeads.set(item.id, item);
-    if (item.scheduledSlotIso && item.stage !== "lost") {
-      reservedSlotIsos.add(new Date(item.scheduledSlotIso).toISOString());
+  // 1 & 2. Local file and in-memory cache are active ONLY in isolated offline test mode
+  if (isLocalFallbackAllowed()) {
+    const diskLeads = await readLocalLeads();
+    for (const item of diskLeads) {
+      combined.set(item.id, item);
+      memoryLeads.set(item.id, item);
+      if (item.scheduledSlotIso && item.stage !== "lost") {
+        reservedSlotIsos.add(new Date(item.scheduledSlotIso).toISOString());
+      }
+    }
+    for (const [id, item] of memoryLeads.entries()) {
+      combined.set(id, item);
     }
   }
 
-  // 2. Load in-memory session cache
-  for (const [id, item] of memoryLeads.entries()) {
-    combined.set(id, item);
-  }
-
-  // 3. Load from Supabase (visitor_events CRM channel + ai_leads if available)
+  // 3. Load from Supabase (normalized crm_leads first, then legacy visitor_events & ai_leads)
   if (isSupabaseConfigured()) {
     try {
       const supabase = await createSupabaseServerClient();
 
-      // Primary live Supabase table (`visitor_events` with path LIKE '/__crm_lead__/%')
+      // Normalized Phase 1 schema (enforced by PostgreSQL RLS per role/scope)
+      const { data: normRows, error: normErr } = await supabase
+        .from("crm_leads")
+        .select(
+          "*, crm_companies(name), crm_contacts(full_name, email, phone, role_title, locale, consent, consent_at), employees(id, email, full_name)"
+        )
+        .order("created_at", { ascending: false });
+
+      if (!normErr && Array.isArray(normRows)) {
+        for (const row of normRows) {
+          const parsed = mapNormalizedLeadRow(row as Record<string, unknown>);
+          if (parsed) {
+            combined.set(parsed.id, parsed);
+            memoryLeads.set(parsed.id, parsed);
+            if (parsed.scheduledSlotIso && parsed.stage !== "lost") {
+              reservedSlotIsos.add(new Date(parsed.scheduledSlotIso).toISOString());
+            }
+          }
+        }
+      }
+
+      // Legacy live Supabase channel (`visitor_events` with path LIKE '/__crm_lead__/%')
       const { data: eventRows, error: eventErr } = await supabase
         .from("visitor_events")
         .select("visitor_id, path, job_slug, created_at")
@@ -662,6 +735,58 @@ export async function createCrmLead(input: {
   calendarLinks: ReturnType<typeof buildCalendarLinks>;
   webhookDelivered: boolean;
 }> {
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const normalizedCompany = input.company.trim().toLowerCase();
+  const parsedIncomingSlot = input.scheduledSlotIso
+    ? new Date(input.scheduledSlotIso)
+    : null;
+  const incomingSlotIso =
+    parsedIncomingSlot && !Number.isNaN(parsedIncomingSlot.getTime())
+      ? parsedIncomingSlot.toISOString()
+      : null;
+
+  // Idempotency guard: avoid creating duplicate lead records when the same booking
+  // or identical inquiry payload is processed repeatedly within a short window.
+  const existingLeads = await listCrmLeads();
+  const duplicateMatch = existingLeads.find((item) => {
+    const sameEmail = item.email.trim().toLowerCase() === normalizedEmail;
+    if (!sameEmail) return false;
+    if (incomingSlotIso && item.scheduledSlotIso === incomingSlotIso) {
+      return true;
+    }
+    const ageMs = Date.now() - new Date(item.createdAt).getTime();
+    return (
+      ageMs >= 0 &&
+      ageMs < 10 * 60 * 1000 &&
+      item.leadType === input.leadType &&
+      item.serviceTrack === input.serviceTrack &&
+      item.company.trim().toLowerCase() === normalizedCompany
+    );
+  });
+
+  if (duplicateMatch) {
+    const existingIcs =
+      duplicateMatch.scheduledSlotIso && duplicateMatch.meetingLink
+        ? generateDiscoveryIcs({
+            referenceId: duplicateMatch.referenceId,
+            fullName: duplicateMatch.fullName,
+            email: duplicateMatch.email,
+            company: duplicateMatch.company,
+            serviceTrack: duplicateMatch.serviceTrack,
+            durationMinutes: duplicateMatch.durationMinutes,
+            scheduledSlotIso: duplicateMatch.scheduledSlotIso,
+            meetingLink: duplicateMatch.meetingLink,
+            projectSummary: duplicateMatch.projectSummary,
+          })
+        : null;
+    return {
+      lead: duplicateMatch,
+      icsContent: existingIcs,
+      calendarLinks: buildCalendarLinks(duplicateMatch),
+      webhookDelivered: false,
+    };
+  }
+
   const nowIso = new Date().toISOString();
   const prefix = input.leadType === "discovery_call" ? "DSC" : "PRP";
   const referenceId = `HRZ-${prefix}-${new Date().getFullYear()}-${randomInt(10000, 99999)}`;
@@ -742,14 +867,40 @@ export async function createCrmLead(input: {
   if (isSupabaseConfigured()) {
     try {
       const supabase = await createSupabaseServerClient();
-      // Persist to live visitor_events CRM channel (works immediately with existing anon INSERT & admin SELECT policies)
+      // 1. Primary normalized Phase 1 RPC (safe for unauthenticated public submissions under strict RLS)
+      await supabase.rpc("ingest_public_crm_lead", {
+        p_id: lead.id,
+        p_reference_id: lead.referenceId,
+        p_lead_type: lead.leadType,
+        p_stage: lead.stage,
+        p_full_name: lead.fullName,
+        p_email: lead.email,
+        p_phone: lead.phone || null,
+        p_company: lead.company || "",
+        p_role_title: lead.roleTitle || null,
+        p_service_track: lead.serviceTrack,
+        p_budget_range: lead.budgetRange || null,
+        p_timeline: lead.timeline || null,
+        p_duration_minutes: lead.durationMinutes,
+        p_scheduled_slot_iso: lead.scheduledSlotIso || null,
+        p_preferred_window: lead.preferredWindow || null,
+        p_timezone: lead.timezone || "UTC",
+        p_meeting_link: lead.meetingLink || null,
+        p_project_summary: lead.projectSummary,
+        p_current_stack: lead.currentStack || null,
+        p_consent: lead.consent,
+        p_locale: lead.locale,
+        p_activities: lead.activities,
+      });
+
+      // 2. Backwards-compatible fallback channel if Phase 1 migration is not yet applied
       await supabase.from("visitor_events").insert({
         visitor_id: `crm:${lead.id}`,
         path: `/__crm_lead__/${lead.referenceId}`,
         job_slug: JSON.stringify(lead),
       });
 
-      // Also persist to ai_leads if table exists (without .select() so anon RLS succeeds)
+      // 3. Secondary table (`ai_leads` if migrated)
       await supabase.from("ai_leads").insert({
         id: lead.id,
         name: lead.fullName,
@@ -766,8 +917,10 @@ export async function createCrmLead(input: {
     } catch {}
   }
 
-  memoryLeads.set(lead.id, lead);
-  await writeLocalLead(lead);
+  if (isLocalFallbackAllowed()) {
+    memoryLeads.set(lead.id, lead);
+    await writeLocalLead(lead);
+  }
 
   const icsContent =
     normalizedSlotIso && meetingLink
@@ -853,6 +1006,9 @@ export async function updateCrmLead(
     meetingLink?: string;
     activityNote?: string;
     sendReminder?: boolean;
+    ownerId?: string | null;
+    ownerEmail?: string | null;
+    ownerName?: string | null;
     actorEmail?: string;
   }
 ): Promise<CrmLeadRecord | null> {
@@ -871,6 +1027,18 @@ export async function updateCrmLead(
       id: randomUUID(),
       type: "stage_change",
       summary: `Pipeline stage updated: ${CRM_STAGE_LABELS[current.stage].en} → ${CRM_STAGE_LABELS[nextStage].en}`,
+      actor,
+      createdAt: nowIso,
+    });
+  }
+
+  if (patch.ownerEmail !== undefined && patch.ownerEmail !== current.ownerEmail) {
+    nextActivities.unshift({
+      id: randomUUID(),
+      type: "follow_up",
+      summary: patch.ownerEmail
+        ? `Assigned lead owner to ${patch.ownerName || patch.ownerEmail}`
+        : "Unassigned lead owner",
       actor,
       createdAt: nowIso,
     });
@@ -907,18 +1075,48 @@ export async function updateCrmLead(
     scheduledSlotIso:
       patch.scheduledSlotIso !== undefined ? patch.scheduledSlotIso : current.scheduledSlotIso,
     meetingLink: patch.meetingLink !== undefined ? patch.meetingLink : current.meetingLink,
+    ownerId: patch.ownerId !== undefined ? patch.ownerId : current.ownerId,
+    ownerEmail: patch.ownerEmail !== undefined ? patch.ownerEmail : current.ownerEmail,
+    ownerName: patch.ownerName !== undefined ? patch.ownerName : current.ownerName,
     reminder24hSent,
     activities: nextActivities,
     updatedAt: nowIso,
   };
 
-  memoryLeads.set(updated.id, updated);
-  await writeLocalLead(updated);
+  if (isLocalFallbackAllowed()) {
+    memoryLeads.set(updated.id, updated);
+    await writeLocalLead(updated);
+  }
 
   if (isSupabaseConfigured()) {
     try {
       const supabase = await createSupabaseServerClient();
-      // Append updated revision to visitor_events CRM channel
+      // 1. Update normalized crm_leads & append immutable crm_stage_history (enforced by Postgres RLS)
+      const { error: normUpdateErr } = await supabase
+        .from("crm_leads")
+        .update({
+          stage: updated.stage,
+          notes: updated.notes,
+          next_follow_up_at: updated.nextFollowUpAt || null,
+          scheduled_slot_iso: updated.scheduledSlotIso || null,
+          meeting_link: updated.meetingLink || null,
+          owner_employee_id: updated.ownerId || null,
+          activities: updated.activities,
+          updated_at: updated.updatedAt,
+        })
+        .eq("id", updated.id);
+
+      if (!normUpdateErr && nextStage !== current.stage) {
+        await supabase.from("crm_stage_history").insert({
+          lead_id: updated.id,
+          from_stage: current.stage,
+          to_stage: nextStage,
+          changed_by: actor,
+          reason: patch.activityNote?.trim() || "Stage transition via HIRZEXA CRM",
+        });
+      }
+
+      // 2. Append updated revision to legacy visitor_events CRM channel for backwards compatibility
       await supabase.from("visitor_events").insert({
         visitor_id: `crm:${updated.id}`,
         path: `/__crm_lead__/${updated.referenceId}`,

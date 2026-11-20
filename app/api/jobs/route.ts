@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminJobs, getPublishedJobs } from "@/lib/db";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
 import { isMissingJobVisualColumns, normalizeVisualAccent, normalizeVisualKeywords, normalizeVisualVariantForCategory, resolveVisualCategory } from "@/lib/job-visuals";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,9 @@ function errorMessage(error: unknown) {
 }
 
 const errorResponse = (error: unknown) => {
+  if (error instanceof RbacDeniedError) {
+    return NextResponse.json({error: error.message}, {status: 403});
+  }
   const message = errorMessage(error);
   return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
 };
@@ -20,7 +24,7 @@ export async function GET(request: Request) {
   try {
     const isAdmin = new URL(request.url).searchParams.get("admin") === "true";
     if (isAdmin) {
-      await requireAdminApi();
+      await requirePermissionApi("jobs", "view");
       return NextResponse.json({jobs: await getAdminJobs()});
     }
     return NextResponse.json({jobs: await getPublishedJobs()});
@@ -31,7 +35,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const {supabase} = await requireAdminApi();
+    const {supabase} = await requirePermissionApi("jobs", "create");
     const body = await request.json();
     if (!body.title || !body.slug || !body.description || !body.department) {
       return NextResponse.json({error: "title, slug, description, and department are required."}, {status: 422});

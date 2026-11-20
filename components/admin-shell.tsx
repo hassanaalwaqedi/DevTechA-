@@ -1,5 +1,120 @@
-import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, CalendarCheck2, Cpu, FileText, Package, Settings } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
+import { listBusinessEvents } from "@/lib/intelligence/events";
+import { hasPermission } from "@/lib/rbac";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
+import {
+  AdminShellChrome,
+  type ShellNavGroup,
+  type ShellNotification,
+} from "@/components/admin-shell-chrome";
 
-export async function AdminShell({ children, active }: {children: React.ReactNode; active: string}) { await requireAdmin(); return <div className="admin-shell"><aside className="admin-side"><Link href="/admin" className="brand"><img className="brand-mark" src="/brand/hirzexa-mark.png" alt=""/>HIRZEXA</Link><nav><Link className={active === "overview" ? "active" : ""} href="/admin"><BarChart3 size={15}/> Overview</Link><Link className={active === "crm" ? "active" : ""} href="/admin/crm"><CalendarCheck2 size={15}/> Sales CRM</Link><Link className={active === "demonstrations" ? "active" : ""} href="/admin/website/demonstrations"><Cpu size={15}/> Interactive Demos</Link><Link className={active === "jobs" ? "active" : ""} href="/admin/jobs"><BriefcaseBusiness size={15}/> Jobs</Link><Link className={active === "applications" ? "active" : ""} href="/admin/applications"><FileText size={15}/> Applications</Link><Link className={active === "products" ? "active" : ""} href="/admin/products"><Package size={15}/> Products</Link><Link className={active === "settings" ? "active" : ""} href="/admin/settings"><Settings size={15}/> Settings</Link></nav></aside><section className="admin-main">{children}</section></div>; }
+export async function AdminShell({
+  children,
+  active,
+}: {
+  children: React.ReactNode;
+  active: string;
+}) {
+  const { actor } = await requireAdmin();
+
+  const primary: ShellNavGroup["items"] = [];
+  if (hasPermission(actor, "dashboard", "view")) {
+    primary.push({ id: "overview", label: "Command Center", href: "/admin", icon: "overview" });
+  }
+  if (hasPermission(actor, "agent", "view")) {
+    primary.push({ id: "agent", label: "AI Agent & Voice", href: "/admin/agent", icon: "agent" });
+  }
+  if (hasPermission(actor, "crm", "view") || hasPermission(actor, "bookings", "view")) {
+    primary.push({ id: "crm", label: "Sales CRM", href: "/admin/crm", icon: "crm" });
+  }
+  if (hasPermission(actor, "recruitment", "view")) {
+    primary.push({
+      id: "applications",
+      label: "Recruitment",
+      href: "/admin/applications",
+      icon: "applications",
+    });
+  }
+  if (hasPermission(actor, "jobs", "view")) {
+    primary.push({ id: "jobs", label: "Jobs", href: "/admin/jobs", icon: "jobs" });
+  }
+  if (hasPermission(actor, "products", "view")) {
+    primary.push({ id: "products", label: "Products", href: "/admin/products", icon: "products" });
+  }
+
+  const management: ShellNavGroup["items"] = [];
+  if (hasPermission(actor, "demonstrations", "view")) {
+    management.push({
+      id: "demonstrations",
+      label: "Interactive Demos",
+      href: "/admin/website/demonstrations",
+      icon: "demonstrations",
+    });
+  }
+  if (hasPermission(actor, "team", "view")) {
+    management.push({
+      id: "team",
+      label: "Team & RBAC",
+      href: "/admin/team",
+      icon: "team",
+    });
+  }
+  if (hasPermission(actor, "audit", "view")) {
+    management.push({
+      id: "audit",
+      label: "Audit Logs",
+      href: "/admin/audit",
+      icon: "audit",
+    });
+  }
+
+  const system: ShellNavGroup["items"] = [];
+  if (hasPermission(actor, "settings", "view")) {
+    system.push({ id: "settings", label: "Settings", href: "/admin/settings", icon: "settings" });
+  }
+
+  const navGroups: ShellNavGroup[] = [
+    ...(primary.length > 0 ? [{ label: "Primary", items: primary }] : []),
+    ...(management.length > 0 ? [{ label: "Management", items: management }] : []),
+    ...(system.length > 0 ? [{ label: "System", items: system }] : []),
+  ];
+
+  // Real authorized business events for top-bar notifications (zero fabricated data)
+  const rawEvents = await listBusinessEvents(actor, { limit: 8 }).catch(() => []);
+  const notifications: ShellNotification[] = rawEvents.map((evt) => ({
+    id: evt.id,
+    title: evt.title,
+    summary: evt.summary,
+    href: evt.sourceHref,
+    severity: evt.severity,
+    module: evt.module,
+    createdAt: evt.createdAt,
+  }));
+
+  const envStatus = isSupabaseConfigured()
+    ? process.env.NODE_ENV === "production"
+      ? "Production"
+      : "Supabase Live"
+    : "Local Mode";
+
+  return (
+    <AdminShellChrome
+      active={active}
+      navGroups={navGroups}
+      notifications={notifications}
+      canUseAgent={hasPermission(actor, "agent", "view")}
+      canViewCrm={hasPermission(actor, "crm", "view") || hasPermission(actor, "bookings", "view")}
+      canViewAudit={hasPermission(actor, "audit", "view")}
+      envStatus={envStatus}
+      actor={{
+        fullName: actor.fullName,
+        email: actor.email,
+        roleLabel: actor.roleLabel,
+        scope: actor.scope,
+        mfaEnrolled: actor.mfaEnrolled,
+      }}
+    >
+      {children}
+    </AdminShellChrome>
+  );
+}

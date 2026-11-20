@@ -136,10 +136,33 @@ export interface CrmLeadRecord {
   reminder24hSent: boolean;
   reminder1hSent: boolean;
   nextFollowUpAt?: string | null;
+  ownerId?: string | null;
+  ownerEmail?: string | null;
+  ownerName?: string | null;
   notes: string;
   activities: CrmActivityItem[];
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Documented B2B sales pipeline stage transitions.
+ * Prevents accidental invalid jumps (e.g., jumping straight from new_lead to won
+ * without discovery or proposal) while allowing controlled re-opening of lost leads.
+ */
+export const CRM_STAGE_TRANSITIONS: Record<CrmStage, readonly CrmStage[]> = {
+  new_lead: ["meeting_booked", "discovery_completed", "proposal_sent", "lost"],
+  meeting_booked: ["new_lead", "discovery_completed", "proposal_sent", "lost"],
+  discovery_completed: ["meeting_booked", "proposal_sent", "negotiation", "lost"],
+  proposal_sent: ["discovery_completed", "negotiation", "won", "lost"],
+  negotiation: ["proposal_sent", "won", "lost"],
+  won: ["negotiation"],
+  lost: ["new_lead", "meeting_booked", "discovery_completed"],
+};
+
+export function canTransitionStage(from: CrmStage, to: CrmStage): boolean {
+  if (from === to) return true;
+  return CRM_STAGE_TRANSITIONS[from]?.includes(to) ?? false;
 }
 
 export interface SynchronizedTimeSlot {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { COMPANY_EMAILS } from "@/lib/company-emails";
 import { createCrmLead } from "@/lib/crm";
+import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -157,6 +158,31 @@ export async function POST(request: Request) {
       consent,
       locale,
     });
+
+    try {
+      await emitBusinessEvent({
+        eventType:
+          result.lead.leadType === "discovery_call"
+            ? "booking.created"
+            : "proposal.created",
+        module: result.lead.leadType === "discovery_call" ? "bookings" : "crm",
+        severity: result.lead.scheduledSlotIso ? "attention" : "info",
+        actorRef: result.lead.fullName,
+        entityType: "lead",
+        entityId: result.lead.id,
+        title:
+          result.lead.leadType === "discovery_call"
+            ? `New discovery call: ${result.lead.company || result.lead.fullName}`
+            : `New proposal request: ${result.lead.company || result.lead.fullName}`,
+        summary: `${result.lead.referenceId} · ${result.lead.serviceTrack}${
+          result.lead.scheduledSlotIso
+            ? ` · ${new Date(result.lead.scheduledSlotIso).toUTCString()}`
+            : ""
+        }`,
+        sourceHref: `/admin/crm?lead=${encodeURIComponent(result.lead.id)}`,
+        idempotencyKey: `lead-created:${result.lead.id}`,
+      });
+    } catch {}
 
     return NextResponse.json(
       {

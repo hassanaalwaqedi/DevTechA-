@@ -1,20 +1,24 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
 import {
   getDemoConfigEnvelope,
   publishDemoConfig,
   resetDemoConfigToDefaults,
   saveDemoConfigDraft,
 } from "@/lib/demo-config";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    await requireAdminApi();
-  } catch {
+    await requirePermissionApi("demonstrations", "view");
+  } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -27,9 +31,12 @@ export async function GET() {
 export async function PUT(request: Request) {
   let actorEmail = "Admin";
   try {
-    const { user } = await requireAdminApi();
+    const { user } = await requirePermissionApi("demonstrations", "edit");
     if (user?.email) actorEmail = user.email;
-  } catch {
+  } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -76,9 +83,12 @@ export async function PUT(request: Request) {
 export async function POST(request: Request) {
   let actorEmail = "Admin";
   try {
-    const { user } = await requireAdminApi();
+    const { user } = await requirePermissionApi("demonstrations", "manage");
     if (user?.email) actorEmail = user.email;
-  } catch {
+  } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

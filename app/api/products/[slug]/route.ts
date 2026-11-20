@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
 import { isMissingExtendedProductColumns, isProductPolicyError, productErrorMessage, sanitizeColor, sanitizeOptionalUrl, sanitizeStringList } from "@/lib/product-admin";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 
 function responseError(error: unknown) {
+  if (error instanceof RbacDeniedError) {
+    return NextResponse.json({error: error.message}, {status: 403});
+  }
   const message = productErrorMessage(error);
   return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
 }
@@ -15,7 +19,7 @@ function policyError() {
 
 export async function PATCH(request: Request, {params}: {params: Promise<{slug: string}>}) {
   try {
-    const {supabase} = await requireAdminApi();
+    const {supabase} = await requirePermissionApi("products", "edit");
     const {slug} = await params;
     const body = await request.json();
     const patch: Record<string, unknown> = {};
@@ -64,7 +68,7 @@ export async function PATCH(request: Request, {params}: {params: Promise<{slug: 
 
 export async function DELETE(_request: Request, {params}: {params: Promise<{slug: string}>}) {
   try {
-    const {supabase} = await requireAdminApi();
+    const {supabase} = await requirePermissionApi("products", "delete");
     const {slug} = await params;
     const {error} = await supabase.from("products").delete().eq("slug", slug);
     if (isProductPolicyError(error)) throw policyError();

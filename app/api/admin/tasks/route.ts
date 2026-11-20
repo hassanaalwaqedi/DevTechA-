@@ -1,0 +1,102 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requirePermissionApi } from "@/lib/auth";
+import { recordAuditLog } from "@/lib/intelligence/audit";
+import { emitBusinessEvent } from "@/lib/intelligence/events";
+import { createTask, listTasks } from "@/lib/intelligence/tasks";
+import { RbacDeniedError } from "@/lib/rbac";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const createTaskSchema = z.object({
+  title: z.string().trim().min(2).max(180),
+  description: z.string().trim().max(1500).optional(),
+  priority: z.enum(["low", "normal", "high", "urgent"]).optional(),
+  dueAt: z.string().trim().max(40).nullable().optional(),
+  entityType: z
+    .enum(["lead", "booking", "application", "job", "general"])
+    .nullable()
+    .optional(),
+  entityId: z.string().trim().max(120).nullable().optional(),
+  entityLabel: z.string().trim().max(160).nullable().optional(),
+  assignedToId: z.string().trim().max(120).nullable().optional(),
+  assignedToEmail: z.string().trim().max(160).nullable().optional(),
+});
+
+export async function GET(request: Request) {
+  try {
+    const { actor } = await requirePermissionApi("tasks", "view");
+    const { searchParams } = new URL(request.url);
+    const status = (searchParams.get("status") || "all") as
+      | "all"
+      | "active"
+      | "open"
+      | "in_progress"
+      | "completed"
+      | "cancelled";
+    const entityId = searchParams.get("entityId") || undefined;
+    const overdueOnly = searchParams.get("overdue") === "1";
+
+    const tasks = await listTasks(actor, { status, entityId, overdueOnly });
+    return NextResponse.json({ ok: true, tasks });
+  } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+}
+
+export async function POST(request: Request) {
+  let actor;
+  try {
+    ({ actor } = await requirePermissionApi("tasks", "create"));
+  } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const parsed = createTaskSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues.map((i) => i.message).join(", ") },
+      { status: 400 }
+    );
+  }
+
+  const task = await createTask(actor, parsed.data);
+
+  await recordAuditLog({
+    actorId: actor.id,
+    actorEmail: actor.email,
+    actorRole: actor.roleKey,
+    module: "tasks",
+    action: "create",
+    entityType: "task",
+    entityId: task.id,
+    outcome: "allowed",
+    summary: `Created task "${task.title}" (${task.priority}).`,
+  });
+
+  try {
+    await emitBusinessEvent({
+      eventType: "task.created",
+      module: "tasks",
+      actorRef: actor.email,
+      entityType: "task",
+      entityId: task.id,
+      title: `New task: ${task.title}`,
+      summary: `${task.priority} priority${task.entityLabel ? ` · ${task.entityLabel}` : ""}`,
+      sourceHref:
+        task.entityType === "lead" && task.entityId
+          ? `/admin/crm?lead=${encodeURIComponent(task.entityId)}`
+          : "/admin",
+    });
+  } catch {}
+
+  return NextResponse.json({ ok: true, task }, { status: 201 });
+}

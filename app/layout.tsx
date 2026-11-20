@@ -6,13 +6,8 @@ import "./motion.css";
 import "./startup.css";
 import "./rtl.css";
 import "./corporate.css";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { VisitorTracker } from "@/components/visitor-tracker";
 import { LanguageProvider } from "@/components/language-provider";
-import { StickyBookingBar } from "@/components/booking/StickyBookingBar";
-import { FloatingDiscoveryCallCard } from "@/components/booking/FloatingDiscoveryCallCard";
-import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { PublicSiteChrome } from "@/components/public-site-chrome";
 import { getLocale } from "@/lib/locale";
 import { buildPageSocialImageUrl } from "@/lib/social-metadata";
 import { CONTACT_EMAIL, SITE_URL } from "@/lib/site";
@@ -62,5 +57,5 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
   const organization = {"@context": "https://schema.org", "@type": "Organization", name: "HIRZEXA", url: SITE_URL, logo: `${SITE_URL}/brand/hirzexa-mark.png`, email: CONTACT_EMAIL, description: "HIRZEXA is an AI and software engineering company specializing in intelligent automation, AI-powered applications, scalable software platforms, and complex system integrations."};
-  return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><body className={`corporate-site ${sans.variable}`}><LanguageProvider locale={locale}><SiteHeader /><VisitorTracker />{children}<StickyBookingBar /><FloatingDiscoveryCallCard /><CookieConsentBanner /><SiteFooter locale={locale} /></LanguageProvider><script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(organization)}} /></body></html>;
+  return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><body className={`corporate-site ${sans.variable}`}><LanguageProvider locale={locale}><PublicSiteChrome locale={locale}>{children}</PublicSiteChrome></LanguageProvider><script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(organization)}} /></body></html>;
 }

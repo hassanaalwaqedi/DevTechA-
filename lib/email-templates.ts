@@ -226,3 +226,175 @@ export function buildRecruitmentAcknowledgmentEmail(params: {
   };
 }
 
+export function buildEmployeeInvitationEmail(params: {
+  employeeName: string;
+  employeeEmail: string;
+  roleLabel: string;
+  department: string;
+  invitedByName: string;
+  activationUrl: string;
+  expiresAt: string;
+  publicBaseUrl: string;
+  fromAddress?: string;
+  replyToAddress?: string;
+}): EmailMessageTemplate {
+  const from = params.fromAddress || "HIRZEXA Accounts <accounts@hirzexa.com>";
+  const replyTo = params.replyToAddress || "hassan@hirzexa.com";
+  const supportEmail = replyTo;
+  const logoUrl = `${params.publicBaseUrl.replace(/\/$/, "")}/brand/hirzexa-mark.png`;
+  const expiresFormatted = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+    timeZoneName: "short",
+  }).format(new Date(params.expiresAt));
+
+  const subject = "You're invited to join HIRZEXA Intelligence";
+
+  const text = [
+    `Hello ${params.employeeName},`,
+    "",
+    `${params.invitedByName} has invited you to join HIRZEXA Intelligence, our internal AI & Software Engineering operating platform.`,
+    "",
+    `Assigned Role: ${params.roleLabel}`,
+    `Department: ${params.department}`,
+    `Work Account: ${params.employeeEmail}`,
+    "",
+    "Activate Your Account:",
+    params.activationUrl,
+    "",
+    `Expiration: This single-use activation link expires on ${expiresFormatted} (48 hours from issuance).`,
+    "",
+    "Security Notice:",
+    "- This invitation link can only be used once and is tied to your email address.",
+    "- You will create your own password securely during activation (HIRZEXA never emails plaintext passwords).",
+    "- Do not forward or share this link. If you were not expecting this invitation, ignore this email or notify our security contact immediately.",
+    "",
+    `Need help? Reply directly to this email or contact ${supportEmail}.`,
+    "",
+    "— HIRZEXA Intelligence",
+    params.publicBaseUrl,
+  ].join("\n");
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${escapeHtml(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#060a14;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#e2e8f0;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#060a14;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background-color:#0b1120;border:1px solid #1e293b;border-radius:16px;overflow:hidden;">
+          <!-- Brand Header -->
+          <tr>
+            <td style="padding:28px 32px 22px;background:linear-gradient(135deg,#0f172a 0%,#131c38 100%);border-bottom:1px solid #1e293b;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="vertical-align:middle;padding-right:12px;">
+                    <img src="${escapeHtml(logoUrl)}" alt="HIRZEXA" width="32" height="32" style="display:block;border-radius:8px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:15px;font-weight:800;letter-spacing:0.06em;color:#ffffff;line-height:1.1;">HIRZEXA</div>
+                    <div style="font-size:10px;font-weight:700;letter-spacing:0.14em;color:#93c5fd;text-transform:uppercase;margin-top:3px;">INTELLIGENCE</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Main Body -->
+          <tr>
+            <td style="padding:32px 32px 24px;">
+              <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#60a5fa;">EMPLOYEE WORKSPACE INVITATION</p>
+              <h1 style="margin:0 0 14px;font-size:24px;font-weight:700;line-height:1.25;color:#ffffff;">Welcome to HIRZEXA Intelligence, ${escapeHtml(params.employeeName)}</h1>
+              <p style="margin:0 0 22px;font-size:15px;line-height:1.65;color:#cbd5e1;">
+                <strong style="color:#f8fafc;">${escapeHtml(params.invitedByName)}</strong> has invited you to activate your employee account on <strong style="color:#f8fafc;">HIRZEXA Intelligence</strong>.
+              </p>
+
+              <!-- Role & Account Summary Card -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#080d1a;border:1px solid #1e293b;border-radius:12px;margin-bottom:24px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size:13.5px;line-height:1.6;">
+                      <tr>
+                        <td style="padding:4px 0;color:#94a3b8;width:130px;">Assigned Role</td>
+                        <td style="padding:4px 0;font-weight:600;color:#ffffff;">${escapeHtml(params.roleLabel)}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#94a3b8;">Department</td>
+                        <td style="padding:4px 0;font-weight:600;color:#e2e8f0;">${escapeHtml(params.department)}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#94a3b8;">Work Email</td>
+                        <td style="padding:4px 0;color:#93c5fd;">${escapeHtml(params.employeeEmail)}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;color:#94a3b8;">Link Expires</td>
+                        <td style="padding:4px 0;color:#fde68a;">${escapeHtml(expiresFormatted)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Primary CTA Button -->
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 22px;">
+                <tr>
+                  <td align="center" style="border-radius:10px;background:linear-gradient(90deg,#2563eb 0%,#7c3aed 100%);">
+                    <a href="${escapeHtml(params.activationUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:13px 28px;font-size:14.5px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px;">
+                      Activate Your Account
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback URL -->
+              <p style="margin:0 0 22px;font-size:12.5px;line-height:1.6;color:#94a3b8;">
+                If the button does not open in your email client, copy and paste this secure link into your browser:<br />
+                <a href="${escapeHtml(params.activationUrl)}" style="color:#93c5fd;word-break:break-all;">${escapeHtml(params.activationUrl)}</a>
+              </p>
+
+              <!-- Security Notice -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:rgba(30,41,82,0.45);border:1px solid #1e3a5f;border-radius:10px;">
+                <tr>
+                  <td style="padding:14px 16px;font-size:12.5px;line-height:1.6;color:#cbd5e1;">
+                    <strong style="color:#f8fafc;display:block;margin-bottom:4px;">Security Notice</strong>
+                    This activation link is <strong style="color:#f8fafc;">single-use</strong> and expires in 48 hours. You will create your own password during activation—HIRZEXA never sends plaintext passwords. Do not forward this email. If you did not expect this invitation, contact <a href="mailto:${escapeHtml(supportEmail)}" style="color:#93c5fd;">${escapeHtml(supportEmail)}</a>.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:18px 32px 24px;border-top:1px solid #1e293b;font-size:12px;line-height:1.6;color:#64748b;">
+              <div>Sent by <strong style="color:#94a3b8;">HIRZEXA</strong> · AI &amp; Software Engineering</div>
+              <div>Support: <a href="mailto:${escapeHtml(supportEmail)}" style="color:#93c5fd;text-decoration:none;">${escapeHtml(supportEmail)}</a> · <a href="${escapeHtml(params.publicBaseUrl)}" style="color:#93c5fd;text-decoration:none;">${escapeHtml(params.publicBaseUrl.replace(/^https?:\/\//, ""))}</a></div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+
+  return {
+    from,
+    to: params.employeeEmail,
+    replyTo,
+    subject,
+    text,
+    html,
+  };
+}
+
+

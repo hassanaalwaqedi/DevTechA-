@@ -1,4 +1,21 @@
-import { AdminShell } from "@/components/admin-shell";
 import { AdminProductsClient } from "@/components/admin-products-client";
+import { AdminShell } from "@/components/admin-shell";
+import { PageHeader, StatusBadge } from "@/components/admin-ui/primitives";
+import { requirePermission } from "@/lib/auth";
+
 export const dynamic = "force-dynamic";
-export default function AdminProductsPage() { return <AdminShell active="products"><div className="admin-top"><div><h1>Products</h1><p>Manage the products shown across the company site.</p></div></div><AdminProductsClient /></AdminShell>; }
+
+export default async function AdminProductsPage() {
+  await requirePermission("products", "view");
+  return (
+    <AdminShell active="products">
+      <PageHeader
+        eyebrow="Portfolio CMS"
+        title="Products & Systems"
+        description="Manage the engineering products and AI platforms published across HIRZEXA."
+        actions={<StatusBadge tone="violet">Public Catalog</StatusBadge>}
+      />
+      <AdminProductsClient />
+    </AdminShell>
+  );
+}

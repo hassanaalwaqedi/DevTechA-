@@ -1,46 +1,509 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  BriefcaseBusiness,
+  CheckCircle2,
+  Download,
+  FileText,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import {
+  EmptyState,
+  MetricCard,
+  PageHeader,
+  SlideOver,
+  StatusBadge,
+} from "@/components/admin-ui/primitives";
 import type { ApplicantStatus, Application } from "@/lib/data";
 
-const statuses: ApplicantStatus[] = ["new", "reviewing", "shortlisted", "interview", "accepted", "rejected"];
+const STATUSES: ApplicantStatus[] = [
+  "new",
+  "reviewing",
+  "shortlisted",
+  "interview",
+  "accepted",
+  "rejected",
+];
 
-export function AdminApplicationsClient() {
+function appStatusTone(
+  status: ApplicantStatus
+): "blue" | "violet" | "emerald" | "amber" | "rose" | "neutral" {
+  switch (status) {
+    case "accepted":
+      return "emerald";
+    case "rejected":
+      return "rose";
+    case "interview":
+      return "violet";
+    case "shortlisted":
+      return "amber";
+    case "new":
+      return "blue";
+    default:
+      return "neutral";
+  }
+}
+
+export function AdminApplicationsClient({
+  initialQuery = "",
+  canEdit = true,
+  canUseAgent = true,
+}: {
+  initialQuery?: string;
+  canEdit?: boolean;
+  canUseAgent?: boolean;
+}) {
   const [items, setItems] = useState<Application[]>([]);
-  const [filter, setFilter] = useState("All statuses");
-  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [jobFilter, setJobFilter] = useState("all");
+  const [search, setSearch] = useState(initialQuery);
   const [selected, setSelected] = useState<Application | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
+    setError("");
     const params = new URLSearchParams();
-    if (filter !== "All statuses") params.set("status", filter);
+    if (statusFilter !== "all") params.set("status", statusFilter);
     if (search.trim()) params.set("query", search.trim());
     try {
-      const response = await fetch(`/api/applications${params.size ? `?${params.toString()}` : ""}`, {cache: "no-store"});
+      const response = await fetch(
+        `/api/applications${params.size ? `?${params.toString()}` : ""}`,
+        { cache: "no-store" }
+      );
       const result = await response.json();
-      if (!response.ok) { setError(result.error || "Unable to load applications."); return; }
+      if (!response.ok) {
+        setError(result.error || "Unable to load applications.");
+        return;
+      }
       setItems(result.applications || []);
-    } catch { setError("Unable to reach the application service."); }
-    finally { setLoading(false); }
-  }
+    } catch {
+      setError("Unable to reach the application service.");
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter, search]);
 
-  useEffect(() => { const timer = window.setTimeout(load, 250); return () => window.clearTimeout(timer); }, [filter, search]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void load();
+    }, 220);
+    return () => window.clearTimeout(timer);
+  }, [load]);
+
+  const jobTitles = useMemo(
+    () => Array.from(new Set(items.map((a) => a.jobTitle).filter(Boolean))).sort(),
+    [items]
+  );
+
+  const visibleItems = useMemo(() => {
+    if (jobFilter === "all") return items;
+    return items.filter((a) => a.jobTitle === jobFilter);
+  }, [items, jobFilter]);
 
   async function update(app: Application, patch: Partial<Application>) {
-    const response = await fetch(`/api/applications/${app.id}`, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify(patch)});
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) { setError(result.error || "Unable to update application."); return; }
-    await load();
-    setSelected({...app, ...patch});
+    if (!canEdit) return;
+    setSaving(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(`/api/applications/${app.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setError(result.error || "Unable to update application.");
+        return;
+      }
+      await load();
+      setSelected({ ...app, ...patch });
+      setNotice("Candidate record updated.");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  return <>
-    <div className="admin-toolbar"><div className="admin-filter-row"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name or email" aria-label="Search applications"/><select value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter applications"><option>All statuses</option>{statuses.map((status) => <option key={status}>{status}</option>)}</select></div><span style={{color: "var(--muted)", fontSize: 13}}>{loading ? "Loading…" : `${items.length} applications`}</span></div>
-    {error && <p style={{color: "#a14e40", fontSize: 13}}>{error}</p>}
-    <div className="admin-panel"><table className="admin-table"><thead><tr><th>Applicant</th><th>Position</th><th>Date</th><th>Experience</th><th>Status</th><th></th></tr></thead><tbody>{items.length ? items.map((app) => <tr key={app.id}><td><strong>{app.name}</strong><br/><span style={{color: "var(--muted)", fontSize: 11}}>{app.country} · {app.email}</span></td><td>{app.jobTitle}</td><td>{app.createdAt}</td><td>{app.experience}</td><td><span className={`status ${app.status}`}>{app.status}</span></td><td><button className="button-small" onClick={() => setSelected(app)}>Review</button></td></tr>) : <tr><td colSpan={6} style={{color: "var(--muted)", padding: 28}}>No applications match this view.</td></tr>}</tbody></table></div>
-    {selected && <div className="admin-panel application-review" style={{marginTop: 15}}><div className="admin-toolbar"><div><div className="eyebrow">{selected.id} · Application review</div><h2 style={{margin: "7px 0 0"}}>{selected.name}</h2><p style={{margin: "5px 0 0", color: "var(--muted)"}}>{selected.email}{selected.phone ? ` · ${selected.phone}` : ""}</p></div><button className="button-small" onClick={() => setSelected(null)}>Close</button></div><div className="admin-detail-grid"><div><span>Position</span><strong>{selected.jobTitle}</strong></div><div><span>Current role</span><strong>{selected.role}</strong></div><div><span>Location</span><strong>{selected.location}, {selected.country}</strong></div><div><span>Experience</span><strong>{selected.experience}</strong></div><div><span>Work authorization</span><strong>{selected.workAuthorization || "Not provided"}</strong></div><div><span>Sponsorship</span><strong>{selected.sponsorshipRequired ? "Required" : "Not required"}</strong></div><div><span>Work preference</span><strong>{selected.remotePreference || "Not provided"}</strong></div><div><span>Availability</span><strong>{selected.availability}</strong></div><div><span>Start date</span><strong>{selected.startDate}</strong></div><div><span>Compensation expectation</span><strong>{selected.salaryExpectation || "Not provided"}</strong></div><div><span>Notice period</span><strong>{selected.noticePeriod || "Not provided"}</strong></div><div><span>Education</span><strong>{selected.education || "Not provided"}</strong></div></div><div className="application-links"><span>Documents</span><a href={`/api/applications/${selected.id}/cv`} target="_blank" rel="noreferrer">Download CV · {selected.cvName}</a>{selected.coverLetterName && <a href={`/api/applications/${selected.id}/cv?type=cover-letter`} target="_blank" rel="noreferrer">Download cover letter · {selected.coverLetterName}</a>}</div><div className="application-answer"><span>Why HIRZEXA?</span><p>{selected.whyJoin}</p></div><div className="application-answer"><span>Why this candidate?</span><p>{selected.whyFit}</p></div>{selected.technologies && <div className="application-answer"><span>Technologies & strengths</span><p>{selected.technologies}</p></div>}{selected.coverLetterText && <div className="application-answer"><span>Cover letter</span><p>{selected.coverLetterText}</p></div>}{selected.additionalMessage && <div className="application-answer"><span>Additional context</span><p>{selected.additionalMessage}</p></div>}<div className="field" style={{marginTop: 24}}><label>Status</label><select value={selected.status} onChange={(e) => update(selected, {status: e.target.value as ApplicantStatus})}>{statuses.map((status) => <option key={status}>{status}</option>)}</select></div><div className="field"><label>Admin notes</label><textarea defaultValue={selected.note || ""} onBlur={(e) => update(selected, {note: e.target.value})} placeholder="Add a note for your team…" /></div></div>}
-  </>;
+  function askAgentAboutCandidate(app: Application) {
+    window.dispatchEvent(
+      new CustomEvent("hirzexa:ask-agent", {
+        detail: {
+          prompt: `Compare candidate ${app.id} (${app.name}) against the verified requirements for ${app.jobTitle} and suggest interview questions.`,
+          pageContext: {
+            route: "/admin/applications",
+            entityType: "application",
+            entityId: app.id,
+            entityLabel: `${app.name} (${app.jobTitle})`,
+          },
+        },
+      })
+    );
+  }
+
+  const newCount = items.filter((a) => a.status === "new").length;
+  const shortlistedCount = items.filter((a) => a.status === "shortlisted").length;
+  const interviewCount = items.filter((a) => a.status === "interview").length;
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="Applicant Tracking System · Recruitment"
+        title="Recruitment & Applications"
+        description="Review candidate profiles, verify CVs via short-lived signed links, manage hiring stages, and inspect role alignment."
+        actions={
+          canUseAgent ? (
+            <button
+              type="button"
+              className="hz-btn hz-btn-primary"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("hirzexa:ask-agent", {
+                    detail: {
+                      prompt: "Compare the new candidates against the job requirements.",
+                      pageContext: { route: "/admin/applications", entityType: "dashboard" },
+                    },
+                  })
+                )
+              }
+            >
+              <Sparkles size={14} /> Compare Candidates
+            </button>
+          ) : null
+        }
+      />
+
+      <div className="hz-kpi-grid">
+        <MetricCard
+          label="Total Candidates"
+          value={items.length}
+          sublabel={`${jobTitles.length} active role${jobTitles.length === 1 ? "" : "s"}`}
+          icon={<Users size={15} />}
+        />
+        <MetricCard
+          label="Awaiting Review"
+          value={newCount}
+          sublabel="New submissions"
+          tone={newCount > 0 ? "blue" : "neutral"}
+          icon={<FileText size={15} />}
+        />
+        <MetricCard
+          label="Shortlisted"
+          value={shortlistedCount}
+          sublabel="Qualified for next step"
+          tone="amber"
+          icon={<BriefcaseBusiness size={15} />}
+        />
+        <MetricCard
+          label="In Interview"
+          value={interviewCount}
+          sublabel="Active hiring conversations"
+          tone="emerald"
+          icon={<CheckCircle2 size={15} />}
+        />
+      </div>
+
+      <div className="hz-toolbar">
+        <div className="hz-filter-group">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search candidate name, email, or reference ID…"
+            aria-label="Search applications"
+            style={{ minWidth: 250 }}
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
+          >
+            <option value="all">All statuses</option>
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            value={jobFilter}
+            onChange={(e) => setJobFilter(e.target.value)}
+            aria-label="Filter by job role"
+          >
+            <option value="all">All roles</option>
+            {jobTitles.map((title) => (
+              <option key={title} value={title}>
+                {title}
+              </option>
+            ))}
+          </select>
+        </div>
+        <span style={{ fontSize: 12, color: "var(--hz-text-muted)" }}>
+          {loading ? "Loading…" : `${visibleItems.length} application${visibleItems.length === 1 ? "" : "s"}`}
+        </span>
+      </div>
+
+      {error ? <p className="hz-alert-error">{error}</p> : null}
+      {notice ? <p className="hz-alert-success">{notice}</p> : null}
+
+      <div className="hz-table-wrap">
+        <table className="hz-table">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Role</th>
+              <th>Experience &amp; Location</th>
+              <th>Submitted</th>
+              <th>Status</th>
+              <th style={{ textAlign: "end" }}>Review</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleItems.length > 0 ? (
+              visibleItems.map((app) => (
+                <tr
+                  key={app.id}
+                  className={selected?.id === app.id ? "is-selected" : ""}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setSelected(app)}
+                >
+                  <td>
+                    <strong style={{ color: "var(--hz-text-strong)" }}>{app.name}</strong>
+                    <div style={{ fontSize: 11.5, color: "var(--hz-text-secondary)" }}>
+                      {app.email} · {app.id}
+                    </div>
+                  </td>
+                  <td>
+                    <strong>{app.jobTitle}</strong>
+                    <div style={{ fontSize: 11.5, color: "var(--hz-text-muted)" }}>
+                      {app.role}
+                    </div>
+                  </td>
+                  <td>
+                    <div>{app.experience}</div>
+                    <div style={{ fontSize: 11.5, color: "var(--hz-text-muted)" }}>
+                      {app.location}, {app.country}
+                    </div>
+                  </td>
+                  <td style={{ whiteSpace: "nowrap", fontSize: 12.5, color: "var(--hz-text-secondary)" }}>
+                    {app.createdAt}
+                  </td>
+                  <td>
+                    <StatusBadge tone={appStatusTone(app.status)} dot>
+                      {app.status}
+                    </StatusBadge>
+                  </td>
+                  <td style={{ textAlign: "end" }}>
+                    <button
+                      type="button"
+                      className="hz-btn hz-btn-secondary hz-btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelected(app);
+                      }}
+                    >
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} style={{ padding: 24 }}>
+                  <EmptyState
+                    title={loading ? "Loading applications…" : "No applications match this filter"}
+                    description="Candidate submissions from /careers appear here automatically."
+                  />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Candidate Review SlideOver */}
+      <SlideOver
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+        width={640}
+        title={selected?.name || ""}
+        subtitle={
+          selected
+            ? `${selected.id} · ${selected.jobTitle} · ${selected.email}${
+                selected.phone ? ` · ${selected.phone}` : ""
+              }`
+            : ""
+        }
+        headerActions={
+          selected && canUseAgent ? (
+            <button
+              type="button"
+              className="hz-btn hz-btn-primary hz-btn-sm"
+              onClick={() => askAgentAboutCandidate(selected)}
+            >
+              <Sparkles size={12} /> Role Fit Summary
+            </button>
+          ) : null
+        }
+      >
+        {selected ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Status & Documents */}
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 12, color: "var(--hz-text-secondary)" }}>Stage:</span>
+                <select
+                  value={selected.status}
+                  disabled={!canEdit || saving}
+                  style={{ width: "auto", minWidth: 150 }}
+                  onChange={(e) =>
+                    void update(selected, { status: e.target.value as ApplicantStatus })
+                  }
+                >
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <a
+                  href={`/api/applications/${selected.id}/cv`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hz-btn hz-btn-secondary hz-btn-sm"
+                >
+                  <Download size={12} /> CV · {selected.cvName}
+                </a>
+                {selected.coverLetterName ? (
+                  <a
+                    href={`/api/applications/${selected.id}/cv?type=cover-letter`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hz-btn hz-btn-secondary hz-btn-sm"
+                  >
+                    <Download size={12} /> Cover Letter
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="admin-detail-grid">
+              <div>
+                <span>Current Role</span>
+                <strong>{selected.role}</strong>
+              </div>
+              <div>
+                <span>Experience</span>
+                <strong>{selected.experience}</strong>
+              </div>
+              <div>
+                <span>Location</span>
+                <strong>
+                  {selected.location}, {selected.country}
+                </strong>
+              </div>
+              <div>
+                <span>Work Authorization</span>
+                <strong>{selected.workAuthorization || "Not provided"}</strong>
+              </div>
+              <div>
+                <span>Sponsorship</span>
+                <strong>{selected.sponsorshipRequired ? "Required" : "Not required"}</strong>
+              </div>
+              <div>
+                <span>Availability &amp; Start</span>
+                <strong>
+                  {selected.availability} · {selected.startDate}
+                </strong>
+              </div>
+              <div>
+                <span>Compensation</span>
+                <strong>{selected.salaryExpectation || "Not provided"}</strong>
+              </div>
+              <div>
+                <span>Education</span>
+                <strong>{selected.education || "Not provided"}</strong>
+              </div>
+            </div>
+
+            {selected.technologies ? (
+              <div
+                style={{
+                  padding: 12,
+                  borderRadius: "var(--hz-radius-md)",
+                  border: "1px solid var(--hz-border-subtle)",
+                  background: "var(--hz-surface-inset)",
+                }}
+              >
+                <span className="hz-eyebrow">Technologies &amp; Skills</span>
+                <p style={{ margin: "4px 0 0", fontSize: 13 }}>{selected.technologies}</p>
+              </div>
+            ) : null}
+
+            <div
+              style={{
+                padding: 12,
+                borderRadius: "var(--hz-radius-md)",
+                border: "1px solid var(--hz-border-subtle)",
+                background: "var(--hz-surface-inset)",
+              }}
+            >
+              <span className="hz-eyebrow">Why HIRZEXA?</span>
+              <p style={{ margin: "4px 0 0", fontSize: 13, lineHeight: 1.6 }}>
+                {selected.whyJoin}
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: 12,
+                borderRadius: "var(--hz-radius-md)",
+                border: "1px solid var(--hz-border-subtle)",
+                background: "var(--hz-surface-inset)",
+              }}
+            >
+              <span className="hz-eyebrow">Role Suitability Statement</span>
+              <p style={{ margin: "4px 0 0", fontSize: 13, lineHeight: 1.6 }}>
+                {selected.whyFit}
+              </p>
+            </div>
+
+            {selected.coverLetterText ? (
+              <div
+                style={{
+                  padding: 12,
+                  borderRadius: "var(--hz-radius-md)",
+                  border: "1px solid var(--hz-border-subtle)",
+                  background: "var(--hz-surface-inset)",
+                }}
+              >
+                <span className="hz-eyebrow">Cover Letter</span>
+                <p style={{ margin: "4px 0 0", fontSize: 13, whiteSpace: "pre-wrap" }}>
+                  {selected.coverLetterText}
+                </p>
+              </div>
+            ) : null}
+
+            <div className="field">
+              <label>Hiring Team Notes</label>
+              <textarea
+                key={`note-${selected.id}`}
+                disabled={!canEdit}
+                defaultValue={selected.note || ""}
+                placeholder="Record interview impressions, technical evaluation notes, or next steps…"
+                onBlur={(e) => void update(selected, { note: e.target.value })}
+              />
+            </div>
+          </div>
+        ) : null}
+      </SlideOver>
+    </>
+  );
 }

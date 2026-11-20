@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
 import { defaultVisualVariant, isMissingJobVisualColumns, normalizeVisualAccent, normalizeVisualCategory, normalizeVisualKeywords, normalizeVisualVariant, normalizeVisualVariantForCategory } from "@/lib/job-visuals";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 
@@ -11,13 +12,16 @@ function errorMessage(error: unknown) {
 }
 
 function errorResponse(error: unknown) {
+  if (error instanceof RbacDeniedError) {
+    return NextResponse.json({error: error.message}, {status: 403});
+  }
   const message = errorMessage(error);
   return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
 }
 
 export async function PATCH(request: Request, {params}: {params: Promise<{id: string}>}) {
   try {
-    const {supabase} = await requireAdminApi();
+    const {supabase} = await requirePermissionApi("jobs", "edit");
     const {id} = await params;
     const body = await request.json();
     const patch: Record<string, unknown> = {};
@@ -69,7 +73,7 @@ export async function PATCH(request: Request, {params}: {params: Promise<{id: st
 
 export async function DELETE(_request: Request, {params}: {params: Promise<{id: string}>}) {
   try {
-    const {supabase} = await requireAdminApi();
+    const {supabase} = await requirePermissionApi("jobs", "delete");
     const {id} = await params;
     const {error} = await supabase.from("jobs").delete().eq("id", id);
     if (error) throw error;

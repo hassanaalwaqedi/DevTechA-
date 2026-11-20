@@ -1,14 +1,15 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { generateStructured, jobVisualPrompt, jobVisualSchema } from "@/lib/ai";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
 import { normalizeVisualVariantForCategory } from "@/lib/job-visuals";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    await requireAdminApi();
+    await requirePermissionApi("jobs", "edit");
     const body = await request.json();
     if (typeof body.title !== "string" || !body.title.trim()) {
       return NextResponse.json({error: "Add a job title before requesting a visual recommendation."}, {status: 422});
@@ -27,6 +28,9 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({classification: {...classification, visualVariant: normalizeVisualVariantForCategory(classification.visualCategory, classification.visualVariant)}});
   } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({error: error.message}, {status: 403});
+    }
     const message = error instanceof Error ? error.message : "Unable to classify this role.";
     return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
   }

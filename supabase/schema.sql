@@ -107,3 +107,8 @@ drop policy if exists "public can read published demo config" on public.interact
 drop policy if exists "admins manage demo configs" on public.interactive_demo_configs;
 create policy "public can read published demo config" on public.interactive_demo_configs for select using (true);
 create policy "admins manage demo configs" on public.interactive_demo_configs for all using (exists (select 1 from public.admin_users where id = auth.uid())) with check (exists (select 1 from public.admin_users where id = auth.uid()));
+
+-- HIRZEXA Intelligence additive schema (employees, RBAC, invitations, audit_logs,
+-- normalized CRM, tasks, business_events, agent_conversations, agent_messages,
+-- and agent_pending_actions) lives in:
+-- supabase/migrations/20261120_hirzexa_intelligence.sql

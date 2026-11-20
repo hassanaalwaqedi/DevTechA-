@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { getAdminProducts, getProducts } from "@/lib/db";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
 import { isMissingExtendedProductColumns, isProductPolicyError, productErrorMessage, sanitizeColor, sanitizeOptionalUrl, sanitizeStringList } from "@/lib/product-admin";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 
 function responseError(error: unknown) {
+  if (error instanceof RbacDeniedError) {
+    return NextResponse.json({error: error.message}, {status: 403});
+  }
   const message = productErrorMessage(error);
   return NextResponse.json({error: message}, {status: message === "UNAUTHORIZED" ? 401 : 400});
 }
@@ -18,7 +22,7 @@ export async function GET(request: Request) {
   try {
     const admin = new URL(request.url).searchParams.get("admin") === "true";
     if (admin) {
-      await requireAdminApi();
+      await requirePermissionApi("products", "view");
       return NextResponse.json({products: await getAdminProducts()});
     }
     return NextResponse.json({products: await getProducts()});
@@ -29,7 +33,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const {supabase} = await requireAdminApi();
+    const {supabase} = await requirePermissionApi("products", "create");
     const body = await request.json();
     const name = String(body.name || "").trim();
     const slug = String(body.slug || "").trim().toLowerCase();

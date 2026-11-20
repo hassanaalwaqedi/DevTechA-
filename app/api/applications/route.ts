@@ -4,7 +4,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { optionalUrl, requiredText, validateCv, validateDocument } from "@/lib/validation";
 import { getApplications } from "@/lib/db";
-import { requireAdminApi } from "@/lib/auth";
+import { requirePermissionApi } from "@/lib/auth";
+import { emitBusinessEvent } from "@/lib/intelligence/events";
+import { RbacDeniedError } from "@/lib/rbac";
 import { randomInt } from "node:crypto";
 
 export const runtime = "nodejs";
@@ -12,10 +14,13 @@ export const maxDuration = 30;
 
 export async function GET(request: Request) {
   try {
-    await requireAdminApi();
+    await requirePermissionApi("recruitment", "view");
     const url = new URL(request.url);
     return NextResponse.json({applications: await getApplications({status: url.searchParams.get("status") || undefined, query: url.searchParams.get("query") || undefined})});
   } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({error: error.message}, {status: 403});
+    }
     return NextResponse.json({error: error instanceof Error ? error.message : "Request failed."}, {status: error instanceof Error && error.message === "UNAUTHORIZED" ? 401 : 400});
   }
 }
@@ -91,6 +96,20 @@ export async function POST(request: Request) {
       status: "new",
     });
     if (error) throw error;
+    try {
+      await emitBusinessEvent({
+        eventType: "application.received",
+        module: "recruitment",
+        severity: "attention",
+        actorRef: requiredText(form.get("name"), "Full name"),
+        entityType: "application",
+        entityId: reference,
+        title: `New application: ${requiredText(form.get("name"), "Full name")} (${job.title})`,
+        summary: `${reference} · ${requiredText(form.get("experience"), "Experience")} · ${requiredText(form.get("country"), "Country")}`,
+        sourceHref: `/admin/applications?q=${encodeURIComponent(reference)}`,
+        idempotencyKey: `app-received:${reference}`,
+      });
+    } catch {}
     return NextResponse.json({reference}, {status: 201});
   } catch (error) {
     const paths = [cvPath, coverLetterPath].filter(Boolean);

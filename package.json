@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "lint:eslint": "eslint app components lib",
-    "test:contact": "node scripts/verify-contact.mjs"
+    "test:contact": "node scripts/verify-contact.mjs",
+    "test:intelligence": "node --conditions=react-server scripts/verify-intelligence.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.31.0",
