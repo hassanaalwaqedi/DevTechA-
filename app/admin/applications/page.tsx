@@ -12,11 +12,17 @@ export default async function AdminApplicationsPage({
 }) {
   const { actor } = await requirePermission("recruitment", "view");
   const params = await searchParams;
+  const canEditRecruitment = hasPermission(actor, "recruitment", "edit");
+  const canCreateRecruitment =
+    hasPermission(actor, "recruitment", "create") || canEditRecruitment;
+
   return (
     <AdminShell active="applications">
       <AdminApplicationsClient
         initialQuery={params.q || ""}
-        canEdit={hasPermission(actor, "recruitment", "edit")}
+        canEdit={canEditRecruitment}
+        canAddCandidate={canCreateRecruitment}
+        canSendEmail={canCreateRecruitment}
         canUseAgent={hasPermission(actor, "agent", "view")}
         canInviteInterview={hasPermission(actor, "interviews", "create")}
         canViewInterviews={hasPermission(actor, "interviews", "view")}

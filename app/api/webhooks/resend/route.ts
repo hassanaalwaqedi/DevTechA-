@@ -3,6 +3,7 @@ import { verifyResendWebhookSignature } from "@/lib/email/transactional";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { recordInvitationWebhookUpdate } from "@/lib/intelligence/employees";
 import { recordInterviewWebhookUpdate } from "@/lib/interviews/service";
+import { recordRecruitmentWebhookUpdate } from "@/lib/recruitment/service";
 import type { InvitationDeliveryStatus } from "@/lib/intelligence/types";
 
 export const runtime = "nodejs";
@@ -144,12 +145,49 @@ export async function POST(request: Request) {
         errorDetail,
       },
     });
+    return NextResponse.json({
+      ok: true,
+      matched: true,
+      scope: "interview",
+      status: mappedStatus,
+    });
+  }
+
+  const recruitmentRes = await recordRecruitmentWebhookUpdate({
+    providerMessageId: messageId,
+    eventType,
+    detail: errorDetail || undefined,
+  });
+
+  if (recruitmentRes.matched) {
+    await recordAuditLog({
+      actorId: "system:resend-webhook",
+      actorEmail: "webhooks@resend.com",
+      actorRole: "system",
+      module: "recruitment",
+      action: "recruitment_email_webhook",
+      entityType: "recruitment_communication",
+      entityId: messageId,
+      outcome:
+        mappedStatus === "bounced" ||
+        mappedStatus === "complained" ||
+        mappedStatus === "delivery_failed"
+          ? "error"
+          : "allowed",
+      summary: `Resend webhook (${eventType}) updated recruitment email ${messageId} to "${mappedStatus}".`,
+      metadata: {
+        providerMessageId: messageId,
+        eventType,
+        deliveryStatus: mappedStatus,
+        errorDetail,
+      },
+    });
   }
 
   return NextResponse.json({
     ok: true,
-    matched: result.matched || interviewRes.matched,
-    scope: interviewRes.matched ? "interview" : "none",
+    matched: result.matched || interviewRes.matched || recruitmentRes.matched,
+    scope: recruitmentRes.matched ? "recruitment" : "none",
     status: mappedStatus,
   });
 }

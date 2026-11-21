@@ -16,7 +16,13 @@ export async function GET(request: Request) {
   try {
     await requirePermissionApi("recruitment", "view");
     const url = new URL(request.url);
-    return NextResponse.json({applications: await getApplications({status: url.searchParams.get("status") || undefined, query: url.searchParams.get("query") || undefined})});
+    return NextResponse.json({
+      applications: await getApplications({
+        status: url.searchParams.get("status") || undefined,
+        query: url.searchParams.get("query") || undefined,
+        source: url.searchParams.get("source") || undefined,
+      }),
+    });
   } catch (error) {
     if (error instanceof RbacDeniedError) {
       return NextResponse.json({error: error.message}, {status: 403});
