@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requirePermissionApi } from "@/lib/auth";
+import { getAuthorizedCrmLeadById } from "@/lib/crm";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { createTask, listTasks } from "@/lib/intelligence/tasks";
-import { RbacDeniedError } from "@/lib/rbac";
+import { hasPermission, RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -68,7 +69,42 @@ export async function POST(request: Request) {
     );
   }
 
-  const task = await createTask(actor, parsed.data);
+  // Verify linked CRM lead falls within actor's authorized scope before attaching task
+  if (
+    (parsed.data.entityType === "lead" || parsed.data.entityType === "booking") &&
+    parsed.data.entityId
+  ) {
+    const leadCheck = await getAuthorizedCrmLeadById(actor, parsed.data.entityId);
+    if (leadCheck.denied || !leadCheck.lead) {
+      await recordAuditLog({
+        actorId: actor.id,
+        actorEmail: actor.email,
+        actorRole: actor.roleKey,
+        module: "tasks",
+        action: "create",
+        entityType: "lead",
+        entityId: parsed.data.entityId,
+        outcome: "denied",
+        summary: `Blocked task attachment to unauthorized lead ${parsed.data.entityId}.`,
+      });
+      return NextResponse.json(
+        { error: "You do not have authorized scope to attach a task to that lead." },
+        { status: 403 }
+      );
+    }
+  }
+
+  // Only actors with tasks:assign may assign a task to another employee
+  const canAssignTasks = hasPermission(actor, "tasks", "assign");
+  const safeTaskInput = canAssignTasks
+    ? parsed.data
+    : {
+        ...parsed.data,
+        assignedToId: actor.employeeId,
+        assignedToEmail: actor.email,
+      };
+
+  const task = await createTask(actor, safeTaskInput);
 
   await recordAuditLog({
     actorId: actor.id,

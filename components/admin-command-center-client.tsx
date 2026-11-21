@@ -16,14 +16,20 @@ import {
   Circle,
   FileText,
   Flag,
+  FolderKanban,
   Info,
+  Languages,
   Layers,
+  Megaphone,
+  Package,
+  PlayCircle,
   Plus,
   RefreshCw,
   ShieldCheck,
   Sparkles,
   Target,
   TrendingUp,
+  UserCheck,
   Users,
   Zap,
 } from "lucide-react";
@@ -32,12 +38,63 @@ import {
   MarkdownContent,
   StatusBadge,
 } from "@/components/admin-ui/primitives";
-import type { CrmLeadRecord } from "@/lib/crm-types";
+import type { RoleWorkspaceProfile, ScopedMetricsPayload } from "@/lib/authorization";
+import { CRM_STAGE_LABELS, type CrmLeadRecord } from "@/lib/crm-types";
 import type {
   BusinessEventRecord,
   CrmTaskRecord,
   MorningBriefingData,
 } from "@/lib/intelligence/types";
+import type { AccessScope, RoleKey } from "@/lib/rbac";
+
+interface ApplicationSummary {
+  id: string;
+  name: string;
+  jobTitle: string;
+  status: string;
+  experience: string;
+  country: string;
+  createdAt: string;
+}
+
+interface JobSummary {
+  id: string;
+  title: string;
+  department: string;
+  status: string;
+  location: string;
+}
+
+interface ProductSummary {
+  slug: string;
+  name: string;
+  status: string;
+  eyebrow: string;
+}
+
+interface TeamSummary {
+  total: number;
+  active: number;
+  invited: number;
+  suspended: number;
+}
+
+interface DashboardPermissions {
+  crm: boolean;
+  crmAssign: boolean;
+  bookings: boolean;
+  recruitment: boolean;
+  jobs: boolean;
+  products: boolean;
+  demonstrations: boolean;
+  tasksView: boolean;
+  tasksCreate: boolean;
+  tasksEdit: boolean;
+  team: boolean;
+  audit: boolean;
+  agent: boolean;
+  settings: boolean;
+}
 
 function buildDailySeries(timestamps: Array<string | null | undefined>, days = 7): number[] {
   const now = Date.now();
@@ -71,7 +128,6 @@ function SparklineSvg({
   const maxVal = Math.max(...values, 1);
   const allZero = values.every((v) => v === 0);
 
-  // Build smooth path strictly from real bucket values (flat baseline when all zeros)
   const points = values.map((v, idx) => {
     const x = values.length > 1 ? (idx / (values.length - 1)) * width : width;
     const y = allZero
@@ -146,27 +202,9 @@ function IsometricBriefingMark() {
           <stop offset="100%" stopColor="#6D28D9" stopOpacity="0.45" />
         </linearGradient>
       </defs>
-      {/* Bottom layer */}
-      <path
-        d="M40 70L14 55.5L40 41L66 55.5L40 70Z"
-        fill="url(#isoBot)"
-        stroke="rgba(167,139,250,0.28)"
-        strokeWidth="1"
-      />
-      {/* Middle layer */}
-      <path
-        d="M40 56L14 41.5L40 27L66 41.5L40 56Z"
-        fill="url(#isoMid)"
-        stroke="rgba(147,197,253,0.42)"
-        strokeWidth="1"
-      />
-      {/* Top luminous layer */}
-      <path
-        d="M40 42L14 27.5L40 13L66 27.5L40 42Z"
-        fill="url(#isoTop)"
-        stroke="rgba(224,231,255,0.68)"
-        strokeWidth="1.1"
-      />
+      <path d="M40 70L14 55.5L40 41L66 55.5L40 70Z" fill="url(#isoBot)" stroke="rgba(167,139,250,0.28)" strokeWidth="1" />
+      <path d="M40 56L14 41.5L40 27L66 41.5L40 56Z" fill="url(#isoMid)" stroke="rgba(147,197,253,0.42)" strokeWidth="1" />
+      <path d="M40 42L14 27.5L40 13L66 27.5L40 42Z" fill="url(#isoTop)" stroke="rgba(224,231,255,0.68)" strokeWidth="1.1" />
     </svg>
   );
 }
@@ -183,41 +221,45 @@ function formatRelativeTime(iso: string): string {
 
 export function AdminCommandCenterClient({
   actorName,
+  actorRole,
+  actorRoleKey,
+  actorScope,
+  actorDepartment,
+  workspace,
   supabaseConnected,
   aiConfigured,
   initialBriefing,
   initialTasks,
   initialEvents,
   leads,
+  applications,
+  jobs,
+  products,
+  teamSummary,
   metrics,
   permissions,
 }: {
   actorName: string;
   actorRole: string;
+  actorRoleKey: RoleKey;
+  actorScope: AccessScope;
+  actorDepartment: string;
+  workspace: RoleWorkspaceProfile;
   supabaseConnected: boolean;
   aiConfigured: boolean;
   initialBriefing: MorningBriefingData;
   initialTasks: CrmTaskRecord[];
   initialEvents: BusinessEventRecord[];
   leads: CrmLeadRecord[];
-  metrics: {
-    totalVisitors: number;
-    visitorsToday: number;
-    totalApplications: number;
-    applicationsToday: number;
-    activeJobs: number;
-    newApplications: number;
-    shortlisted: number;
-    interviews: number;
-  } | null;
-  permissions: {
-    crm: boolean;
-    recruitment: boolean;
-    tasksCreate: boolean;
-    tasksEdit: boolean;
-    agent: boolean;
-  };
+  applications: ApplicationSummary[];
+  jobs: JobSummary[];
+  products: ProductSummary[];
+  teamSummary: TeamSummary | null;
+  metrics: ScopedMetricsPayload | null;
+  permissions: DashboardPermissions;
 }) {
+  const [locale, setLocale] = useState<"en" | "ar">("en");
+  const ar = locale === "ar";
   const [briefing, setBriefing] = useState<MorningBriefingData>(initialBriefing);
   const [events, setEvents] = useState<BusinessEventRecord[]>(initialEvents);
   const [refreshing, setRefreshing] = useState(false);
@@ -226,20 +268,25 @@ export function AdminCommandCenterClient({
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDue, setNewTaskDue] = useState("");
   const [taskBusy, setTaskBusy] = useState(false);
-  const [opsOpen, setOpsOpen] = useState(false);
+  const [opsOpen, setOpsOpen] = useState(
+    actorRoleKey === "marketing_intern" ||
+      actorRoleKey === "engineer" ||
+      actorRoleKey === "project_manager"
+  );
 
+  const firstName = actorName.split(/\s+/)[0] || actorName;
   const generatedDate = useMemo(() => new Date(briefing.generatedAt), [briefing.generatedAt]);
 
   const headerDate = useMemo(
     () =>
-      new Intl.DateTimeFormat("en-US", {
+      new Intl.DateTimeFormat(ar ? "ar" : "en-US", {
         weekday: "short",
         month: "short",
         day: "numeric",
         year: "numeric",
         timeZone: "UTC",
       }).format(generatedDate),
-    [generatedDate]
+    [ar, generatedDate]
   );
 
   const headerTime = useMemo(
@@ -256,10 +303,10 @@ export function AdminCommandCenterClient({
     if (synthesize) setSynthesizing(true);
     else setRefreshing(true);
     try {
-      const res = await fetch(
-        `/api/admin/briefing${synthesize ? "?synthesize=1" : ""}`,
-        { cache: "no-store" }
-      );
+      const qs = new URLSearchParams();
+      if (synthesize) qs.set("synthesize", "1");
+      qs.set("locale", locale);
+      const res = await fetch(`/api/admin/briefing?${qs.toString()}`, { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
         if (data.briefing) setBriefing(data.briefing);
@@ -273,7 +320,7 @@ export function AdminCommandCenterClient({
 
   async function handleQuickCreateTask(e: React.FormEvent) {
     e.preventDefault();
-    if (!newTaskTitle.trim() || taskBusy) return;
+    if (!newTaskTitle.trim() || taskBusy || !permissions.tasksCreate) return;
     setTaskBusy(true);
     try {
       const res = await fetch("/api/admin/tasks", {
@@ -311,6 +358,7 @@ export function AdminCommandCenterClient({
   }
 
   function triggerAgent(prompt: string) {
+    if (!permissions.agent) return;
     window.dispatchEvent(
       new CustomEvent("hirzexa:ask-agent", {
         detail: {
@@ -321,6 +369,15 @@ export function AdminCommandCenterClient({
     );
   }
 
+  // Strictly derived from authorized records only
+  const activeLeads = useMemo(
+    () => leads.filter((l) => l.stage !== "won" && l.stage !== "lost"),
+    [leads]
+  );
+  const unassignedLeads = useMemo(
+    () => leads.filter((l) => !l.ownerId && l.stage !== "won" && l.stage !== "lost"),
+    [leads]
+  );
   const upcomingCalls = useMemo(
     () =>
       leads
@@ -336,44 +393,598 @@ export function AdminCommandCenterClient({
         ),
     [leads]
   );
-
   const overdueLeads = useMemo(() => {
     const now = Date.now();
-    const cutoff = now - 48 * 60 * 60 * 1000;
+    const cutoff = now - 24 * 60 * 60 * 1000;
     return leads.filter(
       (l) =>
         (l.nextFollowUpAt &&
           l.stage !== "won" &&
           l.stage !== "lost" &&
           new Date(l.nextFollowUpAt).getTime() < now) ||
-        (l.stage === "new_lead" && new Date(l.createdAt).getTime() < cutoff)
+        (l.stage === "new_lead" && new Date(l.updatedAt).getTime() < cutoff)
     );
   }, [leads]);
 
   const openTasks = useMemo(() => tasks.filter((t) => t.status !== "completed"), [tasks]);
+  const overdueTasks = useMemo(
+    () =>
+      openTasks.filter((t) => Boolean(t.dueAt) && new Date(t.dueAt!).getTime() < Date.now()),
+    [openTasks]
+  );
 
-  // Real 7-day sparkline arrays computed directly from Supabase timestamps
+  const openJobs = useMemo(() => jobs.filter((j) => j.status === "open"), [jobs]);
+  const pendingApps = useMemo(
+    () => applications.filter((a) => a.status === "new" || a.status === "reviewing"),
+    [applications]
+  );
+
+  // Representative ownership breakdown for Sales Manager (strictly from authorized leads)
+  const repBreakdown = useMemo(() => {
+    if (actorRoleKey !== "sales_manager") return [];
+    const map = new Map<string, { label: string; active: number; total: number }>();
+    for (const lead of leads) {
+      const key = lead.ownerId || "unassigned";
+      const label =
+        lead.ownerName ||
+        lead.ownerEmail ||
+        (lead.ownerId ? "Assigned Representative" : "Unassigned Queue");
+      const entry = map.get(key) || { label, active: 0, total: 0 };
+      entry.total += 1;
+      if (lead.stage !== "won" && lead.stage !== "lost") entry.active += 1;
+      map.set(key, entry);
+    }
+    return Array.from(map.values())
+      .sort((a, b) => b.active - a.active)
+      .slice(0, 5);
+  }, [actorRoleKey, leads]);
+
+  // Personalized, grounded greeting tailored to the employee's actual authorized records
+  const personalizedGreeting = useMemo(() => {
+    if (actorRoleKey === "sales_rep") {
+      const needsFollowUp = overdueLeads.length;
+      if (needsFollowUp > 0) {
+        return ar
+          ? `صباح الخير، ${firstName}. لديك ${needsFollowUp} عميل مسند يحتاج إلى متابعة حالياً.`
+          : `Good morning, ${firstName}. You have ${needsFollowUp} assigned lead${
+              needsFollowUp === 1 ? "" : "s"
+            } requiring follow-up.`;
+      }
+      if (leads.length > 0) {
+        return ar
+          ? `صباح الخير، ${firstName}. لديك ${leads.length} فرصة مسندة و${upcomingCalls.length} جلسة اكتشاف قادمة.`
+          : `Good morning, ${firstName}. You have ${leads.length} assigned opportunit${
+              leads.length === 1 ? "y" : "ies"
+            } and ${upcomingCalls.length} upcoming discovery call${
+              upcomingCalls.length === 1 ? "" : "s"
+            }.`;
+      }
+      return ar
+        ? `مرحباً ${firstName}. لا توجد فرص مبيعات مسندة إليك حالياً ضمن نطاقك.`
+        : `Good morning, ${firstName}. You have no leads currently assigned in your queue.`;
+    }
+    if (actorRoleKey === "hr_manager") {
+      const reviewCount = metrics?.newApplications ?? pendingApps.length;
+      return ar
+        ? `مرحباً ${firstName}. لديك ${reviewCount} طلب توظيف ينتظر المراجعة عبر ${openJobs.length} وظيفة مفتوحة.`
+        : `Good morning, ${firstName}. ${reviewCount} candidate application${
+            reviewCount === 1 ? "" : "s"
+          } await review across ${openJobs.length} open position${
+            openJobs.length === 1 ? "" : "s"
+          }.`;
+    }
+    if (actorRoleKey === "marketing_intern") {
+      return ar
+        ? `مرحباً ${firstName}. لديك ${openTasks.length} مهمة تسويقية مفتوحة (${overdueTasks.length} متأخرة).`
+        : `Good morning, ${firstName}. You have ${openTasks.length} assigned task${
+            openTasks.length === 1 ? "" : "s"
+          }${overdueTasks.length > 0 ? ` (${overdueTasks.length} overdue)` : ""}.`;
+    }
+    if (actorRoleKey === "engineer" || actorRoleKey === "project_manager") {
+      return ar
+        ? `مرحباً ${firstName}. لديك ${openTasks.length} مهمة نشطة و${products.length} منتج مصرح به للمتابعة.`
+        : `Good morning, ${firstName}. You have ${openTasks.length} active task${
+            openTasks.length === 1 ? "" : "s"
+          }${overdueTasks.length > 0 ? ` (${overdueTasks.length} overdue)` : ""} in ${actorDepartment}.`;
+    }
+    return ar ? workspace.subtitleAr : `Welcome back, ${actorName}. ${workspace.subtitleEn}`;
+  }, [
+    actorDepartment,
+    actorName,
+    actorRoleKey,
+    ar,
+    firstName,
+    leads.length,
+    metrics?.newApplications,
+    openJobs.length,
+    openTasks.length,
+    overdueLeads.length,
+    overdueTasks.length,
+    pendingApps.length,
+    products.length,
+    upcomingCalls.length,
+    workspace.subtitleAr,
+    workspace.subtitleEn,
+  ]);
+
+  // Real 7-day sparklines strictly from authorized arrays
   const leadsSeries = useMemo(() => buildDailySeries(leads.map((l) => l.createdAt)), [leads]);
   const callsSeries = useMemo(
     () => buildDailySeries(leads.map((l) => l.scheduledSlotIso)),
     [leads]
   );
-  const eventsSeries = useMemo(
-    () =>
-      buildDailySeries(
-        events
-          .filter((e) => e.module === "recruitment")
-          .map((e) => e.createdAt)
-      ),
-    [events]
+  const appsSeries = useMemo(
+    () => buildDailySeries(applications.map((a) => `${a.createdAt}T12:00:00.000Z`)),
+    [applications]
   );
   const tasksSeries = useMemo(() => buildDailySeries(tasks.map((t) => t.createdAt)), [tasks]);
 
-  // Structured Morning Briefing bullets strictly grounded in live records
+  // Permission-driven KPI strip (ZERO unauthorized metrics or links!)
+  const kpiCards = useMemo(() => {
+    const cards: Array<{
+      id: string;
+      label: string;
+      value: number | string;
+      sub: string;
+      tone?: "emerald" | "amber" | "neutral";
+      href?: string;
+      onClick?: () => void;
+      icon: "leads" | "calls" | "recruitment" | "tasks" | "jobs" | "products" | "demos" | "team" | "health";
+      series?: number[];
+      strokeStart?: string;
+      strokeEnd?: string;
+      highlightHealth?: boolean;
+    }> = [];
+
+    if (actorRoleKey === "sales_rep") {
+      cards.push({
+        id: "my-leads",
+        label: ar ? "عملائي المسندون" : "My Assigned Leads",
+        value: leads.length,
+        sub: ar ? `${activeLeads.length} نشط` : `${activeLeads.length} active`,
+        tone: "emerald",
+        href: "/admin/crm",
+        icon: "leads",
+        series: leadsSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      cards.push({
+        id: "my-calls",
+        label: ar ? "جلسات الاكتشاف" : "My Discovery Calls",
+        value: upcomingCalls.length,
+        sub: ar ? "مجدولة" : "Scheduled",
+        href: "/admin/crm",
+        icon: "calls",
+        series: callsSeries,
+        strokeStart: "#6366F1",
+        strokeEnd: "#A855F7",
+      });
+      cards.push({
+        id: "my-followups",
+        label: ar ? "متابعات مطلوبة" : "Needs Follow-Up",
+        value: overdueLeads.length,
+        sub: ar ? "ضمن نطاقي" : "In my pipeline",
+        tone: overdueLeads.length > 0 ? "amber" : "emerald",
+        href: "/admin/crm",
+        icon: "leads",
+        series: leadsSeries,
+        strokeStart: "#F59E0B",
+        strokeEnd: "#F97316",
+      });
+      if (permissions.tasksView) {
+        cards.push({
+          id: "my-tasks",
+          label: ar ? "مهام المتابعة" : "My Follow-Up Tasks",
+          value: openTasks.length,
+          sub: overdueTasks.length > 0 ? `${overdueTasks.length} overdue` : "Active queue",
+          onClick: () => setOpsOpen((v) => !v),
+          icon: "tasks",
+          series: tasksSeries,
+          strokeStart: "#3B82F6",
+          strokeEnd: "#818CF8",
+        });
+      }
+      return cards;
+    }
+
+    if (actorRoleKey === "sales_manager") {
+      cards.push({
+        id: "team-pipeline",
+        label: ar ? "خط مبيعات الفريق" : "Active Pipeline",
+        value: activeLeads.length,
+        sub: `${leads.length} total authorized`,
+        tone: "emerald",
+        href: "/admin/crm",
+        icon: "leads",
+        series: leadsSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      cards.push({
+        id: "team-calls",
+        label: ar ? "جلسات الاكتشاف" : "Discovery Calls",
+        value: upcomingCalls.length,
+        sub: "Upcoming scheduled",
+        href: "/admin/crm",
+        icon: "calls",
+        series: callsSeries,
+        strokeStart: "#6366F1",
+        strokeEnd: "#A855F7",
+      });
+      cards.push({
+        id: "overdue-followups",
+        label: ar ? "متابعات متأخرة" : "Overdue Follow-Ups",
+        value: overdueLeads.length,
+        sub: "Require rep action",
+        tone: overdueLeads.length > 0 ? "amber" : "emerald",
+        href: "/admin/crm",
+        icon: "leads",
+        series: leadsSeries,
+        strokeStart: "#F59E0B",
+        strokeEnd: "#F97316",
+      });
+      if (workspace.allowUnassignedQueue) {
+        cards.push({
+          id: "unassigned-queue",
+          label: ar ? "قائمة غير المسندين" : "Unassigned Queue",
+          value: unassignedLeads.length,
+          sub: "Ready to assign",
+          href: "/admin/crm",
+          icon: "team",
+          series: leadsSeries,
+          strokeStart: "#8B5CF6",
+          strokeEnd: "#EC4899",
+        });
+      }
+      if (permissions.tasksView) {
+        cards.push({
+          id: "sales-tasks",
+          label: ar ? "مهام المبيعات" : "Sales Tasks",
+          value: openTasks.length,
+          sub: `${overdueTasks.length} overdue`,
+          onClick: () => setOpsOpen((v) => !v),
+          icon: "tasks",
+          series: tasksSeries,
+          strokeStart: "#3B82F6",
+          strokeEnd: "#818CF8",
+        });
+      }
+      return cards;
+    }
+
+    if (actorRoleKey === "hr_manager") {
+      cards.push({
+        id: "new-apps",
+        label: ar ? "طلبات جديدة اليوم" : "Applications Today",
+        value: metrics?.applicationsToday ?? 0,
+        sub: `${metrics?.totalApplications ?? applications.length} total`,
+        tone: "emerald",
+        href: "/admin/applications",
+        icon: "recruitment",
+        series: appsSeries,
+        strokeStart: "#6366F1",
+        strokeEnd: "#C084FC",
+      });
+      cards.push({
+        id: "awaiting-review",
+        label: ar ? "بانتظار المراجعة" : "Awaiting Review",
+        value: metrics?.newApplications ?? pendingApps.length,
+        sub: "Initial screening",
+        href: "/admin/applications",
+        icon: "recruitment",
+        series: appsSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      cards.push({
+        id: "interviews",
+        label: ar ? "المقابلات المجدولة" : "Interviews",
+        value: metrics?.interviews ?? 0,
+        sub: `${metrics?.shortlisted ?? 0} shortlisted`,
+        href: "/admin/applications",
+        icon: "calls",
+        series: appsSeries,
+        strokeStart: "#8B5CF6",
+        strokeEnd: "#34D399",
+      });
+      cards.push({
+        id: "open-jobs",
+        label: ar ? "الوظائف المفتوحة" : "Open Positions",
+        value: openJobs.length,
+        sub: `${jobs.length} total roles`,
+        href: "/admin/jobs",
+        icon: "jobs",
+        series: tasksSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#818CF8",
+      });
+      if (permissions.tasksView) {
+        cards.push({
+          id: "hr-tasks",
+          label: ar ? "مهام التوظيف" : "Hiring Tasks",
+          value: openTasks.length,
+          sub: `${overdueTasks.length} overdue`,
+          onClick: () => setOpsOpen((v) => !v),
+          icon: "tasks",
+          series: tasksSeries,
+          strokeStart: "#6366F1",
+          strokeEnd: "#A855F7",
+        });
+      }
+      return cards;
+    }
+
+    if (actorRoleKey === "marketing_intern") {
+      cards.push({
+        id: "intern-tasks",
+        label: ar ? "مهامي المسندة" : "Assigned Tasks",
+        value: openTasks.length,
+        sub: ar ? "مهام نشطة" : "Open in my queue",
+        onClick: () => setOpsOpen((v) => !v),
+        icon: "tasks",
+        series: tasksSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      cards.push({
+        id: "intern-overdue",
+        label: ar ? "مواعيد متأخرة" : "Overdue Deadlines",
+        value: overdueTasks.length,
+        sub: overdueTasks.length > 0 ? "Needs immediate update" : "All on schedule",
+        tone: overdueTasks.length > 0 ? "amber" : "emerald",
+        onClick: () => setOpsOpen(true),
+        icon: "calls",
+        series: tasksSeries,
+        strokeStart: "#F59E0B",
+        strokeEnd: "#F97316",
+      });
+      if (permissions.products) {
+        cards.push({
+          id: "intern-products",
+          label: ar ? "المنتجات المنشورة" : "Published Products",
+          value: products.length,
+          sub: "Approved brand catalog",
+          href: "/admin/products",
+          icon: "products",
+          series: tasksSeries,
+          strokeStart: "#6366F1",
+          strokeEnd: "#A855F7",
+        });
+      }
+      if (permissions.jobs) {
+        cards.push({
+          id: "intern-jobs",
+          label: ar ? "الوظائف المفتوحة" : "Open Roles",
+          value: openJobs.length,
+          sub: "Published openings",
+          href: "/admin/jobs",
+          icon: "jobs",
+          series: tasksSeries,
+          strokeStart: "#3B82F6",
+          strokeEnd: "#34D399",
+        });
+      }
+      return cards;
+    }
+
+    if (actorRoleKey === "marketing_specialist") {
+      cards.push({
+        id: "mkt-tasks",
+        label: ar ? "مهام التسويق" : "Marketing Tasks",
+        value: openTasks.length,
+        sub: `${overdueTasks.length} overdue`,
+        onClick: () => setOpsOpen((v) => !v),
+        icon: "tasks",
+        series: tasksSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      if (permissions.products) {
+        cards.push({
+          id: "mkt-products",
+          label: ar ? "المنتجات" : "Products",
+          value: products.length,
+          sub: "Positioning & catalog",
+          href: "/admin/products",
+          icon: "products",
+          series: tasksSeries,
+          strokeStart: "#6366F1",
+          strokeEnd: "#A855F7",
+        });
+      }
+      if (permissions.demonstrations) {
+        cards.push({
+          id: "mkt-demos",
+          label: ar ? "العروض التفاعلية" : "Interactive Demos",
+          value: "Live",
+          sub: "Demo Studio access",
+          href: "/admin/website/demonstrations",
+          icon: "demos",
+        });
+      }
+      if (permissions.crm) {
+        cards.push({
+          id: "mkt-leads",
+          label: ar ? "مؤشرات العملاء المعتمدة" : "Approved Lead Insights",
+          value: leads.length,
+          sub: "Values redacted by role",
+          href: "/admin/crm",
+          icon: "leads",
+          series: leadsSeries,
+          strokeStart: "#3B82F6",
+          strokeEnd: "#34D399",
+        });
+      }
+      return cards;
+    }
+
+    if (actorRoleKey === "engineer" || actorRoleKey === "project_manager") {
+      cards.push({
+        id: "eng-tasks",
+        label:
+          actorRoleKey === "engineer"
+            ? ar
+              ? "مهامي الهندسية"
+              : "Assigned Tasks"
+            : ar
+            ? "مهام الفريق"
+            : "Team Delivery Tasks",
+        value: openTasks.length,
+        sub: `${overdueTasks.length} overdue`,
+        onClick: () => setOpsOpen((v) => !v),
+        icon: "tasks",
+        series: tasksSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      if (permissions.products) {
+        cards.push({
+          id: "eng-products",
+          label: ar ? "المنتجات والأنظمة" : "Product Platforms",
+          value: products.length,
+          sub: "Authorized catalog",
+          href: "/admin/products",
+          icon: "products",
+          series: tasksSeries,
+          strokeStart: "#6366F1",
+          strokeEnd: "#A855F7",
+        });
+      }
+      if (permissions.bookings || permissions.crm) {
+        cards.push({
+          id: "eng-sessions",
+          label:
+            actorRoleKey === "engineer"
+              ? ar
+                ? "الجلسات المسندة"
+                : "Assigned Sessions"
+              : ar
+              ? "تسليمات العملاء"
+              : "Authorized Handoffs",
+          value: upcomingCalls.length,
+          sub: `${leads.length} scoped record${leads.length === 1 ? "" : "s"}`,
+          href: permissions.crm ? "/admin/crm" : "/admin",
+          icon: "calls",
+          series: callsSeries,
+          strokeStart: "#3B82F6",
+          strokeEnd: "#818CF8",
+        });
+      }
+      if (permissions.demonstrations) {
+        cards.push({
+          id: "eng-demos",
+          label: ar ? "العروض التفاعلية" : "Interactive Demos",
+          value: "Ready",
+          sub: "Engineering demo studio",
+          href: "/admin/website/demonstrations",
+          icon: "demos",
+        });
+      }
+      return cards;
+    }
+
+    // Super Admin & Administrator (strictly permission-gated!)
+    if (permissions.crm) {
+      cards.push({
+        id: "exec-leads",
+        label: ar ? "عملاء جدد (24 ساعة)" : "New Leads (24h)",
+        value: briefing.counts.newLeads24h,
+        sub: `${leads.length} total`,
+        tone: "emerald",
+        href: "/admin/crm",
+        icon: "leads",
+        series: leadsSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#60A5FA",
+      });
+      cards.push({
+        id: "exec-calls",
+        label: ar ? "جلسات الاكتشاف" : "Discovery Calls",
+        value: briefing.counts.upcomingBookings,
+        sub: "Scheduled",
+        href: "/admin/crm",
+        icon: "calls",
+        series: callsSeries,
+        strokeStart: "#6366F1",
+        strokeEnd: "#A855F7",
+      });
+    }
+    if (permissions.recruitment) {
+      cards.push({
+        id: "exec-recruitment",
+        label: ar ? "خط التوظيف" : "Recruitment Pipeline",
+        value: metrics?.newApplications ?? pendingApps.length,
+        sub: "In review",
+        href: "/admin/applications",
+        icon: "recruitment",
+        series: appsSeries,
+        strokeStart: "#6366F1",
+        strokeEnd: "#C084FC",
+      });
+    }
+    if (permissions.tasksView) {
+      cards.push({
+        id: "exec-tasks",
+        label: ar ? "المهام النشطة" : "Active Tasks",
+        value: openTasks.length,
+        sub: overdueTasks.length > 0 ? `${overdueTasks.length} overdue` : "Require attention",
+        onClick: () => setOpsOpen((v) => !v),
+        icon: "tasks",
+        series: tasksSeries,
+        strokeStart: "#3B82F6",
+        strokeEnd: "#818CF8",
+      });
+    }
+    if (permissions.settings || permissions.team) {
+      cards.push({
+        id: "exec-health",
+        label: permissions.team ? (ar ? "الفريق والنظام" : "Team & Health") : "Platform Status",
+        value: supabaseConnected ? "Healthy" : "Check Status",
+        sub: teamSummary
+          ? `${teamSummary.active} active · ${teamSummary.invited} pending`
+          : supabaseConnected
+          ? "Supabase live"
+          : "Local mode",
+        href: permissions.team ? "/admin/team" : permissions.settings ? "/admin/settings" : undefined,
+        icon: "health",
+        highlightHealth: true,
+      });
+    }
+    return cards;
+  }, [
+    activeLeads.length,
+    actorRoleKey,
+    applications.length,
+    appsSeries,
+    ar,
+    briefing.counts.newLeads24h,
+    briefing.counts.upcomingBookings,
+    callsSeries,
+    jobs.length,
+    leads.length,
+    leadsSeries,
+    metrics,
+    openJobs.length,
+    openTasks.length,
+    overdueLeads.length,
+    overdueTasks.length,
+    pendingApps.length,
+    permissions,
+    products.length,
+    supabaseConnected,
+    tasksSeries,
+    teamSummary,
+    unassignedLeads.length,
+    upcomingCalls.length,
+    workspace.allowUnassignedQueue,
+  ]);
+
+  // Structured Morning Briefing bullets strictly grounded in authorized modules only
   const structuredBullets = useMemo(() => {
     const rows: Array<{ lead: string; rest: string }> = [];
 
-    if (permissions.crm) {
+    if (permissions.crm || permissions.bookings) {
       const leadNames = Array.from(
         new Set(
           leads
@@ -383,81 +994,150 @@ export function AdminCommandCenterClient({
         )
       ).slice(0, 2);
       const nameSuffix = leadNames.length > 0 ? ` (${leadNames.join(", ")})` : "";
+      const scopeQualifier =
+        actorScope === "assigned" || actorScope === "own"
+          ? ar
+            ? " ضمن عملائك المسندين"
+            : " in your assigned pipeline"
+          : actorScope === "team"
+          ? ar
+            ? ` ضمن فريق ${actorDepartment}`
+            : ` in ${actorDepartment}`
+          : "";
       rows.push({
-        lead: `${briefing.counts.newLeads24h} new lead${briefing.counts.newLeads24h === 1 ? "" : "s"}`,
-        rest: ` registered in the last 24 hours, with ${briefing.counts.upcomingBookings} discovery call${briefing.counts.upcomingBookings === 1 ? "" : "s"} scheduled${nameSuffix}.`,
+        lead: ar
+          ? `${leads.length} فرصة مصرح بها`
+          : `${leads.length} authorized opportunit${leads.length === 1 ? "y" : "ies"}`,
+        rest: ar
+          ? `${scopeQualifier}، مع ${upcomingCalls.length} جلسة اكتشاف قادمة و${overdueLeads.length} متابعة مطلوبة${nameSuffix}.`
+          : `${scopeQualifier}, with ${upcomingCalls.length} upcoming discovery call${
+              upcomingCalls.length === 1 ? "" : "s"
+            } and ${overdueLeads.length} follow-up${overdueLeads.length === 1 ? "" : "s"} needing attention${nameSuffix}.`,
       });
     }
 
-    if (permissions.recruitment && metrics) {
+    if (permissions.recruitment && metrics?.totalApplications !== null) {
       rows.push({
-        lead: "Recruitment:",
-        rest: ` ${metrics.applicationsToday} new application${metrics.applicationsToday === 1 ? "" : "s"} today (${metrics.newApplications} in review, ${metrics.interviews} interview${metrics.interviews === 1 ? "" : "s"} scheduled).`,
+        lead: ar ? "التوظيف:" : "Recruitment:",
+        rest: ar
+          ? ` ${metrics?.applicationsToday ?? 0} طلب اليوم (${metrics?.newApplications ?? 0} بانتظار المراجعة، ${metrics?.interviews ?? 0} مقابلات).`
+          : ` ${metrics?.applicationsToday ?? 0} new application${
+              (metrics?.applicationsToday ?? 0) === 1 ? "" : "s"
+            } today (${metrics?.newApplications ?? 0} awaiting review, ${metrics?.interviews ?? 0} interview${
+              (metrics?.interviews ?? 0) === 1 ? "" : "s"
+            } scheduled).`,
       });
     }
 
-    const followUpCount = briefing.counts.overdueFollowUps + briefing.counts.overdueTasks;
-    const focusName = overdueLeads[0]?.company || overdueLeads[0]?.fullName || openTasks[0]?.entityLabel;
-    rows.push({
-      lead: `${followUpCount > 0 ? followUpCount : openTasks.length} ${followUpCount > 0 ? "follow-up" : "active task"}${
-        (followUpCount > 0 ? followUpCount : openTasks.length) === 1 ? "" : "s"
-      }`,
-      rest:
-        followUpCount > 0
-          ? ` require attention${focusName ? ` (${focusName})` : ""} across active CRM and task queues.`
-          : ` open in your operational queue, with zero overdue client deadlines.`,
-    });
-
-    if (metrics) {
+    if (permissions.tasksView) {
+      const focusName = openTasks[0]?.title;
       rows.push({
-        lead: "System:",
-        rest: ` ${metrics.totalVisitors.toLocaleString("en-US")} total visitors (${metrics.visitorsToday} today) · ${
-          supabaseConnected ? "Supabase live" : "Local storage"
-        }.`,
+        lead: ar
+          ? `${openTasks.length} مهمة نشطة`
+          : `${openTasks.length} active task${openTasks.length === 1 ? "" : "s"}`,
+        rest:
+          overdueTasks.length > 0
+            ? ar
+              ? ` (${overdueTasks.length} متأخرة) في قائمتك المصرح بها${focusName ? ` — أبرزها: ${focusName}` : ""}.`
+              : ` (${overdueTasks.length} overdue) in your authorized queue${focusName ? ` — next: ${focusName}` : ""}.`
+            : ar
+            ? " في قائمتك المصرح بها بدون أي تأخير حالياً."
+            : " in your authorized queue with zero overdue deadlines.",
+      });
+    }
+
+    if (metrics && metrics.totalVisitors !== null) {
+      rows.push({
+        lead: ar ? "النظام والزيارات:" : "Organization Traffic:",
+        rest: ar
+          ? ` ${metrics.totalVisitors.toLocaleString("en-US")} زيارة إجمالية (${metrics.visitorsToday ?? 0} اليوم).`
+          : ` ${metrics.totalVisitors.toLocaleString("en-US")} total visitors (${
+              metrics.visitorsToday ?? 0
+            } today) · ${supabaseConnected ? "Supabase live" : "Local staging"}.`,
+      });
+    }
+
+    if (rows.length === 0) {
+      rows.push({
+        lead: `${actorRole}:`,
+        rest: ` ${workspace.subtitleEn}`,
       });
     }
 
     return rows;
   }, [
-    briefing.counts,
+    actorDepartment,
+    actorRole,
+    actorScope,
+    ar,
     leads,
     metrics,
     openTasks,
-    overdueLeads,
+    overdueLeads.length,
+    overdueTasks.length,
+    permissions.bookings,
     permissions.crm,
     permissions.recruitment,
+    permissions.tasksView,
     supabaseConnected,
+    upcomingCalls.length,
+    workspace.subtitleEn,
   ]);
 
-  // Verified source pills strictly from live counts & briefing sources
+  // Verified source pills strictly gated by actor permissions
   const verifiedSourceChips = useMemo(() => {
-    const chips: Array<{ label: string; href: string; kind: "crm" | "recruitment" | "analytics" | "record" }> = [];
+    const chips: Array<{
+      label: string;
+      href: string;
+      kind: "crm" | "recruitment" | "analytics" | "record";
+    }> = [];
     if (permissions.crm) {
-      chips.push({ label: `CRM (${leads.length})`, href: "/admin/crm", kind: "crm" });
-    }
-    if (permissions.recruitment && metrics) {
       chips.push({
-        label: `Recruitment (${metrics.totalApplications})`,
+        label: actorScope === "assigned" ? `My CRM (${leads.length})` : `CRM (${leads.length})`,
+        href: "/admin/crm",
+        kind: "crm",
+      });
+    }
+    if (permissions.recruitment) {
+      chips.push({
+        label: `Recruitment (${metrics?.totalApplications ?? applications.length})`,
         href: "/admin/applications",
         kind: "recruitment",
       });
     }
-    if (metrics) {
-      chips.push({ label: "Analytics", href: "/admin/audit", kind: "analytics" });
+    if (permissions.jobs) {
+      chips.push({ label: `Jobs (${openJobs.length})`, href: "/admin/jobs", kind: "record" });
     }
-    for (const src of (briefing.sources || []).slice(0, 2)) {
-      if (!chips.some((c) => c.href === src.href)) {
-        chips.push({ label: src.label.slice(0, 24), href: src.href, kind: "record" });
-      }
+    if (permissions.products) {
+      chips.push({
+        label: `Products (${products.length})`,
+        href: "/admin/products",
+        kind: "record",
+      });
     }
-    return chips;
-  }, [briefing.sources, leads.length, metrics, permissions.crm, permissions.recruitment]);
+    if (permissions.audit) {
+      chips.push({ label: "Audit Trail", href: "/admin/audit", kind: "analytics" });
+    }
+    return chips.slice(0, 5);
+  }, [
+    actorScope,
+    applications.length,
+    leads.length,
+    metrics?.totalApplications,
+    openJobs.length,
+    permissions.audit,
+    permissions.crm,
+    permissions.jobs,
+    permissions.products,
+    permissions.recruitment,
+    products.length,
+  ]);
 
-  // Actionable Priorities rows strictly derived from live alerts, calls, recruitment, and system health
+  // Actionable Priorities strictly composed from authorized records
   const priorityRows = useMemo(() => {
     const items: Array<{
       id: string;
-      icon: "flag" | "calendar" | "users" | "shield";
+      icon: "flag" | "calendar" | "users" | "shield" | "package";
       tone: "rose" | "blue" | "violet" | "emerald" | "amber";
       title: string;
       detail: string;
@@ -466,232 +1146,206 @@ export function AdminCommandCenterClient({
       href: string;
     }> = [];
 
-    if (permissions.crm && (overdueLeads.length > 0 || briefing.counts.overdueFollowUps > 0)) {
+    if (permissions.crm && overdueLeads.length > 0) {
       const targetLead = overdueLeads[0];
       items.push({
         id: "priority-followup",
         icon: "flag",
         tone: "rose",
-        title: targetLead
-          ? `Follow-up Needed: ${targetLead.company || targetLead.fullName}`
-          : `Follow-up Needed (${briefing.counts.overdueFollowUps})`,
-        detail: targetLead
-          ? `${targetLead.serviceTrack} inquiry awaiting initial response (${targetLead.referenceId}).`
-          : "Proposal requests or inbound bookings require operator follow-up.",
+        title: `Follow-up Needed: ${targetLead.company || targetLead.fullName}`,
+        detail: `${targetLead.serviceTrack} (${targetLead.referenceId}) · ${CRM_STAGE_LABELS[targetLead.stage].en}.`,
         badge: "High",
-        meta: "Action needed",
-        href: targetLead ? `/admin/crm?lead=${encodeURIComponent(targetLead.id)}` : "/admin/crm",
-      });
-    } else if (openTasks.length > 0) {
-      const firstTask = openTasks[0];
-      const overdue =
-        Boolean(firstTask.dueAt) && new Date(firstTask.dueAt!).getTime() < Date.now();
-      items.push({
-        id: `priority-task-${firstTask.id}`,
-        icon: "flag",
-        tone: overdue ? "rose" : "amber",
-        title: `Follow-up Task: ${firstTask.title}`,
-        detail: firstTask.entityLabel
-          ? `Linked to ${firstTask.entityLabel} · ${openTasks.length} open task${openTasks.length === 1 ? "" : "s"} total.`
-          : `${openTasks.length} active operational task${openTasks.length === 1 ? "" : "s"} queued.`,
-        badge: overdue ? "High" : firstTask.priority === "high" ? "High" : "Active",
-        meta: firstTask.dueAt
-          ? `Due ${new Date(firstTask.dueAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
-          : "Open queue",
-        href:
-          firstTask.entityType === "lead" && firstTask.entityId
-            ? `/admin/crm?lead=${encodeURIComponent(firstTask.entityId)}`
-            : "/admin/crm",
+        meta: `${overdueLeads.length} pending`,
+        href: `/admin/crm?lead=${encodeURIComponent(targetLead.id)}`,
       });
     }
 
-    if (permissions.crm) {
+    if ((permissions.crm || permissions.bookings) && upcomingCalls.length > 0) {
       const nextCall = upcomingCalls[0];
-      const companyNames = Array.from(
-        new Set(upcomingCalls.map((c) => c.company || c.fullName).filter(Boolean))
-      ).slice(0, 2);
       items.push({
         id: "priority-meetings",
         icon: "calendar",
         tone: "blue",
-        title: `Meetings to Prepare (${upcomingCalls.length})`,
-        detail:
-          upcomingCalls.length > 0
-            ? `Discovery calls with ${companyNames.join(", ")}${upcomingCalls.length > 2 ? " and other clients" : ""}.`
-            : "No upcoming discovery calls scheduled yet via /book.",
-        badge: upcomingCalls.length > 0 ? "Upcoming" : "Clear",
-        meta: nextCall?.scheduledSlotIso
-          ? `Next ${new Date(nextCall.scheduledSlotIso).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}`
-          : "No calls",
-        href: nextCall ? `/admin/crm?lead=${encodeURIComponent(nextCall.id)}` : "/admin/crm",
+        title: `Upcoming Discovery Call: ${nextCall.company || nextCall.fullName}`,
+        detail: `${nextCall.serviceTrack} (${nextCall.referenceId}) · ${upcomingCalls.length} scheduled.`,
+        badge: "Upcoming",
+        meta: nextCall.scheduledSlotIso
+          ? new Date(nextCall.scheduledSlotIso).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })
+          : "Scheduled",
+        href: permissions.crm
+          ? `/admin/crm?lead=${encodeURIComponent(nextCall.id)}`
+          : "/admin",
       });
     }
 
-    if (permissions.recruitment && metrics) {
+    if (permissions.recruitment && pendingApps.length > 0) {
+      const topApp = pendingApps[0];
       items.push({
         id: "priority-recruitment",
         icon: "users",
         tone: "violet",
-        title: `Recruitment Review (${metrics.newApplications})`,
-        detail: `${metrics.newApplications} application${metrics.newApplications === 1 ? "" : "s"} awaiting review, ${metrics.interviews} interview${metrics.interviews === 1 ? "" : "s"} scheduled across ${metrics.activeJobs} active role${metrics.activeJobs === 1 ? "" : "s"}.`,
-        badge: metrics.newApplications > 0 ? "Medium" : "Current",
-        meta: metrics.newApplications > 0 ? "Review today" : "Up to date",
-        href: "/admin/applications",
+        title: `Candidate Review: ${topApp.name} (${topApp.jobTitle})`,
+        detail: `${pendingApps.length} application${pendingApps.length === 1 ? "" : "s"} awaiting review · ${topApp.experience} · ${topApp.country}.`,
+        badge: "Review",
+        meta: topApp.status,
+        href: `/admin/applications?q=${encodeURIComponent(topApp.id)}`,
       });
     }
 
-    const urgentEvents = events.filter((e) => e.severity === "urgent");
-    const latestEvt = events[0];
-    items.push({
-      id: "priority-system",
-      icon: "shield",
-      tone: urgentEvents.length > 0 ? "rose" : "emerald",
-      title: "System & Activity Status",
-      detail:
-        urgentEvents.length > 0
-          ? `${urgentEvents.length} urgent operational event${urgentEvents.length === 1 ? "" : "s"} logged: ${urgentEvents[0].title}.`
-          : `No critical issues. ${events.length} authorized operational event${events.length === 1 ? "" : "s"} recorded.`,
-      badge: urgentEvents.length > 0 ? "Urgent" : "Normal",
-      meta: latestEvt ? `Updated ${formatRelativeTime(latestEvt.createdAt)}` : "Operational",
-      href: "/admin/audit",
-    });
+    if (permissions.tasksView && openTasks.length > 0) {
+      const firstTask = openTasks[0];
+      const isOverdue =
+        Boolean(firstTask.dueAt) && new Date(firstTask.dueAt!).getTime() < Date.now();
+      items.push({
+        id: `priority-task-${firstTask.id}`,
+        icon: "flag",
+        tone: isOverdue ? "rose" : "amber",
+        title: firstTask.title,
+        detail: firstTask.entityLabel
+          ? `Linked to ${firstTask.entityLabel} · ${openTasks.length} open task${openTasks.length === 1 ? "" : "s"}.`
+          : `${openTasks.length} active task${openTasks.length === 1 ? "" : "s"} in your queue.`,
+        badge: isOverdue ? "Overdue" : firstTask.priority,
+        meta: firstTask.dueAt
+          ? `Due ${new Date(firstTask.dueAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}`
+          : "Open",
+        href:
+          firstTask.entityType === "lead" && firstTask.entityId && permissions.crm
+            ? `/admin/crm?lead=${encodeURIComponent(firstTask.entityId)}`
+            : "/admin",
+      });
+    }
+
+    if (permissions.products && products.length > 0 && items.length < 3) {
+      items.push({
+        id: "priority-products",
+        icon: "package",
+        tone: "emerald",
+        title: `Authorized Product Catalog (${products.length})`,
+        detail: products
+          .slice(0, 3)
+          .map((p) => p.name)
+          .join(", "),
+        badge: "Active",
+        meta: "Catalog",
+        href: "/admin/products",
+      });
+    }
+
+    if (items.length === 0) {
+      items.push({
+        id: "priority-clear",
+        icon: "shield",
+        tone: "emerald",
+        title: ar ? "لا توجد أولويات عاجلة حالياً" : "All clear in your workspace",
+        detail: ar
+          ? "لا توجد متابعات متأخرة أو مهام عاجلة ضمن صلاحياتك الحالية."
+          : "No overdue follow-ups, pending reviews, or urgent tasks in your authorized scope.",
+        badge: "Clear",
+        meta: workspace.scopeLabelEn,
+        href: "/admin",
+      });
+    }
 
     return items.slice(0, 4);
   }, [
-    briefing.counts.overdueFollowUps,
-    events,
-    metrics,
+    ar,
     openTasks,
     overdueLeads,
+    pendingApps,
+    permissions.bookings,
     permissions.crm,
+    permissions.products,
     permissions.recruitment,
+    permissions.tasksView,
+    products,
     upcomingCalls,
+    workspace.scopeLabelEn,
   ]);
 
-  // Grounded AI Insights & Recommendations strictly backed by real live records
-  const aiRecommendations = useMemo(() => {
-    const list: Array<{
-      id: string;
-      icon: "trend" | "users" | "layers";
-      title: string;
-      detail: string;
-      prompt: string;
-      href: string;
-    }> = [];
+  const roleAgentPrompts = ar ? workspace.agentPromptsAr : workspace.agentPromptsEn;
 
-    if (permissions.crm) {
-      const activeCount = leads.filter((l) => l.stage !== "won" && l.stage !== "lost").length;
-      list.push({
-        id: "rec-crm",
-        icon: "trend",
-        title:
-          upcomingCalls.length > 0
-            ? "Convert discovery calls to proposals"
-            : "Review active sales pipeline",
-        detail:
-          upcomingCalls.length > 0
-            ? `${upcomingCalls.length} scheduled call${upcomingCalls.length === 1 ? "" : "s"} and ${activeCount} active opportunit${activeCount === 1 ? "y" : "ies"} ready for discovery preparation.`
-            : `${activeCount} active lead${activeCount === 1 ? "" : "s"} currently tracked across HIRZEXA CRM stages.`,
-        prompt:
-          upcomingCalls.length > 0
-            ? "Summarize our upcoming discovery calls and prepare tailored proposal talking points."
-            : "Give me a prioritized breakdown of all open leads in Sales CRM and recommended next steps.",
-        href: "/admin/crm",
-      });
-    }
-
-    if (permissions.recruitment && metrics) {
-      list.push({
-        id: "rec-recruitment",
-        icon: "users",
-        title:
-          metrics.newApplications > 0
-            ? "Accelerate recruitment review"
-            : "Audit open hiring pipelines",
-        detail:
-          metrics.newApplications > 0
-            ? `${metrics.newApplications} application${metrics.newApplications === 1 ? "" : "s"} pending review across ${metrics.activeJobs} open role${metrics.activeJobs === 1 ? "" : "s"}.`
-            : `${metrics.totalApplications} total applications processed across ${metrics.activeJobs} published job${metrics.activeJobs === 1 ? "" : "s"}.`,
-        prompt:
-          "Evaluate pending job applications against our active job requirements and highlight top candidates.",
-        href: "/admin/applications",
-      });
-    }
-
-    list.push({
-      id: "rec-engagement",
-      icon: "layers",
-      title:
-        metrics && metrics.totalVisitors > 0
-          ? "Review website traffic & conversion flow"
-          : "Audit daily operational events",
-      detail: metrics
-        ? `${metrics.totalVisitors.toLocaleString("en-US")} total visitors (${metrics.visitorsToday} today) and ${openTasks.length} open operational task${openTasks.length === 1 ? "" : "s"}.`
-        : `${events.length} recent business events and ${openTasks.length} open tasks tracked across authorized modules.`,
-      prompt:
-        "Analyze recent HIRZEXA business events, visitor inquiries, and open tasks to identify the highest-leverage actions for today.",
-      href: "/admin/agent",
-    });
-
-    return list.slice(0, 3);
-  }, [events.length, leads, metrics, openTasks.length, permissions.crm, permissions.recruitment, upcomingCalls.length]);
-
-  const systemHealthy = supabaseConnected && metrics !== null;
+  const primaryActionHref = permissions.crm
+    ? "/admin/crm"
+    : permissions.recruitment
+    ? "/admin/applications"
+    : permissions.products
+    ? "/admin/products"
+    : permissions.jobs
+    ? "/admin/jobs"
+    : "/admin";
 
   return (
-    <div className="hz-cc-root">
-      {/* Subtle Cosmic Orbital Horizon Backdrop */}
+    <div className="hz-cc-root" dir={ar ? "rtl" : "ltr"}>
       <div className="hz-cc-atmosphere" aria-hidden="true">
         <div className="hz-cc-arc-glow" />
       </div>
 
-      {/* ROW 1: Executive Header */}
+      {/* ROW 1: Role-Aware Workspace Header */}
       <header className="hz-cc-header">
         <div className="hz-cc-header-left">
           <div className="hz-cc-eyebrow">
             <span className="hz-cc-eyebrow-brand">HIRZEXA</span>
-            <span>INTELLIGENCE</span>
+            <span>
+              {actorRole.toUpperCase()} · {(ar ? workspace.scopeLabelAr : workspace.scopeLabelEn).toUpperCase()}
+            </span>
             <span className="hz-cc-eyebrow-line" aria-hidden="true" />
           </div>
-          <h1>Executive Command Center</h1>
-          <p>
-            Welcome back, {actorName}. Here&apos;s your operational overview, AI briefing, and
-            prioritized actions across HIRZEXA.
-          </p>
+          <h1>{ar ? workspace.titleAr : workspace.titleEn}</h1>
+          <p>{personalizedGreeting}</p>
         </div>
 
-        <div className="hz-cc-date-block" aria-label="Current briefing date and time">
-          <Calendar size={15} className="hz-cc-date-icon" />
-          <div>
-            <strong>{headerDate}</strong>
-            <span>{headerTime}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className="hz-btn hz-btn-secondary hz-btn-sm"
+            onClick={() => setLocale((l) => (l === "en" ? "ar" : "en"))}
+            aria-label="Toggle workspace language"
+          >
+            <Languages size={13} />
+            <span>{ar ? "English" : "العربية"}</span>
+          </button>
+
+          <div className="hz-cc-date-block" aria-label="Current briefing date and time">
+            <Calendar size={15} className="hz-cc-date-icon" />
+            <div>
+              <strong>{headerDate}</strong>
+              <span>{headerTime}</span>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ROW 2: Signature 2-Column Glassy Morning Briefing Card */}
+      {/* ROW 2: Role-Scoped Morning Briefing Card */}
       <section className="hz-cc-briefing" aria-label="Morning Briefing">
         <div className="hz-cc-briefing-grid">
-          {/* Left identity column */}
           <div className="hz-cc-briefing-left">
             <IsometricBriefingMark />
             <div className="hz-cc-briefing-intro">
-              <h2>Morning Briefing</h2>
-              <p>AI-generated operational summary from your live business data.</p>
-              <div className="hz-cc-briefing-pill" title="Grounded strictly in live authorized Supabase records">
+              <h2>{ar ? workspace.briefingTitleAr : workspace.briefingTitleEn}</h2>
+              <p>
+                {ar
+                  ? "ملخص تشغيلي مبني حصرياً على السجلات المصرح بها لدورك."
+                  : `Grounded strictly in your authorized ${actorRole} records (${workspace.scopeLabelEn}).`}
+              </p>
+              <div
+                className="hz-cc-briefing-pill"
+                title="Grounded strictly in live authorized Supabase records"
+              >
                 <Sparkles size={11} />
                 <span>
-                  {aiConfigured ? "AI BRIEFING · LIVE DATA" : "LIVE DATA BRIEFING"}
+                  {aiConfigured ? "AI BRIEFING · SCOPED DATA" : "LIVE SCOPED BRIEFING"}
                 </span>
                 <Info size={11} style={{ opacity: 0.75 }} />
               </div>
             </div>
           </div>
 
-          {/* Right structured summary & verified sources */}
           <div className="hz-cc-briefing-right">
             <ul className="hz-cc-bullet-list">
               {structuredBullets.map((item, idx) => (
@@ -708,7 +1362,7 @@ export function AdminCommandCenterClient({
             {briefing.aiSynthesis ? (
               <div className="hz-cc-synthesis-box">
                 <div className="hz-cc-synthesis-label">
-                  <Sparkles size={11} /> Executive AI Brief
+                  <Sparkles size={11} /> {ar ? "ملخص HIRZEXA الذكي" : "AI Scoped Brief"}
                 </div>
                 <MarkdownContent content={briefing.aiSynthesis} />
               </div>
@@ -716,7 +1370,9 @@ export function AdminCommandCenterClient({
 
             <div className="hz-cc-sources-bar">
               <div className="hz-cc-sources-chips">
-                <span className="hz-cc-sources-title">Verified Sources:</span>
+                <span className="hz-cc-sources-title">
+                  {ar ? "المصادر المصرح بها:" : "Authorized Sources:"}
+                </span>
                 {verifiedSourceChips.map((chip) => (
                   <Link key={chip.label} href={chip.href} className="hz-cc-source-pill">
                     {chip.kind === "crm" ? (
@@ -752,140 +1408,156 @@ export function AdminCommandCenterClient({
         </div>
       </section>
 
-      {/* ROW 3: 5-Column Compact KPI Sparkline Strip */}
-      <section className="hz-cc-kpi-grid" aria-label="Live Operational Metrics">
-        {/* 1. New Leads (24h) */}
-        <Link href={permissions.crm ? "/admin/crm" : "/admin"} className="hz-cc-kpi-card">
-          <div className="hz-cc-kpi-head">
-            <Users size={14} color="#60A5FA" />
-            <span>New Leads (24h)</span>
-          </div>
-          <div className="hz-cc-kpi-body">
-            <div className="hz-cc-kpi-val-wrap">
-              <strong>{briefing.counts.newLeads24h}</strong>
-              <span className="hz-cc-kpi-sub hz-tone-emerald">
-                {leads.length} total
-              </span>
-            </div>
-            <SparklineSvg
-              id="leads"
-              values={leadsSeries}
-              strokeStart="#3B82F6"
-              strokeEnd="#60A5FA"
-            />
-          </div>
-        </Link>
+      {/* ROW 3: Dynamic Permission-Driven KPI Strip */}
+      <section className="hz-cc-kpi-grid" aria-label="Role-Scoped Operational Metrics">
+        {kpiCards.map((card) => {
+          const iconEl =
+            card.icon === "leads" ? (
+              <Target size={14} color="#60A5FA" />
+            ) : card.icon === "calls" ? (
+              <CalendarClock size={14} color="#A78BFA" />
+            ) : card.icon === "recruitment" ? (
+              <Users size={14} color="#818CF8" />
+            ) : card.icon === "jobs" ? (
+              <BriefcaseBusiness size={14} color="#60A5FA" />
+            ) : card.icon === "products" ? (
+              <Package size={14} color="#A78BFA" />
+            ) : card.icon === "demos" ? (
+              <PlayCircle size={14} color="#34D399" />
+            ) : card.icon === "team" ? (
+              <UserCheck size={14} color="#F472B6" />
+            ) : card.icon === "health" ? (
+              <Activity size={14} color="#34D399" />
+            ) : (
+              <Zap size={14} color="#60A5FA" />
+            );
 
-        {/* 2. Discovery Calls */}
-        <Link href={permissions.crm ? "/admin/crm" : "/admin"} className="hz-cc-kpi-card">
-          <div className="hz-cc-kpi-head">
-            <CalendarClock size={14} color="#A78BFA" />
-            <span>Discovery Calls</span>
-          </div>
-          <div className="hz-cc-kpi-body">
-            <div className="hz-cc-kpi-val-wrap">
-              <strong>{briefing.counts.upcomingBookings}</strong>
-              <span className="hz-cc-kpi-sub">Scheduled</span>
-            </div>
-            <SparklineSvg
-              id="calls"
-              values={callsSeries}
-              strokeStart="#6366F1"
-              strokeEnd="#A855F7"
-            />
-          </div>
-        </Link>
+          const inner = card.highlightHealth ? (
+            <>
+              <div className="hz-cc-kpi-head">
+                {iconEl}
+                <span>{card.label}</span>
+              </div>
+              <div className="hz-cc-kpi-health-body">
+                <div>
+                  <strong className={supabaseConnected ? "hz-health-ok" : "hz-health-warn"}>
+                    {card.value}
+                  </strong>
+                  <span className="hz-cc-kpi-sub" style={{ display: "block", marginTop: 2 }}>
+                    {card.sub}
+                  </span>
+                </div>
+                <span className={`hz-cc-health-pill ${supabaseConnected ? "is-ok" : "is-warn"}`}>
+                  {supabaseConnected ? "Live" : "Local"}
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="hz-cc-kpi-head">
+                {iconEl}
+                <span>{card.label}</span>
+              </div>
+              <div className="hz-cc-kpi-body">
+                <div className="hz-cc-kpi-val-wrap">
+                  <strong>{card.value}</strong>
+                  <span
+                    className={`hz-cc-kpi-sub ${
+                      card.tone === "emerald"
+                        ? "hz-tone-emerald"
+                        : card.tone === "amber"
+                        ? "hz-tone-amber"
+                        : ""
+                    }`}
+                  >
+                    {card.sub}
+                  </span>
+                </div>
+                {card.series ? (
+                  <SparklineSvg
+                    id={card.id}
+                    values={card.series}
+                    strokeStart={card.strokeStart || "#3B82F6"}
+                    strokeEnd={card.strokeEnd || "#60A5FA"}
+                  />
+                ) : null}
+              </div>
+            </>
+          );
 
-        {/* 3. Recruitment Pipeline */}
-        <Link
-          href={permissions.recruitment ? "/admin/applications" : "/admin"}
-          className="hz-cc-kpi-card"
-        >
-          <div className="hz-cc-kpi-head">
-            <Users size={14} color="#818CF8" />
-            <span>Recruitment Pipeline</span>
-          </div>
-          <div className="hz-cc-kpi-body">
-            <div className="hz-cc-kpi-val-wrap">
-              <strong>{metrics ? metrics.newApplications : 0}</strong>
-              <span className="hz-cc-kpi-sub">In review</span>
+          if (card.onClick) {
+            return (
+              <button
+                key={card.id}
+                type="button"
+                className={`hz-cc-kpi-card hz-cc-kpi-btn ${card.highlightHealth ? "hz-cc-kpi-health" : ""}`}
+                onClick={card.onClick}
+              >
+                {inner}
+              </button>
+            );
+          }
+          if (card.href) {
+            return (
+              <Link
+                key={card.id}
+                href={card.href}
+                className={`hz-cc-kpi-card ${card.highlightHealth ? "hz-cc-kpi-health" : ""}`}
+              >
+                {inner}
+              </Link>
+            );
+          }
+          return (
+            <div
+              key={card.id}
+              className={`hz-cc-kpi-card ${card.highlightHealth ? "hz-cc-kpi-health" : ""}`}
+            >
+              {inner}
             </div>
-            <SparklineSvg
-              id="recruitment"
-              values={eventsSeries}
-              strokeStart="#6366F1"
-              strokeEnd="#C084FC"
-            />
-          </div>
-        </Link>
-
-        {/* 4. Active Tasks */}
-        <button
-          type="button"
-          className="hz-cc-kpi-card hz-cc-kpi-btn"
-          onClick={() => setOpsOpen((v) => !v)}
-        >
-          <div className="hz-cc-kpi-head">
-            <Zap size={14} color="#60A5FA" />
-            <span>Active Tasks</span>
-          </div>
-          <div className="hz-cc-kpi-body">
-            <div className="hz-cc-kpi-val-wrap">
-              <strong>{openTasks.length}</strong>
-              <span className="hz-cc-kpi-sub">
-                {briefing.counts.overdueTasks > 0
-                  ? `${briefing.counts.overdueTasks} overdue`
-                  : "Require attention"}
-              </span>
-            </div>
-            <SparklineSvg
-              id="tasks"
-              values={tasksSeries}
-              strokeStart="#3B82F6"
-              strokeEnd="#818CF8"
-            />
-          </div>
-        </button>
-
-        {/* 5. Business Health (Real monitored database & API status) */}
-        <Link href="/admin/settings" className="hz-cc-kpi-card hz-cc-kpi-health">
-          <div className="hz-cc-kpi-head">
-            <Activity size={14} color="#34D399" />
-            <span>Business Health</span>
-          </div>
-          <div className="hz-cc-kpi-health-body">
-            <div>
-              <strong className={systemHealthy ? "hz-health-ok" : "hz-health-warn"}>
-                {systemHealthy ? "Healthy" : "Check Status"}
-              </strong>
-              <span className="hz-cc-kpi-sub" style={{ display: "block", marginTop: 2 }}>
-                {systemHealthy ? "All systems operational" : "Verify Supabase connection"}
-              </span>
-            </div>
-            <span className={`hz-cc-health-pill ${systemHealthy ? "is-ok" : "is-warn"}`}>
-              {systemHealthy ? "Live" : "Alert"}
-            </span>
-          </div>
-        </Link>
+          );
+        })}
       </section>
 
-      {/* ROW 4: 2-Column Main Split — Actionable Priorities + AI Insights & Recommendations */}
-      <section className="hz-cc-split" aria-label="Priorities and Intelligence Insights">
-        {/* Left: Actionable Priorities */}
+      {/* ROW 4: 2-Column Main Split — Role Priorities / Workspace Module + Role AI Assistant */}
+      <section className="hz-cc-split" aria-label="Role Priorities and AI Assistant">
+        {/* Left: Role-Focused Priorities & Live Queue */}
         <div className="hz-cc-panel">
           <div className="hz-cc-panel-head">
             <div className="hz-cc-panel-title-group">
               <Target size={18} color="#818CF8" className="hz-cc-panel-icon" />
               <div>
-                <h2>Actionable Priorities</h2>
-                <p>High-impact items that need your attention today.</p>
+                <h2>
+                  {actorRoleKey === "sales_rep"
+                    ? ar
+                      ? "عملائي المسندون والأولويات"
+                      : "My Assigned Leads & Priorities"
+                    : actorRoleKey === "hr_manager"
+                    ? ar
+                      ? "المرشحون بانتظار المراجعة"
+                      : "Candidates & Hiring Priorities"
+                    : actorRoleKey === "sales_manager"
+                    ? ar
+                      ? "أولويات مبيعات الفريق"
+                      : "Team Sales Priorities"
+                    : ar
+                    ? "الأولويات القابلة للتنفيذ"
+                    : "Actionable Priorities"}
+                </h2>
+                <p>
+                  {ar
+                    ? "عناصر حقيقية مصرح بها تتطلب انتباهك اليوم."
+                    : "Authorized records requiring your focus today."}
+                </p>
               </div>
             </div>
             <div className="hz-cc-panel-meta">
               <span className="hz-cc-count-pill">{priorityRows.length} items</span>
-              <Link href={permissions.crm ? "/admin/crm" : "/admin/audit"} className="hz-cc-link">
-                View All <ArrowRight size={12} />
-              </Link>
+              {primaryActionHref !== "/admin" ? (
+                <Link href={primaryActionHref} className="hz-cc-link">
+                  {ar ? "عرض الكل" : "Open Module"} <ArrowRight size={12} />
+                </Link>
+              ) : null}
             </div>
           </div>
 
@@ -899,16 +1571,16 @@ export function AdminCommandCenterClient({
                     <CalendarClock size={15} />
                   ) : row.icon === "users" ? (
                     <Users size={15} />
+                  ) : row.icon === "package" ? (
+                    <Package size={15} />
                   ) : (
                     <ShieldCheck size={15} />
                   )}
                 </span>
-
                 <div className="hz-cc-row-copy">
                   <strong>{row.title}</strong>
                   <small>{row.detail}</small>
                 </div>
-
                 <div className="hz-cc-row-right">
                   <span className={`hz-cc-sev-pill is-${row.tone}`}>{row.badge}</span>
                   <span className="hz-cc-row-time">{row.meta}</span>
@@ -917,69 +1589,204 @@ export function AdminCommandCenterClient({
               </Link>
             ))}
           </div>
+
+          {/* Role-Specific Live Module Snippet (strictly real data or truthful empty state!) */}
+          {actorRoleKey === "sales_rep" && permissions.crm ? (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--hz-border-subtle)" }}>
+              <div className="hz-panel-head" style={{ marginBottom: 8 }}>
+                <h3 style={{ fontSize: 13 }}>{ar ? "قائمة عملائي المسندين" : "My Assigned Pipeline"}</h3>
+                <Link href="/admin/crm" className="hz-cc-link">
+                  Sales CRM <ArrowRight size={12} />
+                </Link>
+              </div>
+              {leads.length > 0 ? (
+                <div className="hz-row-list">
+                  {leads.slice(0, 4).map((lead) => (
+                    <Link
+                      key={lead.id}
+                      href={`/admin/crm?lead=${encodeURIComponent(lead.id)}`}
+                      className="hz-list-row"
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <strong>{lead.company || lead.fullName}</strong>
+                        <small>
+                          {lead.referenceId} · {lead.serviceTrack}
+                        </small>
+                      </div>
+                      <StatusBadge tone="blue">{CRM_STAGE_LABELS[lead.stage].en}</StatusBadge>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title={ar ? "لا توجد فرص مسندة حالياً" : "No assigned leads yet"}
+                  description={
+                    ar
+                      ? "عندما يقوم مدير المبيعات بإسناد فرصة إليك ستظهر هنا فوراً."
+                      : "Leads assigned to your employee account appear here immediately under Assigned scope."
+                  }
+                />
+              )}
+            </div>
+          ) : null}
+
+          {actorRoleKey === "sales_manager" && repBreakdown.length > 0 ? (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--hz-border-subtle)" }}>
+              <div className="hz-panel-head" style={{ marginBottom: 8 }}>
+                <h3 style={{ fontSize: 13 }}>
+                  {ar ? "توزيع الفرص حسب الممثلين" : "Sales Representative Assignments"}
+                </h3>
+                <Link href="/admin/crm" className="hz-cc-link">
+                  Manage Assignments <ArrowRight size={12} />
+                </Link>
+              </div>
+              <div className="hz-row-list">
+                {repBreakdown.map((rep) => (
+                  <div key={rep.label} className="hz-list-row">
+                    <strong>{rep.label}</strong>
+                    <StatusBadge tone={rep.label === "Unassigned Queue" ? "amber" : "blue"}>
+                      {rep.active} active / {rep.total} total
+                    </StatusBadge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {actorRoleKey === "hr_manager" && permissions.recruitment ? (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--hz-border-subtle)" }}>
+              <div className="hz-panel-head" style={{ marginBottom: 8 }}>
+                <h3 style={{ fontSize: 13 }}>{ar ? "أحدث طلبات التوظيف" : "Recent Applications"}</h3>
+                <Link href="/admin/applications" className="hz-cc-link">
+                  Recruitment <ArrowRight size={12} />
+                </Link>
+              </div>
+              {applications.length > 0 ? (
+                <div className="hz-row-list">
+                  {applications.slice(0, 4).map((app) => (
+                    <Link
+                      key={app.id}
+                      href={`/admin/applications?q=${encodeURIComponent(app.id)}`}
+                      className="hz-list-row"
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <strong>{app.name}</strong>
+                        <small>
+                          {app.jobTitle} · {app.experience} · {app.country}
+                        </small>
+                      </div>
+                      <StatusBadge tone={app.status === "new" ? "amber" : "blue"}>
+                        {app.status}
+                      </StatusBadge>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No candidate applications yet"
+                  description="New submissions from /careers will appear here for review."
+                />
+              )}
+            </div>
+          ) : null}
+
+          {workspace.showProjectsEmptyState ? (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--hz-border-subtle)" }}>
+              <EmptyState
+                icon={<FolderKanban size={18} />}
+                title={ar ? "وحدة المشاريع قيد الإعداد" : "Projects & Milestones Module"}
+                description={
+                  ar
+                    ? "لم يتم ربط جدول مشاريع مخصص في قاعدة البيانات بعد. يمكنك إدارة المهام والمنتجات المعتمدة أدناه."
+                    : "A dedicated Projects & Milestones backend table has not been provisioned yet. Manage your active delivery tasks and authorized products below without mock project records."
+                }
+              />
+            </div>
+          ) : null}
+
+          {workspace.showCampaignsEmptyState ? (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--hz-border-subtle)" }}>
+              <EmptyState
+                icon={<Megaphone size={18} />}
+                title={ar ? "سجلات الحملات التسويقية" : "Campaign Tracking Records"}
+                description={
+                  ar
+                    ? "لا يوجد نظام حملات إعلانية متصل بعد. يمكنك إدارة العروض التفاعلية والمنتجات ومهام التسويق المصرح بها."
+                    : "No external campaign analytics integration is connected yet. Manage Interactive Demos, Products, and team marketing tasks directly from your authorized modules."
+                }
+              />
+            </div>
+          ) : null}
         </div>
 
-        {/* Right: AI Insights & Recommendations */}
+        {/* Right: Personalized Role AI Assistant */}
         <div className="hz-cc-panel hz-cc-panel-insights">
           <div className="hz-cc-panel-head">
             <div className="hz-cc-panel-title-group">
               <Sparkles size={18} color="#A78BFA" className="hz-cc-panel-icon" />
               <div>
-                <h2>AI Insights &amp; Recommendations</h2>
-                <p>HIRZEXA Intelligence analysis and next best actions.</p>
+                <h2>
+                  {actorRoleKey === "sales_rep"
+                    ? ar
+                      ? "مساعد المبيعات الذكي"
+                      : "AI Sales Assistant"
+                    : actorRoleKey === "hr_manager"
+                    ? ar
+                      ? "مساعد التوظيف الذكي"
+                      : "AI Recruitment Assistant"
+                    : actorRoleKey === "engineer"
+                    ? ar
+                      ? "مساعد الهندسة الذكي"
+                      : "Engineering AI Assistant"
+                    : ar
+                    ? "رؤى وتوصيات HIRZEXA الذكية"
+                    : "AI Insights & Role Assistant"}
+                </h2>
+                <p>
+                  {ar
+                    ? "تحليل فوري مقيد تماماً بصلاحياتك ونطاق سجلاتك."
+                    : `Strictly constrained to your ${actorRole} permissions and ${workspace.scopeLabelEn}.`}
+                </p>
               </div>
             </div>
             <span
               className="hz-cc-ai-pill"
               title="Derived strictly from your real authorized HIRZEXA database records"
             >
-              <span>AI Grounded</span>
+              <span>RBAC Scoped</span>
               <Info size={11} />
             </span>
           </div>
 
           <div className="hz-cc-stack">
-            {aiRecommendations.map((rec) =>
+            {roleAgentPrompts.slice(0, 3).map((prompt, idx) =>
               permissions.agent ? (
                 <button
-                  key={rec.id}
+                  key={prompt}
                   type="button"
                   className="hz-cc-insight-row"
-                  onClick={() => triggerAgent(rec.prompt)}
+                  onClick={() => triggerAgent(prompt)}
                 >
                   <span className="hz-cc-row-icon is-indigo" aria-hidden="true">
-                    {rec.icon === "trend" ? (
+                    {idx === 0 ? (
                       <TrendingUp size={15} />
-                    ) : rec.icon === "users" ? (
-                      <Users size={15} />
+                    ) : idx === 1 ? (
+                      <Sparkles size={15} />
                     ) : (
                       <Layers size={15} />
                     )}
                   </span>
                   <div className="hz-cc-row-copy">
-                    <strong>{rec.title}</strong>
-                    <small>{rec.detail}</small>
+                    <strong>{prompt}</strong>
+                    <small>
+                      {ar
+                        ? "اضغط لتشغيل استعلام موثق ضمن صلاحياتك"
+                        : "Run grounded query strictly within your authorized records"}
+                    </small>
                   </div>
                   <ChevronRight size={14} className="hz-cc-chevron" />
                 </button>
-              ) : (
-                <Link key={rec.id} href={rec.href} className="hz-cc-insight-row">
-                  <span className="hz-cc-row-icon is-indigo" aria-hidden="true">
-                    {rec.icon === "trend" ? (
-                      <TrendingUp size={15} />
-                    ) : rec.icon === "users" ? (
-                      <Users size={15} />
-                    ) : (
-                      <Layers size={15} />
-                    )}
-                  </span>
-                  <div className="hz-cc-row-copy">
-                    <strong>{rec.title}</strong>
-                    <small>{rec.detail}</small>
-                  </div>
-                  <ChevronRight size={14} className="hz-cc-chevron" />
-                </Link>
-              )
+              ) : null
             )}
           </div>
 
@@ -991,19 +1798,27 @@ export function AdminCommandCenterClient({
               onClick={() => void refreshBriefing(true)}
             >
               <FileText size={14} />
-              <span>{synthesizing ? "Generating Brief…" : "Generate AI Executive Brief"}</span>
+              <span>
+                {synthesizing
+                  ? ar
+                    ? "جارٍ إنشاء الملخص…"
+                    : "Generating Brief…"
+                  : ar
+                  ? "توليد الملخص الذكي"
+                  : "Generate Scoped AI Brief"}
+              </span>
             </button>
 
             {permissions.agent ? (
               <Link href="/admin/agent" className="hz-cc-link">
-                View All Recommendations <ArrowRight size={12} />
+                {ar ? "فتح مساحة الوكيل" : "Open AI Workspace"} <ArrowRight size={12} />
               </Link>
             ) : null}
           </div>
         </div>
       </section>
 
-      {/* BELOW THE FOLD: Collapsible Quick Tasks & Recent Activity Drawer (Preserves 100% Task Interactivity Without Cluttering Hero Viewport) */}
+      {/* BELOW THE FOLD: Authorized Tasks & Scoped Live Activity Feed */}
       <section className="hz-cc-ops-drawer">
         <button
           type="button"
@@ -1012,138 +1827,152 @@ export function AdminCommandCenterClient({
           aria-expanded={opsOpen}
         >
           <span>
-            Operational Tasks ({openTasks.length} open) &amp; Live Activity Feed ({events.length})
+            {permissions.tasksView
+              ? ar
+                ? `المهام (${openTasks.length} مفتوحة) والنشاط المصرح به (${events.length})`
+                : `Authorized Tasks (${openTasks.length} open) & Scoped Activity Feed (${events.length})`
+              : ar
+              ? `النشاط المصرح به (${events.length})`
+              : `Scoped Operational Activity (${events.length})`}
           </span>
           {opsOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
 
         {opsOpen ? (
           <div className="hz-cc-ops-body">
-            <div>
-              <div className="hz-panel-head" style={{ marginBottom: 10 }}>
-                <h3>Follow-Up Tasks</h3>
-                <StatusBadge tone="neutral">{openTasks.length} open</StatusBadge>
-              </div>
-
-              {permissions.tasksCreate ? (
-                <form
-                  onSubmit={handleQuickCreateTask}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "minmax(0, 1fr) 136px auto",
-                    gap: 8,
-                    marginBottom: 12,
-                  }}
-                >
-                  <input
-                    value={newTaskTitle}
-                    onChange={(e) => setNewTaskTitle(e.target.value)}
-                    placeholder="Add an operational task…"
-                    aria-label="New task title"
-                  />
-                  <input
-                    type="date"
-                    value={newTaskDue}
-                    onChange={(e) => setNewTaskDue(e.target.value)}
-                    aria-label="Task due date"
-                  />
-                  <button
-                    type="submit"
-                    className="hz-btn hz-btn-primary"
-                    disabled={taskBusy || !newTaskTitle.trim()}
-                  >
-                    <Plus size={14} /> Add
-                  </button>
-                </form>
-              ) : null}
-
-              {tasks.length > 0 ? (
-                <div className="hz-row-list">
-                  {tasks.slice(0, 6).map((task) => {
-                    const isOverdue =
-                      task.status !== "completed" &&
-                      Boolean(task.dueAt) &&
-                      new Date(task.dueAt!).getTime() < Date.now();
-                    return (
-                      <div key={task.id} className="hz-list-row">
-                        <button
-                          type="button"
-                          onClick={() => void toggleTaskStatus(task)}
-                          disabled={!permissions.tasksEdit}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 10,
-                            border: 0,
-                            background: "transparent",
-                            color: "inherit",
-                            textAlign: "start",
-                            cursor: permissions.tasksEdit ? "pointer" : "default",
-                            padding: 0,
-                            minWidth: 0,
-                          }}
-                        >
-                          {task.status === "completed" ? (
-                            <CheckCircle2 size={15} color="#10B981" style={{ flexShrink: 0 }} />
-                          ) : (
-                            <Circle
-                              size={15}
-                              color={isOverdue ? "#F43F5E" : "#64748B"}
-                              style={{ flexShrink: 0 }}
-                            />
-                          )}
-                          <div style={{ minWidth: 0 }}>
-                            <strong
-                              style={
-                                task.status === "completed"
-                                  ? { textDecoration: "line-through", opacity: 0.55 }
-                                  : undefined
-                              }
-                            >
-                              {task.title}
-                            </strong>
-                            <small>
-                              {task.entityLabel ? `${task.entityLabel} · ` : ""}
-                              {task.dueAt
-                                ? `Due ${new Date(task.dueAt).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                  })}`
-                                : "No due date"}
-                            </small>
-                          </div>
-                        </button>
-
-                        <StatusBadge
-                          tone={
-                            isOverdue
-                              ? "rose"
-                              : task.status === "completed"
-                              ? "emerald"
-                              : "neutral"
-                          }
-                        >
-                          {isOverdue ? "Overdue" : task.status}
-                        </StatusBadge>
-                      </div>
-                    );
-                  })}
+            {permissions.tasksView ? (
+              <div>
+                <div className="hz-panel-head" style={{ marginBottom: 10 }}>
+                  <h3>{ar ? "المهام والمتابعات" : "Follow-Up Tasks"}</h3>
+                  <StatusBadge tone="neutral">{openTasks.length} open</StatusBadge>
                 </div>
-              ) : (
-                <EmptyState
-                  icon={<CheckCircle2 size={18} />}
-                  title="No tasks queued"
-                  description="Create a follow-up task above or ask HIRZEXA to stage one."
-                />
-              )}
-            </div>
+
+                {permissions.tasksCreate ? (
+                  <form
+                    onSubmit={handleQuickCreateTask}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "minmax(0, 1fr) 136px auto",
+                      gap: 8,
+                      marginBottom: 12,
+                    }}
+                  >
+                    <input
+                      value={newTaskTitle}
+                      onChange={(e) => setNewTaskTitle(e.target.value)}
+                      placeholder={ar ? "أضف مهمة متابعة…" : "Add a task to your queue…"}
+                      aria-label="New task title"
+                    />
+                    <input
+                      type="date"
+                      value={newTaskDue}
+                      onChange={(e) => setNewTaskDue(e.target.value)}
+                      aria-label="Task due date"
+                    />
+                    <button
+                      type="submit"
+                      className="hz-btn hz-btn-primary"
+                      disabled={taskBusy || !newTaskTitle.trim()}
+                    >
+                      <Plus size={14} /> {ar ? "إضافة" : "Add"}
+                    </button>
+                  </form>
+                ) : null}
+
+                {tasks.length > 0 ? (
+                  <div className="hz-row-list">
+                    {tasks.slice(0, 6).map((task) => {
+                      const isOverdue =
+                        task.status !== "completed" &&
+                        Boolean(task.dueAt) &&
+                        new Date(task.dueAt!).getTime() < Date.now();
+                      return (
+                        <div key={task.id} className="hz-list-row">
+                          <button
+                            type="button"
+                            onClick={() => void toggleTaskStatus(task)}
+                            disabled={!permissions.tasksEdit}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 10,
+                              border: 0,
+                              background: "transparent",
+                              color: "inherit",
+                              textAlign: "start",
+                              cursor: permissions.tasksEdit ? "pointer" : "default",
+                              padding: 0,
+                              minWidth: 0,
+                            }}
+                          >
+                            {task.status === "completed" ? (
+                              <CheckCircle2 size={15} color="#10B981" style={{ flexShrink: 0 }} />
+                            ) : (
+                              <Circle
+                                size={15}
+                                color={isOverdue ? "#F43F5E" : "#64748B"}
+                                style={{ flexShrink: 0 }}
+                              />
+                            )}
+                            <div style={{ minWidth: 0 }}>
+                              <strong
+                                style={
+                                  task.status === "completed"
+                                    ? { textDecoration: "line-through", opacity: 0.55 }
+                                    : undefined
+                                }
+                              >
+                                {task.title}
+                              </strong>
+                              <small>
+                                {task.entityLabel ? `${task.entityLabel} · ` : ""}
+                                {task.dueAt
+                                  ? `Due ${new Date(task.dueAt).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                    })}`
+                                  : "No due date"}
+                              </small>
+                            </div>
+                          </button>
+
+                          <StatusBadge
+                            tone={
+                              isOverdue
+                                ? "rose"
+                                : task.status === "completed"
+                                ? "emerald"
+                                : "neutral"
+                            }
+                          >
+                            {isOverdue ? "Overdue" : task.status}
+                          </StatusBadge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={<CheckCircle2 size={18} />}
+                    title={ar ? "لا توجد مهام حالياً" : "No tasks queued"}
+                    description={
+                      ar
+                        ? "أضف مهمة متابعة أعلاه للبدء."
+                        : "Create a follow-up task above or ask HIRZEXA to stage one."
+                    }
+                  />
+                )}
+              </div>
+            ) : null}
 
             <div>
               <div className="hz-panel-head" style={{ marginBottom: 10 }}>
-                <h3>Recent Operational Events</h3>
-                <Link href="/admin/audit" className="hz-cc-link">
-                  Audit Logs <ArrowRight size={12} />
-                </Link>
+                <h3>{ar ? "النشاط المصرح به مؤخراً" : "Recent Authorized Activity"}</h3>
+                {permissions.audit ? (
+                  <Link href="/admin/audit" className="hz-cc-link">
+                    Audit Logs <ArrowRight size={12} />
+                  </Link>
+                ) : null}
               </div>
               {events.length > 0 ? (
                 <div className="hz-row-list">
@@ -1169,8 +1998,12 @@ export function AdminCommandCenterClient({
                 </div>
               ) : (
                 <EmptyState
-                  title="No recent activity"
-                  description="New bookings, leads, applications, and tasks appear here."
+                  title={ar ? "لا يوجد نشاط حديث" : "No recent activity"}
+                  description={
+                    ar
+                      ? "ستظهر هنا التحديثات المصرح بها لدورك فور حدوثها."
+                      : "Authorized updates for your modules and assigned records appear here."
+                  }
                 />
               )}
             </div>

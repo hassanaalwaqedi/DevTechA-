@@ -46,36 +46,6 @@ interface SpeechRecognitionLike {
   abort: () => void;
 }
 
-const INITIAL_PROMPTS = {
-  en: [
-    "Good morning. What happened at HIRZEXA since yesterday?",
-    "Show me the latest discovery calls.",
-    "Show me the latest job applications and summarize top candidates.",
-    "Which clients have not received a follow-up?",
-  ],
-  ar: [
-    "صباح الخير، ماذا حدث في HIRZEXA منذ أمس؟",
-    "اعرض أحدث جلسات الاكتشاف المحجوزة.",
-    "لخّص أحدث طلبات التوظيف وأبرز المرشحين.",
-    "ما العملاء الذين يحتاجون متابعة حالياً؟",
-  ],
-} as const;
-
-const FOLLOWUP_PROMPTS = {
-  en: [
-    "Show top open leads",
-    "Summarize pending applications",
-    "Draft a client follow-up email",
-    "What tasks are overdue?",
-  ],
-  ar: [
-    "اعرض أهم الفرص المفتوحة",
-    "لخّص طلبات التوظيف المعلقة",
-    "اكتب مسودة متابعة لعميل",
-    "ما المهام المتأخرة؟",
-  ],
-} as const;
-
 function deriveCapabilities(tools: AgentToolInspectorItem[]): DomainCapability[] {
   const byModule = (mods: string[]) => tools.filter((t) => mods.includes(t.module));
   const crmTools = byModule(["crm"]);
@@ -93,7 +63,7 @@ function deriveCapabilities(tools: AgentToolInspectorItem[]): DomainCapability[]
       label: "CRM",
       description: "Retrieve and update leads, contacts, opportunities, and pipeline stages.",
       icon: "crm",
-      authorized: crmTools.length > 0 ? crmTools.some((t) => t.allowed) : true,
+      authorized: crmTools.some((t) => t.allowed),
       toolCount: crmTools.length,
     },
     {
@@ -101,7 +71,7 @@ function deriveCapabilities(tools: AgentToolInspectorItem[]): DomainCapability[]
       label: "Bookings",
       description: "View discovery calls, scheduled slots, and upcoming client meetings.",
       icon: "bookings",
-      authorized: bookingTools.length > 0 ? bookingTools.some((t) => t.allowed) : true,
+      authorized: bookingTools.some((t) => t.allowed),
       toolCount: bookingTools.length,
     },
     {
@@ -109,16 +79,15 @@ function deriveCapabilities(tools: AgentToolInspectorItem[]): DomainCapability[]
       label: "Recruitment",
       description: "Access job applications, candidate profiles, and open hiring roles.",
       icon: "recruitment",
-      authorized:
-        recruitmentTools.length > 0 ? recruitmentTools.some((t) => t.allowed) : true,
+      authorized: recruitmentTools.some((t) => t.allowed),
       toolCount: recruitmentTools.length,
     },
     {
       id: "analytics",
       label: "Analytics",
-      description: "Track live visitor traffic, operational briefings, and recent activity.",
+      description: "Track authorized operational briefings and recent scoped activity.",
       icon: "analytics",
-      authorized: analyticsTools.length > 0 ? analyticsTools.some((t) => t.allowed) : true,
+      authorized: analyticsTools.some((t) => t.allowed),
       toolCount: analyticsTools.length,
     },
     {
@@ -126,10 +95,7 @@ function deriveCapabilities(tools: AgentToolInspectorItem[]): DomainCapability[]
       label: "Communications",
       description: "Draft client emails, proposals, and updates (always approval-gated).",
       icon: "communications",
-      authorized:
-        commsTools.length > 0
-          ? commsTools.some((t) => t.allowed)
-          : crmTools.some((t) => t.allowed),
+      authorized: commsTools.some((t) => t.allowed),
       requiresApproval: true,
       toolCount: commsTools.length,
     },
@@ -138,10 +104,96 @@ function deriveCapabilities(tools: AgentToolInspectorItem[]): DomainCapability[]
       label: "Tasks",
       description: "Create and manage operational follow-ups and assigned action items.",
       icon: "tasks",
-      authorized: taskTools.length > 0 ? taskTools.some((t) => t.allowed) : true,
+      authorized: taskTools.some((t) => t.allowed),
       toolCount: taskTools.length,
     },
   ];
+}
+
+function buildPermissionAwarePrompts(
+  capabilities: DomainCapability[],
+  locale: "en" | "ar",
+  scope?: string
+): { starter: string[]; followup: string[] } {
+  const isAllowed = (id: DomainCapability["id"]) =>
+    capabilities.some((c) => c.id === id && c.authorized);
+  const ar = locale === "ar";
+  const scoped = scope === "assigned" || scope === "own";
+
+  const starter: string[] = [];
+  const followup: string[] = [];
+
+  starter.push(
+    ar
+      ? scoped
+        ? "صباح الخير، ما أبرز أولوياتي ومستجدات عملي اليوم؟"
+        : "صباح الخير، ماذا حدث في HIRZEXA ضمن نطاق صلاحياتي؟"
+      : scoped
+      ? "Good morning. What requires my attention today?"
+      : "Good morning. What happened across HIRZEXA within my authorized scope?"
+  );
+
+  if (isAllowed("crm")) {
+    starter.push(
+      ar
+        ? scoped
+          ? "ما المستجدات لدى عملائي المسندين اليوم؟"
+          : "لخّص خط المبيعات النشط والعملاء الذين يحتاجون متابعة."
+        : scoped
+        ? "What's happening with my assigned clients today?"
+        : "Which clients in my authorized pipeline have not received a follow-up?"
+    );
+    followup.push(ar ? "اعرض أهم الفرص المفتوحة" : "Show top open leads");
+  }
+
+  if (isAllowed("bookings")) {
+    starter.push(
+      ar
+        ? scoped
+          ? "اعرض جلسات الاكتشاف المجدولة المسندة إليّ."
+          : "اعرض أحدث جلسات الاكتشاف المحجوزة."
+        : scoped
+        ? "Show my upcoming discovery calls."
+        : "Show me the latest discovery calls."
+    );
+  }
+
+  if (isAllowed("recruitment")) {
+    starter.push(
+      ar
+        ? "لخّص أحدث طلبات التوظيف وأبرز المرشحين."
+        : "Show me the latest job applications and summarize top candidates."
+    );
+    followup.push(ar ? "لخّص طلبات التوظيف المعلقة" : "Summarize pending applications");
+  }
+
+  if (isAllowed("tasks")) {
+    starter.push(
+      ar
+        ? "ما المهام المفتوحة والمتأخرة لدي حالياً؟"
+        : "What open or overdue tasks are on my queue?"
+    );
+    followup.push(ar ? "ما المهام المتأخرة؟" : "What tasks are overdue?");
+  }
+
+  if (isAllowed("communications")) {
+    followup.push(ar ? "اكتب مسودة متابعة لعميل" : "Draft a client follow-up email");
+  }
+
+  if (starter.length < 3) {
+    starter.push(
+      ar
+        ? "اعرض صلاحياتي الفعالة والوحدات المصرح لي بها."
+        : "Summarize my effective role permissions and authorized modules."
+    );
+  }
+  if (followup.length < 2) {
+    followup.push(
+      ar ? "اعرض آخر التحديثات المصرح بها" : "Show recent authorized activity"
+    );
+  }
+
+  return { starter: starter.slice(0, 4), followup: followup.slice(0, 4) };
 }
 
 export function AdminAgentWorkspace({
@@ -320,6 +372,7 @@ export function AdminAgentWorkspace({
             message: cleaned,
             conversationId: activeConvId,
             locale,
+            inputChannel: fromVoice ? "voice" : "text",
             pageContext: effectivePageContext,
           }),
         });
@@ -516,10 +569,15 @@ export function AdminAgentWorkspace({
     setMobileLeftOpen(false);
   };
 
+  const rolePrompts = useMemo(
+    () => buildPermissionAwarePrompts(capabilities, locale, actorInfo?.scope),
+    [actorInfo?.scope, capabilities, locale]
+  );
+
   const activeSuggestions =
     messages.length === 0
-      ? INITIAL_PROMPTS[locale].slice(0, compact ? 3 : 4)
-      : FOLLOWUP_PROMPTS[locale].slice(0, compact ? 2 : 3);
+      ? rolePrompts.starter.slice(0, compact ? 3 : 4)
+      : rolePrompts.followup.slice(0, compact ? 2 : 3);
 
   const threadArea = (
     <div className="hz-ag-center-panel">
@@ -607,7 +665,7 @@ export function AdminAgentWorkspace({
               </p>
 
               <div className="hz-ag-starter-grid" dir={locale === "ar" ? "rtl" : "ltr"}>
-                {INITIAL_PROMPTS[locale].map((prompt) => (
+                {rolePrompts.starter.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"

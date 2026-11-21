@@ -1,5 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
+import { getWorkspaceProfileForActor } from "@/lib/authorization";
 import { listBusinessEvents } from "@/lib/intelligence/events";
+import { listRegisteredToolsMetadata } from "@/lib/intelligence/tools";
 import { hasPermission } from "@/lib/rbac";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 import {
@@ -7,6 +9,7 @@ import {
   type ShellNavGroup,
   type ShellNotification,
 } from "@/components/admin-shell-chrome";
+import type { AgentToolInspectorItem } from "@/components/admin-agent-workspace";
 
 export async function AdminShell({
   children,
@@ -16,10 +19,16 @@ export async function AdminShell({
   active: string;
 }) {
   const { actor } = await requireAdmin();
+  const workspace = getWorkspaceProfileForActor(actor);
 
   const primary: ShellNavGroup["items"] = [];
   if (hasPermission(actor, "dashboard", "view")) {
-    primary.push({ id: "overview", label: "Command Center", href: "/admin", icon: "overview" });
+    primary.push({
+      id: "overview",
+      label: workspace.navLabelEn,
+      href: "/admin",
+      icon: "overview",
+    });
   }
   if (hasPermission(actor, "agent", "view")) {
     primary.push({ id: "agent", label: "AI Agent & Voice", href: "/admin/agent", icon: "agent" });
@@ -97,6 +106,11 @@ export async function AdminShell({
       : "Supabase Live"
     : "Local Mode";
 
+  const agentTools: AgentToolInspectorItem[] = listRegisteredToolsMetadata().map((t) => ({
+    ...t,
+    allowed: hasPermission(actor, t.module, t.action),
+  }));
+
   return (
     <AdminShellChrome
       active={active}
@@ -105,6 +119,10 @@ export async function AdminShell({
       canUseAgent={hasPermission(actor, "agent", "view")}
       canViewCrm={hasPermission(actor, "crm", "view") || hasPermission(actor, "bookings", "view")}
       canViewAudit={hasPermission(actor, "audit", "view")}
+      canViewSettings={hasPermission(actor, "settings", "view")}
+      canManageTeam={hasPermission(actor, "team", "manage")}
+      searchPlaceholder={workspace.searchPlaceholderEn}
+      agentTools={agentTools}
       envStatus={envStatus}
       actor={{
         fullName: actor.fullName,

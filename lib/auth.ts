@@ -92,7 +92,7 @@ export async function requirePermission(
         outcome: "denied",
         summary: err.message,
       });
-      redirect("/admin?denied=1");
+      redirect(`/admin?denied=${encodeURIComponent(module)}`);
     }
     throw err;
   }

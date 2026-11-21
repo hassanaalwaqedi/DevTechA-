@@ -12,6 +12,7 @@ const agentPostSchema = z.object({
   message: z.string().trim().min(1).max(1500),
   conversationId: z.string().trim().max(120).optional(),
   locale: z.enum(["en", "ar"]).optional(),
+  inputChannel: z.enum(["text", "voice"]).optional(),
   pageContext: z
     .object({
       route: z.string().trim().max(200),
@@ -80,6 +81,7 @@ export async function POST(request: Request) {
       message: parsed.data.message,
       conversationId: parsed.data.conversationId,
       locale: parsed.data.locale,
+      inputChannel: parsed.data.inputChannel || "text",
       pageContext: parsed.data.pageContext,
     });
 

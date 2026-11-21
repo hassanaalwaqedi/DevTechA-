@@ -27,7 +27,10 @@ import type {
   EmployeeInvitationSummary,
   EmployeeRecord,
 } from "@/lib/intelligence/types";
-import type { RoleTemplate } from "@/lib/rbac";
+import {
+  resolveEffectivePermissions,
+  type RoleTemplate,
+} from "@/lib/rbac";
 
 export function EmployeeDirectory({
   employees,
@@ -234,6 +237,13 @@ export function EmployeeDirectory({
                 const effectiveScope = emp.scopeOverride || template?.defaultScope || "own";
                 const hasCustomOverrides =
                   emp.permissionOverrides && Object.keys(emp.permissionOverrides).length > 0;
+                const effectivePerms = resolveEffectivePermissions(
+                  emp.roleKey,
+                  emp.permissionOverrides
+                );
+                const enabledModules = Object.entries(effectivePerms)
+                  .filter(([, acts]) => Array.isArray(acts) && acts.length > 0)
+                  .map(([mod]) => mod);
                 const canModifyTarget =
                   canEdit && !isSelf && (isSuperAdmin || emp.roleKey !== "super_admin");
 
@@ -288,6 +298,14 @@ export function EmployeeDirectory({
                           </span>
                         ) : null}
                       </div>
+                      <small
+                        style={{ display: "block", marginTop: 4, fontSize: 11, color: "#7C8BB0" }}
+                        title={`Effective modules: ${enabledModules.join(", ")}`}
+                      >
+                        {enabledModules.length} module{enabledModules.length === 1 ? "" : "s"}:{" "}
+                        {enabledModules.slice(0, 3).join(", ")}
+                        {enabledModules.length > 3 ? ` +${enabledModules.length - 3}` : ""}
+                      </small>
                     </td>
 
                     <td>

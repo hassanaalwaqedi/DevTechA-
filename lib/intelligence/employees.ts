@@ -763,20 +763,30 @@ export async function updateEmployeeRecord(
   const target = all.find((e) => e.id === employeeId);
   if (!target) return null;
 
+  const nextRoleKey =
+    patch.roleKey && isValidRoleKey(patch.roleKey) ? patch.roleKey : target.roleKey;
+  const nextScopeOverride =
+    patch.scopeOverride !== undefined ? patch.scopeOverride : target.scopeOverride;
+  const nextOverrides =
+    patch.permissionOverrides !== undefined
+      ? patch.permissionOverrides
+      : target.permissionOverrides;
+  const accessChanged =
+    nextRoleKey !== target.roleKey ||
+    (nextScopeOverride || null) !== (target.scopeOverride || null) ||
+    JSON.stringify(nextOverrides || {}) !== JSON.stringify(target.permissionOverrides || {});
+
   const updated: EmployeeRecord = {
     ...target,
     fullName: patch.fullName !== undefined ? patch.fullName.trim() || target.fullName : target.fullName,
     jobTitle: patch.jobTitle !== undefined ? patch.jobTitle.trim() : target.jobTitle,
     department: patch.department !== undefined ? patch.department.trim() || target.department : target.department,
-    roleKey: patch.roleKey && isValidRoleKey(patch.roleKey) ? patch.roleKey : target.roleKey,
-    scopeOverride: patch.scopeOverride !== undefined ? patch.scopeOverride : target.scopeOverride,
-    permissionOverrides:
-      patch.permissionOverrides !== undefined
-        ? patch.permissionOverrides
-        : target.permissionOverrides,
+    roleKey: nextRoleKey,
+    scopeOverride: nextScopeOverride,
+    permissionOverrides: nextOverrides,
     status: patch.status || target.status,
     sessionVersion:
-      patch.revokeSessions || patch.status === "suspended"
+      patch.revokeSessions || patch.status === "suspended" || accessChanged
         ? target.sessionVersion + 1
         : target.sessionVersion,
     updatedAt: new Date().toISOString(),

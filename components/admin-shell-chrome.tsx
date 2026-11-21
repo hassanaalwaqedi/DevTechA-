@@ -27,9 +27,21 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { AdminAgentWorkspace } from "@/components/admin-agent-workspace";
+import {
+  AdminAgentWorkspace,
+  type AgentToolInspectorItem,
+} from "@/components/admin-agent-workspace";
 import { Modal, StatusBadge } from "@/components/admin-ui/primitives";
 import type { AgentPageContext } from "@/lib/intelligence/types";
+
+interface ShellSearchResult {
+  id: string;
+  category: "crm" | "recruitment" | "jobs" | "products" | "tasks" | "team";
+  title: string;
+  subtitle: string;
+  badge: string;
+  href: string;
+}
 
 export interface ShellNavItem {
   id: string;
@@ -93,6 +105,10 @@ export function AdminShellChrome({
   canUseAgent,
   canViewCrm = true,
   canViewAudit = true,
+  canViewSettings = false,
+  canManageTeam = false,
+  searchPlaceholder = "Search authorized records or ask HIRZEXA...",
+  agentTools = [],
   envStatus = "Production",
   children,
 }: {
@@ -109,6 +125,10 @@ export function AdminShellChrome({
   canUseAgent: boolean;
   canViewCrm?: boolean;
   canViewAudit?: boolean;
+  canViewSettings?: boolean;
+  canManageTeam?: boolean;
+  searchPlaceholder?: string;
+  agentTools?: AgentToolInspectorItem[];
   envStatus?: string;
   children: React.ReactNode;
 }) {
@@ -118,6 +138,8 @@ export function AdminShellChrome({
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<ShellSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -238,6 +260,42 @@ export function AdminShellChrome({
     );
   }, [allNavItems, commandQuery]);
 
+  // Debounced live permission-aware global search
+  useEffect(() => {
+    if (!commandOpen) return;
+    const q = commandQuery.trim();
+    if (q.length < 2) {
+      setSearchResults([]);
+      setSearching(false);
+      return;
+    }
+    const controller = new AbortController();
+    setSearching(true);
+    const timer = window.setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/admin/search?q=${encodeURIComponent(q)}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!res.ok) {
+          setSearchResults([]);
+          return;
+        }
+        const data = await res.json();
+        setSearchResults(Array.isArray(data.results) ? data.results : []);
+      } catch {
+        // Ignore aborted searches
+      } finally {
+        setSearching(false);
+      }
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [commandOpen, commandQuery]);
+
   const urgentNotifCount = notifications.filter(
     (n) => n.severity === "urgent" || n.severity === "attention"
   ).length;
@@ -335,17 +393,28 @@ export function AdminShellChrome({
             >
               <PanelLeftOpen size={15} />
             </button>
-          ) : (
+          ) : canViewSettings ? (
             <Link href="/admin/settings" className="hz-operator-card">
               <div className="hz-operator-top">
                 <span className="hz-live-dot" aria-hidden="true" />
                 <strong className="hz-operator-name">{actor.fullName}</strong>
               </div>
               <div className="hz-operator-role">
-                {actor.roleLabel} · {actor.scope === "all" ? "All Scope" : actor.scope}
+                {actor.roleLabel} · {actor.scope === "all" ? "All Scope" : `${actor.scope} scope`}
               </div>
               <div className="hz-operator-email">{actor.email}</div>
             </Link>
+          ) : (
+            <div className="hz-operator-card">
+              <div className="hz-operator-top">
+                <span className="hz-live-dot" aria-hidden="true" />
+                <strong className="hz-operator-name">{actor.fullName}</strong>
+              </div>
+              <div className="hz-operator-role">
+                {actor.roleLabel} · {actor.scope === "all" ? "All Scope" : `${actor.scope} scope`}
+              </div>
+              <div className="hz-operator-email">{actor.email}</div>
+            </div>
           )}
         </div>
       </aside>
@@ -373,21 +442,28 @@ export function AdminShellChrome({
             >
               <span className="hz-global-search-inner">
                 <Search size={14} />
-                <span>Search companies, contacts, jobs, applications, or ask anything...</span>
+                <span>{searchPlaceholder}</span>
               </span>
               <kbd>/</kbd>
             </button>
           </div>
 
           <div className="hz-topbar-right">
-            <Link
-              href="/admin/settings"
-              className="hz-env-pill"
-              title="Live runtime environment status"
-            >
-              <span className="hz-live-dot" aria-hidden="true" />
-              <span>{envStatus}</span>
-            </Link>
+            {canViewSettings ? (
+              <Link
+                href="/admin/settings"
+                className="hz-env-pill"
+                title="Live runtime environment status"
+              >
+                <span className="hz-live-dot" aria-hidden="true" />
+                <span>{envStatus}</span>
+              </Link>
+            ) : (
+              <span className="hz-env-pill" title="Live runtime environment status">
+                <span className="hz-live-dot" aria-hidden="true" />
+                <span>{envStatus}</span>
+              </span>
+            )}
 
             {/* Real Business Events Notifications Popover */}
             <div className="hz-popover-wrap" ref={notifRef}>
@@ -545,14 +621,16 @@ export function AdminShellChrome({
                     </div>
                   </div>
                   <div style={{ padding: 8, display: "grid", gap: 4 }}>
-                    <Link
-                      href="/admin/settings"
-                      className="hz-nav-item"
-                      onClick={() => setAccountOpen(false)}
-                    >
-                      <Settings size={15} />
-                      <span>Profile &amp; Settings</span>
-                    </Link>
+                    {canViewSettings ? (
+                      <Link
+                        href="/admin/settings"
+                        className="hz-nav-item"
+                        onClick={() => setAccountOpen(false)}
+                      >
+                        <Settings size={15} />
+                        <span>Profile &amp; Settings</span>
+                      </Link>
+                    ) : null}
                     <button
                       type="button"
                       className="hz-nav-item"
@@ -589,23 +667,26 @@ export function AdminShellChrome({
         </main>
       </div>
 
-      {/* Global Search & Command Palette */}
+      {/* Permission-Aware Global Search & Command Palette */}
       <Modal
         open={commandOpen}
         onClose={() => setCommandOpen(false)}
-        title="Command Palette"
-        subtitle="Navigate authorized modules or launch an AI Intelligence query."
-        width={520}
+        title="Authorized Global Search"
+        subtitle={`Scoped to your ${actor.roleLabel} permissions (${actor.scope} scope).`}
+        width={560}
       >
         <input
           autoFocus
           value={commandQuery}
           onChange={(e) => setCommandQuery(e.target.value)}
-          placeholder="Search pages (CRM, Recruitment, Team…) or type a question for HIRZEXA…"
-          aria-label="Command palette search"
+          placeholder={searchPlaceholder}
+          aria-label="Global permission-scoped search"
           onKeyDown={(e) => {
             if (e.key === "Enter" && commandQuery.trim()) {
-              if (filteredNavItems.length === 1) {
+              if (searchResults.length === 1) {
+                setCommandOpen(false);
+                router.push(searchResults[0].href);
+              } else if (filteredNavItems.length === 1 && searchResults.length === 0) {
                 setCommandOpen(false);
                 router.push(filteredNavItems[0].href);
               } else if (canUseAgent) {
@@ -646,6 +727,35 @@ export function AdminShellChrome({
           </button>
         ) : null}
 
+        {commandQuery.trim().length >= 2 ? (
+          <div className="hz-row-list" style={{ marginTop: 12 }}>
+            {searching ? (
+              <div style={{ padding: "8px 4px", fontSize: 12.5, color: "var(--hz-text-muted)" }}>
+                Searching authorized records…
+              </div>
+            ) : searchResults.length > 0 ? (
+              searchResults.map((hit) => (
+                <Link
+                  key={hit.id}
+                  href={hit.href}
+                  className="hz-list-row"
+                  onClick={() => setCommandOpen(false)}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <strong>{hit.title}</strong>
+                    <small>{hit.subtitle}</small>
+                  </div>
+                  <StatusBadge tone="blue">{hit.category}</StatusBadge>
+                </Link>
+              ))
+            ) : (
+              <div style={{ padding: "8px 4px", fontSize: 12.5, color: "var(--hz-text-muted)" }}>
+                No matching records found within your authorized modules.
+              </div>
+            )}
+          </div>
+        ) : null}
+
         <div className="hz-row-list" style={{ marginTop: 12 }}>
           {filteredNavItems.map((item) => {
             const Icon = ICONS[item.icon];
@@ -684,6 +794,13 @@ export function AdminShellChrome({
           >
             <AdminAgentWorkspace
               compact
+              actorInfo={{
+                fullName: actor.fullName,
+                roleLabel: actor.roleLabel,
+                scope: actor.scope,
+              }}
+              canManageTeam={canManageTeam}
+              tools={agentTools}
               pageContext={drawerContext}
               initialPrompt={drawerPrompt}
               onClose={() => setDrawerOpen(false)}

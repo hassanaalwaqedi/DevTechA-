@@ -187,5 +187,9 @@ export async function PATCH(
     });
   } catch {}
 
-  return NextResponse.json({ ok: true, employee: updated });
+  return NextResponse.json({
+    ok: true,
+    employee: updated,
+    sessionRevoked: updated.sessionVersion > target.sessionVersion,
+  });
 }

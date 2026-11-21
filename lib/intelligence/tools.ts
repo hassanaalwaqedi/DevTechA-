@@ -2,6 +2,10 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import {
+  getScopedMetrics,
+  getWorkspaceProfileForActor,
+} from "@/lib/authorization";
+import {
   getAuthorizedCrmLeadById,
   listAuthorizedCrmLeads,
   updateCrmLead,
@@ -12,8 +16,8 @@ import {
   CRM_STAGES,
   type CrmStage,
 } from "@/lib/crm-types";
-import { getAdminJobs, getApplications, getMetrics } from "@/lib/db";
-import { recordAuditLog } from "@/lib/intelligence/audit";
+import { getAdminJobs, getApplications } from "@/lib/db";
+import { listAuditLogs, recordAuditLog } from "@/lib/intelligence/audit";
 import { listEmployees } from "@/lib/intelligence/employees";
 import {
   buildMorningBriefing,
@@ -171,29 +175,35 @@ interface RegisteredTool<TInput> {
 
 const getBusinessOverviewTool: RegisteredTool<{ hoursBack?: number }> = {
   name: "get_business_overview",
-  description: "Returns real operational counts, alerts, and morning briefing filtered by the user's permissions.",
+  description: "Returns real operational counts, alerts, and morning briefing strictly filtered by the user's effective permissions and record scope.",
   module: "dashboard",
   action: "view",
   schema: z.object({ hoursBack: z.number().int().min(1).max(720).optional() }),
   async execute(actor) {
-    const briefing = await buildMorningBriefing(actor);
-    const canAnalytics = hasPermission(actor, "dashboard", "view");
-    const metrics = canAnalytics ? await getMetrics().catch(() => null) : null;
+    const [briefing, scopedMetrics] = await Promise.all([
+      buildMorningBriefing(actor),
+      getScopedMetrics(actor),
+    ]);
+    const workspace = getWorkspaceProfileForActor(actor);
     return {
       summary: briefing.headline,
       data: {
+        workspaceTitle: workspace.titleEn,
+        scope: actor.scope,
         briefing,
-        traffic: metrics
-          ? {
-              totalVisitors: metrics.totalVisitors,
-              visitorsToday: metrics.visitorsToday,
-              activeJobs: metrics.activeJobs,
-            }
-          : null,
+        traffic:
+          scopedMetrics &&
+          (scopedMetrics.totalVisitors !== null || scopedMetrics.activeJobs !== null)
+            ? {
+                totalVisitors: scopedMetrics.totalVisitors,
+                visitorsToday: scopedMetrics.visitorsToday,
+                activeJobs: scopedMetrics.activeJobs,
+              }
+            : null,
       },
       citations: [
         {
-          label: "Executive Command Center",
+          label: workspace.titleEn,
           href: "/admin",
           entityType: "dashboard",
           entityId: "overview",
@@ -985,6 +995,86 @@ const getEmployeePermissionsTool: RegisteredTool<{ emailOrSelf?: string }> = {
   },
 };
 
+const listTeamDirectoryTool: RegisteredTool<{ query?: string }> = {
+  name: "list_team_directory",
+  description: "Lists organizational employee accounts and roles. Strictly requires team:view permission. Never exposes payroll/salary data (not stored).",
+  module: "team",
+  action: "view",
+  schema: z.object({ query: z.string().trim().max(120).optional() }),
+  async execute(_actor, args) {
+    let employees = await listEmployees();
+    if (args.query) {
+      const q = args.query.toLowerCase();
+      employees = employees.filter(
+        (e) =>
+          e.fullName.toLowerCase().includes(q) ||
+          e.email.toLowerCase().includes(q) ||
+          e.department.toLowerCase().includes(q) ||
+          e.roleKey.toLowerCase().includes(q)
+      );
+    }
+    const sliced = employees.slice(0, 25);
+    return {
+      summary: `Found ${employees.length} employee account(s) in the authorized team directory.`,
+      data: {
+        totalEmployees: employees.length,
+        payrollDataAvailable: false,
+        note: "Payroll and employee compensation records are not stored in HIRZEXA Intelligence.",
+        employees: sliced.map((e) => ({
+          id: e.id,
+          fullName: sanitizeUntrustedText(e.fullName, 120),
+          email: e.email,
+          department: e.department,
+          roleKey: e.roleKey,
+          roleLabel: ROLE_TEMPLATES[e.roleKey]?.label || e.roleKey,
+          scope: e.scopeOverride || ROLE_TEMPLATES[e.roleKey]?.defaultScope || "own",
+          status: e.status,
+        })),
+      },
+      citations: [
+        {
+          label: "Team & Access Directory",
+          href: "/admin/team",
+          entityType: "employee",
+          entityId: "team-directory",
+        },
+      ],
+    };
+  },
+};
+
+const listAuditLogsTool: RegisteredTool<{ limit?: number }> = {
+  name: "list_audit_logs",
+  description: "Retrieves immutable security and operational audit logs. Strictly requires audit:view permission.",
+  module: "audit",
+  action: "view",
+  schema: z.object({ limit: z.number().int().min(1).max(30).optional() }),
+  async execute(_actor, args) {
+    const logs = await listAuditLogs({ limit: args.limit ?? 15 });
+    return {
+      summary: `Retrieved ${logs.length} security and operational audit log entr${logs.length === 1 ? "y" : "ies"}.`,
+      data: logs.map((l) => ({
+        id: l.id,
+        actorEmail: l.actorEmail,
+        actorRole: l.actorRole,
+        module: l.module,
+        action: l.action,
+        outcome: l.outcome,
+        summary: sanitizeUntrustedText(l.summary, 240),
+        createdAt: l.createdAt,
+      })),
+      citations: [
+        {
+          label: "Security Audit Logs",
+          href: "/admin/audit",
+          entityType: "dashboard",
+          entityId: "audit-logs",
+        },
+      ],
+    };
+  },
+};
+
 export const AGENT_TOOL_REGISTRY = {
   get_business_overview: getBusinessOverviewTool,
   get_recent_events: getRecentEventsTool,
@@ -1001,6 +1091,8 @@ export const AGENT_TOOL_REGISTRY = {
   update_lead_stage: updateLeadStageTool,
   draft_client_email: draftClientEmailTool,
   get_employee_permissions: getEmployeePermissionsTool,
+  list_team_directory: listTeamDirectoryTool,
+  list_audit_logs: listAuditLogsTool,
 } as const;
 
 export type AgentToolName = keyof typeof AGENT_TOOL_REGISTRY;
@@ -1019,7 +1111,7 @@ export async function executeAuthorizedTool<TName extends AgentToolName>(
   actor: AuthActor,
   toolName: TName,
   rawArgs: unknown,
-  meta: { conversationId: string }
+  meta: { conversationId: string; inputChannel?: "text" | "voice" }
 ): Promise<ToolExecutionResult> {
   const started = Date.now();
   const tool = AGENT_TOOL_REGISTRY[toolName] as RegisteredTool<unknown>;
@@ -1054,6 +1146,7 @@ export async function executeAuthorizedTool<TName extends AgentToolName>(
       entityType: "agent_tool",
       outcome: "denied",
       summary: message,
+      metadata: { inputChannel: meta.inputChannel || "text" },
     });
     return {
       ok: false,
@@ -1100,6 +1193,7 @@ export async function executeAuthorizedTool<TName extends AgentToolName>(
       entityId: result.pendingAction?.id || null,
       outcome: result.pendingAction ? "pending_confirmation" : "allowed",
       summary: result.summary,
+      metadata: { inputChannel: meta.inputChannel || "text" },
     });
 
     return {
@@ -1221,16 +1315,38 @@ export async function confirmAndExecutePendingAction(
   // Re-verify RBAC right at execution time!
   if (pending.toolName === "create_followup_task") {
     assertPermission(actor, "tasks", "create");
+    const entityType =
+      (pending.args.entityType as "lead" | "booking" | "application" | "job" | "general") ||
+      "general";
+    const entityId = pending.args.entityId ? String(pending.args.entityId) : null;
+    if ((entityType === "lead" || entityType === "booking") && entityId) {
+      const scopeCheck = await getAuthorizedCrmLeadById(actor, entityId);
+      if (scopeCheck.denied || !scopeCheck.lead) {
+        await recordAuditLog({
+          actorId: actor.id,
+          actorEmail: actor.email,
+          actorRole: actor.roleKey,
+          module: "tasks",
+          action: "agent_confirm:create_followup_task",
+          entityType: "lead",
+          entityId,
+          outcome: "denied",
+          summary: `Blocked confirmed task creation linked to unauthorized lead ${entityId}.`,
+        });
+        return {
+          ok: false,
+          message: "Access denied: you no longer have authorized scope over the linked lead.",
+        };
+      }
+    }
     const task = await createTask(actor, {
       title: String(pending.args.title || "Follow-up task"),
       description: String(pending.args.description || ""),
       priority:
         (pending.args.priority as "low" | "normal" | "high" | "urgent") || "normal",
       dueAt: pending.args.dueAt ? String(pending.args.dueAt) : null,
-      entityType:
-        (pending.args.entityType as "lead" | "booking" | "application" | "job" | "general") ||
-        "general",
-      entityId: pending.args.entityId ? String(pending.args.entityId) : null,
+      entityType,
+      entityId,
       entityLabel: pending.args.entityLabel ? String(pending.args.entityLabel) : null,
     });
 

@@ -1,12 +1,13 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { listEmployees } from "@/lib/intelligence/employees";
 import {
   isLocalFallbackAllowed,
   readLocalCollection,
   writeLocalCollection,
 } from "@/lib/intelligence/store";
-import { canAccessScopedRecord, type AuthActor } from "@/lib/rbac";
+import { canAccessScopedRecord, hasPermission, type AuthActor } from "@/lib/rbac";
 import type {
   CrmTaskRecord,
   TaskEntityType,
@@ -45,6 +46,10 @@ export async function listTasks(
     overdueOnly?: boolean;
   }
 ): Promise<CrmTaskRecord[]> {
+  if (!hasPermission(actor, "tasks", "view")) {
+    return [];
+  }
+
   const byId = new Map<string, CrmTaskRecord>();
 
   if (isLocalFallbackAllowed()) {
@@ -75,14 +80,33 @@ export async function listTasks(
     }
   }
 
+  const deptByRef = new Map<string, string>();
+  if (actor.scope === "team") {
+    const employees = await listEmployees().catch(() => []);
+    for (const emp of employees) {
+      if (emp.department) {
+        deptByRef.set(emp.id, emp.department);
+        if (emp.authUserId) deptByRef.set(emp.authUserId, emp.department);
+        deptByRef.set(emp.email.toLowerCase(), emp.department);
+      }
+    }
+  }
+
   const now = Date.now();
-  let items = Array.from(byId.values()).filter((task) =>
-    canAccessScopedRecord(actor, {
+  let items = Array.from(byId.values()).filter((task) => {
+    const taskDept =
+      (task.assignedToId ? deptByRef.get(task.assignedToId) : undefined) ||
+      (task.assignedToEmail ? deptByRef.get(task.assignedToEmail.toLowerCase()) : undefined) ||
+      (task.createdById ? deptByRef.get(task.createdById) : undefined) ||
+      (task.createdByEmail ? deptByRef.get(task.createdByEmail.toLowerCase()) : undefined) ||
+      null;
+    return canAccessScopedRecord(actor, {
       assignedToId: task.assignedToId,
       assignedToEmail: task.assignedToEmail,
       createdById: task.createdById,
-    })
-  );
+      department: taskDept,
+    });
+  });
 
   if (options?.entityId) {
     items = items.filter((t) => t.entityId === options.entityId);

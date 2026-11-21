@@ -207,6 +207,10 @@ export function AdminTeamClient({
         );
       } else if (patch.status === "active") {
         setNotice(`Reactivated ${updated.fullName}.`);
+      } else if (data.sessionRevoked) {
+        setNotice(
+          `Updated access for ${updated.fullName} and invalidated previous sessions (session v${updated.sessionVersion}).`
+        );
       } else {
         setNotice(`Updated access permissions for ${updated.fullName}.`);
       }
