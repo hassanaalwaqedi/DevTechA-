@@ -25,22 +25,46 @@ export function isResendConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY?.trim());
 }
 
+export const OFFICIAL_SUPPORT_EMAIL = "support@hirzexa.com";
+export const OFFICIAL_ACCOUNTS_SENDER = "HIRZEXA Accounts <accounts@hirzexa.com>";
+export const OFFICIAL_WEBSITE_URL = "https://hirzexa.com";
+
 export function getInvitationSenderAddress(): string {
   return (
     process.env.INVITATION_EMAIL_FROM?.trim() ||
     process.env.EMAIL_FROM?.trim() ||
-    "HIRZEXA Accounts <accounts@hirzexa.com>"
+    OFFICIAL_ACCOUNTS_SENDER
   );
 }
 
 export function getInvitationReplyToAddress(): string {
-  return process.env.INVITATION_EMAIL_REPLY_TO?.trim() || "hassan@hirzexa.com";
+  return process.env.INVITATION_EMAIL_REPLY_TO?.trim() || OFFICIAL_SUPPORT_EMAIL;
+}
+
+/**
+ * Replaces temporary Render preview/service hostnames (e.g. devtecha.onrender.com)
+ * with the canonical production domain https://hirzexa.com so user-facing emails
+ * never leak internal hosting URLs.
+ */
+export function canonicalizeUserFacingUrl(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl.trim());
+    if (parsed.hostname.toLowerCase().endsWith(".onrender.com")) {
+      return `${OFFICIAL_WEBSITE_URL}${parsed.pathname === "/" ? "" : parsed.pathname}${parsed.search}${parsed.hash}`.replace(
+        /\/$/,
+        ""
+      );
+    }
+    return rawUrl.trim().replace(/\/$/, "");
+  } catch {
+    return rawUrl.trim().replace(/https?:\/\/[a-z0-9-]+\.onrender\.com/gi, OFFICIAL_WEBSITE_URL);
+  }
 }
 
 /**
  * Resolves and strictly validates the public HTTPS base URL used in external invitation emails.
  * Never allows `localhost`, `127.0.0.1`, `0.0.0.0`, or insecure `http://` links in emails
- * sent to external employees.
+ * sent to external employees, and canonicalizes any `*.onrender.com` origin to `https://hirzexa.com`.
  */
 export function resolvePublicInvitationBaseUrl(): {
   ok: boolean;
@@ -56,13 +80,13 @@ export function resolvePublicInvitationBaseUrl(): {
     return {
       ok: false,
       error:
-        "APP_BASE_URL is not configured. Set an accessible public HTTPS URL (e.g. https://hirzexa.com or your staging HTTPS domain) before sending external invitation emails.",
+        "APP_BASE_URL is not configured. Set an accessible public HTTPS URL (e.g. https://hirzexa.com) before sending external invitation emails.",
     };
   }
 
   let parsed: URL;
   try {
-    parsed = new URL(raw);
+    parsed = new URL(canonicalizeUserFacingUrl(raw));
   } catch {
     return {
       ok: false,

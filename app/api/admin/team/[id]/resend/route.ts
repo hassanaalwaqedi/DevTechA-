@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requirePermissionApi } from "@/lib/auth";
 import { buildEmployeeInvitationEmail } from "@/lib/email-templates";
 import {
+  canonicalizeUserFacingUrl,
   getInvitationReplyToAddress,
   getInvitationSenderAddress,
   resolvePublicInvitationBaseUrl,
@@ -59,7 +60,9 @@ export async function POST(
 
     const activationPath = `/admin/activate?token=${encodeURIComponent(invitationToken)}`;
     const baseCheck = resolvePublicInvitationBaseUrl();
-    const requestOrigin = (request.headers.get("origin") || SITE_URL).replace(/\/$/, "");
+    const requestOrigin = canonicalizeUserFacingUrl(
+      request.headers.get("origin") || SITE_URL
+    );
     const displayActivationUrl = `${(baseCheck.baseUrl || requestOrigin).replace(/\/$/, "")}${activationPath}`;
 
     let deliveryStatus: "accepted_by_provider" | "delivery_failed" = "delivery_failed";

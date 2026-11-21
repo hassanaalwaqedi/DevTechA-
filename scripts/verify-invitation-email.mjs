@@ -48,6 +48,15 @@ async function main() {
     process.env.APP_BASE_URL = "http://hirzexa.com";
     assert.equal(tx.resolvePublicInvitationBaseUrl().ok, false, "Must block non-HTTPS");
 
+    process.env.APP_BASE_URL = "https://devtecha.onrender.com";
+    const canonicalized = tx.resolvePublicInvitationBaseUrl();
+    assert.equal(canonicalized.ok, true);
+    assert.equal(
+      canonicalized.baseUrl,
+      "https://hirzexa.com",
+      "Must canonicalize devtecha.onrender.com to https://hirzexa.com"
+    );
+
     process.env.APP_BASE_URL = "https://hirzexa.com/";
     const okRes = tx.resolvePublicInvitationBaseUrl();
     assert.equal(okRes.ok, true);
@@ -58,30 +67,57 @@ async function main() {
     if (prevSiteUrl === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
     else process.env.NEXT_PUBLIC_SITE_URL = prevSiteUrl;
   }
-  console.log("   PASS: APP_BASE_URL strictly enforces public HTTPS and rejects localhost/HTTP.");
+  console.log("   PASS: APP_BASE_URL enforces public HTTPS, blocks localhost/HTTP, and rewrites onrender.com -> hirzexa.com.");
 
-  console.log("2) Verifying branded employee invitation HTML + plain-text template...");
-  const { buildEmployeeInvitationEmail } = await import("../lib/email-templates.ts");
+  console.log("2) Verifying branded employee invitation & account-activated HTML + plain-text templates...");
+  const { buildEmployeeInvitationEmail, buildAccountActivatedEmail } = await import(
+    "../lib/email-templates.ts"
+  );
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
   const tpl = buildEmployeeInvitationEmail({
     employeeName: "Sara <Script> Al-Mansoor",
     employeeEmail: "sara@hirzexa.com",
     roleLabel: "Sales Manager",
     department: "Sales",
-    invitedByName: "Hassan",
-    activationUrl: "https://hirzexa.com/admin/activate?token=TEST_TOKEN_SAMPLE",
+    invitedByName: "Admin",
+    activationUrl: "https://devtecha.onrender.com/admin/activate?token=TEST_TOKEN_SAMPLE",
     expiresAt,
-    publicBaseUrl: "https://hirzexa.com",
+    publicBaseUrl: "https://devtecha.onrender.com",
   });
   assert.equal(tpl.subject, "You're invited to join HIRZEXA Intelligence");
   assert.equal(tpl.from, "HIRZEXA Accounts <accounts@hirzexa.com>");
-  assert.equal(tpl.replyTo, "hassan@hirzexa.com");
+  assert.equal(tpl.replyTo, "support@hirzexa.com");
+  assert.equal(tx.getInvitationReplyToAddress(), "support@hirzexa.com");
   assert.ok(tpl.html.includes("Activate Your Account"), "HTML must contain CTA button");
-  assert.ok(tpl.html.includes("hirzexa-mark.png"), "HTML must contain HIRZEXA logo");
+  assert.ok(tpl.html.includes("https://hirzexa.com/brand/hirzexa-mark.png"), "HTML must contain canonical hirzexa.com logo");
+  assert.ok(tpl.html.includes("https://hirzexa.com/admin/activate?token=TEST_TOKEN_SAMPLE"), "Activation URL must use hirzexa.com");
+  assert.ok(tpl.html.includes("support@hirzexa.com"), "HTML must include official support address");
+  assert.ok(tpl.html.includes("HIRZEXA — AI &amp; Software Engineering"), "HTML must include official brand footer");
+  assert.equal(tpl.html.includes("hassan@hirzexa.com"), false, "HTML must not include hassan@hirzexa.com");
+  assert.equal(tpl.html.includes("onrender.com"), false, "HTML must not leak onrender.com");
   assert.ok(tpl.html.includes("&lt;Script&gt;"), "HTML must escape user input");
   assert.ok(tpl.text.includes("https://hirzexa.com/admin/activate?token=TEST_TOKEN_SAMPLE"));
+  assert.ok(tpl.text.includes("support@hirzexa.com"));
+  assert.ok(tpl.text.includes("HIRZEXA — AI & Software Engineering"));
+  assert.equal(tpl.text.includes("hassan@hirzexa.com"), false, "Text must not include hassan@hirzexa.com");
+  assert.equal(tpl.text.includes("onrender.com"), false, "Text must not leak onrender.com");
   assert.ok(tpl.text.includes("never emails plaintext passwords"));
-  console.log("   PASS: Branded HTML & plain-text invitation template verified.");
+
+  const actTpl = buildAccountActivatedEmail({
+    employeeName: "Sara Al-Mansoor",
+    employeeEmail: "sara@hirzexa.com",
+    roleLabel: "Sales Manager",
+    publicBaseUrl: "https://devtecha.onrender.com",
+  });
+  assert.equal(actTpl.from, "HIRZEXA Accounts <accounts@hirzexa.com>");
+  assert.equal(actTpl.replyTo, "support@hirzexa.com");
+  assert.ok(actTpl.html.includes("https://hirzexa.com/admin/login"));
+  assert.ok(actTpl.html.includes("support@hirzexa.com"));
+  assert.equal(actTpl.html.includes("hassan@hirzexa.com"), false);
+  assert.equal(actTpl.html.includes("onrender.com"), false);
+  assert.ok(actTpl.text.includes("https://hirzexa.com/admin/login"));
+  assert.ok(actTpl.text.includes("HIRZEXA — AI & Software Engineering"));
+  console.log("   PASS: Branded HTML & plain-text invitation and activation templates verified.");
 
   console.log("3) Verifying Resend/Svix HMAC-SHA256 webhook signature verification...");
   const secretRaw = Buffer.from("super-secret-webhook-signing-key-32b").toString("base64");

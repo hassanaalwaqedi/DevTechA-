@@ -274,7 +274,8 @@ export function buildDiscoveryBookingEmails(lead: CrmLeadRecord) {
         `قناة التواصل المباشر: ${businessEmail}`,
         "",
         "مع التحية،",
-        "فريق هندسة الأعمال — HIRZEXA",
+        "HIRZEXA — AI & Software Engineering",
+        `الدعم: ${COMPANY_EMAILS.support}`,
         SITE_URL,
       ]
         .filter((l): l is string => l !== null)
@@ -290,9 +291,10 @@ export function buildDiscoveryBookingEmails(lead: CrmLeadRecord) {
         `Scheduled / Preferred Time: ${formattedTime} (${lead.timezone})`,
         lead.meetingLink ? `Meeting & Coordination Link: ${lead.meetingLink}` : null,
         `Direct Business Channel: ${businessEmail}`,
+        `Support: ${COMPANY_EMAILS.support}`,
         "",
         "Best regards,",
-        "HIRZEXA Business & Engineering Team",
+        "HIRZEXA — AI & Software Engineering",
         SITE_URL,
       ]
         .filter((l): l is string => l !== null)
@@ -316,6 +318,7 @@ export function buildDiscoveryBookingEmails(lead: CrmLeadRecord) {
       ${lead.meetingLink ? `<div><strong>رابط الاجتماع:</strong> <a dir="ltr" href="${escapeHtml(lead.meetingLink)}" style="color:#1050ff;">${escapeHtml(lead.meetingLink)}</a></div>` : ""}
       <div><strong>قناة الرد المباشر:</strong> <a dir="ltr" href="mailto:${escapeHtml(businessEmail)}" style="color:#1050ff;">${escapeHtml(businessEmail)}</a></div>
     </div>
+    <p style="margin:0;padding-top:12px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">HIRZEXA — AI &amp; Software Engineering · <a dir="ltr" href="mailto:${COMPANY_EMAILS.support}" style="color:#1050ff;">${COMPANY_EMAILS.support}</a> · <a dir="ltr" href="${SITE_URL}" style="color:#1050ff;">hirzexa.com</a></p>
   </div>
 </div>`.trim()
     : `
@@ -335,6 +338,7 @@ export function buildDiscoveryBookingEmails(lead: CrmLeadRecord) {
       ${lead.meetingLink ? `<div><strong>Meeting Link:</strong> <a href="${escapeHtml(lead.meetingLink)}" style="color:#1050ff;">${escapeHtml(lead.meetingLink)}</a></div>` : ""}
       <div><strong>Reply Channel:</strong> <a href="mailto:${escapeHtml(businessEmail)}" style="color:#1050ff;">${escapeHtml(businessEmail)}</a></div>
     </div>
+    <p style="margin:0;padding-top:12px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">HIRZEXA — AI &amp; Software Engineering · Support: <a href="mailto:${COMPANY_EMAILS.support}" style="color:#1050ff;">${COMPANY_EMAILS.support}</a> · <a href="${SITE_URL}" style="color:#1050ff;">hirzexa.com</a></p>
   </div>
 </div>`.trim();
 

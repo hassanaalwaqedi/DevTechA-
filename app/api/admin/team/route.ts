@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requirePermissionApi } from "@/lib/auth";
 import { buildEmployeeInvitationEmail } from "@/lib/email-templates";
 import {
+  canonicalizeUserFacingUrl,
   getInvitationReplyToAddress,
   getInvitationSenderAddress,
   isResendConfigured,
@@ -109,7 +110,9 @@ export async function POST(request: Request) {
 
     const activationPath = `/admin/activate?token=${encodeURIComponent(invitationToken)}`;
     const baseCheck = resolvePublicInvitationBaseUrl();
-    const requestOrigin = (request.headers.get("origin") || SITE_URL).replace(/\/$/, "");
+    const requestOrigin = canonicalizeUserFacingUrl(
+      request.headers.get("origin") || SITE_URL
+    );
     const displayActivationUrl = `${(baseCheck.baseUrl || requestOrigin).replace(/\/$/, "")}${activationPath}`;
 
     let deliveryStatus: "created" | "accepted_by_provider" | "delivery_failed" = "created";

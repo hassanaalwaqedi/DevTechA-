@@ -1,6 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { buildAccountActivatedEmail } from "@/lib/email-templates";
+import {
+  getInvitationReplyToAddress,
+  getInvitationSenderAddress,
+  isResendConfigured,
+  resolvePublicInvitationBaseUrl,
+  sendTransactionalEmail,
+} from "@/lib/email/transactional";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import {
   markInvitationConsumed,
@@ -142,6 +150,28 @@ export async function POST(request: Request) {
       outcome: "allowed",
       summary: `Single-use activation completed for ${verified.employee.email}.`,
     });
+
+    // Best-effort account activation confirmation email (non-blocking)
+    const baseCheck = resolvePublicInvitationBaseUrl();
+    if (isResendConfigured() && baseCheck.ok && baseCheck.baseUrl) {
+      try {
+        const welcomeEmail = buildAccountActivatedEmail({
+          employeeName: verified.employee.fullName,
+          employeeEmail: verified.employee.email,
+          roleLabel: ROLE_TEMPLATES[verified.employee.roleKey].label,
+          publicBaseUrl: baseCheck.baseUrl,
+          fromAddress: getInvitationSenderAddress(),
+          replyToAddress: getInvitationReplyToAddress(),
+        });
+        await sendTransactionalEmail(welcomeEmail, {
+          idempotencyKey: `activated-${verified.invitation.id}`,
+          tags: [
+            { name: "category", value: "account_activated" },
+            { name: "employee_id", value: verified.employee.id },
+          ],
+        });
+      } catch {}
+    }
 
     return NextResponse.json({
       ok: true,
