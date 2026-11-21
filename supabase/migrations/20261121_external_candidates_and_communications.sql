@@ -106,6 +106,22 @@ create table if not exists public.recruitment_communications (
   updated_at timestamptz not null default now()
 );
 
+-- Ensure message_type check constraint stays up to date when re-running migration idempotently
+alter table public.recruitment_communications
+  drop constraint if exists recruitment_communications_message_type_check;
+
+alter table public.recruitment_communications
+  add constraint recruitment_communications_message_type_check
+  check (message_type in (
+    'application_thank_you',
+    'general_recruitment',
+    'interview_invitation',
+    'interview_follow_up',
+    'request_info',
+    'application_update',
+    'custom'
+  ));
+
 create index if not exists recruitment_comm_recipient_idx
   on public.recruitment_communications(lower(recipient_email), created_at desc);
 
