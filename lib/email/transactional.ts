@@ -26,8 +26,18 @@ export function isResendConfigured(): boolean {
 }
 
 export const OFFICIAL_SUPPORT_EMAIL = "support@hirzexa.com";
+export const OFFICIAL_CAREERS_EMAIL = "careers@hirzexa.com";
+export const OFFICIAL_CAREERS_SENDER = "HIRZEXA Careers <careers@hirzexa.com>";
 export const OFFICIAL_ACCOUNTS_SENDER = "HIRZEXA Accounts <accounts@hirzexa.com>";
 export const OFFICIAL_WEBSITE_URL = "https://hirzexa.com";
+
+export function getCareersSenderAddress(): string {
+  return process.env.CAREERS_EMAIL_FROM?.trim() || OFFICIAL_CAREERS_SENDER;
+}
+
+export function getCareersReplyToAddress(): string {
+  return process.env.CAREERS_EMAIL_REPLY_TO?.trim() || OFFICIAL_CAREERS_EMAIL;
+}
 
 export function getInvitationSenderAddress(): string {
   return (
@@ -125,11 +135,19 @@ export function resolvePublicInvitationBaseUrl(): {
  * Keeps RESEND_API_KEY strictly server-side and distinguishes provider acceptance
  * (`accepted_by_provider`) from verified mailbox delivery (`delivered` via webhook).
  */
+export interface TransactionalEmailAttachment {
+  filename: string;
+  /** Base64-encoded file content (Resend REST API format) */
+  content: string;
+  content_type?: string;
+}
+
 export async function sendTransactionalEmail(
   template: EmailMessageTemplate,
   options?: {
     idempotencyKey?: string;
     tags?: Array<{ name: string; value: string }>;
+    attachments?: TransactionalEmailAttachment[];
   }
 ): Promise<TransactionalEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
@@ -165,6 +183,10 @@ export async function sendTransactionalEmail(
         html: template.html,
         text: template.text,
         tags: options?.tags,
+        attachments:
+          options?.attachments && options.attachments.length > 0
+            ? options.attachments
+            : undefined,
       }),
       cache: "no-store",
     });

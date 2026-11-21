@@ -114,6 +114,11 @@ export interface BusinessEventRecord {
     | "lead.stage_changed"
     | "application.received"
     | "application.status_changed"
+    | "interview.invited"
+    | "interview.scheduled"
+    | "interview.rescheduled"
+    | "interview.canceled"
+    | "interview.completed"
     | "task.created"
     | "task.overdue"
     | "employee.invited"
@@ -135,7 +140,15 @@ export interface BusinessEventRecord {
 export interface AgentCitation {
   label: string;
   href: string;
-  entityType: "lead" | "booking" | "application" | "job" | "task" | "employee" | "dashboard";
+  entityType:
+    | "lead"
+    | "booking"
+    | "application"
+    | "interview"
+    | "job"
+    | "task"
+    | "employee"
+    | "dashboard";
   entityId: string;
 }
 
@@ -151,7 +164,11 @@ export interface AgentPendingAction {
   conversationId: string;
   actorId: string;
   actorEmail: string;
-  toolName: "create_followup_task" | "update_lead_stage" | "send_email_draft";
+  toolName:
+    | "create_followup_task"
+    | "update_lead_stage"
+    | "send_email_draft"
+    | "prepare_interview_invitation";
   title: string;
   summary: string;
   preview: Record<string, unknown>;

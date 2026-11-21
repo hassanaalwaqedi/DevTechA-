@@ -115,6 +115,7 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   crm: "Sales CRM",
   bookings: "Bookings",
   recruitment: "Recruitment",
+  interviews: "Interviews",
   jobs: "Jobs",
   products: "Products",
   demonstrations: "Interactive Demos",

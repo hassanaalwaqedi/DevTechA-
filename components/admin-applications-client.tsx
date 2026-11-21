@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   BriefcaseBusiness,
+  Calendar,
   CheckCircle2,
   Download,
   FileText,
@@ -16,7 +18,17 @@ import {
   SlideOver,
   StatusBadge,
 } from "@/components/admin-ui/primitives";
+import {
+  InviteInterviewDrawer,
+  type InterviewerOption,
+  type InviteInterviewCandidate,
+} from "@/components/interviews/InviteInterviewDrawer";
 import type { ApplicantStatus, Application } from "@/lib/data";
+import type {
+  InterviewActivityRecord,
+  InterviewAppointmentRecord,
+  SafeInterviewInvitation,
+} from "@/lib/interviews/types";
 
 const STATUSES: ApplicantStatus[] = [
   "new",
@@ -50,10 +62,14 @@ export function AdminApplicationsClient({
   initialQuery = "",
   canEdit = true,
   canUseAgent = true,
+  canInviteInterview = false,
+  canViewInterviews = false,
 }: {
   initialQuery?: string;
   canEdit?: boolean;
   canUseAgent?: boolean;
+  canInviteInterview?: boolean;
+  canViewInterviews?: boolean;
 }) {
   const [items, setItems] = useState<Application[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -64,6 +80,56 @@ export function AdminApplicationsClient({
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Interview invitation & candidate timeline state
+  const [inviteCandidate, setInviteCandidate] = useState<InviteInterviewCandidate | null>(null);
+  const [interviewers, setInterviewers] = useState<InterviewerOption[]>([]);
+  const [resendConfigured, setResendConfigured] = useState(true);
+  const [candidateInterviews, setCandidateInterviews] = useState<{
+    invitations: SafeInterviewInvitation[];
+    appointments: InterviewAppointmentRecord[];
+    activity: InterviewActivityRecord[];
+  }>({ invitations: [], appointments: [], activity: [] });
+
+  const loadCandidateInterviews = useCallback(
+    async (applicationReferenceId?: string) => {
+      if (!canViewInterviews) return;
+      try {
+        const qs = applicationReferenceId
+          ? `?applicationReferenceId=${encodeURIComponent(applicationReferenceId)}`
+          : "";
+        const res = await fetch(`/api/admin/interviews${qs}`, { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) return;
+        if (Array.isArray(data.interviewers)) setInterviewers(data.interviewers);
+        setResendConfigured(Boolean(data.resendConfigured));
+        if (applicationReferenceId) {
+          setCandidateInterviews({
+            invitations: data.invitations || [],
+            appointments: data.appointments || [],
+            activity: data.activity || [],
+          });
+        }
+      } catch {
+        // Non-fatal
+      }
+    },
+    [canViewInterviews]
+  );
+
+  useEffect(() => {
+    if (canViewInterviews) {
+      void loadCandidateInterviews();
+    }
+  }, [canViewInterviews, loadCandidateInterviews]);
+
+  useEffect(() => {
+    if (selected && canViewInterviews) {
+      void loadCandidateInterviews(selected.id);
+    } else {
+      setCandidateInterviews({ invitations: [], appointments: [], activity: [] });
+    }
+  }, [selected, canViewInterviews, loadCandidateInterviews]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -297,17 +363,36 @@ export function AdminApplicationsClient({
                       {app.status}
                     </StatusBadge>
                   </td>
-                  <td style={{ textAlign: "end" }}>
-                    <button
-                      type="button"
-                      className="hz-btn hz-btn-secondary hz-btn-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelected(app);
-                      }}
-                    >
-                      Review
-                    </button>
+                  <td style={{ textAlign: "end", whiteSpace: "nowrap" }}>
+                    <div style={{ display: "inline-flex", gap: 6 }}>
+                      {canInviteInterview ? (
+                        <button
+                          type="button"
+                          className="hz-btn hz-btn-primary hz-btn-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInviteCandidate({
+                              applicationReferenceId: app.id,
+                              candidateName: app.name,
+                              candidateEmail: app.email,
+                              positionTitle: app.jobTitle,
+                            });
+                          }}
+                        >
+                          <Calendar size={12} /> Invite
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="hz-btn hz-btn-secondary hz-btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelected(app);
+                        }}
+                      >
+                        Review
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -339,14 +424,34 @@ export function AdminApplicationsClient({
             : ""
         }
         headerActions={
-          selected && canUseAgent ? (
-            <button
-              type="button"
-              className="hz-btn hz-btn-primary hz-btn-sm"
-              onClick={() => askAgentAboutCandidate(selected)}
-            >
-              <Sparkles size={12} /> Role Fit Summary
-            </button>
+          selected ? (
+            <div style={{ display: "inline-flex", gap: 6, flexWrap: "wrap" }}>
+              {canInviteInterview ? (
+                <button
+                  type="button"
+                  className="hz-btn hz-btn-primary hz-btn-sm"
+                  onClick={() =>
+                    setInviteCandidate({
+                      applicationReferenceId: selected.id,
+                      candidateName: selected.name,
+                      candidateEmail: selected.email,
+                      positionTitle: selected.jobTitle,
+                    })
+                  }
+                >
+                  <Calendar size={12} /> Invite to Interview
+                </button>
+              ) : null}
+              {canUseAgent ? (
+                <button
+                  type="button"
+                  className="hz-btn hz-btn-secondary hz-btn-sm"
+                  onClick={() => askAgentAboutCandidate(selected)}
+                >
+                  <Sparkles size={12} /> Role Fit Summary
+                </button>
+              ) : null}
+            </div>
           ) : null
         }
       >
@@ -491,6 +596,94 @@ export function AdminApplicationsClient({
               </div>
             ) : null}
 
+            {canViewInterviews ? (
+              <div
+                style={{
+                  padding: 12,
+                  borderRadius: "var(--hz-radius-md)",
+                  border: "1px solid var(--hz-border-subtle)",
+                  background: "var(--hz-surface-inset)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <span className="hz-eyebrow">Interview Scheduling &amp; Timeline</span>
+                  <Link
+                    href="/admin/interviews"
+                    style={{ fontSize: 12, color: "var(--hz-accent-blue)", textDecoration: "none" }}
+                  >
+                    Open Interviews Workspace
+                  </Link>
+                </div>
+                {candidateInterviews.appointments.length === 0 &&
+                candidateInterviews.invitations.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: 12.5, color: "var(--hz-text-secondary)" }}>
+                    No interview invitations or scheduled sessions for this candidate yet.
+                  </p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12.5 }}>
+                    {candidateInterviews.appointments.map((appt) => (
+                      <div
+                        key={appt.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span>
+                          <strong>{appt.interviewStage}</strong> ·{" "}
+                          {appt.scheduledStartUtc.slice(0, 16).replace("T", " ")} UTC (
+                          {appt.interviewerName})
+                        </span>
+                        <StatusBadge
+                          tone={
+                            appt.status === "confirmed"
+                              ? "blue"
+                              : appt.status === "completed"
+                                ? "emerald"
+                                : "rose"
+                          }
+                          dot
+                        >
+                          {appt.status}
+                        </StatusBadge>
+                      </div>
+                    ))}
+                    {candidateInterviews.invitations.map((inv) => (
+                      <div
+                        key={inv.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <span style={{ color: "var(--hz-text-secondary)" }}>
+                          Invitation ({inv.interviewerName}) · Email: {inv.emailDeliveryStatus}
+                        </span>
+                        <StatusBadge
+                          tone={
+                            inv.status === "scheduled"
+                              ? "emerald"
+                              : inv.status === "sent"
+                                ? "blue"
+                                : "amber"
+                          }
+                        >
+                          {inv.status}
+                        </StatusBadge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
+
             <div className="field">
               <label>Hiring Team Notes</label>
               <textarea
@@ -504,6 +697,19 @@ export function AdminApplicationsClient({
           </div>
         ) : null}
       </SlideOver>
+
+      <InviteInterviewDrawer
+        open={Boolean(inviteCandidate)}
+        candidate={inviteCandidate}
+        interviewers={interviewers}
+        resendConfigured={resendConfigured}
+        onClose={() => setInviteCandidate(null)}
+        onInvited={() => {
+          setNotice("Interview invitation created successfully.");
+          if (selected) void loadCandidateInterviews(selected.id);
+          void load();
+        }}
+      />
     </>
   );
 }

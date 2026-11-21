@@ -18,6 +18,8 @@ export default async function AdminApplicationsPage({
         initialQuery={params.q || ""}
         canEdit={hasPermission(actor, "recruitment", "edit")}
         canUseAgent={hasPermission(actor, "agent", "view")}
+        canInviteInterview={hasPermission(actor, "interviews", "create")}
+        canViewInterviews={hasPermission(actor, "interviews", "view")}
       />
     </AdminShell>
   );

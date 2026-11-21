@@ -36,7 +36,7 @@ import type { AgentPageContext } from "@/lib/intelligence/types";
 
 interface ShellSearchResult {
   id: string;
-  category: "crm" | "recruitment" | "jobs" | "products" | "tasks" | "team";
+  category: "crm" | "recruitment" | "interviews" | "jobs" | "products" | "tasks" | "team";
   title: string;
   subtitle: string;
   badge: string;
@@ -52,6 +52,7 @@ export interface ShellNavItem {
     | "agent"
     | "crm"
     | "applications"
+    | "interviews"
     | "jobs"
     | "products"
     | "demonstrations"
@@ -80,6 +81,7 @@ const ICONS = {
   agent: AudioLines,
   crm: Database,
   applications: Users,
+  interviews: Calendar,
   jobs: BriefcaseBusiness,
   products: Package,
   demonstrations: PlayCircle,

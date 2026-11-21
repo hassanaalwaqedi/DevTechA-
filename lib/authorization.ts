@@ -3,6 +3,7 @@ import { listAuthorizedCrmLeads } from "@/lib/crm";
 import { getAdminJobs, getAdminProducts, getApplications, getMetrics } from "@/lib/db";
 import { listEmployees } from "@/lib/intelligence/employees";
 import { listTasks } from "@/lib/intelligence/tasks";
+import { listAuthorizedInterviewAppointments } from "@/lib/interviews/service";
 import {
   canAccessScopedRecord,
   hasPermission,
@@ -457,7 +458,7 @@ export function getWorkspaceProfileForActor(actor: AuthActor): RoleWorkspaceProf
 
 export interface GlobalSearchResultItem {
   id: string;
-  category: "crm" | "recruitment" | "jobs" | "products" | "tasks" | "team";
+  category: "crm" | "recruitment" | "interviews" | "jobs" | "products" | "tasks" | "team";
   title: string;
   subtitle: string;
   badge: string;
@@ -661,6 +662,36 @@ export async function searchAuthorizedRecords(
             subtitle: `${emp.email} · ${emp.department}`,
             badge: emp.roleKey.replace(/_/g, " "),
             href: "/admin/team",
+          });
+        }
+      })()
+    );
+  }
+
+  // 7. Interviews (strictly scoped via listAuthorizedInterviewAppointments)
+  if (hasPermission(actor, "interviews", "view")) {
+    searchedModules.push("interviews");
+    tasksToRun.push(
+      (async () => {
+        const interviews = await listAuthorizedInterviewAppointments(actor).catch(() => []);
+        const matched = interviews
+          .filter(
+            (i) =>
+              i.candidateName.toLowerCase().includes(q) ||
+              i.candidateEmail.toLowerCase().includes(q) ||
+              i.positionTitle.toLowerCase().includes(q) ||
+              i.interviewerName.toLowerCase().includes(q) ||
+              i.applicationReferenceId.toLowerCase().includes(q)
+          )
+          .slice(0, limitPerCategory);
+        for (const item of matched) {
+          results.push({
+            id: `interview:${item.id}`,
+            category: "interviews",
+            title: `${item.candidateName} — ${item.positionTitle}`,
+            subtitle: `${item.interviewerName} · ${item.scheduledStartUtc.slice(0, 16).replace("T", " ")} UTC`,
+            badge: item.status,
+            href: "/admin/interviews",
           });
         }
       })()

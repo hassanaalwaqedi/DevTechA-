@@ -21,9 +21,10 @@ export function PublicSiteChrome({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname?.startsWith("/admin");
+  const isStandaloneApp =
+    pathname?.startsWith("/admin") || pathname?.startsWith("/interview");
 
-  if (isAdminRoute) {
+  if (isStandaloneApp) {
     return <>{children}</>;
   }
 

@@ -32,6 +32,21 @@ import {
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { createTask, listTasks } from "@/lib/intelligence/tasks";
 import {
+  createAndSendInterviewInvitation,
+  getAvailableSlotsForInterviewer,
+  getInterviewStatistics,
+  listAuthorizedInterviewAppointments,
+  listAuthorizedInterviewInvitations,
+} from "@/lib/interviews/service";
+import {
+  INTERVIEW_DURATIONS,
+  INTERVIEW_FORMATS,
+  INTERVIEW_TYPES,
+  type InterviewDuration,
+  type InterviewFormat,
+  type InterviewType,
+} from "@/lib/interviews/types";
+import {
   assertPermission,
   hasPermission,
   RbacDeniedError,
@@ -1075,6 +1090,323 @@ const listAuditLogsTool: RegisteredTool<{ limit?: number }> = {
   },
 };
 
+const listUpcomingInterviewsTool: RegisteredTool<{ limit?: number; includePast?: boolean }> = {
+  name: "list_upcoming_interviews",
+  description: "Lists authorized confirmed interview appointments strictly within the employee's RBAC scope.",
+  module: "interviews",
+  action: "view",
+  schema: z.object({
+    limit: z.number().int().min(1).max(30).optional(),
+    includePast: z.boolean().optional(),
+  }),
+  async execute(actor, args) {
+    const all = await listAuthorizedInterviewAppointments(actor);
+    const nowMs = Date.now();
+    const filtered = all
+      .filter((a) =>
+        args.includePast
+          ? true
+          : a.status === "confirmed" && new Date(a.scheduledStartUtc).getTime() >= nowMs
+      )
+      .slice(0, args.limit ?? 15);
+    return {
+      summary: `Found ${filtered.length} authorized interview appointment(s).`,
+      data: filtered.map((a) => ({
+        id: a.id,
+        applicationReferenceId: a.applicationReferenceId,
+        candidateName: sanitizeUntrustedText(a.candidateName, 100),
+        positionTitle: sanitizeUntrustedText(a.positionTitle, 120),
+        interviewStage: a.interviewStage,
+        interviewFormat: a.interviewFormat,
+        durationMinutes: a.durationMinutes,
+        interviewerName: a.interviewerName,
+        scheduledStartUtc: a.scheduledStartUtc,
+        candidateTimezone: a.candidateTimezone,
+        interviewerTimezone: a.interviewerTimezone,
+        status: a.status,
+      })),
+      citations: filtered.slice(0, 5).map((a) => ({
+        label: `${a.candidateName} — ${a.positionTitle}`,
+        href: "/admin/interviews",
+        entityType: "interview",
+        entityId: a.id,
+      })),
+    };
+  },
+};
+
+const listPendingInterviewInvitationsTool: RegisteredTool<{ limit?: number }> = {
+  name: "list_pending_interview_invitations",
+  description: "Lists authorized interview invitations awaiting candidate self-scheduling.",
+  module: "interviews",
+  action: "view",
+  schema: z.object({ limit: z.number().int().min(1).max(30).optional() }),
+  async execute(actor, args) {
+    const all = await listAuthorizedInterviewInvitations(actor);
+    const pending = all
+      .filter((i) => i.status === "sent" || i.status === "pending_send")
+      .slice(0, args.limit ?? 15);
+    return {
+      summary: `Found ${pending.length} pending interview invitation(s) awaiting candidate selection.`,
+      data: pending.map((i) => ({
+        id: i.id,
+        applicationReferenceId: i.applicationReferenceId,
+        candidateName: sanitizeUntrustedText(i.candidateName, 100),
+        positionTitle: sanitizeUntrustedText(i.positionTitle, 120),
+        interviewType: i.interviewType,
+        interviewerName: i.interviewerName,
+        status: i.status,
+        emailDeliveryStatus: i.emailDeliveryStatus,
+        expiresAt: i.expiresAt,
+      })),
+      citations: [
+        {
+          label: "Interviews Workspace",
+          href: "/admin/interviews",
+          entityType: "interview",
+          entityId: "pending-invitations",
+        },
+      ],
+    };
+  },
+};
+
+const getCandidateInterviewTool: RegisteredTool<{ query: string }> = {
+  name: "get_candidate_interview",
+  description: "Looks up interview invitations and confirmed appointments for a specific candidate within authorized scope.",
+  module: "interviews",
+  action: "view",
+  schema: z.object({ query: z.string().trim().min(1).max(160) }),
+  async execute(actor, args) {
+    const q = args.query.toLowerCase();
+    const [invs, appts] = await Promise.all([
+      listAuthorizedInterviewInvitations(actor),
+      listAuthorizedInterviewAppointments(actor),
+    ]);
+    const matchedInvs = invs.filter(
+      (i) =>
+        i.candidateName.toLowerCase().includes(q) ||
+        i.candidateEmail.toLowerCase().includes(q) ||
+        i.applicationReferenceId.toLowerCase().includes(q) ||
+        i.positionTitle.toLowerCase().includes(q)
+    );
+    const matchedAppts = appts.filter(
+      (a) =>
+        a.candidateName.toLowerCase().includes(q) ||
+        a.candidateEmail.toLowerCase().includes(q) ||
+        a.applicationReferenceId.toLowerCase().includes(q) ||
+        a.positionTitle.toLowerCase().includes(q)
+    );
+    return {
+      summary: `Found ${matchedAppts.length} appointment(s) and ${matchedInvs.length} invitation(s) matching "${args.query}".`,
+      data: {
+        appointments: matchedAppts.slice(0, 8),
+        invitations: matchedInvs.slice(0, 8),
+      },
+      citations: matchedAppts.slice(0, 4).map((a) => ({
+        label: `${a.candidateName} (${a.status})`,
+        href: "/admin/interviews",
+        entityType: "interview",
+        entityId: a.id,
+      })),
+    };
+  },
+};
+
+const getInterviewerAvailabilityTool: RegisteredTool<{
+  interviewerQuery?: string;
+  durationMinutes?: number;
+}> = {
+  name: "get_interviewer_availability",
+  description: "Returns real configured availability slots for an authorized interviewer (never fabricates slots).",
+  module: "interviews",
+  action: "view",
+  schema: z.object({
+    interviewerQuery: z.string().trim().max(120).optional(),
+    durationMinutes: z.number().int().min(15).max(90).optional(),
+  }),
+  async execute(actor, args) {
+    const employees = await listEmployees();
+    const canSeeOthers =
+      actor.roleKey === "super_admin" ||
+      actor.roleKey === "administrator" ||
+      actor.roleKey === "hr_manager" ||
+      actor.scope === "all";
+
+    let target = employees.find((e) => e.id === actor.employeeId);
+    if (canSeeOthers && args.interviewerQuery) {
+      const q = args.interviewerQuery.toLowerCase();
+      const matched = employees.find(
+        (e) => e.fullName.toLowerCase().includes(q) || e.email.toLowerCase().includes(q)
+      );
+      if (matched) target = matched;
+    }
+
+    if (!target) {
+      return {
+        summary: "No matching active interviewer found.",
+        data: { hasConfiguredRules: false, slots: [] },
+        citations: [],
+      };
+    }
+
+    const slotInfo = await getAvailableSlotsForInterviewer({
+      employeeId: target.id,
+      durationMinutes: args.durationMinutes || 45,
+      candidateTimezone: "UTC",
+    });
+
+    return {
+      summary: slotInfo.hasConfiguredRules
+        ? `${target.fullName} has ${slotInfo.slots.length} open slot(s) configured (${slotInfo.interviewerTimezone}).`
+        : `${target.fullName} has no configured availability hours yet.`,
+      data: {
+        interviewerName: target.fullName,
+        interviewerTimezone: slotInfo.interviewerTimezone,
+        hasConfiguredRules: slotInfo.hasConfiguredRules,
+        nextSlotsUtc: slotInfo.slots.slice(0, 8).map((s) => s.startUtc),
+      },
+      citations: [
+        {
+          label: `Availability — ${target.fullName}`,
+          href: "/admin/interviews",
+          entityType: "interview",
+          entityId: target.id,
+        },
+      ],
+    };
+  },
+};
+
+const prepareInterviewInvitationTool: RegisteredTool<{
+  applicationReferenceId: string;
+  candidateName: string;
+  candidateEmail: string;
+  positionTitle: string;
+  interviewType?: InterviewType;
+  interviewFormat?: InterviewFormat;
+  durationMinutes?: number;
+  interviewerEmployeeId?: string;
+  personalizedMessage?: string;
+  locale?: "en" | "ar";
+}> = {
+  name: "prepare_interview_invitation",
+  description:
+    "Prepares an approval-gated interview invitation preview for explicit human confirmation before sending.",
+  module: "interviews",
+  action: "create",
+  requiresConfirmation: true,
+  schema: z.object({
+    applicationReferenceId: z.string().trim().min(2).max(80),
+    candidateName: z.string().trim().min(2).max(120),
+    candidateEmail: z.string().trim().email().max(254),
+    positionTitle: z.string().trim().min(2).max(140),
+    interviewType: z.enum(INTERVIEW_TYPES).optional(),
+    interviewFormat: z.enum(INTERVIEW_FORMATS).optional(),
+    durationMinutes: z.number().int().optional(),
+    interviewerEmployeeId: z.string().trim().optional(),
+    personalizedMessage: z.string().trim().max(1000).optional(),
+    locale: z.enum(["en", "ar"]).optional(),
+  }),
+  async execute(actor, args, meta) {
+    const employees = await listEmployees();
+    const interviewer =
+      employees.find((e) => e.id === args.interviewerEmployeeId) ||
+      employees.find((e) => e.id === actor.employeeId) ||
+      employees[0];
+
+    if (!interviewer) {
+      return {
+        summary: "Cannot prepare invitation: no active interviewer available.",
+        data: null,
+        citations: [],
+      };
+    }
+
+    const duration = INTERVIEW_DURATIONS.includes(args.durationMinutes as InterviewDuration)
+      ? (args.durationMinutes as InterviewDuration)
+      : 45;
+    const interviewType: InterviewType = args.interviewType || "initial_hr_screening";
+    const interviewFormat: InterviewFormat = args.interviewFormat || "online_video";
+
+    const actionId = randomUUID();
+    const nowIso = new Date().toISOString();
+    const pending: AgentPendingAction = {
+      id: actionId,
+      conversationId: meta.conversationId,
+      actorId: actor.id,
+      actorEmail: actor.email,
+      toolName: "prepare_interview_invitation",
+      title: `Send Interview Invitation to ${args.candidateName}`,
+      summary: `Send ${interviewType.replace(/_/g, " ")} invitation to ${args.candidateName} (${args.candidateEmail}) for ${args.positionTitle} with ${interviewer.fullName}.`,
+      preview: {
+        candidateName: args.candidateName,
+        candidateEmail: args.candidateEmail,
+        positionTitle: args.positionTitle,
+        applicationReferenceId: args.applicationReferenceId,
+        interviewType,
+        interviewFormat,
+        durationMinutes: duration,
+        interviewerName: interviewer.fullName,
+        locale: args.locale || "en",
+      },
+      args: {
+        applicationReferenceId: args.applicationReferenceId,
+        candidateName: args.candidateName,
+        candidateEmail: args.candidateEmail,
+        positionTitle: args.positionTitle,
+        interviewType,
+        interviewFormat,
+        durationMinutes: duration,
+        interviewerEmployeeId: interviewer.id,
+        personalizedMessage: args.personalizedMessage || "",
+        locale: args.locale || "en",
+      },
+      status: "pending",
+      expiresAt: new Date(Date.now() + PENDING_ACTION_TTL_MS).toISOString(),
+      createdAt: nowIso,
+    };
+
+    await savePendingAction(pending);
+    return {
+      summary: `Prepared approval-gated interview invitation for ${args.candidateName} (${args.positionTitle}). Awaiting explicit confirmation.`,
+      data: pending.preview,
+      pendingAction: pending,
+      citations: [
+        {
+          label: `${args.candidateName} (${args.applicationReferenceId})`,
+          href: "/admin/interviews",
+          entityType: "interview",
+          entityId: actionId,
+        },
+      ],
+    };
+  },
+};
+
+const getInterviewStatisticsTool: RegisteredTool<Record<string, never>> = {
+  name: "get_interview_statistics",
+  description: "Returns real scoped interview KPI metrics (invitations sent, awaiting selection, confirmed upcoming, today, completed, canceled).",
+  module: "interviews",
+  action: "view",
+  schema: z.object({}),
+  async execute(actor) {
+    const stats = await getInterviewStatistics(actor);
+    return {
+      summary: `Interviews summary: ${stats.upcomingInterviews} upcoming (${stats.interviewsToday} today), ${stats.awaitingScheduling} awaiting candidate selection, ${stats.completedInterviews} completed, ${stats.canceledInterviews} canceled.`,
+      data: stats,
+      citations: [
+        {
+          label: "Interview Scheduling KPIs",
+          href: "/admin/interviews",
+          entityType: "interview",
+          entityId: "interview-stats",
+        },
+      ],
+    };
+  },
+};
+
 export const AGENT_TOOL_REGISTRY = {
   get_business_overview: getBusinessOverviewTool,
   get_recent_events: getRecentEventsTool,
@@ -1093,6 +1425,12 @@ export const AGENT_TOOL_REGISTRY = {
   get_employee_permissions: getEmployeePermissionsTool,
   list_team_directory: listTeamDirectoryTool,
   list_audit_logs: listAuditLogsTool,
+  list_upcoming_interviews: listUpcomingInterviewsTool,
+  list_pending_interview_invitations: listPendingInterviewInvitationsTool,
+  get_candidate_interview: getCandidateInterviewTool,
+  get_interviewer_availability: getInterviewerAvailabilityTool,
+  prepare_interview_invitation: prepareInterviewInvitationTool,
+  get_interview_statistics: getInterviewStatisticsTool,
 } as const;
 
 export type AgentToolName = keyof typeof AGENT_TOOL_REGISTRY;
@@ -1462,6 +1800,46 @@ export async function confirmAndExecutePendingAction(
       ok: true,
       action: executed,
       message: `Updated ${updated.company || updated.fullName} (${updated.referenceId}) to ${CRM_STAGE_LABELS[updated.stage].en}.`,
+    };
+  }
+
+  if (pending.toolName === "prepare_interview_invitation") {
+    assertPermission(actor, "interviews", "create");
+    const result = await createAndSendInterviewInvitation(actor, {
+      applicationReferenceId: String(pending.args.applicationReferenceId || ""),
+      candidateName: String(pending.args.candidateName || ""),
+      candidateEmail: String(pending.args.candidateEmail || ""),
+      positionTitle: String(pending.args.positionTitle || ""),
+      interviewType: (pending.args.interviewType as InterviewType) || "initial_hr_screening",
+      interviewFormat: (pending.args.interviewFormat as InterviewFormat) || "online_video",
+      durationMinutes: (Number(pending.args.durationMinutes) || 45) as InterviewDuration,
+      interviewerEmployeeId: String(pending.args.interviewerEmployeeId || ""),
+      personalizedMessage: String(pending.args.personalizedMessage || ""),
+      locale: pending.args.locale === "ar" ? "ar" : "en",
+    });
+
+    if (!result.ok || !result.invitation) {
+      return {
+        ok: false,
+        message: result.error || "Unable to send interview invitation.",
+      };
+    }
+
+    const executed: AgentPendingAction = {
+      ...pending,
+      status: "executed",
+      executionResult: {
+        invitationId: result.invitation.id,
+        deliveryStatus: result.delivery?.status || "created",
+      },
+      resolvedAt: nowIso,
+    };
+    await savePendingAction(executed);
+
+    return {
+      ok: true,
+      action: executed,
+      message: `Interview invitation created for ${result.invitation.candidateName} (email status: ${result.delivery?.status || "created"}).`,
     };
   }
 

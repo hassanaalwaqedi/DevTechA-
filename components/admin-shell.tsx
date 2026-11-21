@@ -44,6 +44,14 @@ export async function AdminShell({
       icon: "applications",
     });
   }
+  if (hasPermission(actor, "interviews", "view")) {
+    primary.push({
+      id: "interviews",
+      label: "Interviews",
+      href: "/admin/interviews",
+      icon: "interviews",
+    });
+  }
   if (hasPermission(actor, "jobs", "view")) {
     primary.push({ id: "jobs", label: "Jobs", href: "/admin/jobs", icon: "jobs" });
   }

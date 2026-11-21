@@ -342,6 +342,29 @@ function planToolCalls(
     }
   }
 
+  // 8b. Interview Scheduling & Candidate Interviews (EN + AR, Text + Voice)
+  if (
+    /(interview|interviewer|scheduling link|pending invitation|مقابلة|مقابلات|دعوة مقابلة|توفر المحاور)/i.test(
+      message
+    )
+  ) {
+    if (/(availability|open slots|free slots|أوقات متاحة|توفر)/i.test(message)) {
+      calls.push({ tool: "get_interviewer_availability", args: {} });
+    }
+    if (/(pending|awaiting|unscheduled|معلق|بانتظار)/i.test(message)) {
+      calls.push({ tool: "list_pending_interview_invitations", args: { limit: 15 } });
+    }
+    if (/(stat|metric|how many|count|إحصائ|كم مقابلة)/i.test(message)) {
+      calls.push({ tool: "get_interview_statistics", args: {} });
+    }
+    const candidateRef = message.match(/DEV-\d{4}-\d+/i)?.[0];
+    if (candidateRef) {
+      calls.push({ tool: "get_candidate_interview", args: { query: candidateRef } });
+    } else {
+      calls.push({ tool: "list_upcoming_interviews", args: { limit: 15 } });
+    }
+  }
+
   // 9. Tasks / Overdue items
   if (/(task|overdue|deadline|todo|مهام|متأخر|مواعيد نهائية)/i.test(message)) {
     calls.push({
@@ -459,6 +482,48 @@ function buildDeterministicAnswer(options: {
           lines.push(`• ${a.name} — ${a.jobTitle} (${a.referenceId}) · ${a.experience} · Status: ${a.status}`);
         }
       }
+    } else if (tool === "list_upcoming_interviews" && Array.isArray(data)) {
+      if (data.length === 0) {
+        lines.push(
+          ar
+            ? "• لا توجد مقابلات مجدولة قادمة ضمن نطاق صلاحياتك حالياً."
+            : "• No upcoming confirmed interviews found within your authorized scope."
+        );
+      } else {
+        lines.push(
+          ar ? `**المقابلات القادمة (${data.length}):**` : `**Upcoming Interviews (${data.length}):**`
+        );
+        for (const item of (data as Array<Record<string, unknown>>).slice(0, 6)) {
+          lines.push(
+            `• ${item.candidateName} — ${item.positionTitle} · ${String(item.scheduledStartUtc || "").slice(0, 16).replace("T", " ")} UTC (Interviewer: ${item.interviewerName})`
+          );
+        }
+      }
+    } else if (tool === "list_pending_interview_invitations" && Array.isArray(data)) {
+      if (data.length === 0) {
+        lines.push(
+          ar
+            ? "• لا توجد دعوات مقابلة معلقة بانتظار اختيار المرشح."
+            : "• No pending interview invitations awaiting candidate selection."
+        );
+      } else {
+        lines.push(
+          ar
+            ? `**دعوات المقابلة المعلقة (${data.length}):**`
+            : `**Pending Interview Invitations (${data.length}):**`
+        );
+        for (const inv of (data as Array<Record<string, unknown>>).slice(0, 6)) {
+          lines.push(
+            `• ${inv.candidateName} — ${inv.positionTitle} · Email: ${inv.emailDeliveryStatus} · Expires: ${String(inv.expiresAt || "").slice(0, 10)}`
+          );
+        }
+      }
+    } else if (tool === "get_interview_statistics" && data && !Array.isArray(data)) {
+      lines.push(
+        ar
+          ? `**إحصائيات المقابلات:** ${data.upcomingInterviews} قادمة (${data.interviewsToday} اليوم)، ${data.awaitingScheduling} بانتظار الجدولة، ${data.completedInterviews} مكتملة، ${data.canceledInterviews} ملغاة.`
+          : `**Interview Metrics:** ${data.upcomingInterviews} upcoming (${data.interviewsToday} today), ${data.awaitingScheduling} awaiting scheduling, ${data.completedInterviews} completed, ${data.canceledInterviews} canceled.`
+      );
     } else if (tool === "draft_client_email" && data && !Array.isArray(data)) {
       lines.push(
         ar
