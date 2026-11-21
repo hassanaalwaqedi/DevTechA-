@@ -79,13 +79,16 @@ function renderEmailShell(params: {
   summaryRows?: SummaryRow[];
   personalizedNote?: string;
   personalizedNoteTitle?: string;
+  previewBanner?: string;
   ctaLabel?: string;
   ctaUrl?: string;
+  ctaPlaceholderNotice?: string;
   ctaHelperText?: string;
   secondaryLinkLabel?: string;
   secondaryLinkUrl?: string;
   fallbackUrlLabel?: string;
   fallbackUrl?: string;
+  fallbackPlaceholderText?: string;
   closingParagraphs?: string[];
   logoUrl: string;
 }): string {
@@ -146,6 +149,17 @@ function renderEmailShell(params: {
       </table>`
     : "";
 
+  const previewBannerHtml = params.previewBanner
+    ? `
+      <tr>
+        <td style="background-color:#FEF3C7;border-bottom:1px solid #F59E0B;padding:10px 32px;text-align:${align};">
+          <div style="font-size:12px;font-weight:700;color:#92400E;line-height:1.5;">
+            ${escapeHtml(params.previewBanner)}
+          </div>
+        </td>
+      </tr>`
+    : "";
+
   const ctaHtml =
     params.ctaLabel && params.ctaUrl
       ? `
@@ -169,7 +183,23 @@ function renderEmailShell(params: {
             : ""
         }
       </table>`
-      : "";
+      : params.ctaLabel && params.ctaPlaceholderNotice
+        ? `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:24px 0 8px;">
+        <tr>
+          <td align="${align}">
+            <div style="display:inline-block;padding:13px 28px;font-family:${fontFamily};font-size:14.5px;font-weight:700;color:#FFFFFF;background-color:#64748B;border-radius:8px;letter-spacing:0.01em;">
+              ${escapeHtml(params.ctaLabel)}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding-top:10px;font-size:12.5px;color:#92400E;font-weight:600;text-align:${align};">
+            ${escapeHtml(params.ctaPlaceholderNotice)}
+          </td>
+        </tr>
+      </table>`
+        : "";
 
   const secondaryLinkHtml =
     params.secondaryLinkLabel && params.secondaryLinkUrl
@@ -193,7 +223,19 @@ function renderEmailShell(params: {
           </td>
         </tr>
       </table>`
-      : "";
+      : params.fallbackPlaceholderText && params.fallbackUrlLabel
+        ? `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:20px 0 0;background-color:#FFFBEB;border:1px dashed #F59E0B;border-radius:8px;">
+        <tr>
+          <td style="padding:12px 16px;text-align:${align};">
+            <div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:4px;">${escapeHtml(params.fallbackUrlLabel)}</div>
+            <div style="font-size:12px;line-height:1.5;color:#78350F;font-family:monospace;">
+              ${escapeHtml(params.fallbackPlaceholderText)}
+            </div>
+          </td>
+        </tr>
+      </table>`
+        : "";
 
   const brandSubtitle = isAr ? "الذكاء الاصطناعي وهندسة البرمجيات" : "AI & SOFTWARE ENGINEERING";
   const departmentBadge = isAr ? "استقطاب الكفاءات" : "TALENT ACQUISITION";
@@ -246,6 +288,7 @@ function renderEmailShell(params: {
               </table>
             </td>
           </tr>
+          ${previewBannerHtml}
           <tr>
             <td style="padding:32px 32px 26px;text-align:${align};">
               <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#315CDA;margin-bottom:8px;">
@@ -311,6 +354,7 @@ export interface InterviewInvitationEmailParams {
   personalizedMessage?: string;
   locale?: "en" | "ar";
   publicBaseUrl?: string;
+  isPreview?: boolean;
 }
 
 /**
@@ -323,7 +367,11 @@ export function buildInterviewInvitationEmail(
   const locale = params.locale === "ar" ? "ar" : "en";
   const baseUrl = safePublicBaseUrl(params.publicBaseUrl);
   const logoUrl = `${baseUrl}/brand/hirzexa-mark.png`;
-  const schedulingUrl = safeExternalUrl(params.schedulingUrl) || `${baseUrl}/interview/schedule`;
+  const isPreview = Boolean(params.isPreview);
+  const schedulingUrl = isPreview ? safeExternalUrl(params.schedulingUrl) : safeExternalUrl(params.schedulingUrl);
+  if (!isPreview && !schedulingUrl) {
+    throw new Error("A valid production HTTPS schedulingUrl is required to send an interview invitation email.");
+  }
   const typeLabel = INTERVIEW_TYPE_LABELS[params.interviewType]?.[locale] || "Interview";
   const formatLabel = INTERVIEW_FORMAT_LABELS[params.interviewFormat]?.[locale] || "Interview";
   const expiryFormatted = formatUtcInTimezone(params.expiresAtUtc, "UTC", locale);
@@ -332,6 +380,15 @@ export function buildInterviewInvitationEmail(
   const subject = isAr
     ? `HIRZEXA | دعوة لمقابلة عمل — ${params.positionTitle}`
     : `HIRZEXA | Interview Invitation — ${params.positionTitle}`;
+
+  const previewBanner = isPreview
+    ? isAr
+      ? "وضع المعاينة فقط — سيتم إنشاء رابط جدولة فريد وآمن تلقائيًا عند إرسال الدعوة الفعلية."
+      : "PREVIEW ONLY — Placeholder view. A unique, cryptographically secure scheduling link will be generated automatically when you send this invitation."
+    : undefined;
+  const previewLinkNotice = isAr
+    ? "[وضع المعاينة] سيتم إنشاء رابط جدولة خاص ومشفّر للمرشح عند إرسال الدعوة."
+    : "[PREVIEW ONLY] A unique candidate scheduling link (https://hirzexa.com/interview/schedule?token=<generated-on-send>) will be generated when sending.";
 
   const summaryRows: SummaryRow[] = [
     { label: isAr ? "الوظيفة" : "Position", value: params.positionTitle },
@@ -350,6 +407,7 @@ export function buildInterviewInvitationEmail(
     preheader: isAr
       ? `تمت دعوتك لاختيار موعد مقابلتك لوظيفة ${params.positionTitle} في HIRZEXA.`
       : `Select your preferred time for your ${params.positionTitle} interview at HIRZEXA.`,
+    previewBanner,
     eyebrow: isAr ? "دعوة لمقابلة عمل" : "INTERVIEW INVITATION",
     title: isAr ? `دعوة لمقابلة وظيفة ${params.positionTitle}` : `Interview Invitation — ${params.positionTitle}`,
     greeting: isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -365,14 +423,18 @@ export function buildInterviewInvitationEmail(
     summaryRows,
     personalizedNote: params.personalizedMessage,
     ctaLabel: isAr ? "اختر موعد المقابلة" : "Schedule Your Interview",
-    ctaUrl: schedulingUrl,
-    ctaHelperText: isAr
-      ? "جدولة آمنة. لا يتطلب إنشاء حساب."
-      : "Secure scheduling. No account required.",
+    ctaUrl: schedulingUrl || undefined,
+    ctaPlaceholderNotice: !schedulingUrl ? previewLinkNotice : undefined,
+    ctaHelperText: schedulingUrl
+      ? isAr
+        ? "جدولة آمنة. لا يتطلب إنشاء حساب."
+        : "Secure scheduling. No account required."
+      : undefined,
     fallbackUrlLabel: isAr
       ? "إذا لم يعمل الزر أعلاه، انسخ الرابط التالي والصقه في متصفحك:"
       : "If the button above does not open, copy and paste this link into your browser:",
-    fallbackUrl: schedulingUrl,
+    fallbackUrl: schedulingUrl || undefined,
+    fallbackPlaceholderText: !schedulingUrl ? previewLinkNotice : undefined,
     closingParagraphs: isAr
       ? [
           `إذا كانت لديك أي استفسارات أو لم تجد وقتًا مناسبًا، يرجى الرد على هذه الرسالة أو التواصل معنا عبر ${OFFICIAL_CAREERS_EMAIL}.`,
@@ -384,6 +446,7 @@ export function buildInterviewInvitationEmail(
   });
 
   const text = [
+    isPreview ? `[PREVIEW ONLY — Not for live delivery]` : null,
     subject,
     "",
     isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -403,7 +466,7 @@ export function buildInterviewInvitationEmail(
       : null,
     "",
     `${isAr ? "اختر موعد المقابلة (جدولة آمنة، لا يتطلب حساب)" : "Schedule Your Interview (Secure scheduling. No account required.)"}:`,
-    schedulingUrl,
+    schedulingUrl || previewLinkNotice,
     "",
     `${isAr ? "للتواصل" : "Careers"}: ${OFFICIAL_CAREERS_EMAIL}`,
     `${isAr ? "الدعم" : "Support"}: ${OFFICIAL_SUPPORT_EMAIL}`,
@@ -437,6 +500,7 @@ export interface InterviewAppointmentEmailParams {
   locationDetails?: string | null;
   locale?: "en" | "ar";
   publicBaseUrl?: string;
+  isPreview?: boolean;
 }
 
 function buildAppointmentSummaryRows(
@@ -487,9 +551,21 @@ export function buildInterviewConfirmationEmail(
   const isAr = locale === "ar";
   const baseUrl = safePublicBaseUrl(params.publicBaseUrl);
   const logoUrl = `${baseUrl}/brand/hirzexa-mark.png`;
-  const manageUrl = safeExternalUrl(params.manageUrl) || `${baseUrl}/interview/schedule`;
+  const isPreview = Boolean(params.isPreview);
+  const manageUrl = isPreview
+    ? safeExternalUrl(params.manageUrl)
+    : safeExternalUrl(params.manageUrl) || `${baseUrl}/interview/schedule`;
   const formatted = formatUtcInTimezone(params.scheduledStartUtc, params.candidateTimezone, locale);
   const rows = buildAppointmentSummaryRows(params, locale);
+
+  const previewBanner = isPreview
+    ? isAr
+      ? "وضع المعاينة فقط — بيانات وروابط تجريبية. يتم إنشاء الرابط الحقيقي عند تأكيد الموعد."
+      : "PREVIEW ONLY — Sample template preview. Real candidate scheduling links are generated automatically for live appointments."
+    : undefined;
+  const previewLinkNotice = isAr
+    ? "[وضع المعاينة] سيتم إدراج رابط إدارة المقابلة الحقيقي تلقائيًا عند التأكيد."
+    : "[PREVIEW ONLY] Candidate-specific appointment link (https://hirzexa.com/interview/schedule?token=<generated-on-send>) is inserted automatically for real bookings.";
 
   const subject = isAr
     ? `HIRZEXA | تم تأكيد موعد مقابلتك — ${params.positionTitle}`
@@ -500,6 +576,7 @@ export function buildInterviewConfirmationEmail(
     preheader: isAr
       ? `تم تأكيد مقابلتك في ${formatted.fullLabel}.`
       : `Your interview is confirmed for ${formatted.fullLabel}.`,
+    previewBanner,
     eyebrow: isAr ? "تأكيد المقابلة" : "INTERVIEW CONFIRMED",
     title: isAr ? `تم تأكيد موعد مقابلتك — ${params.positionTitle}` : `Your Interview Is Confirmed — ${params.positionTitle}`,
     greeting: isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -512,12 +589,16 @@ export function buildInterviewConfirmationEmail(
         ],
     summaryRows: rows,
     ctaLabel: isAr ? "عرض تفاصيل المقابلة" : "View Interview Details",
-    ctaUrl: manageUrl,
-    ctaHelperText: isAr
-      ? "يمكنك عرض الموعد أو تنزيل دعوة التقويم أو إعادة الجدولة من خلال الرابط الآمن أعلاه."
-      : "Use the secure link above to view your appointment details, download the calendar invite, or reschedule if needed.",
+    ctaUrl: manageUrl || undefined,
+    ctaPlaceholderNotice: !manageUrl ? previewLinkNotice : undefined,
+    ctaHelperText: manageUrl
+      ? isAr
+        ? "يمكنك عرض الموعد أو تنزيل دعوة التقويم أو إعادة الجدولة من خلال الرابط الآمن أعلاه."
+        : "Use the secure link above to view your appointment details, download the calendar invite, or reschedule if needed."
+      : undefined,
     fallbackUrlLabel: isAr ? "الرابط المباشر لتفاصيل المقابلة:" : "Direct link to your interview details:",
-    fallbackUrl: manageUrl,
+    fallbackUrl: manageUrl || undefined,
+    fallbackPlaceholderText: !manageUrl ? previewLinkNotice : undefined,
     closingParagraphs: isAr
       ? [
           "نتطلع إلى التحدث معك قريبًا.",
@@ -529,16 +610,19 @@ export function buildInterviewConfirmationEmail(
   });
 
   const text = [
+    isPreview ? "[PREVIEW ONLY — Not for live delivery]" : null,
     subject,
     "",
     isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
     "",
     ...rows.map((r) => `${r.label}: ${r.value}`),
     "",
-    `${isAr ? "عرض تفاصيل المقابلة / إعادة الجدولة" : "View Interview Details / Reschedule"}: ${manageUrl}`,
+    `${isAr ? "عرض تفاصيل المقابلة / إعادة الجدولة" : "View Interview Details / Reschedule"}: ${manageUrl || previewLinkNotice}`,
     `${isAr ? "للتواصل" : "Careers"}: ${OFFICIAL_CAREERS_EMAIL}`,
     `HIRZEXA — AI & Software Engineering (${OFFICIAL_WEBSITE_URL})`,
-  ].join("\n");
+  ]
+    .filter((l): l is string => l !== null)
+    .join("\n");
 
   return {
     from: getCareersSenderAddress(),
@@ -560,9 +644,21 @@ export function buildInterviewReminderEmail(
   const isAr = locale === "ar";
   const baseUrl = safePublicBaseUrl(params.publicBaseUrl);
   const logoUrl = `${baseUrl}/brand/hirzexa-mark.png`;
-  const manageUrl = safeExternalUrl(params.manageUrl) || `${baseUrl}/interview/schedule`;
+  const isPreview = Boolean(params.isPreview);
+  const manageUrl = isPreview
+    ? safeExternalUrl(params.manageUrl)
+    : safeExternalUrl(params.manageUrl) || `${baseUrl}/interview/schedule`;
   const formatted = formatUtcInTimezone(params.scheduledStartUtc, params.candidateTimezone, locale);
   const rows = buildAppointmentSummaryRows(params, locale);
+
+  const previewBanner = isPreview
+    ? isAr
+      ? "وضع المعاينة فقط — بيانات وروابط تجريبية."
+      : "PREVIEW ONLY — Sample template preview. Real candidate links are inserted automatically when reminders are dispatched."
+    : undefined;
+  const previewLinkNotice = isAr
+    ? "[وضع المعاينة] سيتم إدراج رابط تفاصيل المقابلة الحقيقي تلقائيًا."
+    : "[PREVIEW ONLY] Candidate-specific appointment link is inserted automatically for live reminders.";
 
   const timingPhrase =
     params.reminderKind === "1h"
@@ -582,6 +678,7 @@ export function buildInterviewReminderEmail(
     preheader: isAr
       ? `تذكير: تبدأ مقابلتك ${timingPhrase} (${formatted.fullLabel}).`
       : `Reminder: Your HIRZEXA interview begins ${timingPhrase} (${formatted.fullLabel}).`,
+    previewBanner,
     eyebrow: isAr ? "تذكير بموعد المقابلة" : "INTERVIEW REMINDER",
     title: isAr ? `تذكير: مقابلتك تبدأ ${timingPhrase}` : `Reminder: Your Interview Begins ${timingPhrase}`,
     greeting: isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -594,9 +691,11 @@ export function buildInterviewReminderEmail(
         ],
     summaryRows: rows,
     ctaLabel: isAr ? "عرض تفاصيل المقابلة" : "View Interview Details",
-    ctaUrl: manageUrl,
+    ctaUrl: manageUrl || undefined,
+    ctaPlaceholderNotice: !manageUrl ? previewLinkNotice : undefined,
     fallbackUrlLabel: isAr ? "رابط تفاصيل المقابلة:" : "Interview details link:",
-    fallbackUrl: manageUrl,
+    fallbackUrl: manageUrl || undefined,
+    fallbackPlaceholderText: !manageUrl ? previewLinkNotice : undefined,
     closingParagraphs: isAr
       ? [
           `إذا طرأ أي تغيير غير متوقع، يمكنك استخدام الرابط أعلاه أو مراسلتنا على ${OFFICIAL_CAREERS_EMAIL}.`,
@@ -608,6 +707,7 @@ export function buildInterviewReminderEmail(
   });
 
   const text = [
+    isPreview ? "[PREVIEW ONLY — Not for live delivery]" : null,
     subject,
     "",
     isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -617,9 +717,11 @@ export function buildInterviewReminderEmail(
     "",
     ...rows.map((r) => `${r.label}: ${r.value}`),
     "",
-    `${isAr ? "عرض تفاصيل المقابلة" : "View Interview Details"}: ${manageUrl}`,
+    `${isAr ? "عرض تفاصيل المقابلة" : "View Interview Details"}: ${manageUrl || previewLinkNotice}`,
     `HIRZEXA — AI & Software Engineering (${OFFICIAL_WEBSITE_URL})`,
-  ].join("\n");
+  ]
+    .filter((l): l is string => l !== null)
+    .join("\n");
 
   return {
     from: getCareersSenderAddress(),
@@ -642,9 +744,21 @@ export function buildInterviewRescheduledEmail(
   const isAr = locale === "ar";
   const baseUrl = safePublicBaseUrl(params.publicBaseUrl);
   const logoUrl = `${baseUrl}/brand/hirzexa-mark.png`;
-  const manageUrl = safeExternalUrl(params.manageUrl) || `${baseUrl}/interview/schedule`;
+  const isPreview = Boolean(params.isPreview);
+  const manageUrl = isPreview
+    ? safeExternalUrl(params.manageUrl)
+    : safeExternalUrl(params.manageUrl) || `${baseUrl}/interview/schedule`;
   const formatted = formatUtcInTimezone(params.scheduledStartUtc, params.candidateTimezone, locale);
   const rows = buildAppointmentSummaryRows(params, locale);
+
+  const previewBanner = isPreview
+    ? isAr
+      ? "وضع المعاينة فقط — بيانات وروابط تجريبية."
+      : "PREVIEW ONLY — Sample template preview. Real candidate links are inserted automatically on reschedule."
+    : undefined;
+  const previewLinkNotice = isAr
+    ? "[وضع المعاينة] سيتم إدراج رابط تفاصيل المقابلة الحقيقي تلقائيًا."
+    : "[PREVIEW ONLY] Candidate-specific appointment link is inserted automatically when rescheduled.";
 
   const subject = isAr
     ? `HIRZEXA | تحديث موعد المقابلة — ${params.positionTitle}`
@@ -655,6 +769,7 @@ export function buildInterviewRescheduledEmail(
     preheader: isAr
       ? `تم تحديث موعد مقابلتك إلى ${formatted.fullLabel}.`
       : `Your interview has been rescheduled to ${formatted.fullLabel}.`,
+    previewBanner,
     eyebrow: isAr ? "تحديث الجدول" : "UPDATED SCHEDULE",
     title: isAr ? `تم تحديث موعد مقابلتك — ${params.positionTitle}` : `Updated Interview Schedule — ${params.positionTitle}`,
     greeting: isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -667,13 +782,16 @@ export function buildInterviewRescheduledEmail(
         ],
     summaryRows: rows,
     ctaLabel: isAr ? "عرض تفاصيل المقابلة" : "View Interview Details",
-    ctaUrl: manageUrl,
+    ctaUrl: manageUrl || undefined,
+    ctaPlaceholderNotice: !manageUrl ? previewLinkNotice : undefined,
     fallbackUrlLabel: isAr ? "رابط تفاصيل المقابلة:" : "Direct link to your updated schedule:",
-    fallbackUrl: manageUrl,
+    fallbackUrl: manageUrl || undefined,
+    fallbackPlaceholderText: !manageUrl ? previewLinkNotice : undefined,
     logoUrl,
   });
 
   const text = [
+    isPreview ? "[PREVIEW ONLY — Not for live delivery]" : null,
     subject,
     "",
     isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -681,9 +799,11 @@ export function buildInterviewRescheduledEmail(
     "",
     ...rows.map((r) => `${r.label}: ${r.value}`),
     "",
-    `${isAr ? "عرض تفاصيل المقابلة" : "View Interview Details"}: ${manageUrl}`,
+    `${isAr ? "عرض تفاصيل المقابلة" : "View Interview Details"}: ${manageUrl || previewLinkNotice}`,
     `HIRZEXA — AI & Software Engineering (${OFFICIAL_WEBSITE_URL})`,
-  ].join("\n");
+  ]
+    .filter((l): l is string => l !== null)
+    .join("\n");
 
   return {
     from: getCareersSenderAddress(),
@@ -708,13 +828,23 @@ export function buildInterviewCanceledEmail(params: {
   rescheduleUrl?: string | null;
   locale?: "en" | "ar";
   publicBaseUrl?: string;
+  isPreview?: boolean;
 }): EmailMessageTemplate {
   const locale = params.locale === "ar" ? "ar" : "en";
   const isAr = locale === "ar";
   const baseUrl = safePublicBaseUrl(params.publicBaseUrl);
   const logoUrl = `${baseUrl}/brand/hirzexa-mark.png`;
   const typeLabel = INTERVIEW_TYPE_LABELS[params.interviewType]?.[locale] || "Interview";
+  const isPreview = Boolean(params.isPreview);
   const safeReschedule = safeExternalUrl(params.rescheduleUrl);
+  const previewBanner = isPreview
+    ? isAr
+      ? "وضع المعاينة فقط — بيانات وروابط تجريبية."
+      : "PREVIEW ONLY — Sample template preview. Not sent to candidates."
+    : undefined;
+  const previewLinkNotice = isAr
+    ? "[وضع المعاينة] يتم إدراج رابط اختيار موعد بديل تلقائيًا عند توفر دعوة نشطة."
+    : "[PREVIEW ONLY] Candidate reschedule link is inserted automatically when applicable.";
 
   const subject = isAr
     ? `HIRZEXA | تحديث بخصوص موعد المقابلة — ${params.positionTitle}`
@@ -737,6 +867,7 @@ export function buildInterviewCanceledEmail(params: {
     preheader: isAr
       ? `تم إلغاء موعد المقابلة الحالي لوظيفة ${params.positionTitle}.`
       : `Schedule update regarding your ${params.positionTitle} interview at HIRZEXA.`,
+    previewBanner,
     eyebrow: isAr ? "تحديث الجدول" : "SCHEDULE UPDATE",
     title: isAr ? `تحديث بخصوص موعد المقابلة — ${params.positionTitle}` : `Interview Schedule Update — ${params.positionTitle}`,
     greeting: isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -750,12 +881,14 @@ export function buildInterviewCanceledEmail(params: {
           "Please note that this schedule change does not represent a rejection of your application. Our Talent Acquisition team remains available to coordinate next steps or arrange a new time.",
         ],
     summaryRows,
-    ctaLabel: safeReschedule
-      ? isAr
-        ? "اختيار موعد جديد"
-        : "Select a New Time"
-      : undefined,
+    ctaLabel:
+      safeReschedule || isPreview
+        ? isAr
+          ? "اختيار موعد جديد"
+          : "Select a New Time"
+        : undefined,
     ctaUrl: safeReschedule || undefined,
+    ctaPlaceholderNotice: !safeReschedule && isPreview ? previewLinkNotice : undefined,
     closingParagraphs: isAr
       ? [`لأي استفسار، تواصل معنا عبر ${OFFICIAL_CAREERS_EMAIL}.`]
       : [`If you have any questions, please reply to this email or contact ${OFFICIAL_CAREERS_EMAIL}.`],
@@ -763,6 +896,7 @@ export function buildInterviewCanceledEmail(params: {
   });
 
   const text = [
+    isPreview ? "[PREVIEW ONLY — Not for live delivery]" : null,
     subject,
     "",
     isAr ? `مرحبًا ${params.candidateName}،` : `Dear ${params.candidateName},`,
@@ -770,7 +904,11 @@ export function buildInterviewCanceledEmail(params: {
       ? `تم إلغاء موعد المقابلة المجدول سابقًا لوظيفة ${params.positionTitle}. هذا التحديث لا يعني رفض طلبك.`
       : `Your previously scheduled interview for ${params.positionTitle} has been canceled. This schedule update does not represent a rejection of your application.`,
     params.reason?.trim() ? `${isAr ? "ملاحظة" : "Note"}: ${params.reason.trim()}` : null,
-    safeReschedule ? `${isAr ? "اختيار موعد جديد" : "Select a New Time"}: ${safeReschedule}` : null,
+    safeReschedule
+      ? `${isAr ? "اختيار موعد جديد" : "Select a New Time"}: ${safeReschedule}`
+      : isPreview
+        ? previewLinkNotice
+        : null,
     "",
     `${isAr ? "التوظيف" : "Careers"}: ${OFFICIAL_CAREERS_EMAIL}`,
     `HIRZEXA — AI & Software Engineering (${OFFICIAL_WEBSITE_URL})`,
@@ -798,12 +936,19 @@ export function buildInterviewExpiredEmail(params: {
   interviewType: InterviewType;
   locale?: "en" | "ar";
   publicBaseUrl?: string;
+  isPreview?: boolean;
 }): EmailMessageTemplate {
   const locale = params.locale === "ar" ? "ar" : "en";
   const isAr = locale === "ar";
   const baseUrl = safePublicBaseUrl(params.publicBaseUrl);
   const logoUrl = `${baseUrl}/brand/hirzexa-mark.png`;
   const typeLabel = INTERVIEW_TYPE_LABELS[params.interviewType]?.[locale] || "Interview";
+  const isPreview = Boolean(params.isPreview);
+  const previewBanner = isPreview
+    ? isAr
+      ? "وضع المعاينة فقط — نموذج إشعار انتهاء صلاحية الرابط."
+      : "PREVIEW ONLY — Sample template preview. Not sent to candidates."
+    : undefined;
 
   const subject = isAr
     ? `HIRZEXA | انتهت صلاحية رابط جدولة المقابلة — ${params.positionTitle}`
@@ -814,6 +959,7 @@ export function buildInterviewExpiredEmail(params: {
     preheader: isAr
       ? `انتهت صلاحية رابط جدولة مقابلتك لوظيفة ${params.positionTitle}.`
       : `Your interview scheduling link for ${params.positionTitle} has expired.`,
+    previewBanner,
     eyebrow: isAr ? "إشعار رابط الجدولة" : "SCHEDULING LINK NOTICE",
     title: isAr
       ? `انتهت صلاحية رابط جدولة المقابلة — ${params.positionTitle}`
@@ -959,8 +1105,13 @@ export function buildInterviewerNotificationEmail(params: {
 }
 
 /**
- * Generates a live preview of any of the 6 recruitment email templates in EN or AR,
+ * Generates a clearly-labeled preview of any of the 6 recruitment email templates in EN or AR,
  * optionally overriding candidate/position/message/interviewer fields from the admin drawer.
+ *
+ * SECURITY: Previews NEVER emit `preview-token-sample`, `example.com`, or fake clickable tokens.
+ * Unless a real persisted `realSchedulingUrl` is explicitly passed after invitation creation,
+ * links are rendered as non-clickable preview placeholders clearly indicating that a secure
+ * candidate-specific link is generated upon sending.
  */
 export function renderInterviewTemplatePreview(params: {
   kind: InterviewTemplateKind;
@@ -977,10 +1128,13 @@ export function renderInterviewTemplatePreview(params: {
   locationDetails?: string | null;
   candidateTimezone?: string;
   expiresInDays?: number;
+  realSchedulingUrl?: string | null;
 }): EmailMessageTemplate {
   const locale = params.locale === "ar" ? "ar" : "en";
-  const candidateName = params.candidateName?.trim() || (locale === "ar" ? "سارة المنصور" : "Sara Al-Mansoor");
-  const candidateEmail = params.candidateEmail?.trim() || "candidate.preview@example.com";
+  const candidateName =
+    params.candidateName?.trim() ||
+    (locale === "ar" ? "سارة المنصور (معاينة)" : "Sara Al-Mansoor (Sample Candidate)");
+  const candidateEmail = params.candidateEmail?.trim() || "preview-candidate@hirzexa.com";
   const positionTitle = params.positionTitle?.trim() || "Senior Full-Stack AI Engineer";
   const interviewType: InterviewType = params.interviewType || "technical_interview";
   const interviewFormat: InterviewFormat = params.interviewFormat || "online_video";
@@ -991,7 +1145,7 @@ export function renderInterviewTemplatePreview(params: {
   const sampleStart = new Date(Date.now() + 72 * 3600_000);
   sampleStart.setUTCMinutes(0, 0, 0);
   const sampleExpiry = new Date(Date.now() + (params.expiresInDays || 7) * 86400_000);
-  const sampleUrl = `${OFFICIAL_WEBSITE_URL}/interview/schedule?token=preview-token-sample`;
+  const verifiedRealUrl = safeExternalUrl(params.realSchedulingUrl);
 
   switch (params.kind) {
     case "invitation":
@@ -1003,11 +1157,12 @@ export function renderInterviewTemplatePreview(params: {
         interviewFormat,
         durationMinutes,
         interviewerName,
-        schedulingUrl: sampleUrl,
+        schedulingUrl: verifiedRealUrl,
         expiresAtUtc: sampleExpiry.toISOString(),
         personalizedMessage: params.personalizedMessage,
         locale,
         publicBaseUrl: OFFICIAL_WEBSITE_URL,
+        isPreview: !verifiedRealUrl,
       });
     case "confirmation":
       return buildInterviewConfirmationEmail({
@@ -1020,11 +1175,12 @@ export function renderInterviewTemplatePreview(params: {
         interviewerName,
         scheduledStartUtc: sampleStart.toISOString(),
         candidateTimezone,
-        manageUrl: sampleUrl,
+        manageUrl: verifiedRealUrl,
         meetingUrl: params.meetingUrl || null,
         locationDetails: params.locationDetails || null,
         locale,
         publicBaseUrl: OFFICIAL_WEBSITE_URL,
+        isPreview: !verifiedRealUrl,
       });
     case "reminder":
       return buildInterviewReminderEmail({
@@ -1037,12 +1193,13 @@ export function renderInterviewTemplatePreview(params: {
         interviewerName,
         scheduledStartUtc: sampleStart.toISOString(),
         candidateTimezone,
-        manageUrl: sampleUrl,
+        manageUrl: verifiedRealUrl,
         meetingUrl: params.meetingUrl || null,
         locationDetails: params.locationDetails || null,
         reminderKind: "24h",
         locale,
         publicBaseUrl: OFFICIAL_WEBSITE_URL,
+        isPreview: !verifiedRealUrl,
       });
     case "rescheduled":
       return buildInterviewRescheduledEmail({
@@ -1055,11 +1212,12 @@ export function renderInterviewTemplatePreview(params: {
         interviewerName,
         scheduledStartUtc: sampleStart.toISOString(),
         candidateTimezone,
-        manageUrl: sampleUrl,
+        manageUrl: verifiedRealUrl,
         meetingUrl: params.meetingUrl || null,
         locationDetails: params.locationDetails || null,
         locale,
         publicBaseUrl: OFFICIAL_WEBSITE_URL,
+        isPreview: !verifiedRealUrl,
       });
     case "canceled":
       return buildInterviewCanceledEmail({
@@ -1072,9 +1230,10 @@ export function renderInterviewTemplatePreview(params: {
           (locale === "ar"
             ? "طلب تنسيق موعد بديل بناءً على توفر فريق المقابلة."
             : "Coordinating an updated interview slot with the hiring panel."),
-        rescheduleUrl: sampleUrl,
+        rescheduleUrl: verifiedRealUrl || null,
         locale,
         publicBaseUrl: OFFICIAL_WEBSITE_URL,
+        isPreview: !verifiedRealUrl,
       });
     case "expired":
       return buildInterviewExpiredEmail({
@@ -1084,6 +1243,7 @@ export function renderInterviewTemplatePreview(params: {
         interviewType,
         locale,
         publicBaseUrl: OFFICIAL_WEBSITE_URL,
+        isPreview: true,
       });
   }
 }

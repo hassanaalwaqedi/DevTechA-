@@ -134,6 +134,8 @@ export function InviteInterviewDrawer({
       if (res.ok && data.template) {
         setPreviewData(data.template);
       }
+    } catch {
+      setError("Unable to load the email preview. Please check your connection and try again.");
     } finally {
       setPreviewLoading(false);
     }
@@ -460,6 +462,15 @@ export function InviteInterviewDrawer({
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div className="hz-int-banner is-warn">
+                <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: 2 }} />
+                <span>
+                  <strong>Preview Only:</strong> No scheduling token has been created yet. A unique,
+                  cryptographically secure link on <code>https://hirzexa.com</code> will be
+                  generated and stored (hashed) when you click <strong>Send Interview Invitation</strong>.
+                </span>
+              </div>
+
               <div
                 style={{
                   display: "flex",

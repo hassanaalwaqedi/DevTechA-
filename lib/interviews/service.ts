@@ -2,6 +2,7 @@ import "server-only";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import {
   OFFICIAL_WEBSITE_URL,
+  isPlaceholderOrWeakSchedulingToken,
   isResendConfigured,
   resolvePublicInvitationBaseUrl,
   sendTransactionalEmail,
@@ -80,6 +81,21 @@ async function withInterviewerLock<T>(interviewerId: string, fn: () => Promise<T
   }
 }
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isUuid(value: string | null | undefined): value is string {
+  return Boolean(value && UUID_REGEX.test(value.trim()));
+}
+
+/**
+ * Resolves the authenticated actor's `auth.users(id)` UUID for `created_by uuid` FK columns.
+ * Never returns an email address or arbitrary non-UUID string.
+ */
+function resolveAuthUserUuid(actor: AuthActor): string | null {
+  return isUuid(actor.id) ? actor.id.trim() : null;
+}
+
 export function generateInterviewToken(): string {
   return randomBytes(32).toString("base64url");
 }
@@ -101,6 +117,9 @@ function getSafeSchedulingBaseUrl(): string {
 }
 
 export function buildCandidateSchedulingUrl(rawToken: string, baseUrl?: string): string {
+  if (isPlaceholderOrWeakSchedulingToken(rawToken)) {
+    throw new Error("Refused to build scheduling URL from placeholder or weak token.");
+  }
   const origin = (baseUrl || getSafeSchedulingBaseUrl()).replace(/\/$/, "");
   return `${origin}/interview/schedule?token=${encodeURIComponent(rawToken)}`;
 }
@@ -528,7 +547,7 @@ export async function createAvailabilityException(
     startMinute: input.startMinute ?? null,
     endMinute: input.endMinute ?? null,
     reason: (input.reason || "").trim().slice(0, 240),
-    createdBy: actor.email,
+    createdBy: resolveAuthUserUuid(actor),
     createdAt: new Date().toISOString(),
   };
 
@@ -850,6 +869,12 @@ export async function createAndSendInterviewInvitation(
       error: "Selected interviewer was not found in the active HIRZEXA employee directory.",
     };
   }
+  if (isSupabaseConfigured() && !isUuid(interviewer.id)) {
+    return {
+      ok: false,
+      error: "Selected interviewer record does not have a valid employee UUID.",
+    };
+  }
 
   const rules = await listInterviewerAvailability(interviewer.id);
   const activeRules = rules.filter((r) => r.isActive);
@@ -861,6 +886,23 @@ export async function createAndSendInterviewInvitation(
   }
 
   const interviewerTimezone = activeRules[0].timezone || "UTC";
+
+  // Confirm that real bookable interview slots actually exist before creating/sending
+  const availabilityCheck = await getAvailableSlotsForInterviewer({
+    employeeId: interviewer.id,
+    durationMinutes: input.durationMinutes,
+    candidateTimezone: interviewerTimezone,
+    windowStartDate: input.availabilityWindowStart || null,
+    windowEndDate: input.availabilityWindowEnd || null,
+    locale: input.locale === "ar" ? "ar" : "en",
+  });
+  if (availabilityCheck.slots.length === 0) {
+    return {
+      ok: false,
+      error: `Interviewer ${interviewer.fullName} currently has zero open ${input.durationMinutes}-minute interview slots in the selected availability window. Adjust availability hours or window dates before inviting.`,
+    };
+  }
+
   const expiresInDays = Math.max(1, Math.min(30, Number(input.expiresInDays || 7)));
   const nowIso = new Date().toISOString();
   const expiresAt = new Date(Date.now() + expiresInDays * 86400_000).toISOString();
@@ -869,7 +911,7 @@ export async function createAndSendInterviewInvitation(
   const locale = input.locale === "ar" ? "ar" : "en";
 
   // Lookup application UUID if Supabase is configured and not explicitly provided
-  let applicationId: string | null = input.applicationId || null;
+  let applicationId: string | null = isUuid(input.applicationId) ? input.applicationId.trim() : null;
   if (!applicationId && isSupabaseConfigured()) {
     try {
       const supabase = await createSupabaseServerClient();
@@ -878,11 +920,15 @@ export async function createAndSendInterviewInvitation(
         .select("id")
         .eq("reference_id", input.applicationReferenceId)
         .maybeSingle();
-      if (appRow?.id) applicationId = String(appRow.id);
+      if (appRow?.id && isUuid(String(appRow.id))) {
+        applicationId = String(appRow.id);
+      }
     } catch {
       // Keep nullable
     }
   }
+
+  const createdByAuthUuid = resolveAuthUserUuid(actor);
 
   const invitation: InterviewInvitationRecord = {
     id: randomUUID(),
@@ -915,7 +961,7 @@ export async function createAndSendInterviewInvitation(
     deliveredAt: null,
     scheduledAt: null,
     revokedAt: null,
-    createdBy: actor.email,
+    createdBy: createdByAuthUuid,
     createdAt: nowIso,
     updatedAt: nowIso,
   };
@@ -937,7 +983,53 @@ export async function createAndSendInterviewInvitation(
     publicBaseUrl: baseUrl,
   });
 
-  // Send via existing Resend infrastructure (unless explicitly skipped in offline test)
+  // STEP 1 (Transactional Reliability): Persist invitation & hashed token FIRST before sending any email.
+  // If database persistence fails, zero emails are sent and no inconsistent state can occur.
+  if (isSupabaseConfigured()) {
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.from("interview_invitations").insert({
+      id: invitation.id,
+      application_id: invitation.applicationId,
+      application_reference_id: invitation.applicationReferenceId,
+      candidate_name: invitation.candidateName,
+      candidate_email: invitation.candidateEmail,
+      position_title: invitation.positionTitle,
+      interview_stage: invitation.interviewStage,
+      interview_type: invitation.interviewType,
+      interview_format: invitation.interviewFormat,
+      duration_minutes: invitation.durationMinutes,
+      interviewer_employee_id: invitation.interviewerEmployeeId,
+      interviewer_name: invitation.interviewerName,
+      interviewer_email: invitation.interviewerEmail,
+      interviewer_timezone: invitation.interviewerTimezone,
+      availability_window_start: invitation.availabilityWindowStart,
+      availability_window_end: invitation.availabilityWindowEnd,
+      meeting_url: invitation.meetingUrl,
+      location_details: invitation.locationDetails,
+      personalized_message: invitation.personalizedMessage,
+      locale: invitation.locale,
+      token_hash: invitation.tokenHash,
+      status: invitation.status,
+      email_delivery_status: invitation.emailDeliveryStatus,
+      provider_message_id: null,
+      delivery_error: null,
+      expires_at: invitation.expiresAt,
+      sent_at: null,
+      created_by: createdByAuthUuid,
+      created_at: invitation.createdAt,
+      updated_at: invitation.updatedAt,
+    });
+    if (error) {
+      return { ok: false, error: `Database error storing invitation: ${error.message}` };
+    }
+  } else if (isLocalFallbackAllowed()) {
+    const existing = await readLocalCollection<InterviewInvitationRecord>(COL_INVITATIONS);
+    await writeLocalCollection(COL_INVITATIONS, [invitation, ...existing]);
+  } else {
+    return { ok: false, error: "Storage backend unavailable." };
+  }
+
+  // STEP 2: Send via existing Resend infrastructure using an idempotent delivery key
   const idempotencyKey = `int-inv-${invitation.id}-initial`;
   let deliveryStatus: InvitationDeliveryStatus = "created";
   let providerMessageId: string | null = null;
@@ -971,47 +1063,26 @@ export async function createAndSendInterviewInvitation(
   invitation.sentAt = sentAt;
   invitation.updatedAt = new Date().toISOString();
 
-  // Persist invitation
+  // STEP 3: Update persisted invitation with real delivery state (supports safe retries on failure)
   if (isSupabaseConfigured()) {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.from("interview_invitations").insert({
-      id: invitation.id,
-      application_id: invitation.applicationId,
-      application_reference_id: invitation.applicationReferenceId,
-      candidate_name: invitation.candidateName,
-      candidate_email: invitation.candidateEmail,
-      position_title: invitation.positionTitle,
-      interview_stage: invitation.interviewStage,
-      interview_type: invitation.interviewType,
-      interview_format: invitation.interviewFormat,
-      duration_minutes: invitation.durationMinutes,
-      interviewer_employee_id: invitation.interviewerEmployeeId,
-      interviewer_name: invitation.interviewerName,
-      interviewer_email: invitation.interviewerEmail,
-      interviewer_timezone: invitation.interviewerTimezone,
-      availability_window_start: invitation.availabilityWindowStart,
-      availability_window_end: invitation.availabilityWindowEnd,
-      meeting_url: invitation.meetingUrl,
-      location_details: invitation.locationDetails,
-      personalized_message: invitation.personalizedMessage,
-      locale: invitation.locale,
-      token_hash: invitation.tokenHash,
-      status: invitation.status,
-      email_delivery_status: invitation.emailDeliveryStatus,
-      provider_message_id: invitation.providerMessageId,
-      delivery_error: invitation.deliveryError,
-      expires_at: invitation.expiresAt,
-      sent_at: invitation.sentAt,
-      created_by: invitation.createdBy,
-      created_at: invitation.createdAt,
-      updated_at: invitation.updatedAt,
-    });
-    if (error) {
-      return { ok: false, error: `Database error storing invitation: ${error.message}` };
-    }
+    await supabase
+      .from("interview_invitations")
+      .update({
+        status: invitation.status,
+        email_delivery_status: invitation.emailDeliveryStatus,
+        provider_message_id: invitation.providerMessageId,
+        delivery_error: invitation.deliveryError,
+        sent_at: invitation.sentAt,
+        updated_at: invitation.updatedAt,
+      })
+      .eq("id", invitation.id);
   } else if (isLocalFallbackAllowed()) {
     const existing = await readLocalCollection<InterviewInvitationRecord>(COL_INVITATIONS);
-    await writeLocalCollection(COL_INVITATIONS, [invitation, ...existing]);
+    await writeLocalCollection(
+      COL_INVITATIONS,
+      existing.map((i) => (i.id === invitation.id ? invitation : i))
+    );
   }
 
   await recordInterviewEmailEvent({
@@ -1151,6 +1222,43 @@ export async function resendInterviewInvitation(
     publicBaseUrl: baseUrl,
   });
 
+  // STEP 1 (Persist First): Rotate token_hash & expiry in DB BEFORE requesting outbound email delivery.
+  const preSendIso = new Date().toISOString();
+  const preUpdated: InterviewInvitationRecord = {
+    ...existing,
+    tokenHash,
+    status: "pending_send",
+    emailDeliveryStatus: "sending",
+    deliveryError: null,
+    expiresAt,
+    updatedAt: preSendIso,
+  };
+
+  if (isSupabaseConfigured()) {
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase
+      .from("interview_invitations")
+      .update({
+        token_hash: preUpdated.tokenHash,
+        status: preUpdated.status,
+        email_delivery_status: preUpdated.emailDeliveryStatus,
+        delivery_error: null,
+        expires_at: preUpdated.expiresAt,
+        updated_at: preUpdated.updatedAt,
+      })
+      .eq("id", existing.id);
+    if (error) return { ok: false, error: `Database error rotating invitation token: ${error.message}` };
+  } else if (isLocalFallbackAllowed()) {
+    const all = await readLocalCollection<InterviewInvitationRecord>(COL_INVITATIONS);
+    await writeLocalCollection(
+      COL_INVITATIONS,
+      all.map((i) => (i.id === existing.id ? preUpdated : i))
+    );
+  } else {
+    return { ok: false, error: "Storage backend unavailable." };
+  }
+
+  // STEP 2: Send via Resend with fresh idempotency key
   const resendNonce = randomUUID().slice(0, 8);
   const idempotencyKey = `int-inv-${existing.id}-resend-${resendNonce}`;
   let deliveryStatus: InvitationDeliveryStatus = "created";
@@ -1172,35 +1280,31 @@ export async function resendInterviewInvitation(
     sentAt = sendResult.sentAt || null;
   }
 
+  // STEP 3: Update persisted invitation with delivery outcome
   const nowIso = new Date().toISOString();
   const updated: InterviewInvitationRecord = {
-    ...existing,
-    tokenHash,
+    ...preUpdated,
     status: deliveryStatus === "delivery_failed" ? "pending_send" : "sent",
     emailDeliveryStatus: deliveryStatus,
     providerMessageId,
     deliveryError,
-    expiresAt,
     sentAt,
     updatedAt: nowIso,
   };
 
   if (isSupabaseConfigured()) {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase
+    await supabase
       .from("interview_invitations")
       .update({
-        token_hash: updated.tokenHash,
         status: updated.status,
         email_delivery_status: updated.emailDeliveryStatus,
         provider_message_id: updated.providerMessageId,
         delivery_error: updated.deliveryError,
-        expires_at: updated.expiresAt,
         sent_at: updated.sentAt,
         updated_at: updated.updatedAt,
       })
       .eq("id", existing.id);
-    if (error) return { ok: false, error: error.message };
   } else if (isLocalFallbackAllowed()) {
     const all = await readLocalCollection<InterviewInvitationRecord>(COL_INVITATIONS);
     await writeLocalCollection(
@@ -1293,11 +1397,57 @@ export async function revokeInterviewInvitation(
 
 // ---------- Public Candidate Scheduling Lookup & Atomic Booking ----------
 
+interface PublicScheduleInputs {
+  rules: InterviewerAvailabilityRule[];
+  exceptions: InterviewerAvailabilityException[];
+  busyAppointments: InterviewAppointmentRecord[];
+}
+
+function mapBusySlotStub(
+  row: Record<string, unknown>,
+  interviewerEmployeeId: string
+): InterviewAppointmentRecord {
+  const nowIso = new Date().toISOString();
+  return {
+    id: String(row.id || randomUUID()),
+    invitationId: "",
+    applicationId: null,
+    applicationReferenceId: "",
+    candidateName: "",
+    candidateEmail: "",
+    positionTitle: "",
+    interviewStage: "",
+    interviewType: "initial_hr_screening",
+    interviewFormat: "online_video",
+    durationMinutes: 30,
+    interviewerEmployeeId,
+    interviewerName: "",
+    interviewerEmail: "",
+    scheduledStartUtc: String(row.scheduled_start_utc),
+    scheduledEndUtc: String(row.scheduled_end_utc),
+    candidateTimezone: "UTC",
+    interviewerTimezone: "UTC",
+    meetingUrl: null,
+    locationDetails: null,
+    status: "confirmed",
+    outcome: "pending",
+    outcomeNotes: "",
+    rescheduleCount: 0,
+    canceledAt: null,
+    cancelReason: null,
+    externalCalendarProvider: null,
+    externalCalendarEventId: null,
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  };
+}
+
 async function findInvitationByTokenHash(
   tokenHash: string
 ): Promise<{
   invitation: InterviewInvitationRecord | null;
   appointment: InterviewAppointmentRecord | null;
+  publicScheduleInputs?: PublicScheduleInputs;
 }> {
   if (isSupabaseConfigured()) {
     const supabase = await createSupabaseServerClient();
@@ -1307,14 +1457,26 @@ async function findInvitationByTokenHash(
     if (!error && data && typeof data === "object") {
       const payload = data as {
         found?: boolean;
-        invitation?: Record<string, unknown>;
+        invitation?: Record<string, unknown> | null;
         appointment?: Record<string, unknown> | null;
+        availability_rules?: Array<Record<string, unknown>> | null;
+        availability_exceptions?: Array<Record<string, unknown>> | null;
+        busy_slots?: Array<Record<string, unknown>> | null;
       };
-      if (payload.found && payload.invitation) {
-        return {
-          invitation: mapInvitation({ ...payload.invitation, token_hash: tokenHash }),
-          appointment: payload.appointment ? mapAppointment(payload.appointment) : null,
-        };
+      if (payload.invitation && typeof payload.invitation === "object") {
+        const invitation = mapInvitation({ ...payload.invitation, token_hash: tokenHash });
+        const appointment = payload.appointment ? mapAppointment(payload.appointment) : null;
+        const hasRpcInputs = Array.isArray(payload.availability_rules);
+        const publicScheduleInputs: PublicScheduleInputs | undefined = hasRpcInputs
+          ? {
+              rules: (payload.availability_rules || []).map((r) => mapAvailabilityRule(r)),
+              exceptions: (payload.availability_exceptions || []).map((e) => mapException(e)),
+              busyAppointments: (payload.busy_slots || []).map((b) =>
+                mapBusySlotStub(b, invitation.interviewerEmployeeId)
+              ),
+            }
+          : undefined;
+        return { invitation, appointment, publicScheduleInputs };
       }
       return { invitation: null, appointment: null };
     }
@@ -1333,6 +1495,43 @@ async function findInvitationByTokenHash(
   }
 
   return { invitation: null, appointment: null };
+}
+
+async function computeSlotsForPublicInvitation(params: {
+  invitation: InterviewInvitationRecord;
+  candidateTimezone: string;
+  excludeAppointmentId?: string | null;
+  publicScheduleInputs?: PublicScheduleInputs;
+}): Promise<{
+  slots: AvailableInterviewSlot[];
+  hasConfiguredRules: boolean;
+}> {
+  if (params.publicScheduleInputs) {
+    const activeRules = params.publicScheduleInputs.rules.filter((r) => r.isActive);
+    const slots = computeAvailableInterviewSlots({
+      rules: activeRules,
+      exceptions: params.publicScheduleInputs.exceptions,
+      existingConfirmedAppointments: params.publicScheduleInputs.busyAppointments,
+      durationMinutes: params.invitation.durationMinutes,
+      candidateTimezone: params.candidateTimezone,
+      windowStartDate: params.invitation.availabilityWindowStart,
+      windowEndDate: params.invitation.availabilityWindowEnd,
+      excludeAppointmentId: params.excludeAppointmentId,
+      locale: params.invitation.locale,
+    });
+    return { slots, hasConfiguredRules: activeRules.length > 0 };
+  }
+
+  const slotData = await getAvailableSlotsForInterviewer({
+    employeeId: params.invitation.interviewerEmployeeId,
+    durationMinutes: params.invitation.durationMinutes,
+    candidateTimezone: params.candidateTimezone,
+    windowStartDate: params.invitation.availabilityWindowStart,
+    windowEndDate: params.invitation.availabilityWindowEnd,
+    excludeAppointmentId: params.excludeAppointmentId,
+    locale: params.invitation.locale,
+  });
+  return { slots: slotData.slots, hasConfiguredRules: slotData.hasConfiguredRules };
 }
 
 export async function lookupPublicInterviewByToken(
@@ -1391,11 +1590,11 @@ export async function lookupPublicInterviewByToken(
       hasConfiguredAvailability: boolean;
     }
 > {
-  if (!rawToken || rawToken.trim().length < 16) {
+  if (!rawToken || isPlaceholderOrWeakSchedulingToken(rawToken)) {
     return { state: "invalid" };
   }
   const tokenHash = hashInterviewToken(rawToken);
-  const { invitation, appointment } = await findInvitationByTokenHash(tokenHash);
+  const { invitation, appointment, publicScheduleInputs } = await findInvitationByTokenHash(tokenHash);
   if (!invitation) return { state: "invalid" };
 
   if (invitation.status === "revoked") {
@@ -1424,14 +1623,11 @@ export async function lookupPublicInterviewByToken(
 
   // If already scheduled and not canceled, return scheduled state (+ reschedule slots)
   if (appointment && appointment.status === "confirmed") {
-    const slotData = await getAvailableSlotsForInterviewer({
-      employeeId: invitation.interviewerEmployeeId,
-      durationMinutes: invitation.durationMinutes,
+    const slotData = await computeSlotsForPublicInvitation({
+      invitation,
       candidateTimezone: safeTz,
-      windowStartDate: invitation.availabilityWindowStart,
-      windowEndDate: invitation.availabilityWindowEnd,
       excludeAppointmentId: appointment.id,
-      locale: invitation.locale,
+      publicScheduleInputs,
     });
     return {
       state: "scheduled",
@@ -1456,13 +1652,10 @@ export async function lookupPublicInterviewByToken(
     return { state: "expired", positionTitle: invitation.positionTitle, locale: invitation.locale };
   }
 
-  const slotData = await getAvailableSlotsForInterviewer({
-    employeeId: invitation.interviewerEmployeeId,
-    durationMinutes: invitation.durationMinutes,
+  const slotData = await computeSlotsForPublicInvitation({
+    invitation,
     candidateTimezone: safeTz,
-    windowStartDate: invitation.availabilityWindowStart,
-    windowEndDate: invitation.availabilityWindowEnd,
-    locale: invitation.locale,
+    publicScheduleInputs,
   });
 
   return {
@@ -1486,12 +1679,13 @@ export async function bookPublicInterviewSlot(input: {
   calendarLinks?: { googleUrl: string; outlookUrl: string };
   error?: string;
 }> {
-  if (!input.rawToken || input.rawToken.trim().length < 16) {
+  if (!input.rawToken || isPlaceholderOrWeakSchedulingToken(input.rawToken)) {
     return { ok: false, code: "INVALID_TOKEN", error: "Invalid scheduling token." };
   }
   const safeTz = isValidIanaTimezone(input.candidateTimezone) ? input.candidateTimezone : "UTC";
   const tokenHash = hashInterviewToken(input.rawToken);
-  const { invitation, appointment: existingAppt } = await findInvitationByTokenHash(tokenHash);
+  const { invitation, appointment: existingAppt, publicScheduleInputs } =
+    await findInvitationByTokenHash(tokenHash);
   if (!invitation) {
     return { ok: false, code: "INVALID_TOKEN", error: "This scheduling link is invalid." };
   }
@@ -1524,13 +1718,13 @@ export async function bookPublicInterviewSlot(input: {
 
   return withInterviewerLock(invitation.interviewerEmployeeId, async () => {
     // Re-verify slot is genuinely available under interviewer's rules, buffers, and bookings
-    const slotData = await getAvailableSlotsForInterviewer({
-      employeeId: invitation.interviewerEmployeeId,
-      durationMinutes: invitation.durationMinutes,
+    const freshLookup = isSupabaseConfigured()
+      ? await findInvitationByTokenHash(tokenHash)
+      : { invitation, appointment: existingAppt, publicScheduleInputs };
+    const slotData = await computeSlotsForPublicInvitation({
+      invitation,
       candidateTimezone: safeTz,
-      windowStartDate: invitation.availabilityWindowStart,
-      windowEndDate: invitation.availabilityWindowEnd,
-      locale: invitation.locale,
+      publicScheduleInputs: freshLookup.publicScheduleInputs || publicScheduleInputs,
     });
 
     const requestedStartMs = new Date(input.slotStartUtc).getTime();
@@ -1555,7 +1749,6 @@ export async function bookPublicInterviewSlot(input: {
         p_start_utc: matchedSlot.startUtc,
         p_end_utc: matchedSlot.endUtc,
         p_candidate_timezone: safeTz,
-        p_reschedule_appointment_id: null,
       });
 
       if (error) {
@@ -1567,6 +1760,15 @@ export async function bookPublicInterviewSlot(input: {
             error: "That time slot was just booked. Please select another available slot.",
           };
         }
+        if (msg.includes("INVITATION_EXPIRED")) {
+          return { ok: false, code: "EXPIRED", error: "This scheduling link has expired." };
+        }
+        if (msg.includes("INVITATION_REVOKED")) {
+          return { ok: false, code: "REVOKED", error: "This scheduling link is no longer active." };
+        }
+        if (msg.includes("INVALID_TOKEN")) {
+          return { ok: false, code: "INVALID_TOKEN", error: "This scheduling link is invalid." };
+        }
         return { ok: false, code: "ERROR", error: "Unable to confirm slot right now." };
       }
 
@@ -1576,7 +1778,7 @@ export async function bookPublicInterviewSlot(input: {
         idempotent?: boolean;
         appointment?: Record<string, unknown>;
       };
-      if (!rpcPayload?.ok || !rpcPayload.appointment) {
+      if (!rpcPayload?.appointment || rpcPayload.ok === false) {
         const code = rpcPayload?.error === "SLOT_CONFLICT" ? "SLOT_CONFLICT" : "ERROR";
         return {
           ok: false,
@@ -1821,13 +2023,18 @@ export async function rescheduleInterviewAppointment(params: {
 }> {
   let invitation: InterviewInvitationRecord | null = null;
   let appointment: InterviewAppointmentRecord | null = null;
+  let publicScheduleInputs: PublicScheduleInputs | undefined;
   let actorRef = "candidate";
 
   if (params.rawToken) {
+    if (isPlaceholderOrWeakSchedulingToken(params.rawToken)) {
+      return { ok: false, code: "NOT_FOUND", error: "Invalid scheduling token." };
+    }
     const tokenHash = hashInterviewToken(params.rawToken);
     const lookup = await findInvitationByTokenHash(tokenHash);
     invitation = lookup.invitation;
     appointment = lookup.appointment;
+    publicScheduleInputs = lookup.publicScheduleInputs;
     if (!invitation || !appointment || appointment.status !== "confirmed") {
       return { ok: false, code: "NOT_FOUND", error: "Active interview appointment not found." };
     }
@@ -1852,15 +2059,23 @@ export async function rescheduleInterviewAppointment(params: {
       : targetAppt.candidateTimezone;
 
   return withInterviewerLock(targetAppt.interviewerEmployeeId, async () => {
-    const slotData = await getAvailableSlotsForInterviewer({
-      employeeId: targetAppt.interviewerEmployeeId,
-      durationMinutes: targetAppt.durationMinutes,
-      candidateTimezone: safeTz,
-      windowStartDate: targetInv?.availabilityWindowStart,
-      windowEndDate: targetInv?.availabilityWindowEnd,
-      excludeAppointmentId: targetAppt.id,
-      locale: targetInv?.locale || "en",
-    });
+    const slotData =
+      params.rawToken && targetInv && publicScheduleInputs
+        ? await computeSlotsForPublicInvitation({
+            invitation: targetInv,
+            candidateTimezone: safeTz,
+            excludeAppointmentId: targetAppt.id,
+            publicScheduleInputs,
+          })
+        : await getAvailableSlotsForInterviewer({
+            employeeId: targetAppt.interviewerEmployeeId,
+            durationMinutes: targetAppt.durationMinutes,
+            candidateTimezone: safeTz,
+            windowStartDate: targetInv?.availabilityWindowStart,
+            windowEndDate: targetInv?.availabilityWindowEnd,
+            excludeAppointmentId: targetAppt.id,
+            locale: targetInv?.locale || "en",
+          });
 
     const requestedMs = new Date(params.newSlotStartUtc).getTime();
     const matched = slotData.slots.find(
@@ -1881,15 +2096,14 @@ export async function rescheduleInterviewAppointment(params: {
     if (isSupabaseConfigured()) {
       const supabase = await createSupabaseServerClient();
       if (params.rawToken) {
-        const { data, error } = await supabase.rpc("reserve_interview_slot_atomic", {
+        const { data, error } = await supabase.rpc("reschedule_interview_slot_atomic", {
           p_token_hash: hashInterviewToken(params.rawToken),
           p_start_utc: matched.startUtc,
           p_end_utc: matched.endUtc,
           p_candidate_timezone: safeTz,
-          p_reschedule_appointment_id: targetAppt.id,
         });
         const payload = data as { ok?: boolean; error?: string; appointment?: Record<string, unknown> };
-        if (error || !payload?.ok || !payload.appointment) {
+        if (error || !payload?.appointment || payload.ok === false) {
           return {
             ok: false,
             code: "SLOT_CONFLICT",
@@ -2065,6 +2279,9 @@ export async function cancelInterviewAppointment(params: {
   let actorRef = "candidate";
 
   if (params.rawToken) {
+    if (isPlaceholderOrWeakSchedulingToken(params.rawToken)) {
+      return { ok: false, error: "Invalid scheduling token." };
+    }
     const lookup = await findInvitationByTokenHash(hashInterviewToken(params.rawToken));
     invitation = lookup.invitation;
     appointment = lookup.appointment;
@@ -2093,16 +2310,24 @@ export async function cancelInterviewAppointment(params: {
 
   if (isSupabaseConfigured()) {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase
-      .from("interview_appointments")
-      .update({
-        status: "canceled",
-        canceled_at: nowIso,
-        cancel_reason: reason || null,
-        updated_at: nowIso,
-      })
-      .eq("id", appointment.id);
-    if (error) return { ok: false, error: error.message };
+    if (params.rawToken) {
+      const { error } = await supabase.rpc("cancel_interview_by_token", {
+        p_token_hash: hashInterviewToken(params.rawToken),
+        p_reason: reason || null,
+      });
+      if (error) return { ok: false, error: error.message };
+    } else {
+      const { error } = await supabase
+        .from("interview_appointments")
+        .update({
+          status: "canceled",
+          canceled_at: nowIso,
+          cancel_reason: reason || null,
+          updated_at: nowIso,
+        })
+        .eq("id", appointment.id);
+      if (error) return { ok: false, error: error.message };
+    }
   } else if (isLocalFallbackAllowed()) {
     const allAppts = await readLocalCollection<InterviewAppointmentRecord>(COL_APPOINTMENTS);
     await writeLocalCollection(
@@ -2742,10 +2967,14 @@ export async function recordInterviewWebhookUpdate(params: {
       const { data, error } = await supabase.rpc("record_interview_email_webhook", {
         p_provider_message_id: params.providerMessageId,
         p_delivery_status: mappedStatus,
-        p_webhook_event: params.eventType,
-        p_error_detail: params.detail || null,
+        p_event_type: params.eventType,
+        p_error: params.detail || null,
       });
-      if (!error && data && typeof data === "object" && (data as { matched?: boolean }).matched) {
+      if (
+        !error &&
+        ((Array.isArray(data) && data.length > 0) ||
+          (data && typeof data === "object" && (data as { matched?: boolean }).matched))
+      ) {
         return { matched: true, deliveryStatus: mappedStatus };
       }
     } catch {
@@ -2801,7 +3030,7 @@ export async function getPublicInterviewIcsByToken(rawToken: string): Promise<{
   ics?: string;
   filename?: string;
 }> {
-  if (!rawToken || rawToken.trim().length < 16) return { ok: false };
+  if (!rawToken || isPlaceholderOrWeakSchedulingToken(rawToken)) return { ok: false };
   const { appointment } = await findInvitationByTokenHash(hashInterviewToken(rawToken));
   if (!appointment) return { ok: false };
   const method = appointment.status === "canceled" ? "CANCEL" : "REQUEST";

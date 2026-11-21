@@ -142,6 +142,109 @@ export interface TransactionalEmailAttachment {
   content_type?: string;
 }
 
+const PLACEHOLDER_TOKEN_PATTERNS = [
+  /preview[-_]?token/i,
+  /sample[-_]?token/i,
+  /dummy[-_]?token/i,
+  /fake[-_]?token/i,
+  /placeholder/i,
+  /generated[-_]?on[-_]?send/i,
+  /^test[-_]?token/i,
+  /^mock[-_]?token/i,
+];
+
+/**
+ * Checks whether a raw scheduling token looks like a mock/placeholder/weak token
+ * rather than a real cryptographically generated 256-bit random token.
+ */
+export function isPlaceholderOrWeakSchedulingToken(rawToken: string): boolean {
+  const token = rawToken.trim();
+  if (token.length < 32) return true;
+  if (!/^[A-Za-z0-9_-]+$/.test(token)) return true;
+  return PLACEHOLDER_TOKEN_PATTERNS.some((pattern) => pattern.test(token));
+}
+
+/**
+ * Strict outbound safety gate executed before any email reaches Resend.
+ * Blocks placeholder tokens, preview banners, dummy domains (example.com),
+ * localhost/loopback links, legacy hosting URLs (*.onrender.com), and
+ * malformed/weak interview scheduling URLs.
+ */
+export function validateOutboundEmailContent(template: EmailMessageTemplate): {
+  ok: boolean;
+  error?: string;
+} {
+  const combined = `${template.subject}\n${template.html}\n${template.text}`;
+  const allowLocalTest =
+    process.env.ALLOW_LOCALHOST_INVITE_EMAILS === "true" &&
+    process.env.VERCEL_ENV !== "production";
+
+  if (/preview-token-sample|generated-on-send|\[PREVIEW ONLY/i.test(combined)) {
+    return {
+      ok: false,
+      error:
+        "Blocked outbound email: template contains a preview placeholder token or preview-only marker.",
+    };
+  }
+
+  if (/\bhttps?:\/\/(?:[a-z0-9-]+\.)?example\.(?:com|org|net)\b/i.test(combined)) {
+    return {
+      ok: false,
+      error: "Blocked outbound email: contains placeholder example.com URL.",
+    };
+  }
+
+  if (!allowLocalTest) {
+    if (/\bhttps?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0)(?::\d+)?\b/i.test(combined)) {
+      return {
+        ok: false,
+        error: "Blocked outbound email: contains localhost or loopback URL.",
+      };
+    }
+  }
+
+  if (/\bhttps?:\/\/[a-z0-9-]+\.onrender\.com\b/i.test(combined)) {
+    return {
+      ok: false,
+      error: "Blocked outbound email: contains deprecated onrender.com URL.",
+    };
+  }
+
+  // Validate every interview scheduling URL embedded in HTML or plain text
+  const scheduleUrlRegex = /https?:\/\/[^\s"'<>]+\/interview\/schedule[^\s"'<>]*/gi;
+  const matches = combined.match(scheduleUrlRegex) || [];
+  for (const rawMatch of matches) {
+    const cleaned = rawMatch.replace(/&amp;/g, "&").replace(/[).,;]+$/, "");
+    let parsed: URL;
+    try {
+      parsed = new URL(cleaned);
+    } catch {
+      return {
+        ok: false,
+        error: "Blocked outbound email: malformed interview scheduling URL.",
+      };
+    }
+
+    if (!allowLocalTest && parsed.protocol !== "https:") {
+      return {
+        ok: false,
+        error: "Blocked outbound email: interview scheduling URL must use HTTPS.",
+      };
+    }
+
+    const tokenParam = parsed.searchParams.get("token");
+    if (tokenParam !== null && isPlaceholderOrWeakSchedulingToken(tokenParam)) {
+      return {
+        ok: false,
+        error:
+          "Blocked outbound email: interview scheduling link contains a placeholder or insecure token.",
+      };
+    }
+  }
+
+  return { ok: true };
+}
+
 export async function sendTransactionalEmail(
   template: EmailMessageTemplate,
   options?: {
@@ -150,6 +253,16 @@ export async function sendTransactionalEmail(
     attachments?: TransactionalEmailAttachment[];
   }
 ): Promise<TransactionalEmailResult> {
+  const safetyCheck = validateOutboundEmailContent(template);
+  if (!safetyCheck.ok) {
+    return {
+      ok: false,
+      status: "delivery_failed",
+      provider: "resend",
+      error: safetyCheck.error || "Blocked unsafe outbound email payload.",
+    };
+  }
+
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
     return {

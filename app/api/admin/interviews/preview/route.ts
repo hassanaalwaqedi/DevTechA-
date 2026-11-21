@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermissionApi } from "@/lib/auth";
-import { isResendConfigured, sendTransactionalEmail } from "@/lib/email/transactional";
-import { recordAuditLog } from "@/lib/intelligence/audit";
+import { isResendConfigured } from "@/lib/email/transactional";
 import { renderInterviewTemplatePreview } from "@/lib/interviews/email-templates";
 import type {
   InterviewFormat,
   InterviewTemplateKind,
   InterviewType,
 } from "@/lib/interviews/types";
-import { hasPermission, RbacDeniedError } from "@/lib/rbac";
+import { RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,7 +23,7 @@ const ALLOWED_KINDS: InterviewTemplateKind[] = [
 
 export async function POST(request: NextRequest) {
   try {
-    const { actor } = await requirePermissionApi("interviews", "view");
+    await requirePermissionApi("interviews", "view");
     const body = (await request.json()) as {
       kind?: InterviewTemplateKind;
       locale?: "en" | "ar";
@@ -43,6 +42,16 @@ export async function POST(request: NextRequest) {
       sendTest?: boolean;
       testRecipientEmail?: string;
     };
+
+    if (body.sendTest) {
+      return NextResponse.json(
+        {
+          error:
+            "Email template previews contain placeholder fields and are blocked from production email delivery. To verify live Resend delivery end-to-end, create and send a real interview invitation for a controlled test candidate.",
+        },
+        { status: 400 }
+      );
+    }
 
     const kind: InterviewTemplateKind =
       body.kind && ALLOWED_KINDS.includes(body.kind) ? body.kind : "invitation";
@@ -65,63 +74,11 @@ export async function POST(request: NextRequest) {
       expiresInDays: body.expiresInDays,
     });
 
-    if (body.sendTest) {
-      if (!hasPermission(actor, "interviews", "create")) {
-        return NextResponse.json(
-          { error: "Forbidden: interviews:create permission required to send test emails." },
-          { status: 403 }
-        );
-      }
-
-      const recipient = (body.testRecipientEmail || actor.email).trim().toLowerCase();
-      const isSelf = recipient === actor.email.toLowerCase();
-      const isHirzexaInternal = recipient.endsWith("@hirzexa.com");
-      if (!isSelf && !isHirzexaInternal) {
-        return NextResponse.json(
-          {
-            error:
-              "Controlled test emails may only be sent to your own signed-in email address or an internal @hirzexa.com address.",
-          },
-          { status: 400 }
-        );
-      }
-
-      const result = await sendTransactionalEmail(
-        {
-          ...template,
-          to: recipient,
-          subject: `[TEST PREVIEW] ${template.subject}`,
-        },
-        {
-          tags: [
-            { name: "category", value: "interview_template_test" },
-            { name: "template_kind", value: kind },
-          ],
-        }
-      );
-
-      await recordAuditLog({
-        actorId: actor.id,
-        actorEmail: actor.email,
-        actorRole: actor.roleKey,
-        module: "interviews",
-        action: "interviews.template.test_sent",
-        entityType: "interview_template",
-        entityId: kind,
-        outcome: result.ok ? "allowed" : "error",
-        summary: `Sent controlled ${kind} (${locale}) test email to ${recipient}.`,
-        metadata: { recipient, deliveryStatus: result.status },
-      });
-
-      return NextResponse.json({
-        template,
-        testDelivery: result,
-        resendConfigured: isResendConfigured(),
-      });
-    }
-
     return NextResponse.json({
       template,
+      isPreview: true,
+      placeholderNotice:
+        "Preview only — a unique, cryptographically secure scheduling link will be generated when sending a real invitation.",
       resendConfigured: isResendConfigured(),
     });
   } catch (err) {

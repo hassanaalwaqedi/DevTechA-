@@ -191,6 +191,8 @@ export function AdminApplicationsClient({
       await load();
       setSelected({ ...app, ...patch });
       setNotice("Candidate record updated.");
+    } catch {
+      setError("Unable to reach the server. Please check that the server is running and try again.");
     } finally {
       setSaving(false);
     }

@@ -14,7 +14,6 @@ import {
   Monitor,
   Plus,
   RefreshCw,
-  Send,
   Smartphone,
   Trash2,
   Users,
@@ -113,7 +112,6 @@ function apptTone(status: string): "emerald" | "blue" | "amber" | "rose" | "neut
 }
 
 export function AdminInterviewsClient({
-  actorEmail,
   actorEmployeeId,
   canCreate,
   canEdit,
@@ -189,8 +187,6 @@ export function AdminInterviewsClient({
     html: string;
     text: string;
   } | null>(null);
-  const [testRecipient, setTestRecipient] = useState(actorEmail);
-  const [sendingTest, setSendingTest] = useState(false);
 
   const loadWorkspace = useCallback(async () => {
     setLoading(true);
@@ -280,14 +276,18 @@ export function AdminInterviewsClient({
   }, [activeTab, selectedEmpId, loadAvailability]);
 
   const loadPreviewTemplate = useCallback(async () => {
-    const res = await fetch("/api/admin/interviews/preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: previewKind, locale: previewLocale }),
-    });
-    const data = await res.json();
-    if (res.ok && data.template) {
-      setPreviewTemplate(data.template);
+    try {
+      const res = await fetch("/api/admin/interviews/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: previewKind, locale: previewLocale }),
+      });
+      const data = await res.json();
+      if (res.ok && data.template) {
+        setPreviewTemplate(data.template);
+      }
+    } catch {
+      setError("Unable to load email template preview right now.");
     }
   }, [previewKind, previewLocale]);
 
@@ -332,6 +332,8 @@ export function AdminInterviewsClient({
       }
       setNotice("Interviewer availability saved successfully.");
       await loadWorkspace();
+    } catch {
+      setError("Network error while saving availability.");
     } finally {
       setSavingAvail(false);
     }
@@ -339,28 +341,36 @@ export function AdminInterviewsClient({
 
   const handleAddException = async () => {
     if (!selectedEmpId || !newExcDate) return;
-    const res = await fetch("/api/admin/interviews/availability", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        employeeId: selectedEmpId,
-        exceptionDate: newExcDate,
-        isUnavailable: true,
-        reason: newExcReason || "Blocked / Holiday",
-      }),
-    });
-    if (res.ok) {
-      setNewExcDate("");
-      setNewExcReason("");
-      await loadAvailability(selectedEmpId);
+    try {
+      const res = await fetch("/api/admin/interviews/availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          employeeId: selectedEmpId,
+          exceptionDate: newExcDate,
+          isUnavailable: true,
+          reason: newExcReason || "Blocked / Holiday",
+        }),
+      });
+      if (res.ok) {
+        setNewExcDate("");
+        setNewExcReason("");
+        await loadAvailability(selectedEmpId);
+      }
+    } catch {
+      setError("Network error while adding blocked date.");
     }
   };
 
   const handleDeleteException = async (id: string) => {
-    const res = await fetch(`/api/admin/interviews/availability?id=${encodeURIComponent(id)}`, {
-      method: "DELETE",
-    });
-    if (res.ok) await loadAvailability(selectedEmpId);
+    try {
+      const res = await fetch(`/api/admin/interviews/availability?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) await loadAvailability(selectedEmpId);
+    } catch {
+      setError("Network error while removing blocked date.");
+    }
   };
 
   const handleInvitationAction = async (
@@ -369,22 +379,26 @@ export function AdminInterviewsClient({
   ) => {
     setNotice(null);
     setError(null);
-    const res = await fetch(`/api/admin/interviews/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Action failed.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/interviews/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Action failed.");
+        return;
+      }
+      setNotice(
+        action === "resend_invitation"
+          ? "Fresh scheduling link generated and resent."
+          : "Invitation link revoked."
+      );
+      await loadWorkspace();
+    } catch {
+      setError("Network error while updating invitation.");
     }
-    setNotice(
-      action === "resend_invitation"
-        ? "Fresh scheduling link generated and resent."
-        : "Invitation link revoked."
-    );
-    await loadWorkspace();
   };
 
   const handleAppointmentUpdate = async (
@@ -398,64 +412,39 @@ export function AdminInterviewsClient({
   ) => {
     setNotice(null);
     setError(null);
-    const res = await fetch(`/api/admin/interviews/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Failed to update appointment.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/interviews/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to update appointment.");
+        return;
+      }
+      setNotice("Interview appointment updated.");
+      await loadWorkspace();
+    } catch {
+      setError("Network error while updating appointment.");
     }
-    setNotice("Interview appointment updated.");
-    await loadWorkspace();
   };
 
   const handleDispatchReminders = async () => {
     setNotice(null);
     setError(null);
-    const res = await fetch("/api/admin/interviews/reminders/dispatch", { method: "POST" });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || "Failed to dispatch reminders.");
-      return;
-    }
-    setNotice(
-      `Reminder dispatcher completed: ${data.sent} sent, ${data.canceled} skipped/canceled, ${data.failed} failed.`
-    );
-  };
-
-  const handleSendTestTemplate = async () => {
-    setSendingTest(true);
-    setNotice(null);
-    setError(null);
     try {
-      const res = await fetch("/api/admin/interviews/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind: previewKind,
-          locale: previewLocale,
-          sendTest: true,
-          testRecipientEmail: testRecipient,
-        }),
-      });
+      const res = await fetch("/api/admin/interviews/reminders/dispatch", { method: "POST" });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Unable to send test email.");
+        setError(data.error || "Failed to dispatch reminders.");
         return;
       }
-      const d = data.testDelivery;
-      if (d?.ok) {
-        setNotice(
-          `Controlled test email accepted by Resend for ${testRecipient} (status: ${d.status}, id: ${d.messageId || "n/a"}).`
-        );
-      } else {
-        setError(d?.error || "Test email delivery failed.");
-      }
-    } finally {
-      setSendingTest(false);
+      setNotice(
+        `Reminder dispatcher completed: ${data.sent} sent, ${data.canceled} skipped/canceled, ${data.failed} failed.`
+      );
+    } catch {
+      setError("Network error while running reminder dispatch.");
     }
   };
 
@@ -1287,28 +1276,16 @@ export function AdminInterviewsClient({
                     color: "var(--hz-text-muted)",
                   }}
                 >
-                  Controlled Internal Test Send
+                  Strict Preview Isolation
                 </div>
-                <p style={{ margin: 0, fontSize: 12, color: "var(--hz-text-secondary)" }}>
-                  Restricted strictly to your signed-in address or internal <code>@hirzexa.com</code>{" "}
-                  addresses.
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.55, color: "var(--hz-text-secondary)" }}>
+                  Previews contain placeholder fields and are blocked from outbound email delivery.
+                  To send a real invitation with a cryptographically signed scheduling link via
+                  Resend, invite a candidate from Recruitment Applications.
                 </p>
-                <div className="hz-int-field">
-                  <input
-                    type="email"
-                    value={testRecipient}
-                    onChange={(e) => setTestRecipient(e.target.value)}
-                    placeholder="you@hirzexa.com"
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="hz-btn hz-btn-primary"
-                  disabled={sendingTest || !testRecipient}
-                  onClick={handleSendTestTemplate}
-                >
-                  <Send size={14} /> {sendingTest ? "Sending Test…" : "Send Internal Test Email"}
-                </button>
+                <Link href="/admin/applications" className="hz-btn hz-btn-primary">
+                  <Plus size={14} /> Send Real Invitation
+                </Link>
               </div>
             ) : null}
           </div>

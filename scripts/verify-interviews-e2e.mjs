@@ -72,6 +72,9 @@ try {
     createAvailabilityException,
   } = await import("@/lib/interviews/service");
   const { renderInterviewTemplatePreview } = await import("@/lib/interviews/email-templates");
+  const { sendTransactionalEmail, validateOutboundEmailContent } = await import(
+    "@/lib/email/transactional"
+  );
   const { executeAuthorizedTool } = await import("@/lib/intelligence/tools");
   const { runAgentTurn } = await import("@/lib/intelligence/agent");
 
@@ -92,10 +95,11 @@ try {
     sessionVersion: 1,
   });
 
+  const SUPER_ADMIN_UUID = "11111111-2222-4333-8444-555555555555";
   const superAdmin = makeActor({
-    id: "auth-super",
-    employeeId: "emp-super",
-    email: "hassan@hirzexa.com",
+    id: SUPER_ADMIN_UUID,
+    employeeId: "22222222-3333-4444-8555-666666666666",
+    email: "admin@devtech.ai",
     fullName: "Hassan Founder",
     roleKey: "super_admin",
     department: "Executive",
@@ -212,13 +216,18 @@ try {
   assert.equal(saveAvail.ok, true);
 
   const tomorrowIso = new Date(Date.now() + 24 * 3600_000).toISOString().slice(0, 10);
-  const exc = await createAvailabilityException(hrActor, {
+  const exc = await createAvailabilityException(superAdmin, {
     employeeId: eng1Rec.employee.id,
     exceptionDate: tomorrowIso,
     isUnavailable: true,
     reason: "Blocked holiday test",
   });
   assert.equal(exc.ok, true);
+  assert.equal(
+    exc.exception.createdBy,
+    SUPER_ADMIN_UUID,
+    "Exception createdBy MUST be auth user UUID, never actor email"
+  );
 
   const slotsAfter = await getAvailableSlotsForInterviewer({
     employeeId: eng1Rec.employee.id,
@@ -233,11 +242,11 @@ try {
     "Blocked date must produce zero available slots"
   );
 
-  console.log("3. Testing invitation creation, token hashing, and Candidate A vs B isolation...");
-  const invA = await createAndSendInterviewInvitation(hrActor, {
+  console.log("3. Testing Super Admin UUID persistence, token hashing, placeholder rejection & isolation...");
+  const invA = await createAndSendInterviewInvitation(superAdmin, {
     applicationReferenceId: "DEV-2026-9001",
     candidateName: "Sara Al-Mansoor",
-    candidateEmail: "sara.candidate@example.com",
+    candidateEmail: "sara.candidate@hirzexa.com",
     positionTitle: "Senior AI Engineer",
     interviewType: "technical_interview",
     interviewFormat: "online_video",
@@ -248,6 +257,11 @@ try {
     skipOutboundEmail: true,
   });
   assert.equal(invA.ok, true);
+  assert.equal(
+    invA.invitation.createdBy,
+    SUPER_ADMIN_UUID,
+    "Invitation createdBy MUST store auth.users UUID, never admin@devtech.ai email"
+  );
   assert.ok(invA.schedulingUrl?.includes("/interview/schedule?token="));
   const tokenA = new URL(invA.schedulingUrl).searchParams.get("token");
   assert.ok(tokenA && tokenA.length >= 32);
@@ -255,6 +269,18 @@ try {
   // Confirm raw token is NEVER stored on disk in plaintext
   const storedRaw = await readFile(join(stagingDir, ".data", "intelligence", "interview-invitations.json"), "utf8");
   assert.equal(storedRaw.includes(tokenA), false, "Plaintext token MUST NEVER be stored");
+
+  // Confirm placeholder tokens are explicitly rejected by public lookup & booking
+  const placeholderLookup = await lookupPublicInterviewByToken("preview-token-sample");
+  assert.equal(placeholderLookup.state, "invalid", "Placeholder token MUST be rejected");
+  const placeholderBook = await bookPublicInterviewSlot({
+    rawToken: "preview-token-sample",
+    slotStartUtc: new Date(Date.now() + 72 * 3600_000).toISOString(),
+    candidateTimezone: "UTC",
+    skipOutboundEmail: true,
+  });
+  assert.equal(placeholderBook.ok, false);
+  assert.equal(placeholderBook.code, "INVALID_TOKEN");
 
   const invB = await createAndSendInterviewInvitation(hrActor, {
     applicationReferenceId: "DEV-2026-9002",
@@ -430,6 +456,9 @@ try {
       assert.ok(tpl.html.includes("careers@hirzexa.com"), `${kind}/${locale} missing careers footer`);
       assert.equal(/devtech/i.test(tpl.html), false, `${kind}/${locale} leaked DevTech`);
       assert.equal(/devtech/i.test(tpl.text), false, `${kind}/${locale} text leaked DevTech`);
+      assert.equal(/preview-token-sample/i.test(tpl.html), false, `${kind}/${locale} leaked preview-token-sample`);
+      assert.equal(/preview-token-sample/i.test(tpl.text), false, `${kind}/${locale} text leaked preview-token-sample`);
+      assert.equal(/example\.com/i.test(tpl.html), false, `${kind}/${locale} leaked example.com`);
       assert.equal(/onrender\.com/i.test(tpl.html), false, `${kind}/${locale} leaked onrender.com`);
       assert.equal(/localhost/i.test(tpl.html), false, `${kind}/${locale} leaked localhost`);
       assert.equal(emojiRegex.test(tpl.html), false, `${kind}/${locale} contained emoji`);
@@ -442,6 +471,47 @@ try {
       }
     }
   }
+
+  // Confirm outbound email validator blocks preview-token-sample, example.com, localhost, and preview templates
+  const blockedPreviewSend = await sendTransactionalEmail({
+    from: "HIRZEXA Careers <careers@hirzexa.com>",
+    to: "candidate@hirzexa.com",
+    replyTo: "careers@hirzexa.com",
+    subject: "Test",
+    html: '<a href="https://hirzexa.com/interview/schedule?token=preview-token-sample">Schedule</a>',
+    text: "https://hirzexa.com/interview/schedule?token=preview-token-sample",
+  });
+  assert.equal(blockedPreviewSend.ok, false, "sendTransactionalEmail MUST reject preview-token-sample");
+  assert.equal(
+    validateOutboundEmailContent({
+      from: "HIRZEXA Careers <careers@hirzexa.com>",
+      to: "candidate@hirzexa.com",
+      replyTo: "careers@hirzexa.com",
+      subject: "Test",
+      html: '<a href="https://example.com/interview/schedule?token=abc">Schedule</a>',
+      text: "https://example.com/interview/schedule?token=abc",
+    }).ok,
+    false,
+    "Outbound validator MUST reject example.com URLs"
+  );
+  assert.equal(
+    validateOutboundEmailContent({
+      from: "HIRZEXA Careers <careers@hirzexa.com>",
+      to: "candidate@hirzexa.com",
+      replyTo: "careers@hirzexa.com",
+      subject: "Test",
+      html: '<a href="http://localhost:3100/interview/schedule?token=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">Schedule</a>',
+      text: "http://localhost:3100/interview/schedule?token=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    }).ok,
+    false,
+    "Outbound validator MUST reject localhost URLs"
+  );
+  const previewTpl = renderInterviewTemplatePreview({ kind: "invitation", locale: "en" });
+  assert.equal(
+    validateOutboundEmailContent(previewTpl).ok,
+    false,
+    "Outbound validator MUST block preview-mode templates from reaching Resend"
+  );
 
   console.log("8. Testing Resend webhook synchronization idempotency...");
   const webhookNoMatch = await recordInterviewWebhookUpdate({
@@ -470,6 +540,9 @@ try {
   try {
     const pubInvalid = await fetch(`${liveBase}/api/interviews/public?token=nonexistent-token-1234567890`);
     assert.equal(pubInvalid.status, 404, "Public endpoint must return 404 for unknown token");
+
+    const pubPlaceholder = await fetch(`${liveBase}/api/interviews/public?token=preview-token-sample`);
+    assert.equal(pubPlaceholder.status, 404, "Public endpoint must return 404 for preview-token-sample");
 
     const adminUnauth = await fetch(`${liveBase}/api/admin/interviews`);
     assert.equal(adminUnauth.status, 401, "Admin interviews API must reject unauthenticated requests with 401");
