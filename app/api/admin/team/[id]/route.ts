@@ -21,7 +21,7 @@ const patchEmployeeSchema = z.object({
   roleKey: z.enum(ROLE_KEYS).optional(),
   scopeOverride: z.enum(ACCESS_SCOPES).nullable().optional(),
   permissionOverrides: z
-    .record(z.enum(PERMISSION_MODULES), z.array(z.enum(PERMISSION_ACTIONS)))
+    .partialRecord(z.enum(PERMISSION_MODULES), z.array(z.enum(PERMISSION_ACTIONS)))
     .optional(),
   status: z.enum(["invited", "active", "suspended"]).optional(),
   revokeSessions: z.boolean().optional(),

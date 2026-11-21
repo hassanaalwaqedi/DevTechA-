@@ -40,7 +40,7 @@ const createEmployeeSchema = z.object({
   roleKey: z.enum(ROLE_KEYS),
   scopeOverride: z.enum(ACCESS_SCOPES).nullable().optional(),
   permissionOverrides: z
-    .record(z.enum(PERMISSION_MODULES), z.array(z.enum(PERMISSION_ACTIONS)))
+    .partialRecord(z.enum(PERMISSION_MODULES), z.array(z.enum(PERMISSION_ACTIONS)))
     .optional(),
 });
 
