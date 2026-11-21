@@ -109,7 +109,10 @@ export function PipelineBoard({
 
                     <div className="hz-crm-opp-meta">
                       <span>
-                        <User size={11} /> {lead.ownerName || "Unassigned"}
+                        <User size={11} />{" "}
+                        {lead.ownerName ||
+                          lead.ownerEmail ||
+                          (lead.ownerId ? "Assigned Representative" : "Unassigned")}
                       </span>
                       {lead.scheduledSlotIso ? (
                         <span>

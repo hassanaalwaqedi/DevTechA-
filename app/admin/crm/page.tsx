@@ -1,10 +1,10 @@
 import { AdminCrmClient } from "@/components/admin-crm-client";
 import { AdminShell } from "@/components/admin-shell";
 import { requirePermission } from "@/lib/auth";
-import { listCrmLeads } from "@/lib/crm";
+import { listAuthorizedCrmLeads } from "@/lib/crm";
 import { listEmployees } from "@/lib/intelligence/employees";
 import { listTasks } from "@/lib/intelligence/tasks";
-import { canAccessScopedRecord, hasPermission } from "@/lib/rbac";
+import { hasPermission } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +15,7 @@ export default async function AdminCrmPage({
 }) {
   const { actor } = await requirePermission("crm", "view");
   const params = await searchParams;
-  const rawLeads = await listCrmLeads();
-  const leads = rawLeads.filter((lead) =>
-    canAccessScopedRecord(actor, {
-      ownerId: lead.ownerId,
-      ownerEmail: lead.ownerEmail,
-    })
-  );
+  const leads = await listAuthorizedCrmLeads(actor);
 
   const canCreate = hasPermission(actor, "crm", "create");
   const canEdit = hasPermission(actor, "crm", "edit");

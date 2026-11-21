@@ -302,6 +302,12 @@ export function LeadDetailPanel({
                     }}
                   >
                     <option value="">Unassigned</option>
+                    {lead.ownerId && !owners.some((o) => o.id === lead.ownerId) ? (
+                      <option value={lead.ownerId}>
+                        {lead.ownerName || lead.ownerEmail || "Assigned Representative"}
+                        {lead.ownerName && lead.ownerEmail ? ` (${lead.ownerEmail})` : ""}
+                      </option>
+                    ) : null}
                     {owners.map((o) => (
                       <option key={o.id} value={o.id}>
                         {o.fullName} ({o.email})

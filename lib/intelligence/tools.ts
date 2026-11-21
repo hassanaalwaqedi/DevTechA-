@@ -1,7 +1,11 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { listCrmLeads, updateCrmLead } from "@/lib/crm";
+import {
+  getAuthorizedCrmLeadById,
+  listAuthorizedCrmLeads,
+  updateCrmLead,
+} from "@/lib/crm";
 import {
   canTransitionStage,
   CRM_STAGE_LABELS,
@@ -25,7 +29,6 @@ import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase
 import { createTask, listTasks } from "@/lib/intelligence/tasks";
 import {
   assertPermission,
-  canAccessScopedRecord,
   hasPermission,
   RbacDeniedError,
   ROLE_TEMPLATES,
@@ -250,9 +253,9 @@ const listDiscoveryBookingsTool: RegisteredTool<{ upcomingOnly?: boolean; limit?
   }),
   async execute(actor, args) {
     const now = Date.now();
-    let bookings = (await listCrmLeads())
-      .filter((l) => l.leadType === "discovery_call")
-      .filter((l) => canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail }));
+    let bookings = (await listAuthorizedCrmLeads(actor)).filter(
+      (l) => l.leadType === "discovery_call"
+    );
 
     if (args.upcomingOnly) {
       bookings = bookings.filter(
@@ -297,16 +300,14 @@ const getBookingDetailsTool: RegisteredTool<{ query: string }> = {
   schema: z.object({ query: z.string().trim().min(1).max(160) }),
   async execute(actor, args) {
     const q = args.query.toLowerCase();
-    const match = (await listCrmLeads())
-      .filter((l) => canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail }))
-      .find(
-        (l) =>
-          l.id.toLowerCase() === q ||
-          l.referenceId.toLowerCase() === q ||
-          l.company.toLowerCase().includes(q) ||
-          l.fullName.toLowerCase().includes(q) ||
-          l.email.toLowerCase().includes(q)
-      );
+    const match = (await listAuthorizedCrmLeads(actor)).find(
+      (l) =>
+        l.id.toLowerCase() === q ||
+        l.referenceId.toLowerCase() === q ||
+        l.company.toLowerCase().includes(q) ||
+        l.fullName.toLowerCase().includes(q) ||
+        l.email.toLowerCase().includes(q)
+    );
 
     if (!match) {
       return { summary: `No booking matched "${args.query}".`, data: null, citations: [] };
@@ -509,9 +510,7 @@ const listSalesLeadsTool: RegisteredTool<{
   async execute(actor, args) {
     const now = Date.now();
     const dayAgo = now - 24 * 60 * 60 * 1000;
-    let leads = (await listCrmLeads()).filter((l) =>
-      canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail })
-    );
+    let leads = await listAuthorizedCrmLeads(actor);
 
     if (args.stage && args.stage !== "all") {
       leads = leads.filter((l) => l.stage === args.stage);
@@ -577,9 +576,7 @@ const getLeadHistoryTool: RegisteredTool<{ leadIdOrQuery: string }> = {
   schema: z.object({ leadIdOrQuery: z.string().trim().min(1).max(160) }),
   async execute(actor, args) {
     const q = args.leadIdOrQuery.toLowerCase();
-    const leads = (await listCrmLeads()).filter((l) =>
-      canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail })
-    );
+    const leads = await listAuthorizedCrmLeads(actor);
     const lead = leads.find(
       (l) =>
         l.id.toLowerCase() === q ||
@@ -652,9 +649,7 @@ const getPipelineSummaryTool: RegisteredTool<Record<string, never>> = {
   action: "view",
   schema: z.object({}),
   async execute(actor) {
-    const leads = (await listCrmLeads()).filter((l) =>
-      canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail })
-    );
+    const leads = await listAuthorizedCrmLeads(actor);
     const byStage = CRM_STAGES.map((stage) => ({
       stage,
       label: CRM_STAGE_LABELS[stage].en,
@@ -795,15 +790,13 @@ const updateLeadStageTool: RegisteredTool<{
   }),
   async execute(actor, args, meta) {
     const q = args.leadIdOrQuery.toLowerCase();
-    const lead = (await listCrmLeads())
-      .filter((l) => canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail }))
-      .find(
-        (l) =>
-          l.id.toLowerCase() === q ||
-          l.referenceId.toLowerCase() === q ||
-          l.company.toLowerCase().includes(q) ||
-          l.fullName.toLowerCase().includes(q)
-      );
+    const lead = (await listAuthorizedCrmLeads(actor)).find(
+      (l) =>
+        l.id.toLowerCase() === q ||
+        l.referenceId.toLowerCase() === q ||
+        l.company.toLowerCase().includes(q) ||
+        l.fullName.toLowerCase().includes(q)
+    );
 
     if (!lead) {
       throw new Error(`Lead "${args.leadIdOrQuery}" not found within your authorized scope.`);
@@ -905,15 +898,13 @@ const draftClientEmailTool: RegisteredTool<{
       };
     }
 
-    const lead = (await listCrmLeads())
-      .filter((l) => canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail }))
-      .find(
-        (l) =>
-          l.id.toLowerCase() === q ||
-          l.referenceId.toLowerCase() === q ||
-          l.company.toLowerCase().includes(q) ||
-          l.fullName.toLowerCase().includes(q)
-      );
+    const lead = (await listAuthorizedCrmLeads(actor)).find(
+      (l) =>
+        l.id.toLowerCase() === q ||
+        l.referenceId.toLowerCase() === q ||
+        l.company.toLowerCase().includes(q) ||
+        l.fullName.toLowerCase().includes(q)
+    );
     if (!lead) {
       return { summary: `No lead matched "${args.query}".`, data: null, citations: [] };
     }
@@ -1289,6 +1280,26 @@ export async function confirmAndExecutePendingAction(
     const leadId = String(pending.args.leadId || "");
     const newStage = pending.args.newStage as CrmStage;
     const note = pending.args.note ? String(pending.args.note) : undefined;
+
+    // Re-verify record scope right at execution time to prevent TOCTOU if lead was reassigned
+    const scopeCheck = await getAuthorizedCrmLeadById(actor, leadId);
+    if (scopeCheck.denied || !scopeCheck.lead) {
+      await recordAuditLog({
+        actorId: actor.id,
+        actorEmail: actor.email,
+        actorRole: actor.roleKey,
+        module: "crm",
+        action: "agent_confirm:update_lead_stage",
+        entityType: "lead",
+        entityId: leadId,
+        outcome: "denied",
+        summary: `Blocked confirmed stage update on lead ${leadId}: actor no longer has scope access.`,
+      });
+      return {
+        ok: false,
+        message: "Access denied: you no longer have authorized scope over this lead.",
+      };
+    }
 
     const updated = await updateCrmLead(leadId, {
       stage: newStage,

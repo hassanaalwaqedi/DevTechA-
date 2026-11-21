@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requirePermissionApi } from "@/lib/auth";
-import { createCrmLead, listCrmLeads, updateCrmLead } from "@/lib/crm";
+import {
+  createCrmLead,
+  CrmPersistenceError,
+  InvalidCrmOwnerError,
+  listAuthorizedCrmLeads,
+} from "@/lib/crm";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
-import { canAccessScopedRecord, hasPermission, RbacDeniedError } from "@/lib/rbac";
+import { hasPermission, RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,12 +48,7 @@ export async function GET(request: Request) {
   const stage = (searchParams.get("stage") || "").trim();
   const query = (searchParams.get("query") || "").trim().toLowerCase();
 
-  let leads = (await listCrmLeads()).filter((lead) =>
-    canAccessScopedRecord(actor, {
-      ownerId: lead.ownerId,
-      ownerEmail: lead.ownerEmail,
-    })
-  );
+  let leads = await listAuthorizedCrmLeads(actor);
 
   if (stage && stage !== "all") {
     leads = leads.filter((item) => item.stage === stage);
@@ -94,6 +94,22 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Assign canonical employeeId (employees.id — NEVER auth.users.id!) if provided and authorized,
+    // or default to actor.employeeId so Assigned-scope reps immediately own opportunities they create.
+    const canAssign = hasPermission(actor, "crm", "assign");
+    const hasExplicitOwner =
+      canAssign && (parsed.data.ownerId !== undefined || parsed.data.ownerEmail !== undefined);
+    const desiredOwnerId = hasExplicitOwner
+      ? parsed.data.ownerId ?? null
+      : actor.employeeId;
+    const desiredOwnerEmail = hasExplicitOwner
+      ? parsed.data.ownerEmail ?? null
+      : actor.email;
+    const desiredOwnerName = hasExplicitOwner
+      ? parsed.data.ownerName ?? null
+      : actor.fullName;
+    const desiredOwnerDepartment = hasExplicitOwner ? undefined : actor.department;
+
     const created = await createCrmLead({
       leadType: parsed.data.leadType,
       fullName: parsed.data.fullName,
@@ -110,27 +126,13 @@ export async function POST(request: Request) {
       projectSummary: parsed.data.projectSummary,
       consent: true,
       locale: "en",
+      ownerId: desiredOwnerId,
+      ownerEmail: desiredOwnerEmail,
+      ownerName: desiredOwnerName,
+      ownerDepartment: desiredOwnerDepartment,
     });
 
-    let lead = created.lead;
-
-    // Assign owner if provided and authorized, or default to actor for own-scoped sales reps
-    const canAssign = hasPermission(actor, "crm", "assign");
-    const desiredOwnerId = canAssign && parsed.data.ownerId !== undefined ? parsed.data.ownerId : actor.id;
-    const desiredOwnerEmail =
-      canAssign && parsed.data.ownerEmail !== undefined ? parsed.data.ownerEmail : actor.email;
-    const desiredOwnerName =
-      canAssign && parsed.data.ownerName !== undefined ? parsed.data.ownerName : actor.fullName;
-
-    if (desiredOwnerId) {
-      const assigned = await updateCrmLead(lead.id, {
-        ownerId: desiredOwnerId,
-        ownerEmail: desiredOwnerEmail,
-        ownerName: desiredOwnerName,
-        actorEmail: actor.email,
-      });
-      if (assigned) lead = assigned;
-    }
+    const lead = created.lead;
 
     await recordAuditLog({
       actorId: actor.id,
@@ -142,6 +144,10 @@ export async function POST(request: Request) {
       entityId: lead.id,
       outcome: "allowed",
       summary: `Created CRM opportunity ${lead.referenceId} (${lead.company || lead.fullName}).`,
+      metadata: {
+        ownerId: lead.ownerId || null,
+        ownerEmail: lead.ownerEmail || null,
+      },
     });
 
     try {
@@ -160,6 +166,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, lead }, { status: 201 });
   } catch (err) {
+    if (err instanceof InvalidCrmOwnerError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    if (err instanceof CrmPersistenceError) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
     if (err instanceof Error && err.message === "SLOT_ALREADY_RESERVED") {
       return NextResponse.json(
         { error: "That meeting slot is already reserved. Pick another time or leave unscheduled." },

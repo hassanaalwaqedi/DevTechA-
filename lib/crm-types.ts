@@ -139,6 +139,7 @@ export interface CrmLeadRecord {
   ownerId?: string | null;
   ownerEmail?: string | null;
   ownerName?: string | null;
+  ownerDepartment?: string | null;
   notes: string;
   activities: CrmActivityItem[];
   createdAt: string;

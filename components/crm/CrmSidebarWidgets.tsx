@@ -128,7 +128,10 @@ export function CrmSidebarWidgets({
         id: `lead-fu-${l.id}`,
         title: `${l.referenceId} (${l.company || l.fullName}) — Follow-up`,
         dueLabel: formatLocalDateTime(l.nextFollowUpAt, { includeTime: false }).dateLabel,
-        ownerLabel: l.ownerName || "Unassigned",
+        ownerLabel:
+          l.ownerName ||
+          l.ownerEmail ||
+          (l.ownerId ? "Assigned Representative" : "Unassigned"),
         urgent: new Date(l.nextFollowUpAt!).getTime() < Date.now(),
         leadId: l.id,
       }));

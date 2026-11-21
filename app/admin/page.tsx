@@ -1,11 +1,11 @@
 import { AdminShell } from "@/components/admin-shell";
 import { AdminCommandCenterClient } from "@/components/admin-command-center-client";
 import { requireAdmin } from "@/lib/auth";
-import { listCrmLeads } from "@/lib/crm";
+import { listAuthorizedCrmLeads } from "@/lib/crm";
 import { getMetrics } from "@/lib/db";
 import { buildMorningBriefing, listBusinessEvents } from "@/lib/intelligence/events";
 import { listTasks } from "@/lib/intelligence/tasks";
-import { canAccessScopedRecord, hasPermission } from "@/lib/rbac";
+import { hasPermission } from "@/lib/rbac";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -25,17 +25,13 @@ export default async function AdminPage({
   const canRecruitment = hasPermission(actor, "recruitment", "view");
   const canTasks = hasPermission(actor, "tasks", "view");
 
-  const [briefing, tasks, events, rawLeads, metrics] = await Promise.all([
+  const [briefing, tasks, events, leads, metrics] = await Promise.all([
     buildMorningBriefing(actor),
     canTasks ? listTasks(actor, { status: "all" }) : Promise.resolve([]),
     listBusinessEvents(actor, { limit: 14 }),
-    canCrm ? listCrmLeads() : Promise.resolve([]),
+    canCrm ? listAuthorizedCrmLeads(actor) : Promise.resolve([]),
     getMetrics().catch(() => null),
   ]);
-
-  const leads = rawLeads.filter((l) =>
-    canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail })
-  );
 
   return (
     <AdminShell active="overview">

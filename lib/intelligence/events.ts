@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { listCrmLeads } from "@/lib/crm";
+import { listAuthorizedCrmLeads } from "@/lib/crm";
 import { getApplications, getMetrics } from "@/lib/db";
 import { listTasks } from "@/lib/intelligence/tasks";
 import {
@@ -10,7 +10,6 @@ import {
 } from "@/lib/intelligence/store";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import {
-  canAccessScopedRecord,
   hasPermission,
   type AuthActor,
   type PermissionModule,
@@ -178,17 +177,11 @@ export async function listBusinessEvents(
   }
 
   // Synthesize canonical events from existing CRM bookings/leads if actor has CRM/bookings access
+  let authorizedLeadIds: Set<string> | null = null;
   if (hasPermission(actor, "crm", "view") || hasPermission(actor, "bookings", "view")) {
-    const leads = await listCrmLeads();
-    for (const lead of leads.slice(0, 25)) {
-      if (
-        !canAccessScopedRecord(actor, {
-          ownerId: lead.ownerId,
-          ownerEmail: lead.ownerEmail,
-        })
-      ) {
-        continue;
-      }
+    const authorizedLeads = await listAuthorizedCrmLeads(actor);
+    authorizedLeadIds = new Set(authorizedLeads.map((l) => l.id));
+    for (const lead of authorizedLeads.slice(0, 25)) {
       const key = `lead-created:${lead.id}`;
       if (!byKey.has(key)) {
         byKey.set(key, {
@@ -245,6 +238,13 @@ export async function listBusinessEvents(
 
   return Array.from(byKey.values())
     .filter((evt) => hasPermission(actor, evt.module, "view"))
+    .filter((evt) => {
+      if (actor.isSuperAdmin || actor.scope === "all") return true;
+      if (evt.entityType === "lead" || evt.entityType === "booking") {
+        return Boolean(authorizedLeadIds && authorizedLeadIds.has(evt.entityId));
+      }
+      return true;
+    })
     .filter((evt) => (!cutoffMs ? true : new Date(evt.createdAt).getTime() >= cutoffMs))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, limit);
@@ -265,16 +265,12 @@ export async function buildMorningBriefing(actor: AuthActor): Promise<MorningBri
   const canHr = hasPermission(actor, "recruitment", "view");
   const canTasks = hasPermission(actor, "tasks", "view");
 
-  const [leads, tasks, metrics, recentApps] = await Promise.all([
-    canCrm ? listCrmLeads() : Promise.resolve([]),
+  const [scopedLeads, tasks, metrics, recentApps] = await Promise.all([
+    canCrm ? listAuthorizedCrmLeads(actor) : Promise.resolve([]),
     canTasks ? listTasks(actor, { status: "active" }) : Promise.resolve([]),
     canHr ? getMetrics().catch(() => null) : Promise.resolve(null),
     canHr ? getApplications().catch(() => []) : Promise.resolve([]),
   ]);
-
-  const scopedLeads = leads.filter((l) =>
-    canAccessScopedRecord(actor, { ownerId: l.ownerId, ownerEmail: l.ownerEmail })
-  );
 
   const newLeads24h = scopedLeads.filter(
     (l) => new Date(l.createdAt).getTime() >= dayAgo

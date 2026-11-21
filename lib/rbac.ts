@@ -283,7 +283,14 @@ export class RbacDeniedError extends Error {
 
 export function canAccessScopedRecord(
   actor: AuthActor,
-  record: { ownerId?: string | null; ownerEmail?: string | null; assignedToId?: string | null; assignedToEmail?: string | null; createdById?: string | null; department?: string | null }
+  record: {
+    ownerId?: string | null;
+    ownerEmail?: string | null;
+    assignedToId?: string | null;
+    assignedToEmail?: string | null;
+    createdById?: string | null;
+    department?: string | null;
+  }
 ): boolean {
   if (actor.status !== "active") return false;
   if (actor.roleKey === "super_admin" || actor.scope === "all") return true;
@@ -292,24 +299,34 @@ export function canAccessScopedRecord(
   const actorEmail = actor.email.toLowerCase();
 
   const matchesOwner =
-    (record.ownerId && actorIds.has(record.ownerId)) ||
-    (record.ownerEmail && record.ownerEmail.toLowerCase() === actorEmail) ||
-    (record.createdById && actorIds.has(record.createdById));
+    Boolean(record.ownerId && actorIds.has(record.ownerId)) ||
+    Boolean(record.ownerEmail && record.ownerEmail.toLowerCase() === actorEmail);
 
   const matchesAssignee =
-    (record.assignedToId && actorIds.has(record.assignedToId)) ||
-    (record.assignedToEmail && record.assignedToEmail.toLowerCase() === actorEmail);
+    Boolean(record.assignedToId && actorIds.has(record.assignedToId)) ||
+    Boolean(record.assignedToEmail && record.assignedToEmail.toLowerCase() === actorEmail);
+
+  const matchesCreator = Boolean(record.createdById && actorIds.has(record.createdById));
 
   if (actor.scope === "own") {
-    return Boolean(matchesOwner || matchesAssignee);
+    return matchesOwner || matchesAssignee || matchesCreator;
   }
   if (actor.scope === "assigned") {
-    return Boolean(matchesOwner || matchesAssignee);
+    // Strictly require current ownership or assignment. A creator who is no longer
+    // the owner/assignee (e.g. after reassignment) must NOT retain access.
+    const hasExplicitHolder = Boolean(
+      record.ownerId || record.ownerEmail || record.assignedToId || record.assignedToEmail
+    );
+    return matchesOwner || matchesAssignee || (!hasExplicitHolder && matchesCreator);
   }
   if (actor.scope === "team") {
-    if (matchesOwner || matchesAssignee) return true;
-    if (!record.department || !actor.department) return true;
-    return record.department.toLowerCase() === actor.department.toLowerCase();
+    if (matchesOwner || matchesAssignee || matchesCreator) return true;
+    // Fail-closed: unassigned records or records without a matching owner department
+    // must never leak under Team scope.
+    const recDept = record.department?.trim().toLowerCase();
+    const actorDept = actor.department?.trim().toLowerCase();
+    if (!recDept || !actorDept) return false;
+    return recDept === actorDept;
   }
   return false;
 }

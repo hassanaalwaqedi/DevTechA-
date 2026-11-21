@@ -152,7 +152,10 @@ export function CrmDataTable({
                 const { dateLabel, timeLabel } = formatLocalDateTime(
                   lead.scheduledSlotIso || lead.nextFollowUpAt
                 );
-                const ownerDisplay = lead.ownerName || "Unassigned";
+                const ownerDisplay =
+                  lead.ownerName ||
+                  lead.ownerEmail ||
+                  (lead.ownerId ? "Assigned Representative" : "Unassigned");
 
                 return (
                   <tr
