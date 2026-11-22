@@ -677,12 +677,18 @@ export function AdminSettingsClient({
                           Target: <code>{snapshot.contactRouting.webhookHost}</code>
                         </span>
                       ) : null}
-                      <span>
-                        Secret:{" "}
-                        <code>
-                          {snapshot.contactRouting.webhookSecretConfigured ? "Set" : "Not set"}
-                        </code>
-                      </span>
+                      {snapshot.contactRouting.deliveryMode === "resend" ? (
+                        <span>
+                          Auth: <code>RESEND_API_KEY</code>
+                        </span>
+                      ) : (
+                        <span>
+                          Secret:{" "}
+                          <code>
+                            {snapshot.contactRouting.webhookSecretConfigured ? "Set" : "Not set"}
+                          </code>
+                        </span>
+                      )}
                       <span>Last probe: {formatShortTimestamp(snapshot.contactRouting.lastTestedAt)}</span>
                     </div>
 
@@ -773,9 +779,13 @@ CONTACT_DELIVERY_MODE=resend`}</pre>
                     <div className="hz-set-service-name">
                       <Plug size={14} style={{ color: "#94a3b8" }} />
                       <strong>External Calendar ({snapshot.externalCalendar.provider})</strong>
-                      <StatusBadge tone={calBadge.tone} dot>
-                        {calBadge.label}
-                      </StatusBadge>
+                      {snapshot.externalCalendar.connected ? (
+                        <StatusBadge tone={calBadge.tone} dot>
+                          {calBadge.label}
+                        </StatusBadge>
+                      ) : (
+                        <StatusBadge tone="neutral">Optional · Internal Active</StatusBadge>
+                      )}
                     </div>
                     <p className="hz-set-service-desc">{snapshot.externalCalendar.summary}</p>
                   </div>

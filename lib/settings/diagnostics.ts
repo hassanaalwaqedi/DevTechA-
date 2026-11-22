@@ -287,9 +287,19 @@ export async function getSettingsDiagnosticsSnapshot(
       contactSummary = "Contact webhook URL is configured — run Test Webhook to verify delivery.";
     }
   } else if (deliveryMode === "resend") {
-    contactStatus = "not_verified";
-    contactSummary =
-      "Direct Resend contact routing enabled (CONTACT_DELIVERY_MODE=resend). Departmental aliases receive routed inquiries.";
+    if (lastWebhookCheck?.outcome === "allowed" || lastTestEmail?.outcome === "allowed") {
+      contactStatus = "operational";
+      contactSummary =
+        "Direct Resend contact routing active (CONTACT_DELIVERY_MODE=resend). Departmental aliases receive routed inquiries.";
+    } else if (lastWebhookCheck?.outcome === "error") {
+      contactStatus = "degraded";
+      contactSummary =
+        "Direct Resend contact routing is enabled, but the last connectivity probe failed.";
+    } else {
+      contactStatus = "not_verified";
+      contactSummary =
+        "Direct Resend contact routing enabled (CONTACT_DELIVERY_MODE=resend) — click Test Connection to verify.";
+    }
   }
 
   // 6. External Calendar Status
@@ -662,7 +672,108 @@ export async function runContactWebhookHealthCheck(actor: AuthActor): Promise<{
 }> {
   const checkedAt = new Date().toISOString();
   const webhookUrl = process.env.CONTACT_WEBHOOK_URL?.trim() || "";
+  const deliveryModeEnv = process.env.CONTACT_DELIVERY_MODE?.trim().toLowerCase() || "";
   const endpointHost = getSafeWebhookHost(webhookUrl);
+
+  if (!webhookUrl && deliveryModeEnv === "resend") {
+    if (!isResendConfigured()) {
+      return {
+        ok: false,
+        status: "configuration_required",
+        httpStatus: null,
+        latencyMs: 0,
+        checkedAt,
+        endpointHost: "https://api.resend.com",
+        detail: "CONTACT_DELIVERY_MODE=resend is set, but RESEND_API_KEY is not configured.",
+      };
+    }
+
+    if (!checkRateLimit(`settings-webhook-test:${actor.id}`, 10, 15 * 60 * 1000)) {
+      return {
+        ok: false,
+        status: "degraded",
+        httpStatus: null,
+        latencyMs: 0,
+        checkedAt,
+        endpointHost: "https://api.resend.com",
+        detail: "Rate limit reached for connectivity tests. Wait a few minutes before retrying.",
+      };
+    }
+
+    const started = Date.now();
+    try {
+      const response = await fetch("https://api.resend.com/domains", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY?.trim() || ""}`,
+        },
+        signal: AbortSignal.timeout(8_000),
+      });
+      const latencyMs = Date.now() - started;
+      const bodyText = await response.text().catch(() => "");
+      // Resend sending-only API keys legitimately return 401 with "restricted to only send emails" on GET /domains
+      const isSendingScopedKey =
+        response.status === 401 && /restricted|only send/i.test(bodyText);
+      const ok = response.ok || isSendingScopedKey;
+      const detail = response.ok
+        ? `Resend direct contact routing verified (HTTP ${response.status} in ${latencyMs} ms).`
+        : isSendingScopedKey
+          ? `Resend sending-scoped API key authenticated for direct contact routing (${latencyMs} ms).`
+          : `Resend API check failed with HTTP ${response.status} (${latencyMs} ms).`;
+
+      await recordAuditLog({
+        actorId: actor.id,
+        actorEmail: actor.email,
+        actorRole: actor.roleKey,
+        module: "settings",
+        action: "settings.contact_webhook_test",
+        entityType: "contact_routing",
+        entityId: "resend-direct",
+        outcome: ok ? "allowed" : "error",
+        summary: detail,
+        metadata: { mode: "resend", httpStatus: response.status, latencyMs, isSendingScopedKey },
+      });
+
+      return {
+        ok,
+        status: ok ? "operational" : "degraded",
+        httpStatus: response.status,
+        latencyMs,
+        checkedAt,
+        endpointHost: "https://api.resend.com (direct mode)",
+        detail,
+      };
+    } catch (err) {
+      const latencyMs = Date.now() - started;
+      const detail =
+        err instanceof Error
+          ? `Resend API connection failed: ${err.message.slice(0, 180)}`
+          : "Resend API connection failed.";
+
+      await recordAuditLog({
+        actorId: actor.id,
+        actorEmail: actor.email,
+        actorRole: actor.roleKey,
+        module: "settings",
+        action: "settings.contact_webhook_test",
+        entityType: "contact_routing",
+        entityId: "resend-direct",
+        outcome: "error",
+        summary: `Resend direct contact probe unreachable (${latencyMs} ms): ${detail}`,
+        metadata: { mode: "resend", latencyMs },
+      });
+
+      return {
+        ok: false,
+        status: "unavailable",
+        httpStatus: null,
+        latencyMs,
+        checkedAt,
+        endpointHost: "https://api.resend.com (direct mode)",
+        detail,
+      };
+    }
+  }
 
   if (!webhookUrl) {
     const detail =

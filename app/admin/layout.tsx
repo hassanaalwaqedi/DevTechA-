@@ -11,5 +11,9 @@ const arabic = IBM_Plex_Sans_Arabic({
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className={`hz-os-root ${arabic.variable}`}>{children}</div>;
+  return (
+    <div className={`hz-os-root ${arabic.variable}`} dir="ltr" lang="en">
+      {children}
+    </div>
+  );
 }
