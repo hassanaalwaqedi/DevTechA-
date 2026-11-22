@@ -1,4 +1,4 @@
-import { randomInt } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
   COMPANY_EMAILS,
@@ -12,9 +12,41 @@ import {
   buildInternalContactNotificationEmail,
   isAutomatedAckEnabled,
 } from "@/lib/email-templates";
+import {
+  getInvitationSenderAddress,
+  isResendConfigured,
+  sendTransactionalEmail,
+} from "@/lib/email/transactional";
+import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
+
+// Short-lived in-process deduplication cache for explicit idempotency keys (15 min TTL)
+const recentContactKeys = new Map<
+  string,
+  { reference: string; department: CompanyEmailChannel; routedTo: string; expiresAt: number }
+>();
+
+function getDeduplicatedContact(key: string) {
+  const now = Date.now();
+  for (const [k, v] of recentContactKeys) {
+    if (v.expiresAt <= now) recentContactKeys.delete(k);
+  }
+  const hit = recentContactKeys.get(key);
+  return hit && hit.expiresAt > now ? hit : null;
+}
+
+function recordDeduplicatedContact(
+  key: string,
+  entry: { reference: string; department: CompanyEmailChannel; routedTo: string }
+) {
+  recentContactKeys.set(key, { ...entry, expiresAt: Date.now() + 15 * 60 * 1000 });
+  if (recentContactKeys.size > 500) {
+    const oldest = recentContactKeys.keys().next().value;
+    if (oldest) recentContactKeys.delete(oldest);
+  }
+}
 
 const emailPattern = /^[^\s@<>()[\]\\,;:\s@"]+@[^\s@<>()[\]\\,;:\s@"]+\.[^\s@<>()[\]\\,;:\s@"]{2,}$/;
 const budgets = new Set([
@@ -130,6 +162,28 @@ export async function POST(request: Request) {
     );
   }
 
+  // Duplicate submission guard when client sends an explicit idempotency key
+  const rawIdempKey =
+    request.headers.get("x-idempotency-key")?.trim() ||
+    singleLine(body.idempotencyKey);
+  const dedupeCacheKey = rawIdempKey
+    ? createHash("sha256")
+        .update(`${workEmail}:${recipient}:${rawIdempKey}`)
+        .digest("hex")
+    : null;
+  if (dedupeCacheKey) {
+    const prior = getDeduplicatedContact(dedupeCacheKey);
+    if (prior) {
+      return NextResponse.json({
+        ok: true,
+        deduplicated: true,
+        reference: prior.reference,
+        department: prior.department,
+        routedTo: prior.routedTo,
+      });
+    }
+  }
+
   const reference = `HRZ-${new Date().getFullYear()}-${randomInt(10000, 99999)}`;
   const targetEmail = COMPANY_EMAILS[recipient];
   const deptMeta = DEPARTMENT_METADATA[recipient];
@@ -150,9 +204,79 @@ export async function POST(request: Request) {
   const acknowledgment = buildDepartmentalAcknowledgmentEmail(submission);
   const autoAckAuthorized = isAutomatedAckEnabled();
 
-  const webhook = process.env.CONTACT_WEBHOOK_URL;
-  if (!webhook) {
+  const webhook = process.env.CONTACT_WEBHOOK_URL?.trim() || "";
+  const useResendDirect =
+    !webhook &&
+    process.env.CONTACT_DELIVERY_MODE?.trim().toLowerCase() === "resend" &&
+    isResendConfigured();
+
+  const logContactDelivery = async (
+    outcome: "delivered_webhook" | "delivered_resend" | "failed_502" | "unconfigured_503",
+    detail?: string
+  ) => {
+    try {
+      await emitBusinessEvent({
+        eventType: "booking.created",
+        module: "crm",
+        severity: outcome.startsWith("delivered") ? "info" : "attention",
+        actorRef: workEmail,
+        entityType: "contact_inquiry",
+        entityId: reference,
+        title: `Contact inquiry (${deptMeta.en}): ${name}`,
+        summary: `${reference} routed to ${targetEmail} — status: ${outcome}${detail ? ` (${detail})` : ""}.`,
+        sourceHref: "/admin/settings",
+        idempotencyKey: `contact-${reference}-${outcome}`,
+      });
+    } catch {
+      // Non-fatal: never block public contact submission on telemetry logging
+    }
+  };
+
+  if (!webhook && !useResendDirect) {
+    await logContactDelivery("unconfigured_503", "CONTACT_WEBHOOK_URL unset");
     return failure("Enquiry delivery is not configured yet.", 503, recipient);
+  }
+
+  if (useResendDirect) {
+    const notifyRes = await sendTransactionalEmail(
+      {
+        ...internalNotification,
+        from: getInvitationSenderAddress(),
+      },
+      {
+        idempotencyKey: `contact-internal-${reference}`,
+        tags: [
+          { name: "category", value: "contact_routing" },
+          { name: "department", value: recipient },
+        ],
+      }
+    );
+    if (!notifyRes.ok) {
+      await logContactDelivery("failed_502", notifyRes.error);
+      return failure("Your enquiry could not be delivered.", 502, recipient);
+    }
+    // Only send automated acknowledgment when VERIFIED_EMAIL_SENDER_ENABLED=true
+    if (autoAckAuthorized) {
+      await sendTransactionalEmail(acknowledgment, {
+        idempotencyKey: `contact-ack-${reference}`,
+        tags: [{ name: "category", value: "contact_acknowledgment" }],
+      }).catch(() => {});
+    }
+    if (dedupeCacheKey) {
+      recordDeduplicatedContact(dedupeCacheKey, {
+        reference,
+        department: recipient,
+        routedTo: targetEmail,
+      });
+    }
+    await logContactDelivery("delivered_resend", notifyRes.messageId);
+    return NextResponse.json({
+      ok: true,
+      reference,
+      department: recipient,
+      routedTo: targetEmail,
+      deliveryMode: "resend",
+    });
   }
 
   const webhookHeaders: Record<string, string> = {
@@ -189,11 +313,22 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      await logContactDelivery("failed_502", `HTTP ${response.status}`);
       return failure("Your enquiry could not be delivered.", 502, recipient);
     }
   } catch {
+    await logContactDelivery("failed_502", "network_error");
     return failure("Your enquiry could not be delivered.", 502, recipient);
   }
+
+  if (dedupeCacheKey) {
+    recordDeduplicatedContact(dedupeCacheKey, {
+      reference,
+      department: recipient,
+      routedTo: targetEmail,
+    });
+  }
+  await logContactDelivery("delivered_webhook");
 
   return NextResponse.json({
     ok: true,

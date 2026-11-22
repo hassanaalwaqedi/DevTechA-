@@ -99,6 +99,13 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function formatWorkspaceIdentitySubtitle(email: string): string {
+  if (/@devtech\.ai$/i.test(email.trim())) {
+    return "HIRZEXA Workspace · Legacy Auth";
+  }
+  return email;
+}
+
 export function AdminShellChrome({
   active,
   navGroups,
@@ -404,7 +411,7 @@ export function AdminShellChrome({
               <div className="hz-operator-role">
                 {actor.roleLabel} · {actor.scope === "all" ? "All Scope" : `${actor.scope} scope`}
               </div>
-              <div className="hz-operator-email">{actor.email}</div>
+              <div className="hz-operator-email">{formatWorkspaceIdentitySubtitle(actor.email)}</div>
             </Link>
           ) : (
             <div className="hz-operator-card">
@@ -415,7 +422,7 @@ export function AdminShellChrome({
               <div className="hz-operator-role">
                 {actor.roleLabel} · {actor.scope === "all" ? "All Scope" : `${actor.scope} scope`}
               </div>
-              <div className="hz-operator-email">{actor.email}</div>
+              <div className="hz-operator-email">{formatWorkspaceIdentitySubtitle(actor.email)}</div>
             </div>
           )}
         </div>
@@ -613,7 +620,7 @@ export function AdminShellChrome({
                         marginTop: 2,
                       }}
                     >
-                      {actor.email}
+                      {formatWorkspaceIdentitySubtitle(actor.email)}
                     </span>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
                       <StatusBadge tone="blue">{actor.roleLabel}</StatusBadge>

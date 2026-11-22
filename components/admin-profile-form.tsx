@@ -1,26 +1,23 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, Save } from "lucide-react";
 
 export function AdminProfileForm({
   initialFullName,
   initialJobTitle,
   initialDepartment,
   email,
-  roleLabel,
-  scope,
-  mfaEnrolled,
-  sessionVersion,
+  isLegacyAuth = false,
 }: {
   initialFullName: string;
   initialJobTitle: string;
   initialDepartment: string;
   email: string;
-  roleLabel: string;
-  scope: string;
-  mfaEnrolled: boolean;
-  sessionVersion: number;
+  isLegacyAuth?: boolean;
 }) {
+  const router = useRouter();
   const [fullName, setFullName] = useState(initialFullName);
   const [jobTitle, setJobTitle] = useState(initialJobTitle);
   const [department, setDepartment] = useState(initialDepartment);
@@ -28,8 +25,17 @@ export function AdminProfileForm({
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
+  const isDirty =
+    fullName.trim() !== initialFullName.trim() ||
+    jobTitle.trim() !== initialJobTitle.trim() ||
+    department.trim() !== initialDepartment.trim();
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (fullName.trim().length < 2) {
+      setError("Full name must be at least 2 characters.");
+      return;
+    }
     setSaving(true);
     setNotice("");
     setError("");
@@ -43,12 +49,13 @@ export function AdminProfileForm({
           department: department.trim(),
         }),
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         setError(data.error || "Unable to update profile.");
         return;
       }
-      setNotice("Profile updated and logged in audit trail.");
+      setNotice("Profile saved and recorded in the audit log.");
+      router.refresh();
     } catch {
       setError("Network error while saving profile.");
     } finally {
@@ -57,54 +64,34 @@ export function AdminProfileForm({
   }
 
   return (
-    <form onSubmit={onSubmit}>
-      <div className="admin-detail-grid" style={{ marginBottom: 16 }}>
-        <div>
-          <span>Assigned Role</span>
-          <strong>{roleLabel}</strong>
-        </div>
-        <div>
-          <span>Data Access Scope</span>
-          <strong style={{ textTransform: "capitalize" }}>{scope}</strong>
-        </div>
-        <div>
-          <span>MFA Status</span>
-          <strong>
-            {mfaEnrolled
-              ? "Enrolled (TOTP Verified)"
-              : "Not enrolled yet — recommended for Super Admin"}
-          </strong>
-        </div>
-        <div>
-          <span>Active Session Generation</span>
-          <strong>v{sessionVersion}</strong>
-        </div>
-      </div>
-
-      <div className="field-grid">
-        <div className="field">
-          <label htmlFor="profile-name">Full Name</label>
+    <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="hz-set-form-grid">
+        <div className="hz-int-field">
+          <label htmlFor="profile-name">Display Name</label>
           <input
             id="profile-name"
             required
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
+            placeholder="Your full name"
           />
         </div>
-        <div className="field">
-          <label htmlFor="profile-email">Work Email (Auth Identity)</label>
+        <div className="hz-int-field">
+          <label htmlFor="profile-email">
+            Auth Account Email {isLegacyAuth ? "(Legacy Login ID)" : "(Read-only)"}
+          </label>
           <input id="profile-email" value={email} type="email" readOnly disabled />
         </div>
-        <div className="field">
+        <div className="hz-int-field">
           <label htmlFor="profile-title">Job Title</label>
           <input
             id="profile-title"
             value={jobTitle}
             onChange={(e) => setJobTitle(e.target.value)}
-            placeholder="e.g. Founder & Principal Engineer"
+            placeholder="e.g., Founder & Principal Engineer"
           />
         </div>
-        <div className="field">
+        <div className="hz-int-field">
           <label htmlFor="profile-dept">Department</label>
           <input
             id="profile-dept"
@@ -115,20 +102,25 @@ export function AdminProfileForm({
         </div>
       </div>
 
-      {error ? (
-        <p className="admin-error" style={{ marginTop: 12 }}>
-          {error}
-        </p>
-      ) : null}
+      {error ? <div className="hz-int-banner is-error">{error}</div> : null}
       {notice ? (
-        <p className="admin-notice" style={{ marginTop: 12 }}>
-          {notice}
-        </p>
+        <div className="hz-int-banner is-success">
+          <CheckCircle2 size={14} style={{ flexShrink: 0, marginTop: 1 }} />
+          <span>{notice}</span>
+        </div>
       ) : null}
 
-      <div className="form-actions">
-        <button className="button-dark" type="submit" disabled={saving}>
-          {saving ? "Saving…" : "Save Profile Changes"}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <span style={{ fontSize: 12, color: "var(--hz-text-muted)" }}>
+          Changes update your workspace profile and append an immutable audit record.
+        </span>
+        <button
+          className="hz-btn hz-btn-primary hz-btn-sm"
+          type="submit"
+          disabled={saving || !isDirty}
+        >
+          <Save size={13} />
+          {saving ? "Saving…" : "Save Changes"}
         </button>
       </div>
     </form>
