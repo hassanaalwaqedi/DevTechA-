@@ -8,6 +8,10 @@ import {
   listCrmLeads,
   updateCrmLead,
 } from "@/lib/crm";
+import {
+  cancelPendingRemindersForLead,
+  scheduleAutomatedRemindersForLead,
+} from "@/lib/crm-meetings/service";
 import { canTransitionStage, CRM_STAGE_LABELS, type CrmStage } from "@/lib/crm-types";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
@@ -224,6 +228,18 @@ export async function PATCH(
   });
 
   if (requestedStage && requestedStage !== existing.stage) {
+    // Automatically cancel obsolete pending reminders if meeting is completed, won, or cancelled/lost
+    if (
+      requestedStage === "lost" ||
+      requestedStage === "won" ||
+      requestedStage === "discovery_completed"
+    ) {
+      await cancelPendingRemindersForLead(
+        updated.id,
+        `Cancelled: lead moved to ${CRM_STAGE_LABELS[requestedStage].en}`
+      ).catch(() => {});
+    }
+
     try {
       await emitBusinessEvent({
         eventType: "lead.stage_changed",
@@ -237,6 +253,20 @@ export async function PATCH(
         sourceHref: `/admin/crm?lead=${encodeURIComponent(updated.id)}`,
       });
     } catch {}
+  }
+
+  // If scheduledSlotIso was updated directly via PATCH, recalculate reminder jobs safely
+  if (
+    body.scheduledSlotIso !== undefined &&
+    (updated.scheduledSlotIso || null) !== (existing.scheduledSlotIso || null)
+  ) {
+    await cancelPendingRemindersForLead(
+      updated.id,
+      updated.scheduledSlotIso ? "Cancelled: meeting slot updated" : "Cancelled: meeting removed"
+    ).catch(() => {});
+    if (updated.scheduledSlotIso) {
+      await scheduleAutomatedRemindersForLead(updated, { actor }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ ok: true, lead: updated });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordCrmMeetingWebhookUpdate } from "@/lib/crm-meetings/service";
 import { verifyResendWebhookSignature } from "@/lib/email/transactional";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { recordInvitationWebhookUpdate } from "@/lib/intelligence/employees";
@@ -182,12 +183,50 @@ export async function POST(request: Request) {
         errorDetail,
       },
     });
+    return NextResponse.json({
+      ok: true,
+      matched: true,
+      scope: "recruitment",
+      status: mappedStatus,
+    });
+  }
+
+  const crmMeetingRes = await recordCrmMeetingWebhookUpdate({
+    providerMessageId: messageId,
+    eventType,
+    detail: errorDetail || undefined,
+  });
+
+  if (crmMeetingRes.matched) {
+    await recordAuditLog({
+      actorId: "system:resend-webhook",
+      actorEmail: "webhooks@resend.com",
+      actorRole: "system",
+      module: "crm",
+      action: "crm_meeting_email_webhook",
+      entityType: "lead",
+      entityId: crmMeetingRes.leadId || messageId,
+      outcome:
+        mappedStatus === "bounced" ||
+        mappedStatus === "complained" ||
+        mappedStatus === "delivery_failed"
+          ? "error"
+          : "allowed",
+      summary: `Resend webhook (${eventType}) updated meeting email for ${crmMeetingRes.leadReferenceId || messageId} to "${crmMeetingRes.status || mappedStatus}".`,
+      metadata: {
+        communicationId: crmMeetingRes.communicationId || null,
+        providerMessageId: messageId,
+        eventType,
+        deliveryStatus: crmMeetingRes.status || mappedStatus,
+        errorDetail,
+      },
+    });
   }
 
   return NextResponse.json({
     ok: true,
-    matched: result.matched || interviewRes.matched || recruitmentRes.matched,
-    scope: recruitmentRes.matched ? "recruitment" : "none",
-    status: mappedStatus,
+    matched: result.matched || interviewRes.matched || recruitmentRes.matched || crmMeetingRes.matched,
+    scope: crmMeetingRes.matched ? "crm_meeting" : "none",
+    status: crmMeetingRes.status || mappedStatus,
   });
 }

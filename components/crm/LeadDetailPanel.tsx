@@ -25,6 +25,11 @@ import {
   type LeadQualityStatus,
   type OwnerOption,
 } from "@/components/crm/types";
+import { MeetingCommunicationsPanel } from "@/components/crm/MeetingCommunicationsPanel";
+import {
+  MEETING_TEMPLATE_LABELS,
+  type MeetingCommunicationRecord,
+} from "@/lib/crm-meetings/types";
 import {
   B2B_SERVICE_TRACKS,
   canTransitionStage,
@@ -48,6 +53,7 @@ export function LeadDetailPanel({
   saving,
   onClose,
   onPatchLead,
+  onLeadUpdated,
   onAddTask,
   onToggleTask,
   onAskAgent,
@@ -77,6 +83,7 @@ export function LeadDetailPanel({
       ownerName?: string | null;
     }
   ) => Promise<void>;
+  onLeadUpdated?: (updated: CrmLeadRecord) => void;
   onAddTask: (lead: CrmLeadRecord, title: string, dueDate: string) => Promise<void>;
   onToggleTask: (task: CrmTaskRecord) => void;
   onAskAgent: (lead: CrmLeadRecord, prompt: string) => void;
@@ -87,10 +94,12 @@ export function LeadDetailPanel({
   const [activityInput, setActivityInput] = useState("");
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDue, setNewTaskDue] = useState("");
+  const [commHistory, setCommHistory] = useState<MeetingCommunicationRecord[]>([]);
 
   if (lead && notesLeadId !== lead.id) {
     setNotesLeadId(lead.id);
     setNotesDraft(lead.notes || "");
+    setCommHistory([]);
   }
 
   const meeting = formatLocalDateTime(lead?.scheduledSlotIso);
@@ -193,7 +202,7 @@ export function LeadDetailPanel({
                 className={`hz-tab ${tab === "timeline" ? "active" : ""}`}
                 onClick={() => setTab("timeline")}
               >
-                Timeline ({lead.activities.length})
+                Timeline ({lead.activities.length + commHistory.length})
               </button>
               {canUseAgent ? (
                 <button
@@ -317,7 +326,16 @@ export function LeadDetailPanel({
                 </div>
               </div>
 
-              {/* Quick Actions */}
+              {/* Meeting Communications & Automated Reminders */}
+              <MeetingCommunicationsPanel
+                lead={lead}
+                canEdit={canEdit}
+                canUseAgent={canUseAgent}
+                onLeadUpdated={onLeadUpdated}
+                onHistoryLoaded={setCommHistory}
+              />
+
+              {/* Internal CRM Quick Actions (Distinct from Client Emails Above) */}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {lead.scheduledSlotIso ? (
                   <a
@@ -332,13 +350,18 @@ export function LeadDetailPanel({
                     type="button"
                     className="hz-btn hz-btn-secondary hz-btn-sm"
                     disabled={saving}
+                    title="Logs an internal CRM reminder note only — does not send an email to the client"
                     onClick={() => void onPatchLead(lead, { sendReminder: true })}
                   >
-                    <CalendarClock size={12} /> Log Reminder
+                    <CalendarClock size={12} /> Log Internal Reminder
                   </button>
                 ) : null}
-                <a href={`mailto:${lead.email}`} className="hz-btn hz-btn-secondary hz-btn-sm">
-                  <Mail size={12} /> Email Contact
+                <a
+                  href={`mailto:${lead.email}`}
+                  className="hz-btn hz-btn-ghost hz-btn-sm"
+                  title="Open your local email app (not tracked in HIRZEXA delivery logs)"
+                >
+                  <Mail size={12} /> Mailto Client
                 </a>
                 {canUseAgent ? (
                   <button
@@ -347,11 +370,11 @@ export function LeadDetailPanel({
                     onClick={() =>
                       onAskAgent(
                         lead,
-                        `Prepare a concise, professional follow-up email for ${lead.fullName} at ${lead.company || "their company"} regarding ${lead.serviceTrack}.`
+                        `Draft a professional follow-up email for this client (${lead.fullName} at ${lead.company || "their company"}, ref ${lead.referenceId}) grounded strictly in recorded CRM notes and project requirements.`
                       )
                     }
                   >
-                    <Sparkles size={12} /> Draft Follow-Up Email
+                    <Sparkles size={12} /> Ask Copilot Draft
                   </button>
                 ) : null}
               </div>
@@ -506,6 +529,59 @@ export function LeadDetailPanel({
                     <Send size={13} /> Log
                   </button>
                 </form>
+              ) : null}
+
+              {commHistory.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--hz-text-secondary)" }}>
+                    Meeting Email Delivery Log ({commHistory.length})
+                  </span>
+                  <div className="hz-row-list">
+                    {commHistory.map((item) => {
+                      const sched = formatLocalDateTime(item.scheduledFor);
+                      const sent = formatLocalDateTime(item.sentAt);
+                      const tone =
+                        item.status === "delivered"
+                          ? "emerald"
+                          : item.status === "submitted"
+                          ? "blue"
+                          : item.status === "queued"
+                          ? "violet"
+                          : item.status === "failed" ||
+                            item.status === "bounced" ||
+                            item.status === "complained"
+                          ? "rose"
+                          : "neutral";
+                      return (
+                        <div key={item.id} className="hz-list-row" style={{ alignItems: "flex-start" }}>
+                          <div>
+                            <strong>
+                              {MEETING_TEMPLATE_LABELS[item.templateType]?.label || item.templateType} —{" "}
+                              {item.subject}
+                            </strong>
+                            <small>
+                              To: {item.recipientEmail} · By: {item.initiatedByName || item.triggerSource}
+                              {item.scheduledFor ? ` · Scheduled: ${sched.dateLabel} ${sched.timeLabel}` : ""}
+                              {item.sentAt ? ` · Sent: ${sent.dateLabel} ${sent.timeLabel}` : ""}
+                            </small>
+                            {item.failureReason ? (
+                              <small style={{ color: "#FCA5A5", display: "block" }}>
+                                {item.failureReason}
+                              </small>
+                            ) : null}
+                          </div>
+                          <StatusBadge tone={tone} dot>
+                            {item.status === "delivered"
+                              ? "delivered"
+                              : item.status === "submitted"
+                              ? "submitted"
+                              : item.status}
+                          </StatusBadge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               ) : null}
 
               <div className="hz-row-list">

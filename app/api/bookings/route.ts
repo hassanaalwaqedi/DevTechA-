@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { COMPANY_EMAILS } from "@/lib/company-emails";
 import { createCrmLead } from "@/lib/crm";
+import { handleDiscoveryBookingCreated } from "@/lib/crm-meetings/service";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -184,6 +185,18 @@ export async function POST(request: Request) {
       });
     } catch {}
 
+    let confirmationStatus: string = "not_applicable";
+    let scheduledRemindersCount = 0;
+    if (result.lead.leadType === "discovery_call" && result.lead.scheduledSlotIso) {
+      try {
+        const commRes = await handleDiscoveryBookingCreated(result.lead);
+        confirmationStatus = commRes.confirmation?.status || "not_sent";
+        scheduledRemindersCount = commRes.scheduledReminders.length;
+      } catch {
+        confirmationStatus = "failed";
+      }
+    }
+
     return NextResponse.json(
       {
         ok: true,
@@ -197,6 +210,8 @@ export async function POST(request: Request) {
         calendarLinks: result.calendarLinks,
         icsContent: result.icsContent,
         routedTo: COMPANY_EMAILS.business,
+        confirmationStatus,
+        scheduledRemindersCount,
       },
       { status: 201 }
     );

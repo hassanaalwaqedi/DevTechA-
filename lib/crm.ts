@@ -21,6 +21,7 @@ import { isLocalFallbackAllowed } from "@/lib/intelligence/store";
 import { canAccessScopedRecord, hasPermission, type AuthActor } from "@/lib/rbac";
 import { SITE_URL } from "@/lib/site";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createPrivilegedOrServerSupabaseClient } from "@/lib/supabase/service-role";
 
 const memoryLeads = new Map<string, CrmLeadRecord>();
 const reservedSlotIsos = new Set<string>();
@@ -1368,6 +1369,7 @@ export async function updateCrmLead(
     notes?: string;
     nextFollowUpAt?: string | null;
     scheduledSlotIso?: string | null;
+    timezone?: string;
     meetingLink?: string;
     activityNote?: string;
     sendReminder?: boolean;
@@ -1449,13 +1451,12 @@ export async function updateCrmLead(
     });
   }
 
-  let reminder24hSent = current.reminder24hSent;
   if (patch.sendReminder) {
-    reminder24hSent = true;
+    // Internal CRM reminder logging ONLY — never claim a client email was sent here.
     nextActivities.unshift({
       id: randomUUID(),
-      type: "reminder_sent",
-      summary: `Dispatched discovery call reminder email to ${current.email}`,
+      type: "note",
+      summary: "Internal CRM follow-up reminder logged (internal task/note only — no email sent to client).",
       actor,
       createdAt: nowIso,
     });
@@ -1469,12 +1470,13 @@ export async function updateCrmLead(
       patch.nextFollowUpAt !== undefined ? patch.nextFollowUpAt : current.nextFollowUpAt,
     scheduledSlotIso:
       patch.scheduledSlotIso !== undefined ? patch.scheduledSlotIso : current.scheduledSlotIso,
+    timezone: patch.timezone !== undefined && patch.timezone.trim() ? patch.timezone.trim() : current.timezone,
     meetingLink: patch.meetingLink !== undefined ? patch.meetingLink : current.meetingLink,
     ownerId: nextOwnerId,
     ownerEmail: nextOwnerEmail,
     ownerName: nextOwnerName,
     ownerDepartment: nextOwnerDepartment,
-    reminder24hSent,
+    reminder24hSent: current.reminder24hSent,
     activities: nextActivities,
     updatedAt: nowIso,
   };
@@ -1486,6 +1488,7 @@ export async function updateCrmLead(
       notes: updated.notes,
       next_follow_up_at: updated.nextFollowUpAt || null,
       scheduled_slot_iso: updated.scheduledSlotIso || null,
+      timezone: updated.timezone || "UTC",
       meeting_link: updated.meetingLink || null,
       owner_employee_id: updated.ownerId || null,
       activities: updated.activities,
@@ -1603,27 +1606,65 @@ export async function updateCrmLead(
     await writeLocalLead(updated);
   }
 
-  if (patch.sendReminder && process.env.CONTACT_WEBHOOK_URL) {
-    const emails = buildDiscoveryBookingEmails(updated);
-    const webhookHeaders: Record<string, string> = { "Content-Type": "application/json" };
-    if (process.env.CONTACT_WEBHOOK_SECRET) {
-      webhookHeaders["x-hirzexa-webhook-secret"] = process.env.CONTACT_WEBHOOK_SECRET;
-    }
+  return updated;
+}
+
+/**
+ * Appends a single truthful activity timeline entry to a CRM lead.
+ * Uses the privileged service client when available so booking automation
+ * and background reminder workers can record verified email events safely.
+ */
+export async function appendLeadActivityEvent(
+  leadId: string,
+  entry: {
+    type: CrmActivityItem["type"];
+    summary: string;
+    actor: string;
+  }
+): Promise<void> {
+  const nowIso = new Date().toISOString();
+  const item: CrmActivityItem = {
+    id: randomUUID(),
+    type: entry.type,
+    summary: entry.summary.slice(0, 400),
+    actor: entry.actor.slice(0, 120),
+    createdAt: nowIso,
+  };
+
+  if (isSupabaseConfigured()) {
     try {
-      await fetch(process.env.CONTACT_WEBHOOK_URL, {
-        method: "POST",
-        headers: webhookHeaders,
-        body: JSON.stringify({
-          reference: updated.referenceId,
-          eventType: "discovery_reminder",
-          recipient: updated.email,
-          replyTo: COMPANY_EMAILS.business,
-          reminderTemplate: emails.reminderTemplate,
-        }),
-        signal: AbortSignal.timeout(6_000),
-      });
+      const client = await createPrivilegedOrServerSupabaseClient();
+      const { data } = await client
+        .from("crm_leads")
+        .select("activities")
+        .eq("id", leadId)
+        .maybeSingle();
+      if (data) {
+        const current = Array.isArray(data.activities)
+          ? (data.activities as CrmActivityItem[])
+          : [];
+        await client
+          .from("crm_leads")
+          .update({
+            activities: [item, ...current].slice(0, 150),
+            updated_at: nowIso,
+          })
+          .eq("id", leadId);
+      }
     } catch {}
   }
 
-  return updated;
+  if (isLocalFallbackAllowed()) {
+    const leads = await readLocalLeads();
+    const existing = leads.find((l) => l.id === leadId) || memoryLeads.get(leadId);
+    if (existing) {
+      const next: CrmLeadRecord = {
+        ...existing,
+        activities: [item, ...existing.activities].slice(0, 150),
+        updatedAt: nowIso,
+      };
+      memoryLeads.set(next.id, next);
+      await writeLocalLead(next);
+    }
+  }
 }

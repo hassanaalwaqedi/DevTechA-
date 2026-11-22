@@ -10,6 +10,7 @@ import {
   listAuthorizedCrmLeads,
   updateCrmLead,
 } from "@/lib/crm";
+import { generateAiFollowUpDraft } from "@/lib/crm-meetings/service";
 import {
   canTransitionStage,
   CRM_STAGE_LABELS,
@@ -937,16 +938,41 @@ const draftClientEmailTool: RegisteredTool<{
     if (!lead) {
       return { summary: `No lead matched "${args.query}".`, data: null, citations: [] };
     }
-    const subject = ar
-      ? `متابعة مشروع ${lead.company || lead.fullName} مع HIRZEXA (${lead.referenceId})`
-      : `Following up on ${lead.company || lead.fullName} — HIRZEXA (${lead.referenceId})`;
-    const body = ar
-      ? `مرحباً ${lead.fullName}،\n\nنتابع معكم بخصوص طلبكم في مسار "${lead.serviceTrack}" (المرجع: ${lead.referenceId}). يسعدنا مراجعة المتطلبات الفنية وتحديد الخطوة التالية الأنسب لفريقكم.\n\nمع التحية،\n${actor.fullName}\nHIRZEXA`
-      : `Hello ${lead.fullName},\n\nFollowing up regarding your ${lead.serviceTrack} inquiry with HIRZEXA (Ref: ${lead.referenceId}). We would be glad to walk through the technical architecture options and next milestones whenever convenient.\n\nBest regards,\n${actor.fullName}\nHIRZEXA`;
+
+    const aiDraftRes = await generateAiFollowUpDraft(actor, lead.id, {
+      locale: args.locale || lead.locale,
+      guidance:
+        args.purpose === "proposal_followup"
+          ? "Focus on checking in on the recorded scope and next proposal review steps without inventing prices or commitments."
+          : "Post-meeting follow-up grounded strictly in recorded CRM notes and confirmed requirements.",
+    });
+
+    const subject =
+      aiDraftRes.ok && aiDraftRes.draft
+        ? aiDraftRes.draft.subject
+        : ar
+        ? `متابعة مشروع ${lead.company || lead.fullName} مع HIRZEXA (${lead.referenceId})`
+        : `Following up on ${lead.company || lead.fullName} — HIRZEXA (${lead.referenceId})`;
+    const body =
+      aiDraftRes.ok && aiDraftRes.draft
+        ? aiDraftRes.draft.bodyText
+        : ar
+        ? `مرحباً ${lead.fullName}،\n\nنتابع معكم بخصوص طلبكم في مسار "${lead.serviceTrack}" (المرجع: ${lead.referenceId}). يسعدنا مراجعة المتطلبات الفنية وتحديد الخطوة التالية الأنسب لفريقكم.\n\nمع التحية،\n${actor.fullName}\nHIRZEXA`
+        : `Hello ${lead.fullName},\n\nFollowing up regarding your ${lead.serviceTrack} inquiry with HIRZEXA (Ref: ${lead.referenceId}). We would be glad to walk through the technical architecture options and next milestones whenever convenient.\n\nBest regards,\n${actor.fullName}\nHIRZEXA`;
 
     return {
-      summary: `Drafted client follow-up email for ${lead.company || lead.fullName} (NOT sent automatically).`,
-      data: { to: lead.email, subject, body, sent: false, note: "Draft only — review and send manually." },
+      summary: `Drafted grounded follow-up email for ${lead.company || lead.fullName} (DRAFT ONLY — open Meeting Communications in CRM to review, preview, and explicitly confirm sending).`,
+      data: {
+        leadId: lead.id,
+        referenceId: lead.referenceId,
+        to: lead.email,
+        subject,
+        body,
+        groundedFacts: aiDraftRes.draft?.groundedFacts || [],
+        sent: false,
+        requiresHumanApproval: true,
+        note: "Draft only — never sent automatically. Review, edit, preview, and confirm sending in Sales CRM → Meeting Communications.",
+      },
       citations: [
         {
           label: `${lead.company || lead.fullName} (${lead.referenceId})`,

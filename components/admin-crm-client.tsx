@@ -699,6 +699,10 @@ export function AdminCrmClient({
         saving={saving}
         onClose={() => setSelected(null)}
         onPatchLead={patchLead}
+        onLeadUpdated={(updatedLead) => {
+          setLeads((prev) => prev.map((l) => (l.id === updatedLead.id ? updatedLead : l)));
+          setSelected(updatedLead);
+        }}
         onAddTask={addLeadTask}
         onToggleTask={(task) => void toggleTaskCompleted(task)}
         onAskAgent={askAgentAboutLead}

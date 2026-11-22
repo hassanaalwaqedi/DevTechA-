@@ -27,6 +27,7 @@ export function isResendConfigured(): boolean {
 
 export const OFFICIAL_SUPPORT_EMAIL = "support@hirzexa.com";
 export const OFFICIAL_CAREERS_EMAIL = "careers@hirzexa.com";
+export const OFFICIAL_BUSINESS_EMAIL = "business@hirzexa.com";
 export const OFFICIAL_CAREERS_SENDER = "HIRZEXA Careers <careers@hirzexa.com>";
 export const OFFICIAL_ACCOUNTS_SENDER = "HIRZEXA Accounts <accounts@hirzexa.com>";
 export const OFFICIAL_WEBSITE_URL = "https://hirzexa.com";
@@ -49,6 +50,28 @@ export function getInvitationSenderAddress(): string {
 
 export function getInvitationReplyToAddress(): string {
   return process.env.INVITATION_EMAIL_REPLY_TO?.trim() || OFFICIAL_SUPPORT_EMAIL;
+}
+
+/**
+ * Verified sender identity for client-facing Sales CRM meeting communications.
+ * Reuses the verified Resend domain sender (MEETINGS_EMAIL_FROM / EMAIL_FROM / accounts@hirzexa.com)
+ * rather than assuming an unverified Google Workspace alias has outbound SMTP permission.
+ */
+export function getMeetingsSenderAddress(): string {
+  return (
+    process.env.MEETINGS_EMAIL_FROM?.trim() ||
+    process.env.EMAIL_FROM?.trim() ||
+    getInvitationSenderAddress()
+  );
+}
+
+/**
+ * Departmental reply-to address for client meeting emails (Google Workspace alias).
+ * Client replies route cleanly to business@hirzexa.com without requiring that alias
+ * to be configured as an independent sending mailbox.
+ */
+export function getMeetingsReplyToAddress(): string {
+  return process.env.MEETINGS_EMAIL_REPLY_TO?.trim() || OFFICIAL_BUSINESS_EMAIL;
 }
 
 /**
@@ -174,6 +197,15 @@ export function validateOutboundEmailContent(template: EmailMessageTemplate): {
   ok: boolean;
   error?: string;
 } {
+  // Defense-in-depth against SMTP/API email header injection (CR/LF or NUL bytes in header fields)
+  const headerFields = [template.from, template.to, template.replyTo || "", template.subject];
+  if (headerFields.some((v) => /[\r\n\u0000]/.test(v))) {
+    return {
+      ok: false,
+      error: "Blocked outbound email: header injection characters (CR/LF/NUL) detected.",
+    };
+  }
+
   const combined = `${template.subject}\n${template.html}\n${template.text}`;
   const allowLocalTest =
     process.env.ALLOW_LOCALHOST_INVITE_EMAILS === "true" &&

@@ -13,3 +13,21 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
+      - key: MEETING_REMINDER_WORKER_SECRET
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  - type: cron
+    name: hirzexa-meeting-reminder-worker
+    runtime: node
+    region: frankfurt
+    schedule: "*/5 * * * *"
+    buildCommand: "echo 'Cron worker ready'"
+    startCommand: >-
+      node -e "const u = (process.env.APP_BASE_URL || 'https://hirzexa.com').replace(/\/$/, '') + '/api/internal/workers/meeting-reminders'; fetch(u, { method: 'POST', headers: { Authorization: 'Bearer ' + (process.env.MEETING_REMINDER_WORKER_SECRET || ''), 'Content-Type': 'application/json' }, body: JSON.stringify({ limit: 25 }) }).then(async r => { const t = await r.text(); console.log(r.status, t); if (!r.ok) process.exit(1); }).catch(e => { console.error(e); process.exit(1); });"
+    envVars:
+      - key: APP_BASE_URL
+        value: https://hirzexa.com
+      - key: MEETING_REMINDER_WORKER_SECRET
+        sync: false
