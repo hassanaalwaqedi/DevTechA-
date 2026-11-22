@@ -847,9 +847,15 @@ CONTACT_DELIVERY_MODE=resend`}</pre>
                     <h2>Session &amp; Security Posture</h2>
                     <p>Authentication state, row-level security, and secret isolation.</p>
                   </div>
-                  <StatusBadge tone={actorProfile.mfaEnrolled ? "emerald" : "amber"} dot>
-                    {actorProfile.mfaEnrolled ? "MFA Enrolled" : "MFA Not Enrolled"}
-                  </StatusBadge>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <StatusBadge tone={actorProfile.mfaEnrolled ? "emerald" : "amber"} dot>
+                      {actorProfile.mfaEnrolled ? "MFA Enrolled (AAL2)" : "MFA Not Enrolled"}
+                    </StatusBadge>
+                    <Link href="/admin/mfa" className="hz-btn hz-btn-secondary hz-btn-sm">
+                      {actorProfile.mfaEnrolled ? "Manage MFA" : "Enroll MFA (TOTP)"}{" "}
+                      <ArrowUpRight size={13} />
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="hz-set-kv-grid">

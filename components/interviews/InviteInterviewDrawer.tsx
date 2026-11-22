@@ -538,6 +538,7 @@ export function InviteInterviewDrawer({
                       <iframe
                         title="Candidate Interview Email Preview"
                         srcDoc={previewData.html}
+                        sandbox=""
                         className={`hz-int-preview-frame ${
                           previewViewport === "mobile" ? "is-mobile" : ""
                         }`}

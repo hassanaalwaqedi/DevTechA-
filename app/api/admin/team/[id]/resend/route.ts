@@ -10,6 +10,7 @@ import {
 } from "@/lib/email/transactional";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import {
+  listEmployees,
   reissueEmployeeInvitation,
   updateInvitationDeliveryStatus,
 } from "@/lib/intelligence/employees";
@@ -36,6 +37,14 @@ export async function POST(
   }
 
   const { id } = await params;
+
+  const targetEmployee = (await listEmployees()).find((e) => e.id === id);
+  if (targetEmployee?.roleKey === "super_admin" && !actor.isSuperAdmin) {
+    return NextResponse.json(
+      { error: "Only a Super Admin can manage invitations for a Super Admin account." },
+      { status: 403 }
+    );
+  }
 
   // Prevent rapid duplicate uncontrolled resends: 1 resend per 90s cooldown + max 3 per hour per employee
   if (!checkRateLimit(`resend-cooldown:${id}`, 1, 90 * 1000)) {

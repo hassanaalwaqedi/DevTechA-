@@ -60,13 +60,13 @@ function candidateModels() {
   return Array.from(new Set([model(), "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"]));
 }
 function redact(value: unknown) { return String(value).replace(/AIza[\w-]{20,}/g, "[REDACTED]").slice(0, 220); }
-const schemaFor = (schema: z.ZodTypeAny) => z.toJSONSchema(schema, {target: "draft-7"});
+const schemaFor = (schema: z.ZodTypeAny) => z.toJSONSchema(schema, { target: "draft-7" });
 
-export async function generateStructured<T>(options: {key: string; prompt: string; schema: z.ZodType<T>; limit?: number}) {
+export async function generateStructured<T>(options: { key: string; prompt: string; schema: z.ZodType<T>; limit?: number }) {
   if (!configured()) throw new Error("AI features are not configured.");
   if (!checkRateLimit(`ai:${options.key}`, options.limit ?? 8, 60 * 60 * 1000)) throw new Error("AI request limit reached. Please try again later.");
   if (options.prompt.length > 12_000) throw new Error("Request is too large.");
-  const client = new GoogleGenAI({apiKey: apiKey()});
+  const client = new GoogleGenAI({ apiKey: apiKey() });
   const models = candidateModels();
   let lastError: unknown;
   for (const activeModel of models) {
@@ -74,12 +74,12 @@ export async function generateStructured<T>(options: {key: string; prompt: strin
       const request = client.models.generateContent({
         model: activeModel,
         contents: options.prompt,
-        config: {responseMimeType: "application/json", responseJsonSchema: schemaFor(options.schema), maxOutputTokens: 1800, temperature: 0.35},
+        config: { responseMimeType: "application/json", responseJsonSchema: schemaFor(options.schema), maxOutputTokens: 1800, temperature: 0.35 },
       });
       const response = await Promise.race([request, new Promise<never>((_, reject) => setTimeout(() => reject(new Error("AI request timed out.")), 18_000))]);
       const parsed = options.schema.safeParse(JSON.parse(response.text || "{}"));
       if (!parsed.success) throw new Error("The AI response did not match the required format.");
-      console.info("[ai] generation complete", {model: activeModel, inputTokens: response.usageMetadata?.promptTokenCount || 0, outputTokens: response.usageMetadata?.candidatesTokenCount || 0});
+      console.info("[ai] generation complete", { model: activeModel, inputTokens: response.usageMetadata?.promptTokenCount || 0, outputTokens: response.usageMetadata?.candidatesTokenCount || 0 });
       return parsed.data;
     } catch (error) {
       lastError = error;
@@ -100,9 +100,15 @@ function decodeXmlEntities(input: string) {
     .replace(/&#([0-9]+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)));
 }
 
-function extractDocxTextAndLinks(buffer: Buffer): {text: string; links: string[]} {
+const MAX_DOCX_ENTRIES = 256;
+const MAX_DOCX_ENTRY_COMPRESSED = 5 * 1024 * 1024;
+const MAX_DOCX_ENTRY_UNCOMPRESSED = 2 * 1024 * 1024;
+const MAX_DOCX_TOTAL_UNCOMPRESSED = 5 * 1024 * 1024;
+
+function extractDocxTextAndLinks(buffer: Buffer): { text: string; links: string[] } {
   const texts: string[] = [];
   const links = new Set<string>();
+  let totalUncompressedBytes = 0;
   try {
     let eocdOffset = -1;
     for (let i = buffer.length - 22; i >= Math.max(0, buffer.length - 65557); i--) {
@@ -111,14 +117,15 @@ function extractDocxTextAndLinks(buffer: Buffer): {text: string; links: string[]
         break;
       }
     }
-    if (eocdOffset === -1) return {text: "", links: []};
-    const totalEntries = buffer.readUInt16LE(eocdOffset + 10);
+    if (eocdOffset === -1) return { text: "", links: [] };
+    const totalEntries = Math.min(buffer.readUInt16LE(eocdOffset + 10), MAX_DOCX_ENTRIES);
     let cdOffset = buffer.readUInt32LE(eocdOffset + 16);
 
     for (let entry = 0; entry < totalEntries && cdOffset + 46 <= buffer.length; entry++) {
       if (buffer.readUInt32LE(cdOffset) !== 0x02014b50) break;
       const compressionMethod = buffer.readUInt16LE(cdOffset + 10);
       const compressedSize = buffer.readUInt32LE(cdOffset + 20);
+      const uncompressedSize = buffer.readUInt32LE(cdOffset + 24);
       const fileNameLength = buffer.readUInt16LE(cdOffset + 28);
       const extraFieldLength = buffer.readUInt16LE(cdOffset + 30);
       const fileCommentLength = buffer.readUInt16LE(cdOffset + 32);
@@ -130,20 +137,30 @@ function extractDocxTextAndLinks(buffer: Buffer): {text: string; links: string[]
       const isRels = /^word\/_rels\/(document|header\d*|footer\d*)\.xml\.rels$/i.test(entryName);
       if (!isXmlDoc && !isRels) continue;
       if (localHeaderOffset + 30 > buffer.length) continue;
+      if (compressedSize > MAX_DOCX_ENTRY_COMPRESSED || uncompressedSize > MAX_DOCX_ENTRY_UNCOMPRESSED) continue;
 
       const localNameLen = buffer.readUInt16LE(localHeaderOffset + 26);
       const localExtraLen = buffer.readUInt16LE(localHeaderOffset + 28);
       const dataStart = localHeaderOffset + 30 + localNameLen + localExtraLen;
       const dataEnd = dataStart + compressedSize;
-      if (dataEnd > buffer.length) continue;
+      if (dataEnd > buffer.length || dataEnd < dataStart) continue;
+
+      const remainingBudget = MAX_DOCX_TOTAL_UNCOMPRESSED - totalUncompressedBytes;
+      if (remainingBudget <= 0) break;
+      const entryLimit = Math.min(MAX_DOCX_ENTRY_UNCOMPRESSED, remainingBudget);
 
       const slice = buffer.subarray(dataStart, dataEnd);
-      const rawXml =
+      const rawBuf =
         compressionMethod === 0
-          ? slice.toString("utf8")
+          ? slice.length <= entryLimit
+            ? slice
+            : null
           : compressionMethod === 8
-            ? inflateRawSync(slice).toString("utf8")
-            : "";
+            ? inflateRawSync(slice, { maxOutputLength: entryLimit })
+            : null;
+      if (!rawBuf) continue;
+      totalUncompressedBytes += rawBuf.length;
+      const rawXml = rawBuf.toString("utf8");
       if (!rawXml) continue;
 
       if (isRels) {
@@ -183,7 +200,7 @@ function extractPdfLinks(buffer: Buffer): string[] {
     for (const match of uriMatches) {
       links.add(match[1].trim());
     }
-  } catch {}
+  } catch { }
   return Array.from(links).slice(0, 25);
 }
 
@@ -230,7 +247,7 @@ export async function extractCvProfile(options: {
       `${systemInstruction}\nEmbedded PDF hyperlink annotations (if any): ${JSON.stringify(pdfLinks)}`
     );
   } else {
-    const {text: docxText, links: docxLinks} = extractDocxTextAndLinks(options.fileBuffer);
+    const { text: docxText, links: docxLinks } = extractDocxTextAndLinks(options.fileBuffer);
     if (!docxText) {
       throw new Error("Could not read text from the DOCX file. Please upload a PDF or fill the fields manually.");
     }
@@ -239,7 +256,7 @@ export async function extractCvProfile(options: {
     );
   }
 
-  const client = new GoogleGenAI({apiKey: apiKey()});
+  const client = new GoogleGenAI({ apiKey: apiKey() });
   const models = candidateModels();
   let lastError: unknown;
 

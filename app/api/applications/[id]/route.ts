@@ -23,6 +23,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid application status." }, { status: 422 });
     }
     if (body.note !== undefined) {
+      const cleanNote = String(body.note).trim().slice(0, 4000);
+      if (!cleanNote) {
+        return NextResponse.json({ error: "Note cannot be empty." }, { status: 422 });
+      }
       const { data: app, error: appError } = await supabase
         .from("job_applications")
         .select("id")
@@ -31,7 +35,7 @@ export async function PATCH(
       if (appError) throw appError;
       const { error } = await supabase
         .from("application_notes")
-        .insert({ application_id: app.id, admin_id: user?.id, note: String(body.note) });
+        .insert({ application_id: app.id, admin_id: user?.id, note: cleanNote });
       if (error) throw error;
     }
     if (body.status) {

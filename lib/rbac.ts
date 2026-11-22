@@ -272,18 +272,40 @@ export function assertPermission(
 }
 
 export class RbacDeniedError extends Error {
-  readonly code = "FORBIDDEN";
+  readonly code: string = "FORBIDDEN";
   readonly status = 403;
   readonly module: PermissionModule;
   readonly action: PermissionAction;
   readonly roleKey: RoleKey;
 
-  constructor(module: PermissionModule, action: PermissionAction, roleKey: RoleKey) {
-    super(`Access denied: role "${roleKey}" lacks "${action}" permission on "${module}".`);
+  constructor(module: PermissionModule, action: PermissionAction, roleKey: RoleKey, customMessage?: string, customCode?: string) {
+    super(
+      customMessage ||
+        `Access denied: role "${roleKey}" lacks "${action}" permission on "${module}".`
+    );
     this.name = "RbacDeniedError";
     this.module = module;
     this.action = action;
     this.roleKey = roleKey;
+    if (customCode) this.code = customCode;
+  }
+}
+
+export class MfaRequiredError extends RbacDeniedError {
+  readonly mfaMode: "challenge" | "enroll";
+
+  constructor(roleKey: RoleKey, mode: "challenge" | "enroll") {
+    super(
+      "settings",
+      "view",
+      roleKey,
+      mode === "enroll"
+        ? "Multi-factor authentication enrollment is required for this administrative account. Complete TOTP setup at /admin/mfa."
+        : "Multi-factor authentication (AAL2) verification is required for this session. Verify your authenticator code at /admin/mfa.",
+      mode === "enroll" ? "MFA_ENROLLMENT_REQUIRED" : "MFA_REQUIRED"
+    );
+    this.name = "MfaRequiredError";
+    this.mfaMode = mode;
   }
 }
 

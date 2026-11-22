@@ -850,6 +850,7 @@ export function ManualEmailComposerDrawer({
                       <iframe
                         title="HIRZEXA Recruitment Email Preview"
                         srcDoc={previewData.template.html}
+                        sandbox=""
                         className={`hz-int-preview-frame ${
                           previewViewport === "mobile" ? "is-mobile" : ""
                         }`}

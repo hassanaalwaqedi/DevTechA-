@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAdminApi } from "@/lib/auth";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { updateEmployeeRecord } from "@/lib/intelligence/employees";
+import { hasPermission, RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 
@@ -16,7 +17,10 @@ export async function PATCH(request: Request) {
   let actor;
   try {
     ({ actor } = await requireAdminApi());
-  } catch {
+  } catch (error) {
+    if (error instanceof RbacDeniedError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: 403 });
+    }
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -29,10 +33,35 @@ export async function PATCH(request: Request) {
     );
   }
 
+  // Department is an authorization scope boundary (`team` scope checks actor.department).
+  // Non-privileged users must not self-modify their department to access another team's records.
+  const canEditDepartment = actor.isSuperAdmin || hasPermission(actor, "team", "edit");
+  const requestedDeptChange =
+    parsed.data.department !== undefined &&
+    parsed.data.department.trim().toLowerCase() !== actor.department.trim().toLowerCase();
+
+  if (requestedDeptChange && !canEditDepartment) {
+    await recordAuditLog({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.roleKey,
+      module: "settings",
+      action: "update_profile",
+      entityType: "employee",
+      entityId: actor.employeeId,
+      outcome: "denied",
+      summary: `Blocked self-service department reassignment attempt ("${actor.department}" -> "${parsed.data.department}").`,
+    });
+    return NextResponse.json(
+      { error: "Department changes require Team administration permission." },
+      { status: 403 }
+    );
+  }
+
   const updated = await updateEmployeeRecord(actor.employeeId, {
     fullName: parsed.data.fullName,
     jobTitle: parsed.data.jobTitle,
-    department: parsed.data.department,
+    department: canEditDepartment ? parsed.data.department : undefined,
   });
 
   if (!updated) {

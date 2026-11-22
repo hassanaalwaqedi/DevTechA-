@@ -21,11 +21,14 @@ import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
   ACCESS_SCOPES,
+  hasPermission,
   PERMISSION_ACTIONS,
   PERMISSION_MODULES,
   RbacDeniedError,
   ROLE_KEYS,
   ROLE_TEMPLATES,
+  type PermissionAction,
+  type PermissionModule,
 } from "@/lib/rbac";
 import { SITE_URL } from "@/lib/site";
 
@@ -99,6 +102,26 @@ export async function POST(request: Request) {
       { error: "Only a Super Admin can create another Super Admin account." },
       { status: 403 }
     );
+  }
+
+  // Enforce permission ceiling: non-Super Admins cannot grant permissions they do not hold
+  if (!actor.isSuperAdmin && parsed.data.permissionOverrides) {
+    for (const [mod, actions] of Object.entries(parsed.data.permissionOverrides)) {
+      if (!Array.isArray(actions)) continue;
+      for (const act of actions) {
+        if (
+          ((mod === "team" || mod === "audit") && (act === "manage" || act === "delete")) ||
+          !hasPermission(actor, mod as PermissionModule, act as PermissionAction)
+        ) {
+          return NextResponse.json(
+            {
+              error: `Cannot grant "${mod}:${act}" override exceeding your own effective permissions.`,
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
   }
 
   try {

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { createPrivilegedOrServerSupabaseClient } from "@/lib/supabase/service-role";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { optionalUrl, requiredText, validateCv, validateDocument } from "@/lib/validation";
 import { getApplications } from "@/lib/db";
 import { requirePermissionApi } from "@/lib/auth";
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
   let coverLetterPath = "";
   try {
     const headerStore = await headers();
-    const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const ip = getClientIp(headerStore);
     if (!checkRateLimit(`application:${ip}`)) return NextResponse.json({error: "Too many applications from this network. Try again later."}, {status: 429});
     const form = await request.formData();
     const supabase = await createSupabaseServerClient();
@@ -55,22 +56,31 @@ export async function POST(request: Request) {
     if (job.compensation_type === "Unpaid" && form.get("compensationAcknowledged") !== "on") return NextResponse.json({error: "Please acknowledge the compensation status before applying."}, {status: 422});
 
     const email = requiredText(form.get("email"), "Email").toLowerCase();
-    const {count} = await supabase.from("job_applications").select("id", {count: "exact", head: true}).eq("job_id", job.id).eq("email", email).gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+    if (
+      email.length > 254 ||
+      !/^[^\s@<>()[\]\\,;:\s@"]+@[^\s@<>()[\]\\,;:\s@"]+\.[^\s@<>()[\]\\,;:\s@"]{2,}$/.test(email)
+    ) {
+      return NextResponse.json({error: "Please provide a valid email address."}, {status: 422});
+    }
+    // Use server-side privileged client (when SUPABASE_SERVICE_ROLE_KEY is provisioned) ONLY
+    // after passing rate-limit, open-job, email, and magic-byte CV validation above.
+    const privilegedClient = await createPrivilegedOrServerSupabaseClient();
+    const {count} = await privilegedClient.from("job_applications").select("id", {count: "exact", head: true}).eq("job_id", job.id).eq("email", email).gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
     if ((count || 0) > 0) return NextResponse.json({error: "An application from this email was already received recently."}, {status: 409});
 
     const reference = `DEV-${new Date().getFullYear()}-${randomInt(10000, 99999)}`;
     const folder = `${job.id}/${reference}`;
     const safeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "-");
     cvPath = `${folder}/cv-${safeName(cv.name)}`;
-    const upload = await supabase.storage.from("cvs").upload(cvPath, cv, {contentType: cv.type, upsert: false});
+    const upload = await privilegedClient.storage.from("cvs").upload(cvPath, cv, {contentType: cv.type, upsert: false});
     if (upload.error) throw upload.error;
     if (coverLetterFile instanceof File && coverLetterFile.name) {
       coverLetterPath = `${folder}/cover-letter-${safeName(coverLetterFile.name)}`;
-      const coverUpload = await supabase.storage.from("cvs").upload(coverLetterPath, coverLetterFile, {contentType: coverLetterFile.type, upsert: false});
+      const coverUpload = await privilegedClient.storage.from("cvs").upload(coverLetterPath, coverLetterFile, {contentType: coverLetterFile.type, upsert: false});
       if (coverUpload.error) throw coverUpload.error;
     }
 
-    const {error} = await supabase.from("job_applications").insert({
+    const {error} = await privilegedClient.from("job_applications").insert({
       reference_id: reference,
       job_id: job.id,
       full_name: requiredText(form.get("name"), "Full name"),
@@ -121,8 +131,8 @@ export async function POST(request: Request) {
     const paths = [cvPath, coverLetterPath].filter(Boolean);
     if (paths.length) {
       try {
-        const supabase = await createSupabaseServerClient();
-        await supabase.storage.from("cvs").remove(paths);
+        const cleanupClient = await createPrivilegedOrServerSupabaseClient();
+        await cleanupClient.storage.from("cvs").remove(paths);
       } catch {}
     }
     const message = error instanceof Error ? error.message : error && typeof error === "object" && "message" in error ? String((error as {message: unknown}).message) : "Unable to submit application.";

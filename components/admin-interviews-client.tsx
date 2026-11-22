@@ -1345,6 +1345,7 @@ export function AdminInterviewsClient({
                     <iframe
                       title="HIRZEXA Recruitment Template Preview"
                       srcDoc={previewTemplate.html}
+                      sandbox=""
                       className={`hz-int-preview-frame ${
                         previewViewport === "mobile" ? "is-mobile" : ""
                       }`}

@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { SESSION_VERSION_COOKIE } from "@/lib/auth";
+import { SESSION_VERSION_COOKIE, signSessionVersionToken } from "@/lib/auth";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { resolveOrBootstrapActor } from "@/lib/intelligence/employees";
+import { evaluateMfaPolicy, type MfaAssuranceLevel } from "@/lib/mfa";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -18,10 +20,43 @@ export async function POST(request: Request) {
     );
   }
 
+  const ip = getClientIp(request.headers);
+  if (!checkRateLimit(`admin-login-ip:${ip}`, 30, 15 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many sign-in attempts from this network. Please wait 15 minutes and try again." },
+      { status: 429, headers: { "Retry-After": "900", "Cache-Control": "no-store" } }
+    );
+  }
+
   const body = await request.json().catch(() => ({}));
-  const email = String(body.email || "").trim().toLowerCase();
+  const email = String(body.email || "").trim().toLowerCase().slice(0, 254);
   const password = String(body.password || "");
-  const response = NextResponse.json({ ok: true });
+
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: "Email and password are required." },
+      { status: 400, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
+  if (!checkRateLimit(`admin-login-acct:${ip}:${email}`, 10, 15 * 60 * 1000)) {
+    await recordAuditLog({
+      actorId: "anonymous",
+      actorEmail: email,
+      actorRole: "anonymous",
+      module: "auth",
+      action: "login_rate_limited",
+      entityType: "session",
+      outcome: "denied",
+      summary: "Rate-limited repeated failed sign-in attempts.",
+    });
+    return NextResponse.json(
+      { error: "Too many sign-in attempts for this account. Please wait 15 minutes and try again." },
+      { status: 429, headers: { "Retry-After": "900", "Cache-Control": "no-store" } }
+    );
+  }
+
+  const pendingCookies: Array<{ name: string; value: string; options?: Record<string, unknown> }> = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -38,7 +73,7 @@ export async function POST(request: Request) {
             }) || [],
         setAll: (cookiesToSet) =>
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            pendingCookies.push({ name, value, options: options as Record<string, unknown> })
           ),
       },
     }
@@ -111,13 +146,53 @@ export async function POST(request: Request) {
     );
   }
 
-  response.cookies.set(SESSION_VERSION_COOKIE, String(actor.sessionVersion), {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 14,
+  let hasVerifiedFactor = false;
+  let currentAal: MfaAssuranceLevel = "aal1";
+  let nextAal: MfaAssuranceLevel = "aal1";
+  try {
+    const [{ data: factors }, { data: aalData }] = await Promise.all([
+      adminClient.auth.mfa.listFactors(),
+      adminClient.auth.mfa.getAuthenticatorAssuranceLevel(),
+    ]);
+    hasVerifiedFactor = Boolean(
+      factors?.totp?.some((f) => f.status === "verified") ||
+        factors?.phone?.some((f) => f.status === "verified")
+    );
+    currentAal = (aalData?.currentLevel as MfaAssuranceLevel) || "aal1";
+    nextAal = (aalData?.nextLevel as MfaAssuranceLevel) || (hasVerifiedFactor ? "aal2" : "aal1");
+  } catch {}
+
+  const mfaPolicy = evaluateMfaPolicy({
+    actor,
+    currentLevel: currentAal,
+    nextLevel: nextAal,
+    hasVerifiedFactor,
   });
+
+  const response = NextResponse.json(
+    {
+      ok: true,
+      mfaRequired: mfaPolicy.requiresChallenge,
+      mfaEnrollmentRequired: mfaPolicy.requiresEnrollment,
+    },
+    { headers: { "Cache-Control": "private, no-store" } }
+  );
+
+  for (const cookie of pendingCookies) {
+    response.cookies.set(cookie.name, cookie.value, cookie.options);
+  }
+
+  response.cookies.set(
+    SESSION_VERSION_COOKIE,
+    signSessionVersionToken(authData.user.id, actor.sessionVersion),
+    {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 14,
+    }
+  );
 
   await recordAuditLog({
     actorId: actor.id,
@@ -128,7 +203,9 @@ export async function POST(request: Request) {
     entityType: "session",
     entityId: actor.employeeId,
     outcome: "allowed",
-    summary: `Signed in as ${actor.roleLabel}.`,
+    summary: mfaPolicy.allowed
+      ? `Signed in as ${actor.roleLabel}.`
+      : `Password verified for ${actor.roleLabel}; awaiting MFA (${mfaPolicy.requiresEnrollment ? "enroll" : "aal2 challenge"}).`,
   });
 
   return response;

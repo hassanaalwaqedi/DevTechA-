@@ -51,6 +51,7 @@ import { listEmployees } from "@/lib/intelligence/employees";
 import type { InvitationDeliveryStatus } from "@/lib/intelligence/types";
 import { hasPermission, type AuthActor } from "@/lib/rbac";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createPrivilegedOrServerSupabaseClient } from "@/lib/supabase/service-role";
 
 const COL_AVAILABILITY = "interviewer-availability";
 const COL_EXCEPTIONS = "interviewer-availability-exceptions";
@@ -2963,7 +2964,7 @@ export async function recordInterviewWebhookUpdate(params: {
 
   if (isSupabaseConfigured()) {
     try {
-      const supabase = await createSupabaseServerClient();
+      const supabase = await createPrivilegedOrServerSupabaseClient();
       const { data, error } = await supabase.rpc("record_interview_email_webhook", {
         p_provider_message_id: params.providerMessageId,
         p_delivery_status: mappedStatus,

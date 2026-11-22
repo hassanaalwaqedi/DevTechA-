@@ -2,6 +2,7 @@ import "server-only";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createPrivilegedOrServerSupabaseClient } from "@/lib/supabase/service-role";
 import {
   isLocalFallbackAllowed,
   readLocalCollection,
@@ -642,7 +643,7 @@ export async function recordInvitationWebhookUpdate(params: {
 
   if (isSupabaseConfigured()) {
     try {
-      const supabase = await createSupabaseServerClient();
+      const supabase = await createPrivilegedOrServerSupabaseClient();
       const { data, error } = await supabase.rpc("record_invitation_webhook_event", {
         p_provider_message_id: params.providerMessageId,
         p_delivery_status: params.deliveryStatus,
@@ -812,7 +813,7 @@ export async function verifyInvitationToken(rawToken: string): Promise<{
 
   if (!matched && isSupabaseConfigured()) {
     try {
-      const supabase = await createSupabaseServerClient();
+      const supabase = await createPrivilegedOrServerSupabaseClient();
       const { data: rpcRows } = await supabase.rpc("verify_employee_invitation", {
         p_token_hash: hash,
       });
@@ -913,7 +914,7 @@ export async function markInvitationConsumed(
 
   if (isSupabaseConfigured()) {
     try {
-      const supabase = await createSupabaseServerClient();
+      const supabase = await createPrivilegedOrServerSupabaseClient();
       if (rawToken) {
         const { error: rpcError } = await supabase.rpc("consume_employee_invitation", {
           p_token_hash: hashInvitationToken(rawToken.trim()),

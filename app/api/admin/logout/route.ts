@@ -25,11 +25,15 @@ export async function POST() {
     await supabase.auth.signOut();
   } catch {}
 
-  const response = NextResponse.json({ ok: true });
+  const response = NextResponse.json(
+    { ok: true },
+    { headers: { "Cache-Control": "no-store" } }
+  );
   response.cookies.set(SESSION_VERSION_COOKIE, "", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
+    secure: process.env.NODE_ENV === "production",
     maxAge: 0,
   });
   return response;

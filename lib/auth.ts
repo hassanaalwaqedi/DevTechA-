@@ -4,16 +4,29 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { resolveOrBootstrapActor } from "@/lib/intelligence/employees";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import {
+  evaluateMfaPolicy,
+  type MfaAssuranceLevel,
+  type MfaPolicyDecision,
+} from "@/lib/mfa";
+import {
   assertPermission,
+  MfaRequiredError,
   RbacDeniedError,
   type AuthActor,
   type PermissionAction,
   type PermissionModule,
 } from "@/lib/rbac";
+import {
+  SESSION_VERSION_COOKIE,
+  signSessionVersionToken,
+  verifySessionVersionCookie,
+} from "@/lib/session-version";
 
-export const SESSION_VERSION_COOKIE = "hirzexa_sv";
+export { SESSION_VERSION_COOKIE, signSessionVersionToken, verifySessionVersionCookie };
 
-export async function getCurrentAdmin() {
+export async function getAuthenticatedAdminSession(options?: {
+  allowPendingMfa?: boolean;
+}) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -27,12 +40,19 @@ export async function getCurrentAdmin() {
     .maybeSingle();
 
   let mfaEnrolled = false;
+  let currentAal: MfaAssuranceLevel = "aal1";
+  let nextAal: MfaAssuranceLevel = "aal1";
   try {
-    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const [{ data: factors }, { data: aalData }] = await Promise.all([
+      supabase.auth.mfa.listFactors(),
+      supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+    ]);
     mfaEnrolled = Boolean(
       factors?.totp?.some((f) => f.status === "verified") ||
         factors?.phone?.some((f) => f.status === "verified")
     );
+    currentAal = (aalData?.currentLevel as MfaAssuranceLevel) || "aal1";
+    nextAal = (aalData?.nextLevel as MfaAssuranceLevel) || (mfaEnrolled ? "aal2" : "aal1");
   } catch {
     mfaEnrolled = false;
   }
@@ -49,28 +69,82 @@ export async function getCurrentAdmin() {
     return null;
   }
 
-  // Enforce server-side session revocation via session_version cookie if set
+  // Enforce server-side session revocation via HMAC-signed session_version cookie.
+  // Fails closed on missing, malformed (NaN), forged, or stale cookies when sessionVersion > 1.
   try {
     const cookieStore = await cookies();
     const svCookie = cookieStore.get(SESSION_VERSION_COOKIE)?.value;
-    if (svCookie && Number(svCookie) < actor.sessionVersion) {
+    if (!verifySessionVersionCookie(svCookie, user.id, actor.sessionVersion)) {
       return null;
     }
-  } catch {}
+  } catch {
+    if (actor.sessionVersion > 1) {
+      return null;
+    }
+  }
 
-  return { user, admin: admin || { id: user.id, role: actor.roleKey }, actor, supabase };
+  const mfaPolicy: MfaPolicyDecision = evaluateMfaPolicy({
+    actor,
+    currentLevel: currentAal,
+    nextLevel: nextAal,
+    hasVerifiedFactor: mfaEnrolled,
+  });
+
+  if (!mfaPolicy.allowed && !options?.allowPendingMfa) {
+    return {
+      user,
+      admin: admin || { id: user.id, role: actor.roleKey },
+      actor,
+      supabase,
+      mfaPolicy,
+      mfaSatisfied: false as const,
+    };
+  }
+
+  return {
+    user,
+    admin: admin || { id: user.id, role: actor.roleKey },
+    actor,
+    supabase,
+    mfaPolicy,
+    mfaSatisfied: mfaPolicy.allowed,
+  };
+}
+
+export async function getCurrentAdmin() {
+  const session = await getAuthenticatedAdminSession();
+  if (!session || !session.mfaSatisfied) return null;
+  return session;
 }
 
 export async function requireAdmin() {
-  const current = await getCurrentAdmin();
-  if (!current) redirect("/admin/login");
-  return current;
+  const session = await getAuthenticatedAdminSession();
+  if (!session) redirect("/admin/login");
+  if (!session.mfaSatisfied) {
+    const mode = session.mfaPolicy.requiresEnrollment ? "enroll" : "challenge";
+    redirect(`/admin/mfa?mode=${mode}`);
+  }
+  return session;
 }
 
 export async function requireAdminApi() {
-  const current = await getCurrentAdmin();
-  if (!current) throw new Error("UNAUTHORIZED");
-  return current;
+  const session = await getAuthenticatedAdminSession();
+  if (!session) throw new Error("UNAUTHORIZED");
+  if (!session.mfaSatisfied) {
+    const mode = session.mfaPolicy.requiresEnrollment ? "enroll" : "challenge";
+    await recordAuditLog({
+      actorId: session.actor.id,
+      actorEmail: session.actor.email,
+      actorRole: session.actor.roleKey,
+      module: "auth",
+      action: "mfa_gate",
+      entityType: "api",
+      outcome: "denied",
+      summary: `Blocked ${session.mfaPolicy.currentLevel || "aal1"} API request pending MFA (${mode}).`,
+    });
+    throw new MfaRequiredError(session.actor.roleKey, mode);
+  }
+  return session;
 }
 
 export async function requirePermission(

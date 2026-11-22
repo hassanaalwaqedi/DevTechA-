@@ -63,12 +63,16 @@ import type {
 
 const PENDING_ACTION_TTL_MS = 15 * 60 * 1000;
 const memoryPendingActions = new Map<string, AgentPendingAction>();
+const inFlightPendingActionIds = new Set<string>();
 
 export function sanitizeUntrustedText(value: unknown, maxLen = 480): string {
   if (typeof value !== "string") return "";
   return value
     .replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, " ")
-    .replace(/<\/?(?:system|assistant|tool|instruction|prompt)[^>]*>/gi, "[redacted-tag]")
+    .replace(
+      /<\/?(?:system|assistant|tool|instruction|prompt|untrusted_business_data|business_data|data)[^>]*>/gi,
+      "[redacted-tag]"
+    )
     .trim()
     .slice(0, maxLen);
 }
@@ -100,7 +104,7 @@ export async function savePendingAction(action: AgentPendingAction): Promise<voi
         created_at: action.createdAt,
         resolved_at: action.resolvedAt || null,
       });
-    } catch {}
+    } catch { }
   }
 }
 
@@ -146,7 +150,7 @@ export async function getPendingActionById(id: string): Promise<AgentPendingActi
           resolvedAt: data.resolved_at ? String(data.resolved_at) : null,
         };
       }
-    } catch {}
+    } catch { }
   }
 
   if (isLocalFallbackAllowed()) {
@@ -208,12 +212,12 @@ const getBusinessOverviewTool: RegisteredTool<{ hoursBack?: number }> = {
         briefing,
         traffic:
           scopedMetrics &&
-          (scopedMetrics.totalVisitors !== null || scopedMetrics.activeJobs !== null)
+            (scopedMetrics.totalVisitors !== null || scopedMetrics.activeJobs !== null)
             ? {
-                totalVisitors: scopedMetrics.totalVisitors,
-                visitorsToday: scopedMetrics.visitorsToday,
-                activeJobs: scopedMetrics.activeJobs,
-              }
+              totalVisitors: scopedMetrics.totalVisitors,
+              visitorsToday: scopedMetrics.visitorsToday,
+              activeJobs: scopedMetrics.activeJobs,
+            }
             : null,
       },
       citations: [
@@ -1198,10 +1202,33 @@ const getCandidateInterviewTool: RegisteredTool<{ query: string }> = {
         a.positionTitle.toLowerCase().includes(q)
     );
     return {
-      summary: `Found ${matchedAppts.length} appointment(s) and ${matchedInvs.length} invitation(s) matching "${args.query}".`,
+      summary: `Found ${matchedAppts.length} appointment(s) and ${matchedInvs.length} invitation(s) matching "${sanitizeUntrustedText(args.query, 80)}".`,
       data: {
-        appointments: matchedAppts.slice(0, 8),
-        invitations: matchedInvs.slice(0, 8),
+        appointments: matchedAppts.slice(0, 8).map((a) => ({
+          id: a.id,
+          applicationReferenceId: a.applicationReferenceId,
+          candidateName: sanitizeUntrustedText(a.candidateName, 100),
+          positionTitle: sanitizeUntrustedText(a.positionTitle, 120),
+          interviewStage: a.interviewStage,
+          interviewFormat: a.interviewFormat,
+          durationMinutes: a.durationMinutes,
+          interviewerName: sanitizeUntrustedText(a.interviewerName, 100),
+          scheduledStartUtc: a.scheduledStartUtc,
+          status: a.status,
+          outcome: a.outcome,
+          outcomeNotes: sanitizeUntrustedText(a.outcomeNotes, 260),
+        })),
+        invitations: matchedInvs.slice(0, 8).map((i) => ({
+          id: i.id,
+          applicationReferenceId: i.applicationReferenceId,
+          candidateName: sanitizeUntrustedText(i.candidateName, 100),
+          positionTitle: sanitizeUntrustedText(i.positionTitle, 120),
+          interviewType: i.interviewType,
+          interviewerName: sanitizeUntrustedText(i.interviewerName, 100),
+          status: i.status,
+          emailDeliveryStatus: i.emailDeliveryStatus,
+          expiresAt: i.expiresAt,
+        })),
       },
       citations: matchedAppts.slice(0, 4).map((a) => ({
         label: `${a.candidateName} (${a.status})`,
@@ -1465,9 +1492,9 @@ export async function executeAuthorizedTool<TName extends AgentToolName>(
   // Special case: draft_client_email for candidate checks recruitment:view inside execute
   const needsBaseModule =
     toolName === "draft_client_email" &&
-    typeof rawArgs === "object" &&
-    rawArgs !== null &&
-    (rawArgs as Record<string, unknown>).recipientType === "candidate"
+      typeof rawArgs === "object" &&
+      rawArgs !== null &&
+      (rawArgs as Record<string, unknown>).recipientType === "candidate"
       ? "recruitment"
       : tool.module;
 
@@ -1607,6 +1634,53 @@ export async function confirmAndExecutePendingAction(
   action?: AgentPendingAction;
   message: string;
 }> {
+  if (inFlightPendingActionIds.has(actionId)) {
+    return { ok: false, message: "This action is already being processed." };
+  }
+  inFlightPendingActionIds.add(actionId);
+
+  try {
+    return await confirmAndExecutePendingActionLocked(actor, actionId, decision);
+  } finally {
+    inFlightPendingActionIds.delete(actionId);
+  }
+}
+
+async function claimPendingActionAtomically(pending: AgentPendingAction): Promise<boolean> {
+  // Atomically claim pending -> approved in Supabase when configured so concurrent requests
+  // across workers/instances cannot double-execute side effects (emails/CRM mutations).
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = await createSupabaseServerClient();
+      const { data, error } = await supabase
+        .from("agent_pending_actions")
+        .update({ status: "approved", resolved_at: new Date().toISOString() })
+        .eq("id", pending.id)
+        .eq("status", "pending")
+        .select("id");
+      if (!error && Array.isArray(data)) {
+        return data.length > 0;
+      }
+    } catch { }
+  }
+
+  if (isLocalFallbackAllowed()) {
+    const current = memoryPendingActions.get(pending.id);
+    if (current && current.status !== "pending") return false;
+    memoryPendingActions.set(pending.id, { ...pending, status: "approved" });
+  }
+  return true;
+}
+
+async function confirmAndExecutePendingActionLocked(
+  actor: AuthActor,
+  actionId: string,
+  decision: "approve" | "reject"
+): Promise<{
+  ok: boolean;
+  action?: AgentPendingAction;
+  message: string;
+}> {
   const pending = await getPendingActionById(actionId);
   if (!pending) {
     return { ok: false, message: "Pending action not found." };
@@ -1676,6 +1750,10 @@ export async function confirmAndExecutePendingAction(
           message: "Access denied: you no longer have authorized scope over the linked lead.",
         };
       }
+    }
+    const claimed = await claimPendingActionAtomically(pending);
+    if (!claimed) {
+      return { ok: false, message: "Action was already claimed or executed." };
     }
     const task = await createTask(actor, {
       title: String(pending.args.title || "Follow-up task"),
@@ -1755,6 +1833,22 @@ export async function confirmAndExecutePendingAction(
       };
     }
 
+    if (
+      !actor.isSuperAdmin &&
+      scopeCheck.lead.stage !== newStage &&
+      !canTransitionStage(scopeCheck.lead.stage, newStage)
+    ) {
+      return {
+        ok: false,
+        message: `Pipeline transition from ${CRM_STAGE_LABELS[scopeCheck.lead.stage].en} to ${CRM_STAGE_LABELS[newStage]?.en || newStage} is not permitted.`,
+      };
+    }
+
+    const claimed = await claimPendingActionAtomically(pending);
+    if (!claimed) {
+      return { ok: false, message: "Action was already claimed or executed." };
+    }
+
     const updated = await updateCrmLead(leadId, {
       stage: newStage,
       activityNote: note,
@@ -1805,6 +1899,10 @@ export async function confirmAndExecutePendingAction(
 
   if (pending.toolName === "prepare_interview_invitation") {
     assertPermission(actor, "interviews", "create");
+    const claimed = await claimPendingActionAtomically(pending);
+    if (!claimed) {
+      return { ok: false, message: "Action was already claimed or executed." };
+    }
     const result = await createAndSendInterviewInvitation(actor, {
       applicationReferenceId: String(pending.args.applicationReferenceId || ""),
       candidateName: String(pending.args.candidateName || ""),

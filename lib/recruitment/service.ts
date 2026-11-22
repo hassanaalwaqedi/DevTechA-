@@ -36,6 +36,7 @@ import {
   type UnifiedCandidateTimelineItem,
 } from "@/lib/recruitment/types";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createPrivilegedOrServerSupabaseClient } from "@/lib/supabase/service-role";
 import { validateCv } from "@/lib/validation";
 
 const COL_EXTERNAL_CANDIDATES = "recruitment-external-candidates";
@@ -1139,7 +1140,7 @@ export async function recordRecruitmentWebhookUpdate(params: {
 
   if (isSupabaseConfigured()) {
     try {
-      const supabase = await createSupabaseServerClient();
+      const supabase = await createPrivilegedOrServerSupabaseClient();
       const { data, error } = await supabase.rpc("record_recruitment_email_webhook", {
         p_provider_message_id: params.providerMessageId,
         p_delivery_status: mappedStatus,

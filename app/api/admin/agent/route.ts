@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requirePermissionApi } from "@/lib/auth";
 import { listActorConversations, runAgentTurn } from "@/lib/intelligence/agent";
 import { listRegisteredToolsMetadata } from "@/lib/intelligence/tools";
-import { RbacDeniedError } from "@/lib/rbac";
+import { hasPermission, RbacDeniedError } from "@/lib/rbac";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,7 +38,9 @@ export async function GET() {
         roleLabel: actor.roleLabel,
         scope: actor.scope,
       },
-      tools: listRegisteredToolsMetadata(),
+      tools: listRegisteredToolsMetadata().filter((t) =>
+        hasPermission(actor, t.module, t.action)
+      ),
       conversations,
     });
   } catch (error) {

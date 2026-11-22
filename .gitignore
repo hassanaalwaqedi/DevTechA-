@@ -12,3 +12,9 @@ tsconfig.tsbuildinfo
 .vercel/
 supabase/.temp/
 .data/
+
+# Never expose detailed internal security audit reports in public repositories
+SECURITY_AUDIT.md
+SECURITY_REMEDIATION_PLAN.md
+SECURITY_TEST_RESULTS.md
+SECURITY_ARCHITECTURE.md

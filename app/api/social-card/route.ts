@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { normalizeVisualCategory } from "@/lib/job-visuals";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   renderSocialCardBuffer,
   resolveSceneForCategory,
@@ -17,6 +18,14 @@ function cleanParam(url: URL, key: string, fallback: string, limit: number) {
 }
 
 export async function GET(request: Request) {
+  const ip = getClientIp(request.headers);
+  if (!checkRateLimit(`social-card:${ip}`, 60, 5 * 60 * 1000)) {
+    return new Response("Too many image render requests.", {
+      status: 429,
+      headers: { "Retry-After": "300" },
+    });
+  }
+
   const url = new URL(request.url);
   const etag = `"${createHash("sha1").update(`2027-v4:${url.search}`).digest("hex")}"`;
   if (request.headers.get("if-none-match") === etag) {
@@ -59,8 +68,8 @@ export async function GET(request: Request) {
   const accent = url.searchParams.get("accent") || "blue";
   const arabic = url.searchParams.get("lang") === "ar" || /[\u0600-\u06ff]/.test(title);
   const scene: SceneKey = resolveSceneForCategory(url.searchParams.get("scene"), category);
-  const badge = url.searchParams.get("badge") || undefined;
-  const telemetry = url.searchParams.get("telemetry") || undefined;
+  const badge = url.searchParams.get("badge") ? cleanParam(url, "badge", "", 40) : undefined;
+  const telemetry = url.searchParams.get("telemetry") ? cleanParam(url, "telemetry", "", 50) : undefined;
   const format = url.searchParams.get("format") === "png" ? "png" : "jpeg";
 
   const buffer = await renderSocialCardBuffer({

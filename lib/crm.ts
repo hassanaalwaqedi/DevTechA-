@@ -1,4 +1,4 @@
-import { randomInt, randomUUID } from "node:crypto";
+import { createHmac, randomInt, randomUUID, timingSafeEqual } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -69,10 +69,43 @@ function formatIcsDate(iso: string): string {
 
 function escapeIcsText(value: string): string {
   return value
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
     .replace(/\\/g, "\\\\")
     .replace(/;/g, "\\;")
     .replace(/,/g, "\\,")
     .replace(/\r?\n/g, "\\n");
+}
+
+function sanitizeIcsToken(value: string): string {
+  return value.replace(/[^A-Za-z0-9._@-]/g, "").slice(0, 120);
+}
+
+function getBookingIcsSigningSecret(): string {
+  return (
+    process.env.SESSION_SIGNING_SECRET?.trim() ||
+    process.env.CONTACT_WEBHOOK_SECRET?.trim() ||
+    process.env.RESEND_API_KEY?.trim() ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+    "hirzexa-booking-ics-signing-key"
+  );
+}
+
+export function createBookingIcsSignature(referenceId: string): string {
+  return createHmac("sha256", getBookingIcsSigningSecret())
+    .update(`booking-ics:${referenceId.trim()}`, "utf8")
+    .digest("hex")
+    .slice(0, 32);
+}
+
+export function verifyBookingIcsSignature(
+  referenceId: string,
+  signature: string | null | undefined
+): boolean {
+  if (!referenceId || !signature) return false;
+  const expected = createBookingIcsSignature(referenceId);
+  const a = Buffer.from(signature.trim(), "utf8");
+  const b = Buffer.from(expected, "utf8");
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export function generateMeetingLink(referenceId: string): string {
@@ -122,7 +155,7 @@ export function generateDiscoveryIcs(lead: {
     "CALSCALE:GREGORIAN",
     "METHOD:REQUEST",
     "BEGIN:VEVENT",
-    `UID:${lead.referenceId}@hirzexa.com`,
+    `UID:${sanitizeIcsToken(lead.referenceId) || "booking"}@hirzexa.com`,
     `DTSTAMP:${dtStamp}`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,
@@ -130,7 +163,7 @@ export function generateDiscoveryIcs(lead: {
     `DESCRIPTION:${escapeIcsText(description)}`,
     `LOCATION:${escapeIcsText(lead.meetingLink)}`,
     `ORGANIZER;CN=HIRZEXA Engineering:mailto:${COMPANY_EMAILS.business}`,
-    `ATTENDEE;CN=${escapeIcsText(lead.fullName)};RSVP=TRUE:mailto:${lead.email}`,
+    `ATTENDEE;CN=${escapeIcsText(lead.fullName)};RSVP=TRUE:mailto:${sanitizeIcsToken(lead.email)}`,
     "STATUS:CONFIRMED",
     "BEGIN:VALARM",
     "TRIGGER:-PT24H",
@@ -189,7 +222,7 @@ export function buildCalendarLinks(lead: {
   return {
     googleUrl: `https://calendar.google.com/calendar/render?${googleParams.toString()}`,
     outlookUrl: `https://outlook.live.com/calendar/0/deeplink/compose?${outlookParams.toString()}`,
-    icsDownloadPath: `/api/bookings/ics?ref=${encodeURIComponent(lead.referenceId)}`,
+    icsDownloadPath: `/api/bookings/ics?ref=${encodeURIComponent(lead.referenceId)}&sig=${encodeURIComponent(createBookingIcsSignature(lead.referenceId))}`,
   };
 }
 
@@ -1176,10 +1209,12 @@ export async function createCrmLead(input: {
       } catch {}
     }
 
+    let persistedNormalized = insertedNormalizedWithOwner;
+
     if (!insertedNormalizedWithOwner) {
       try {
         // 1. Primary normalized Phase 1 RPC (safe for unauthenticated public submissions under strict RLS)
-        await supabase.rpc("ingest_public_crm_lead", {
+        const { error: rpcErr } = await supabase.rpc("ingest_public_crm_lead", {
           p_id: lead.id,
           p_reference_id: lead.referenceId,
           p_lead_type: lead.leadType,
@@ -1204,6 +1239,10 @@ export async function createCrmLead(input: {
           p_activities: lead.activities,
         });
 
+        if (!rpcErr) {
+          persistedNormalized = true;
+        }
+
         if (lead.ownerId) {
           await supabase
             .from("crm_leads")
@@ -1213,14 +1252,17 @@ export async function createCrmLead(input: {
       } catch {}
     }
 
-    // 2. Backwards-compatible fallback channel if Phase 1 migration is not yet applied
-    try {
-      await supabase.from("visitor_events").insert({
-        visitor_id: `crm:${lead.id}`,
-        path: `/__crm_lead__/${lead.referenceId}`,
-        job_slug: JSON.stringify(lead),
-      });
-    } catch {}
+    // 2. Legacy visitor_events fallback ONLY if normalized crm_leads persistence failed
+    //    (prevents duplicating customer PII into visitor_events once Phase 1 schema is active)
+    if (!persistedNormalized) {
+      try {
+        await supabase.from("visitor_events").insert({
+          visitor_id: `crm:${lead.id}`,
+          path: `/__crm_lead__/${lead.referenceId}`,
+          job_slug: JSON.stringify(lead),
+        });
+      } catch {}
+    }
 
     // 3. Secondary table (`ai_leads` if migrated)
     try {

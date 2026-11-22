@@ -13,7 +13,13 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const requestedPath =
       new URLSearchParams(window.location.search).get("next") || "/admin";
-    setNextPath(requestedPath.startsWith("/") ? requestedPath : "/admin");
+    const safeNext =
+      requestedPath.startsWith("/admin") &&
+      !requestedPath.startsWith("//") &&
+      !requestedPath.includes("\\")
+        ? requestedPath
+        : "/admin";
+    setNextPath(safeNext);
   }, []);
 
   async function submit(e: FormEvent) {
@@ -26,9 +32,13 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      const body = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
         setError(body.error || "Unable to sign in.");
+        return;
+      }
+      if (body.mfaRequired || body.mfaEnrollmentRequired) {
+        window.location.assign(`/admin/mfa?next=${encodeURIComponent(nextPath)}`);
         return;
       }
       window.location.assign(nextPath);

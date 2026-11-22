@@ -14,7 +14,7 @@ import {
   markInvitationConsumed,
   verifyInvitationToken,
 } from "@/lib/intelligence/employees";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { ROLE_TEMPLATES } from "@/lib/rbac";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -32,35 +32,48 @@ const activateSchema = z.object({
 });
 
 export async function GET(request: Request) {
+  const ip = getClientIp(request.headers);
+  if (!checkRateLimit(`activate-lookup:${ip}`, 30, 15 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "Too many invitation verification attempts. Please try again later." },
+      { status: 429, headers: { "Retry-After": "900", "Cache-Control": "no-store" } }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const token = (searchParams.get("token") || "").trim();
   if (!token) {
-    return NextResponse.json({ error: "Missing invitation token." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing invitation token." },
+      { status: 400, headers: { "Cache-Control": "no-store" } }
+    );
   }
 
   const verified = await verifyInvitationToken(token);
   if (!verified) {
     return NextResponse.json(
       { error: "This invitation link is invalid, expired, or has already been used." },
-      { status: 404 }
+      { status: 404, headers: { "Cache-Control": "no-store" } }
     );
   }
 
-  return NextResponse.json({
-    ok: true,
-    employee: {
-      fullName: verified.employee.fullName,
-      email: verified.employee.email,
-      department: verified.employee.department,
-      roleLabel: ROLE_TEMPLATES[verified.employee.roleKey].label,
-      expiresAt: verified.invitation.expiresAt,
+  return NextResponse.json(
+    {
+      ok: true,
+      employee: {
+        fullName: verified.employee.fullName,
+        email: verified.employee.email,
+        department: verified.employee.department,
+        roleLabel: ROLE_TEMPLATES[verified.employee.roleKey].label,
+        expiresAt: verified.invitation.expiresAt,
+      },
     },
-  });
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
 
 export async function POST(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = getClientIp(request.headers);
   if (!checkRateLimit(`activate:${ip}`, 10, 60 * 60 * 1000)) {
     return NextResponse.json(
       { error: "Too many activation attempts. Please try again later." },
@@ -170,7 +183,7 @@ export async function POST(request: Request) {
             { name: "employee_id", value: verified.employee.id },
           ],
         });
-      } catch {}
+      } catch { }
     }
 
     return NextResponse.json({
