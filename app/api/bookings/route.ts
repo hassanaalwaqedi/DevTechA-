@@ -103,10 +103,17 @@ export async function POST(request: Request) {
   const scheduledSlotIso = singleLine(body.scheduledSlotIso) || null;
   const preferredWindow = singleLine(body.preferredWindow);
   const timezone = singleLine(body.timezone) || "UTC";
-  const projectSummary = multiLine(body.projectSummary || body.overview);
+  const rawProjectSummary = multiLine(body.projectSummary || body.overview);
+  const projectSummary =
+    rawProjectSummary ||
+    (leadType === "discovery_call"
+      ? "Discovery call scheduled via HIRZEXA booking page."
+      : "");
   const currentStack = singleLine(body.currentStack);
   const consent = body.consent === true;
   const locale = body.locale === "ar" ? "ar" : "en";
+
+  const summaryTooShort = leadType === "proposal_request" && rawProjectSummary.length < 15;
 
   if (
     !fullName ||
@@ -117,7 +124,7 @@ export async function POST(request: Request) {
     company.length > 120 ||
     roleTitle.length > 100 ||
     phone.length > 40 ||
-    projectSummary.length < 15 ||
+    summaryTooShort ||
     projectSummary.length > 4000 ||
     !consent
   ) {
@@ -125,8 +132,8 @@ export async function POST(request: Request) {
       {
         error:
           locale === "ar"
-            ? "يرجى إدخال الاسم وبريد العمل وملخص التحدي أو المشروع (15 حرفاً على الأقل) والموافقة على سياسة الخصوصية."
-            : "Please provide your name, a valid work email, a project summary (at least 15 characters), and privacy consent.",
+            ? "يرجى إدخال الاسم وبريد العمل والموافقة على سياسة الخصوصية لإتمام الحجز."
+            : "Please provide your full name, a valid work email, and privacy consent to confirm your booking.",
         fallbackEmail: COMPANY_EMAILS.business,
       },
       { status: 400 }

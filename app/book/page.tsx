@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
+import "./book.css";
 import { DiscoveryBookingSection } from "@/components/booking/DiscoveryBookingSection";
 import type { LeadType } from "@/lib/crm-types";
 import { getLocale } from "@/lib/locale";
 import { createPageMetadata } from "@/lib/social-metadata";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Book a Discovery Call — 20–30 Min Engineering Consultation",
+  title: "Book a Discovery Call — Engineering Consultation",
   description:
-    "Reserve a 20–30 minute engineering discovery call or request a structured technical proposal from HIRZEXA's AI and software engineering team.",
+    "Discuss your software or AI project with HIRZEXA's engineering team. Select an available time slot for a 30-minute Google Meet consultation.",
   path: "/book",
   eyebrow: "HIRZEXA / BOOK A DISCOVERY CALL",
-  badge: "20–30 MIN ENGINEERING CONSULTATION",
+  badge: "30 MIN ENGINEERING CONSULTATION",
   headline: "Book a Discovery Call with HIRZEXA.",
   summary:
-    "Synchronized appointment booking, instant calendar invitations (.ics), and direct technical proposal scoping.",
-  chips: ["20–30 Min Consultation", "Instant Calendar Invite", "Request a Proposal"],
+    "Select an available time slot, receive a calendar invitation and Google Meet link, and discuss your architecture with our engineering team.",
+  chips: ["30 Minutes", "Google Meet", "Free Consultation"],
   scene: "contact",
   telemetry: "SYNCHRONIZED BOOKING · B2B",
 });
@@ -22,7 +23,7 @@ export const metadata: Metadata = createPageMetadata({
 export default async function BookDiscoveryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; track?: string }>;
+  searchParams: Promise<{ mode?: string; track?: string; ref?: string }>;
 }) {
   const [locale, resolvedParams] = await Promise.all([getLocale(), searchParams]);
   const arabic = locale === "ar";
@@ -30,15 +31,18 @@ export default async function BookDiscoveryPage({
     resolvedParams.mode === "proposal" || resolvedParams.mode === "proposal_request"
       ? "proposal_request"
       : "discovery_call";
+  const manageRef =
+    typeof resolvedParams.ref === "string" && /^HRZ-[A-Za-z0-9_-]{4,48}$/.test(resolvedParams.ref.trim())
+      ? resolvedParams.ref.trim()
+      : "";
 
   return (
-    <main className="dt-book-page">
-      <DiscoveryBookingSection
-        arabic={arabic}
-        initialMode={initialMode}
-        initialTrack={resolvedParams.track || ""}
-        standalone
-      />
-    </main>
+    <DiscoveryBookingSection
+      arabic={arabic}
+      initialMode={initialMode}
+      initialTrack={resolvedParams.track || ""}
+      manageRef={manageRef}
+      standalone
+    />
   );
 }

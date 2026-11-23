@@ -22,10 +22,17 @@ export function PublicSiteChrome({
 }) {
   const pathname = usePathname();
   const isStandaloneApp =
-    pathname?.startsWith("/admin") || pathname?.startsWith("/interview");
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/interview") ||
+    pathname === "/book";
 
   if (isStandaloneApp) {
-    return <>{children}</>;
+    return (
+      <>
+        {pathname === "/book" ? <VisitorTracker /> : null}
+        {children}
+      </>
+    );
   }
 
   return (

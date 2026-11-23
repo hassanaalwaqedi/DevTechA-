@@ -536,7 +536,7 @@ export async function getSynchronizedAvailability(
   const utcHours = [8, 10, 12, 14];
   const baseDate = new Date(now);
 
-  for (let dayOffset = 0; dayOffset < 10 && slots.length < 24; dayOffset++) {
+  for (let dayOffset = 0; dayOffset < 21 && slots.length < 60; dayOffset++) {
     const day = new Date(
       Date.UTC(
         baseDate.getUTCFullYear(),
