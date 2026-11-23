@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -132,6 +132,81 @@ export function AdminSettingsClient({
   const [testEmailConfirmed, setTestEmailConfirmed] = useState(false);
 
   const [showAllAliases, setShowAllAliases] = useState(false);
+  const [gcalProbe, setGcalProbe] = useState<{ ok: boolean; detail: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") === "integrations") {
+      setSection("integrations");
+    }
+    const gcalStatus = params.get("gcal");
+    const reason = params.get("reason");
+    if (gcalStatus === "connected") {
+      setBanner({
+        kind: "success",
+        text: "Google Calendar connected with encrypted server-side OAuth tokens. Click Test Meet Sync to verify unique Google Meet creation.",
+      });
+    } else if (gcalStatus === "cancelled") {
+      setBanner({
+        kind: "warn",
+        text: "Google Calendar authorization was cancelled.",
+      });
+    } else if (gcalStatus === "error") {
+      setBanner({
+        kind: "error",
+        text: reason || "Unable to complete Google Calendar OAuth connection.",
+      });
+    }
+  }, []);
+
+  async function runGoogleCalendarAction(action: "test_meet_event" | "disconnect") {
+    if (
+      action === "disconnect" &&
+      !window.confirm(
+        "Disconnect Google Calendar? This revokes the stored OAuth refresh token and stops automatic Google Meet link generation."
+      )
+    ) {
+      return;
+    }
+    setActionBusy(`gcal_${action}`);
+    setBanner(null);
+    setGcalProbe(null);
+    try {
+      const res = await fetch("/api/admin/integrations/google-calendar", {
+        method: action === "disconnect" ? "DELETE" : "POST",
+        headers: action === "disconnect" ? undefined : { "Content-Type": "application/json" },
+        body: action === "disconnect" ? undefined : JSON.stringify({ action }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setBanner({
+          kind: "error",
+          text: data.result?.detail || data.error || "Google Calendar action failed.",
+        });
+        if (data.result?.detail) {
+          setGcalProbe({ ok: false, detail: data.result.detail });
+        }
+        return;
+      }
+      if (action === "disconnect") {
+        setBanner({
+          kind: "success",
+          text: "Google Calendar disconnected and encrypted OAuth tokens removed.",
+        });
+      } else if (data.result?.detail) {
+        setGcalProbe({ ok: Boolean(data.ok), detail: data.result.detail });
+        setBanner({
+          kind: data.ok ? "success" : "warn",
+          text: data.result.detail,
+        });
+      }
+      await refreshSnapshot();
+    } catch {
+      setBanner({ kind: "error", text: "Network error contacting Google Calendar endpoint." });
+    } finally {
+      setActionBusy(null);
+    }
+  }
 
   async function refreshSnapshot() {
     setRefreshing(true);
@@ -773,12 +848,12 @@ CONTACT_DELIVERY_MODE=resend`}</pre>
                   </span>
                 </div>
 
-                {/* External Calendar Sync */}
-                <div className="hz-set-service-row">
-                  <div>
+                {/* External Calendar & Google Meet OAuth 2.0 */}
+                <div className="hz-set-service-row is-stackable">
+                  <div style={{ flex: 1 }}>
                     <div className="hz-set-service-name">
-                      <Plug size={14} style={{ color: "#94a3b8" }} />
-                      <strong>External Calendar ({snapshot.externalCalendar.provider})</strong>
+                      <Plug size={14} style={{ color: snapshot.externalCalendar.connected ? "#34d399" : "#94a3b8" }} />
+                      <strong>Google Calendar &amp; Meet OAuth 2.0</strong>
                       {snapshot.externalCalendar.connected ? (
                         <StatusBadge tone={calBadge.tone} dot>
                           {calBadge.label}
@@ -788,10 +863,111 @@ CONTACT_DELIVERY_MODE=resend`}</pre>
                       )}
                     </div>
                     <p className="hz-set-service-desc">{snapshot.externalCalendar.summary}</p>
+                    <div className="hz-set-service-meta">
+                      <span>
+                        Account:{" "}
+                        <code>{snapshot.externalCalendar.connectedEmail || "Not connected"}</code>
+                      </span>
+                      <span>
+                        Calendar: <code>{snapshot.externalCalendar.calendarId}</code>
+                      </span>
+                      <span>
+                        OAuth Client:{" "}
+                        <code>
+                          {snapshot.externalCalendar.oauthClientConfigured ? "Configured" : "Not set"}
+                        </code>
+                      </span>
+                      <span>
+                        Token Key:{" "}
+                        <code>
+                          {snapshot.externalCalendar.encryptionKeyConfigured ? "AES-256-GCM" : "Not set"}
+                        </code>
+                      </span>
+                      {snapshot.externalCalendar.lastVerifiedAt ? (
+                        <span>
+                          Verified: {formatShortTimestamp(snapshot.externalCalendar.lastVerifiedAt)}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {gcalProbe ? (
+                      <div
+                        className={`hz-int-banner ${gcalProbe.ok ? "is-success" : "is-warn"}`}
+                        style={{ marginTop: 10 }}
+                      >
+                        <span>{gcalProbe.detail}</span>
+                      </div>
+                    ) : null}
+
+                    {snapshot.externalCalendar.lastError ? (
+                      <div className="hz-int-banner is-warn" style={{ marginTop: 10 }}>
+                        <span>Last error: {snapshot.externalCalendar.lastError}</span>
+                      </div>
+                    ) : null}
+
+                    <details className="hz-set-details" style={{ marginTop: 10 }}>
+                      <summary>
+                        <ChevronDown size={13} /> Google Cloud OAuth Setup &amp; Redirect URI
+                      </summary>
+                      <div className="hz-set-details-body">
+                        <p style={{ margin: "0 0 8px" }}>
+                          Register this exact <strong>Authorized Redirect URI</strong> in Google Cloud
+                          Console and set these server-only environment variables in Render:
+                        </p>
+                        <pre className="hz-set-pre">{`# Authorized Redirect URI (Google Cloud Console -> OAuth 2.0 Client)
+${snapshot.externalCalendar.redirectUri}
+
+# Server-Only Render Environment Variables (NEVER NEXT_PUBLIC_)
+GOOGLE_CALENDAR_CLIENT_ID=<your-google-oauth-client-id>
+GOOGLE_CALENDAR_CLIENT_SECRET=<your-google-oauth-client-secret>
+GOOGLE_CALENDAR_TOKEN_ENCRYPTION_KEY=<random-32-plus-char-secret>
+SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
+# Optional: GOOGLE_CALENDAR_ID=primary`}</pre>
+                      </div>
+                    </details>
                   </div>
-                  <Link href="/admin/interviews" className="hz-btn hz-btn-ghost hz-btn-sm">
-                    View Details <ArrowUpRight size={12} />
-                  </Link>
+
+                  {canEditSettings ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+                      {snapshot.externalCalendar.connected ? (
+                        <>
+                          <button
+                            type="button"
+                            className="hz-btn hz-btn-secondary hz-btn-sm"
+                            disabled={actionBusy !== null}
+                            onClick={() => void runGoogleCalendarAction("test_meet_event")}
+                          >
+                            {actionBusy === "gcal_test_meet_event" ? "Testing…" : "Test Meet Sync"}
+                          </button>
+                          <a
+                            href="/api/admin/integrations/google-calendar/connect"
+                            className="hz-btn hz-btn-ghost hz-btn-sm"
+                          >
+                            Reconnect
+                          </a>
+                          <button
+                            type="button"
+                            className="hz-btn hz-btn-ghost hz-btn-sm"
+                            style={{ color: "#FCA5A5" }}
+                            disabled={actionBusy !== null}
+                            onClick={() => void runGoogleCalendarAction("disconnect")}
+                          >
+                            {actionBusy === "gcal_disconnect" ? "Disconnecting…" : "Disconnect"}
+                          </button>
+                        </>
+                      ) : snapshot.externalCalendar.oauthClientConfigured &&
+                        snapshot.externalCalendar.encryptionKeyConfigured ? (
+                        <a
+                          href="/api/admin/integrations/google-calendar/connect"
+                          className="hz-btn hz-btn-primary hz-btn-sm"
+                        >
+                          Connect Google Calendar
+                        </a>
+                      ) : (
+                        <span className="hz-set-meta-time">Set env vars to connect</span>
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </section>

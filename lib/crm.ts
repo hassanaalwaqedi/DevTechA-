@@ -542,6 +542,9 @@ function parseAiLeadRowToCrm(row: Record<string, unknown>): CrmLeadRecord | null
       preferredWindow: brief.preferredWindow ? String(brief.preferredWindow) : undefined,
       timezone: String(brief.timezone || "UTC"),
       meetingLink: brief.meetingLink ? String(brief.meetingLink) : undefined,
+      googleCalendarEventId: brief.googleCalendarEventId
+        ? String(brief.googleCalendarEventId)
+        : null,
       projectSummary: String(brief.projectSummary || ""),
       currentStack: brief.currentStack ? String(brief.currentStack) : undefined,
       consent: Boolean(row.consent ?? brief.consent ?? true),
@@ -641,6 +644,9 @@ function mapNormalizedLeadRow(row: Record<string, unknown>): CrmLeadRecord | nul
     preferredWindow: row.preferred_window ? String(row.preferred_window) : undefined,
     timezone: String(row.timezone || "UTC"),
     meetingLink: row.meeting_link ? String(row.meeting_link) : undefined,
+    googleCalendarEventId: row.google_calendar_event_id
+      ? String(row.google_calendar_event_id)
+      : null,
     projectSummary: String(row.project_summary || ""),
     currentStack: row.current_stack ? String(row.current_stack) : undefined,
     consent: Boolean(contactObj?.consent ?? true),
@@ -1661,6 +1667,45 @@ export async function appendLeadActivityEvent(
       const next: CrmLeadRecord = {
         ...existing,
         activities: [item, ...existing.activities].slice(0, 150),
+        updatedAt: nowIso,
+      };
+      memoryLeads.set(next.id, next);
+      await writeLocalLead(next);
+    }
+  }
+}
+
+/**
+ * Persists a server-generated unique Google Meet URL and Google Calendar event ID
+ * onto an existing CRM lead right after Discovery Call booking confirmation.
+ */
+export async function saveLeadGoogleMeetDetails(
+  leadId: string,
+  details: { meetingLink: string; googleCalendarEventId: string }
+): Promise<void> {
+  const nowIso = new Date().toISOString();
+  if (isSupabaseConfigured()) {
+    try {
+      const client = await createPrivilegedOrServerSupabaseClient();
+      await client
+        .from("crm_leads")
+        .update({
+          meeting_link: details.meetingLink,
+          google_calendar_event_id: details.googleCalendarEventId,
+          updated_at: nowIso,
+        })
+        .eq("id", leadId);
+    } catch {}
+  }
+
+  if (isLocalFallbackAllowed()) {
+    const leads = await readLocalLeads();
+    const existing = leads.find((l) => l.id === leadId) || memoryLeads.get(leadId);
+    if (existing) {
+      const next: CrmLeadRecord = {
+        ...existing,
+        meetingLink: details.meetingLink,
+        googleCalendarEventId: details.googleCalendarEventId,
         updatedAt: nowIso,
       };
       memoryLeads.set(next.id, next);

@@ -17,6 +17,7 @@ import {
   resolvePublicInvitationBaseUrl,
   sendTransactionalEmail,
 } from "@/lib/email/transactional";
+import { getGoogleCalendarConnectionStatus } from "@/lib/integrations/google-calendar";
 import { listAuditLogs, recordAuditLog } from "@/lib/intelligence/audit";
 import { listEmployees } from "@/lib/intelligence/employees";
 import { listRegisteredToolsMetadata } from "@/lib/intelligence/tools";
@@ -127,6 +128,14 @@ export interface SettingsDiagnosticsSnapshot {
     provider: string;
     status: ServiceHealthStatus;
     connected: boolean;
+    oauthClientConfigured: boolean;
+    encryptionKeyConfigured: boolean;
+    serviceRoleConfigured: boolean;
+    connectedEmail: string | null;
+    calendarId: string;
+    redirectUri: string;
+    lastVerifiedAt: string | null;
+    lastError: string | null;
     summary: string;
   };
   teamSummary: {
@@ -302,7 +311,8 @@ export async function getSettingsDiagnosticsSnapshot(
     }
   }
 
-  // 6. External Calendar Status
+  // 6. External Calendar Status (Server-Side Google Calendar OAuth 2.0)
+  const gcal = await getGoogleCalendarConnectionStatus();
   const cal = getExternalCalendarAdapterStatus();
 
   // 7. Team & Permissions Summary (only load full directory if permitted)
@@ -405,10 +415,22 @@ export async function getSettingsDiagnosticsSnapshot(
       summary: contactSummary,
     },
     externalCalendar: {
-      provider: cal.provider,
-      status: cal.connected ? "operational" : "configuration_required",
-      connected: cal.connected,
-      summary: cal.message,
+      provider: gcal.provider || cal.provider,
+      status: gcal.connected
+        ? gcal.lastError
+          ? "degraded"
+          : "operational"
+        : "configuration_required",
+      connected: gcal.connected,
+      oauthClientConfigured: gcal.oauthClientConfigured,
+      encryptionKeyConfigured: gcal.encryptionKeyConfigured,
+      serviceRoleConfigured: gcal.serviceRoleConfigured,
+      connectedEmail: gcal.connectedEmail,
+      calendarId: gcal.calendarId,
+      redirectUri: gcal.redirectUri,
+      lastVerifiedAt: gcal.lastVerifiedAt,
+      lastError: gcal.lastError,
+      summary: gcal.summary,
     },
     teamSummary: {
       canViewTeam,

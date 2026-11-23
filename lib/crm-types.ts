@@ -128,6 +128,7 @@ export interface CrmLeadRecord {
   preferredWindow?: string;
   timezone: string;
   meetingLink?: string;
+  googleCalendarEventId?: string | null;
   projectSummary: string;
   currentStack?: string;
   consent: boolean;

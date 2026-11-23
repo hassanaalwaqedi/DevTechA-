@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { COMPANY_EMAILS } from "@/lib/company-emails";
-import { createCrmLead } from "@/lib/crm";
+import {
+  appendLeadActivityEvent,
+  buildCalendarLinks,
+  createCrmLead,
+  generateDiscoveryIcs,
+  saveLeadGoogleMeetDetails,
+} from "@/lib/crm";
 import { handleDiscoveryBookingCreated } from "@/lib/crm-meetings/service";
+import { createGoogleMeetDiscoveryEvent } from "@/lib/integrations/google-calendar";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -185,30 +192,76 @@ export async function POST(request: Request) {
       });
     } catch {}
 
+    let finalLead = result.lead;
+    let finalIcs = result.icsContent;
+    let finalCalendarLinks = result.calendarLinks;
+
+    // Automatically create a unique Google Meet link via server-side Google Calendar OAuth when connected
+    if (finalLead.leadType === "discovery_call" && finalLead.scheduledSlotIso) {
+      try {
+        const meetRes = await createGoogleMeetDiscoveryEvent(finalLead);
+        if (meetRes.ok && meetRes.meetUrl && meetRes.eventId) {
+          await saveLeadGoogleMeetDetails(finalLead.id, {
+            meetingLink: meetRes.meetUrl,
+            googleCalendarEventId: meetRes.eventId,
+          });
+          finalLead = {
+            ...finalLead,
+            meetingLink: meetRes.meetUrl,
+            googleCalendarEventId: meetRes.eventId,
+          };
+          finalIcs = generateDiscoveryIcs({
+            referenceId: finalLead.referenceId,
+            fullName: finalLead.fullName,
+            email: finalLead.email,
+            company: finalLead.company,
+            serviceTrack: finalLead.serviceTrack,
+            durationMinutes: finalLead.durationMinutes,
+            scheduledSlotIso: finalLead.scheduledSlotIso!,
+            meetingLink: meetRes.meetUrl,
+            projectSummary: finalLead.projectSummary,
+          });
+          finalCalendarLinks = buildCalendarLinks(finalLead);
+          await appendLeadActivityEvent(finalLead.id, {
+            type: "meeting_scheduled",
+            summary: `Unique Google Meet link generated via Google Calendar (${meetRes.meetUrl}).`,
+            actor: "HIRZEXA Google Calendar Sync",
+          }).catch(() => {});
+        }
+      } catch {
+        // Non-fatal: never block Discovery Call booking creation if Google Calendar is temporarily unreachable
+      }
+    }
+
+    // Automatic customer confirmation emails remain gated until DISCOVERY_AUTO_EMAILS_ENABLED=true
     let confirmationStatus: string = "not_applicable";
     let scheduledRemindersCount = 0;
-    if (result.lead.leadType === "discovery_call" && result.lead.scheduledSlotIso) {
-      try {
-        const commRes = await handleDiscoveryBookingCreated(result.lead);
-        confirmationStatus = commRes.confirmation?.status || "not_sent";
-        scheduledRemindersCount = commRes.scheduledReminders.length;
-      } catch {
-        confirmationStatus = "failed";
+    if (finalLead.leadType === "discovery_call" && finalLead.scheduledSlotIso) {
+      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED === "true") {
+        try {
+          const commRes = await handleDiscoveryBookingCreated(finalLead);
+          confirmationStatus = commRes.confirmation?.status || "not_sent";
+          scheduledRemindersCount = commRes.scheduledReminders.length;
+        } catch {
+          confirmationStatus = "failed";
+        }
+      } else {
+        confirmationStatus = "manual_review_pending";
       }
     }
 
     return NextResponse.json(
       {
         ok: true,
-        referenceId: result.lead.referenceId,
-        stage: result.lead.stage,
-        leadType: result.lead.leadType,
-        scheduledSlotIso: result.lead.scheduledSlotIso,
-        durationMinutes: result.lead.durationMinutes,
-        timezone: result.lead.timezone,
-        meetingLink: result.lead.meetingLink,
-        calendarLinks: result.calendarLinks,
-        icsContent: result.icsContent,
+        referenceId: finalLead.referenceId,
+        stage: finalLead.stage,
+        leadType: finalLead.leadType,
+        scheduledSlotIso: finalLead.scheduledSlotIso,
+        durationMinutes: finalLead.durationMinutes,
+        timezone: finalLead.timezone,
+        meetingLink: finalLead.meetingLink,
+        calendarLinks: finalCalendarLinks,
+        icsContent: finalIcs,
         routedTo: COMPANY_EMAILS.business,
         confirmationStatus,
         scheduledRemindersCount,

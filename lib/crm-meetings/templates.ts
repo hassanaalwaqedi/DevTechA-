@@ -373,15 +373,9 @@ export function renderMeetingEmailTemplate(
         value: `${lead.preferredWindow} (${normalizeTimezone(lead.timezone)})`,
       });
     }
-    if (templateType !== "meeting_cancelled" && linkInfo.url) {
+    if (templateType !== "meeting_cancelled" && linkInfo.url && linkInfo.isDirectJoinUrl) {
       detailRows.push({
-        label: linkInfo.isDirectJoinUrl
-          ? ar
-            ? "رابط الاجتماع"
-            : "Joining Link"
-          : ar
-          ? "صفحة الحجز والتنسيق"
-          : "Booking Reference Page",
+        label: ar ? "رابط الاجتماع" : "Joining Link",
         value: linkInfo.url,
         href: linkInfo.url,
         ltr: true,

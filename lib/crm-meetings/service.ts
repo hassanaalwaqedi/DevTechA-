@@ -18,6 +18,10 @@ import {
   type TransactionalEmailAttachment,
   type TransactionalEmailResult,
 } from "@/lib/email/transactional";
+import {
+  deleteGoogleMeetDiscoveryEvent,
+  updateGoogleMeetDiscoveryEvent,
+} from "@/lib/integrations/google-calendar";
 import type { EmailMessageTemplate } from "@/lib/email-templates";
 import { recordAuditLog } from "@/lib/intelligence/audit";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
@@ -1392,6 +1396,11 @@ export async function rescheduleLeadMeeting(
     return { ok: false, status: 500, error: "Failed to persist updated meeting time." };
   }
 
+  // Sync rescheduled slot to Google Calendar event if linked
+  if (previous.googleCalendarEventId) {
+    await updateGoogleMeetDiscoveryEvent(previous.googleCalendarEventId, updated).catch(() => {});
+  }
+
   const cancelledCount = await cancelPendingRemindersForLead(
     updated.id,
     "Cancelled: meeting rescheduled"
@@ -1561,6 +1570,11 @@ export async function cancelLeadMeeting(
 
   if (!updated) {
     return { ok: false, status: 500, error: "Failed to update lead." };
+  }
+
+  // Remove cancelled event from Google Calendar if linked
+  if (previous.googleCalendarEventId) {
+    await deleteGoogleMeetDiscoveryEvent(previous.googleCalendarEventId).catch(() => {});
   }
 
   let notification: MeetingCommunicationRecord | null = null;
