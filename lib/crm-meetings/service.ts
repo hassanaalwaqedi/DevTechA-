@@ -2465,8 +2465,8 @@ export async function processDueGoogleMeetProvisioningJobs(options?: {
         actor: "HIRZEXA Google Calendar Sync",
       }).catch(() => {});
 
-      // Once a genuine Meet link is ready, send the held confirmation + schedule reminders (if auto emails enabled)
-      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED === "true") {
+      // Once a genuine Meet link is ready, send the confirmation + schedule reminders (unless explicitly disabled)
+      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED !== "false") {
         const commRes = await handleDiscoveryBookingCreated(updatedLead, { nowMs });
         if (commRes.confirmation && commRes.confirmation.status === "submitted") {
           emailsTriggered += 1;

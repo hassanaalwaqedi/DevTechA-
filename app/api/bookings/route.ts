@@ -229,15 +229,16 @@ export async function POST(request: Request) {
       finalCalendarLinks = buildCalendarLinks(finalLead);
     }
 
-    // Never send an automated confirmation email claiming a Meet link exists if Meet creation failed.
-    // Automatic customer confirmation emails also remain gated behind DISCOVERY_AUTO_EMAILS_ENABLED=true.
+    // Automatic confirmation email & 24h/1h reminder scheduling are ON by default
+    // (can be disabled explicitly only by setting DISCOVERY_AUTO_EMAILS_ENABLED=false).
+    // When a verified Google Meet link is ready, the email includes the "Join Google Meet" CTA;
+    // when Meet is not yet connected/provisioned, the email confirms the booked slot & calendar invite
+    // without claiming a Meet link exists.
     let confirmationStatus: string = "not_applicable";
     let scheduledRemindersCount = 0;
     if (finalLead.leadType === "discovery_call" && finalLead.scheduledSlotIso) {
-      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED !== "true") {
+      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED === "false") {
         confirmationStatus = "manual_review_pending";
-      } else if (!isVerifiedVideoMeetingUrl(finalLead.meetingLink)) {
-        confirmationStatus = "held_pending_meet_link";
       } else {
         try {
           const commRes = await handleDiscoveryBookingCreated(finalLead);
