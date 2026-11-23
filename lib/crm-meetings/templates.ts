@@ -88,24 +88,29 @@ export function formatMeetingDateTime(
 export function normalizeConfirmedMeetingLink(rawLink: string | null | undefined): {
   url: string | null;
   isDirectJoinUrl: boolean;
+  isGoogleMeet: boolean;
 } {
   const trimmed = (rawLink || "").trim();
-  if (!trimmed) return { url: null, isDirectJoinUrl: false };
+  if (!trimmed) return { url: null, isDirectJoinUrl: false, isGoogleMeet: false };
   try {
     const canonical = canonicalizeUserFacingUrl(trimmed);
     const parsed = new URL(canonical);
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return { url: null, isDirectJoinUrl: false };
+      return { url: null, isDirectJoinUrl: false, isGoogleMeet: false };
     }
+    const host = parsed.hostname.toLowerCase();
     const isGenericBookingFallback =
-      parsed.hostname.toLowerCase().endsWith("hirzexa.com") &&
+      host.endsWith("hirzexa.com") &&
       parsed.pathname.toLowerCase().startsWith("/book");
+    const isGoogleMeet =
+      parsed.protocol === "https:" && host === "meet.google.com" && parsed.pathname.length > 1;
     return {
-      url: parsed.toString(),
+      url: isGenericBookingFallback ? null : parsed.toString(),
       isDirectJoinUrl: !isGenericBookingFallback,
+      isGoogleMeet,
     };
   } catch {
-    return { url: null, isDirectJoinUrl: false };
+    return { url: null, isDirectJoinUrl: false, isGoogleMeet: false };
   }
 }
 
@@ -375,7 +380,13 @@ export function renderMeetingEmailTemplate(
     }
     if (templateType !== "meeting_cancelled" && linkInfo.url && linkInfo.isDirectJoinUrl) {
       detailRows.push({
-        label: ar ? "رابط الاجتماع" : "Joining Link",
+        label: linkInfo.isGoogleMeet
+          ? ar
+            ? "رابط Google Meet"
+            : "Google Meet Link"
+          : ar
+          ? "رابط الاجتماع"
+          : "Joining Link",
         value: linkInfo.url,
         href: linkInfo.url,
         ltr: true,
@@ -391,18 +402,18 @@ export function renderMeetingEmailTemplate(
 
   const detailTableHtml =
     detailRows.length > 0
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:20px 0;border-collapse:separate;border-spacing:0;background:#f4f7ff;border:1px solid #d9e2fb;border-radius:12px;">
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:22px 0;border-collapse:separate;border-spacing:0;background:#f8faff;border:1px solid #dbe4f8;border-radius:14px;overflow:hidden;">
           ${detailRows
             .map(
               (row, idx) => `<tr>
-                <td style="padding:11px 16px;font-size:13px;font-weight:600;color:#475569;width:34%;vertical-align:top;${
-                  idx > 0 ? "border-top:1px solid #e2e8f6;" : ""
+                <td style="padding:12px 18px;font-size:12px;font-weight:700;letter-spacing:${ar ? "0" : "0.03em"};text-transform:${ar ? "none" : "uppercase"};color:#64748b;width:33%;vertical-align:top;${
+                  idx > 0 ? "border-top:1px solid #e6edf9;" : ""
                 }">${escapeHtml(row.label)}</td>
-                <td style="padding:11px 16px;font-size:13.5px;font-weight:600;color:#0f172a;vertical-align:top;word-break:break-word;${
-                  idx > 0 ? "border-top:1px solid #e2e8f6;" : ""
+                <td style="padding:12px 18px;font-size:13.5px;font-weight:600;color:#0b132b;vertical-align:top;word-break:break-word;line-height:1.5;${
+                  idx > 0 ? "border-top:1px solid #e6edf9;" : ""
                 }"${row.ltr ? ' dir="ltr"' : ""}>${
                   row.href
-                    ? `<a href="${escapeHtml(row.href)}" style="color:#1050ff;text-decoration:underline;">${escapeHtml(row.value)}</a>`
+                    ? `<a href="${escapeHtml(row.href)}" style="color:#1050ff;text-decoration:none;font-weight:700;">${escapeHtml(row.value)}</a>`
                     : escapeHtml(row.value)
                 }</td>
               </tr>`
@@ -411,76 +422,99 @@ export function renderMeetingEmailTemplate(
         </table>`
       : "";
 
+  const primaryJoinLabel = linkInfo.isGoogleMeet
+    ? ar
+      ? "الانضمام عبر Google Meet"
+      : "Join Google Meet"
+    : ar
+    ? "الانضمام للاجتماع"
+    : "Join Video Meeting";
+
+  const primaryJoinHtml =
+    linkInfo.url &&
+    linkInfo.isDirectJoinUrl &&
+    templateType !== "meeting_cancelled" &&
+    templateType !== "post_meeting_followup" &&
+    templateType !== "custom_email"
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:20px 0 14px;">
+          <tr>
+            <td align="center">
+              <a href="${escapeHtml(linkInfo.url)}" style="display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px 24px;border-radius:11px;background:#1050ff;background-image:linear-gradient(135deg,#1050ff 0%,#2563eb 100%);color:#ffffff;font-size:15px;font-weight:700;letter-spacing:${ar ? "0" : "0.01em"};text-decoration:none;box-shadow:0 8px 20px rgba(16,80,255,0.24);">
+                ${escapeHtml(primaryJoinLabel)} &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>`
+      : "";
+
   const calendarButtonsHtml =
     showCalendarActions && calendarLinks
-      ? `<div style="margin:20px 0 8px;">
-          ${
-            linkInfo.url && linkInfo.isDirectJoinUrl
-              ? `<a href="${escapeHtml(linkInfo.url)}" style="display:inline-block;margin:0 8px 8px 0;padding:11px 18px;border-radius:9px;background:#1050ff;color:#ffffff;font-size:13.5px;font-weight:700;text-decoration:none;">${
-                  ar ? "الانضمام للاجتماع" : "Join Meeting"
-                }</a>`
-              : ""
-          }
-          <a href="${escapeHtml(calendarLinks.googleUrl)}" style="display:inline-block;margin:0 8px 8px 0;padding:10px 15px;border-radius:9px;background:#0f172a;color:#ffffff;font-size:13px;font-weight:600;text-decoration:none;">${
-            ar ? "إضافة إلى تقويم Google" : "Add to Google Calendar"
-          }</a>
-          <a href="${escapeHtml(calendarLinks.outlookUrl)}" style="display:inline-block;margin:0 8px 8px 0;padding:10px 15px;border-radius:9px;background:#e8eefc;color:#1050ff;font-size:13px;font-weight:600;text-decoration:none;">${
-            ar ? "إضافة إلى Outlook" : "Add to Outlook"
-          }</a>
-          ${
-            signedIcsUrl
-              ? `<a href="${escapeHtml(signedIcsUrl)}" style="display:inline-block;margin:0 0 8px 0;padding:10px 15px;border-radius:9px;border:1px solid #cbd5e1;background:#ffffff;color:#0f172a;font-size:13px;font-weight:600;text-decoration:none;">${
-                  ar ? "تنزيل ملف .ics" : "Download .ics"
-                }</a>`
-              : ""
-          }
+      ? `${primaryJoinHtml}
+        <div style="margin:14px 0 8px;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;">
+          <p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:${ar ? "0" : "0.08em"};text-transform:${ar ? "none" : "uppercase"};color:#64748b;text-align:${ar ? "right" : "left"};">
+            ${ar ? "إضافة الموعد إلى تقويمك" : "ADD TO YOUR CALENDAR"}
+          </p>
+          <div style="text-align:${ar ? "right" : "left"};">
+            ${
+              signedIcsUrl
+                ? `<a href="${escapeHtml(signedIcsUrl)}" style="display:inline-block;margin:0 6px 8px 0;padding:10px 15px;border-radius:9px;background:#0b132b;color:#ffffff;font-size:12.5px;font-weight:700;text-decoration:none;">${
+                    ar ? "تقويم Apple / iPhone" : "Apple / iPhone Calendar"
+                  }</a>`
+                : ""
+            }
+            <a href="${escapeHtml(calendarLinks.googleUrl)}" style="display:inline-block;margin:0 6px 8px 0;padding:10px 15px;border-radius:9px;border:1px solid #cbd5e1;background:#ffffff;color:#0f172a;font-size:12.5px;font-weight:700;text-decoration:none;">${
+              ar ? "تقويم Google" : "Google Calendar"
+            }</a>
+            <a href="${escapeHtml(calendarLinks.outlookUrl)}" style="display:inline-block;margin:0 0 8px 0;padding:10px 15px;border-radius:9px;background:#eef4ff;border:1px solid #c7d9ff;color:#1050ff;font-size:12.5px;font-weight:700;text-decoration:none;">${
+              ar ? "تقويم Outlook" : "Outlook Calendar"
+            }</a>
+          </div>
         </div>`
       : templateType === "meeting_cancelled"
-      ? `<div style="margin:20px 0 8px;">
-          <a href="${escapeHtml(bookNewUrl)}" style="display:inline-block;padding:11px 18px;border-radius:9px;background:#1050ff;color:#ffffff;font-size:13.5px;font-weight:700;text-decoration:none;">${
+      ? `<div style="margin:22px 0 8px;">
+          <a href="${escapeHtml(bookNewUrl)}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:#1050ff;background-image:linear-gradient(135deg,#1050ff 0%,#2563eb 100%);color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">${
             ar ? "حجز موعد جديد" : "Book a New Time"
           }</a>
         </div>`
-      : linkInfo.url && linkInfo.isDirectJoinUrl && templateType !== "post_meeting_followup" && templateType !== "custom_email"
-      ? `<div style="margin:20px 0 8px;">
-          <a href="${escapeHtml(linkInfo.url)}" style="display:inline-block;padding:11px 18px;border-radius:9px;background:#1050ff;color:#ffffff;font-size:13.5px;font-weight:700;text-decoration:none;">${
-            ar ? "الانضمام للاجتماع" : "Join Meeting"
-          }</a>
-        </div>`
-      : "";
+      : primaryJoinHtml;
 
   const manageLinksHtml =
     templateType === "meeting_confirmation" ||
     templateType === "meeting_rescheduled" ||
     templateType === "meeting_reminder_24h"
-      ? `<p style="margin:14px 0 0;font-size:12.5px;color:#64748b;line-height:1.6;">${
+      ? `<p style="margin:16px 0 0;font-size:12.5px;color:#64748b;line-height:1.65;text-align:${ar ? "right" : "left"};">${
           ar
-            ? `تحتاج إلى تعديل الموعد؟ <a href="${escapeHtml(rescheduleMailto)}" style="color:#1050ff;">طلب إعادة جدولة</a> · <a href="${escapeHtml(cancelMailto)}" style="color:#64748b;">إلغاء الموعد</a>`
-            : `Need to make a change? <a href="${escapeHtml(rescheduleMailto)}" style="color:#1050ff;">Request reschedule</a> · <a href="${escapeHtml(cancelMailto)}" style="color:#64748b;">Cancel meeting</a>`
+            ? `تحتاج إلى تعديل الموعد؟ <a href="${escapeHtml(rescheduleMailto)}" style="color:#1050ff;font-weight:600;text-decoration:none;">طلب إعادة جدولة</a> &nbsp;&middot;&nbsp; <a href="${escapeHtml(cancelMailto)}" style="color:#64748b;text-decoration:none;">إلغاء الموعد</a>`
+            : `Need to adjust your schedule? <a href="${escapeHtml(rescheduleMailto)}" style="color:#1050ff;font-weight:600;text-decoration:none;">Request reschedule</a> &nbsp;&middot;&nbsp; <a href="${escapeHtml(cancelMailto)}" style="color:#64748b;text-decoration:none;">Cancel meeting</a>`
         }</p>`
       : "";
 
   const html = `<!DOCTYPE html>
 <html lang="${locale}" dir="${ar ? "rtl" : "ltr"}">
 <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
-<body style="margin:0;padding:0;background:#eef2fa;font-family:${ar ? "Tahoma,Arial,sans-serif" : "Inter,Segoe UI,Arial,sans-serif"};">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2fa;padding:28px 14px;">
+<body style="margin:0;padding:0;background:#eaf0fa;font-family:${ar ? "Tahoma,Arial,sans-serif" : "Inter,Segoe UI,-apple-system,Arial,sans-serif"};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eaf0fa;padding:32px 14px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #d9e1f2;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #d5dff2;box-shadow:0 14px 36px rgba(8,13,33,0.08);">
           <tr>
-            <td style="background:#080d21;padding:22px 28px;border-bottom:3px solid #1050ff;">
+            <td style="background:#070b1d;background-image:linear-gradient(135deg,#070b1d 0%,#0d1736 60%,#112254 100%);padding:24px 28px;border-bottom:3px solid #1050ff;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="font-size:17px;font-weight:800;letter-spacing:0.12em;color:#ffffff;">HIRZEXA</td>
-                  <td align="${ar ? "left" : "right"}" style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:#60a5fa;">${escapeHtml(badgeLabel)}</td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:18px;font-weight:800;letter-spacing:0.16em;color:#ffffff;line-height:1.2;">HIRZEXA</div>
+                    <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;color:#93c5fd;margin-top:3px;">AI &amp; SOFTWARE ENGINEERING</div>
+                  </td>
+                  <td align="${ar ? "left" : "right"}" style="vertical-align:middle;">
+                    <span style="display:inline-block;padding:5px 11px;border-radius:999px;background:rgba(16,80,255,0.22);border:1px solid rgba(96,165,250,0.4);font-size:10.5px;font-weight:700;letter-spacing:${ar ? "0" : "0.08em"};color:#bfdbfe;">${escapeHtml(badgeLabel)}</span>
+                  </td>
                 </tr>
               </table>
             </td>
           </tr>
           <tr>
-            <td style="padding:28px;">
-              <h1 style="margin:0 0 16px;font-size:20px;line-height:1.35;color:#080d21;text-align:${ar ? "right" : "left"};">${escapeHtml(headline)}</h1>
+            <td style="padding:30px 28px 26px;">
+              <h1 style="margin:0 0 16px;font-size:21px;font-weight:700;line-height:1.35;color:#080d21;text-align:${ar ? "right" : "left"};">${escapeHtml(headline)}</h1>
               ${paragraphsToSafeHtml(editableBody, ar)}
               ${detailTableHtml}
               ${calendarButtonsHtml}
@@ -488,10 +522,10 @@ export function renderMeetingEmailTemplate(
             </td>
           </tr>
           <tr>
-            <td style="padding:18px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;line-height:1.6;">
-              <strong style="color:#0f172a;">HIRZEXA</strong> — AI &amp; Software Engineering<br/>
-              ${ar ? "البريد المباشر" : "Direct Reply"}: <a dir="ltr" href="mailto:${escapeHtml(replyTo)}" style="color:#1050ff;text-decoration:none;">${escapeHtml(replyTo)}</a> · <a dir="ltr" href="${escapeHtml(origin)}" style="color:#1050ff;text-decoration:none;">hirzexa.com</a><br/>
-              <span style="color:#94a3b8;">${
+            <td style="padding:20px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;line-height:1.65;text-align:${ar ? "right" : "left"};">
+              <strong style="color:#080d21;letter-spacing:0.05em;">HIRZEXA</strong> &mdash; AI &amp; Software Engineering<br/>
+              ${ar ? "البريد المباشر" : "Direct Reply"}: <a dir="ltr" href="mailto:${escapeHtml(replyTo)}" style="color:#1050ff;text-decoration:none;font-weight:600;">${escapeHtml(replyTo)}</a> &nbsp;&middot;&nbsp; <a dir="ltr" href="${escapeHtml(origin)}" style="color:#1050ff;text-decoration:none;font-weight:600;">hirzexa.com</a><br/>
+              <span style="color:#94a3b8;font-size:11.5px;">${
                 ar
                   ? "هذه رسالة معاملات مرتبطة باجتماعك المجدول لدى HIRZEXA وليست رسالة تسويقية."
                   : "This is a transactional meeting notification from HIRZEXA. You have not been added to any marketing list."
@@ -523,9 +557,9 @@ export function renderMeetingEmailTemplate(
     textLines.push(
       "",
       ar ? "إضافة إلى التقويم:" : "Add to Calendar:",
+      ...(signedIcsUrl ? [`Apple / iPhone Calendar (.ics): ${signedIcsUrl}`] : []),
       `Google Calendar: ${calendarLinks.googleUrl}`,
-      `Outlook: ${calendarLinks.outlookUrl}`,
-      ...(signedIcsUrl ? [`ICS Download: ${signedIcsUrl}`] : [])
+      `Outlook Calendar: ${calendarLinks.outlookUrl}`
     );
   }
   if (templateType === "meeting_cancelled") {

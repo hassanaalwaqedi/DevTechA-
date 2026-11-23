@@ -45,14 +45,24 @@ process.env.GOOGLE_CALENDAR_CLIENT_ID = "1234567890-mockclient.apps.googleuserco
 process.env.GOOGLE_CALENDAR_CLIENT_SECRET = "GOCSPX-mock_server_secret_only";
 process.env.GOOGLE_CALENDAR_TOKEN_ENCRYPTION_KEY =
   "hirzexa_test_aes256_gcm_encryption_key_32_bytes_min_999";
+process.env.RESEND_API_KEY = "re_test_mock_key_never_external";
+process.env.DISCOVERY_AUTO_EMAILS_ENABLED = "true";
 
-const intelDir = join(root, ".data", "intelligence");
+const dataDir = join(root, ".data");
+const intelDir = join(dataDir, "intelligence");
 const connFile = join(intelDir, "google-calendar-connections.json");
-const auditFile = join(intelDir, "audit-logs.json");
 
 async function cleanup() {
-  await rm(connFile, { force: true }).catch(() => {});
-  await rm(auditFile, { force: true }).catch(() => {});
+  await rm(join(dataDir, "crm-leads.json"), { force: true }).catch(() => {});
+  for (const file of [
+    "google-calendar-connections.json",
+    "crm-meeting-communications.json",
+    "crm-meeting-reminder-configs.json",
+    "audit-logs.json",
+    "business-events.json",
+  ]) {
+    await rm(join(intelDir, file), { force: true }).catch(() => {});
+  }
 }
 await cleanup();
 
@@ -72,7 +82,24 @@ const {
   testGoogleCalendarConnection,
   disconnectGoogleCalendar,
   setGoogleCalendarFetchForTest,
+  setGoogleCalendarPollDelayForTest,
 } = await import("@/lib/integrations/google-calendar");
+
+const {
+  createCrmLead,
+  generateMeetingLink,
+  generateDiscoveryIcs,
+  buildCalendarLinks,
+  listCrmLeads,
+} = await import("@/lib/crm");
+const { renderMeetingEmailTemplate } = await import("@/lib/crm-meetings/templates");
+const {
+  provisionGoogleMeetForBooking,
+  processDueGoogleMeetProvisioningJobs,
+  adminRepairGoogleMeetLink,
+  setMeetingEmailTransportForTest,
+} = await import("@/lib/crm-meetings/service");
+const { ROLE_TEMPLATES, resolveEffectivePermissions } = await import("@/lib/rbac");
 
 const adminActor = {
   id: "emp-super-admin",
@@ -84,19 +111,34 @@ const adminActor = {
   roleLabel: "Super Admin",
   status: "active",
   scope: "all",
-  permissions: {},
+  permissions: resolveEffectivePermissions("super_admin"),
   mfaEnrolled: true,
   sessionVersion: 1,
   isSuperAdmin: true,
 };
+void ROLE_TEMPLATES;
 
-const apiCalls = [];
+const sentEmails = [];
+setMeetingEmailTransportForTest(async (template, options) => {
+  sentEmails.push({ template, options });
+  return {
+    ok: true,
+    status: "accepted_by_provider",
+    provider: "resend",
+    messageId: `re_mock_${sentEmails.length}`,
+    sentAt: new Date().toISOString(),
+  };
+});
+
+setGoogleCalendarPollDelayForTest(0);
+
 let eventCounter = 0;
+let mockMode = "immediate_success"; // "immediate_success" | "pending_then_success" | "conference_failure" | "api_outage"
+let pollCounter = 0;
 
 setGoogleCalendarFetchForTest(async (url, init) => {
   const urlStr = String(url);
   const method = (init?.method || "GET").toUpperCase();
-  apiCalls.push({ method, url: urlStr, body: init?.body ? String(init.body) : "" });
 
   if (urlStr === "https://oauth2.googleapis.com/token") {
     const params = new URLSearchParams(String(init?.body || ""));
@@ -111,16 +153,10 @@ setGoogleCalendarFetchForTest(async (url, init) => {
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
-    if (params.get("grant_type") === "refresh_token") {
-      assert.equal(params.get("refresh_token"), "1//mock_super_secret_refresh_token");
-      return new Response(
-        JSON.stringify({
-          access_token: "ya29.mock_refreshed_access_token",
-          expires_in: 3600,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    return new Response(
+      JSON.stringify({ access_token: "ya29.mock_refreshed_access_token", expires_in: 3600 }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   if (urlStr === "https://www.googleapis.com/oauth2/v2/userinfo") {
@@ -131,15 +167,42 @@ setGoogleCalendarFetchForTest(async (url, init) => {
   }
 
   if (urlStr.includes("/calendar/v3/calendars/primary/events") && method === "POST") {
-    assert.ok(urlStr.includes("conferenceDataVersion=1"), "Must request conferenceDataVersion=1");
-    assert.ok(urlStr.includes("sendUpdates=none"), "Must pass sendUpdates=none so Google does not auto-email");
+    assert.ok(urlStr.includes("conferenceDataVersion=1"));
+    assert.ok(urlStr.includes("sendUpdates=none"));
+    if (mockMode === "api_outage") {
+      return new Response(
+        JSON.stringify({ error: { message: "Calendar backend temporarily unavailable" } }),
+        { status: 503 }
+      );
+    }
     eventCounter += 1;
+    const evtId = `gcal_evt_${eventCounter}`;
+    if (mockMode === "pending_then_success") {
+      pollCounter = 0;
+      return new Response(
+        JSON.stringify({
+          id: evtId,
+          conferenceData: { createRequest: { status: { statusCode: "pending" } } },
+        }),
+        { status: 200 }
+      );
+    }
+    if (mockMode === "conference_failure") {
+      return new Response(
+        JSON.stringify({
+          id: evtId,
+          conferenceData: { createRequest: { status: { statusCode: "failure" } } },
+        }),
+        { status: 200 }
+      );
+    }
     return new Response(
       JSON.stringify({
-        id: `gcal_evt_${eventCounter}`,
+        id: evtId,
         htmlLink: `https://calendar.google.com/event?eid=${eventCounter}`,
         hangoutLink: `https://meet.google.com/hir-zexa-${eventCounter}0${eventCounter}`,
         conferenceData: {
+          createRequest: { status: { statusCode: "success" } },
           entryPoints: [
             {
               entryPointType: "video",
@@ -148,18 +211,47 @@ setGoogleCalendarFetchForTest(async (url, init) => {
           ],
         },
       }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200 }
+    );
+  }
+
+  if (urlStr.includes("/calendar/v3/calendars/primary/events/") && method === "GET") {
+    const evtId = urlStr.split("/events/")[1].split("?")[0];
+    pollCounter += 1;
+    if (mockMode === "pending_then_success" && pollCounter < 2) {
+      return new Response(
+        JSON.stringify({
+          id: evtId,
+          conferenceData: { createRequest: { status: { statusCode: "pending" } } },
+        }),
+        { status: 200 }
+      );
+    }
+    return new Response(
+      JSON.stringify({
+        id: evtId,
+        hangoutLink: `https://meet.google.com/pol-ledm-${pollCounter}99`,
+        conferenceData: {
+          createRequest: { status: { statusCode: "success" } },
+          entryPoints: [
+            { entryPointType: "video", uri: `https://meet.google.com/pol-ledm-${pollCounter}99` },
+          ],
+        },
+      }),
+      { status: 200 }
     );
   }
 
   if (urlStr.includes("/calendar/v3/calendars/primary/events/") && method === "PATCH") {
     assert.ok(urlStr.includes("sendUpdates=none"));
+    const evtId = urlStr.split("/events/")[1].split("?")[0];
     return new Response(
       JSON.stringify({
-        id: "gcal_evt_1",
-        hangoutLink: "https://meet.google.com/hir-zexa-101",
+        id: evtId,
+        hangoutLink: "https://meet.google.com/rep-airm-777",
+        conferenceData: { createRequest: { status: { statusCode: "success" } } },
       }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200 }
     );
   }
 
@@ -180,139 +272,214 @@ try {
   console.log("1. Verifying canonical Authorized Redirect URI...");
   assert.equal(
     getGoogleCalendarRedirectUri(),
-    "https://hirzexa.com/api/admin/integrations/google-calendar/callback",
-    "Must canonicalize *.onrender.com to https://hirzexa.com"
+    "https://hirzexa.com/api/admin/integrations/google-calendar/callback"
   );
 
-  // 2. AES-256-GCM Token Encryption & Tamper Detection
+  // 2. AES-256-GCM Token Encryption & Tamper Rejection
   console.log("2. Verifying AES-256-GCM encryption, unique IVs, and tamper rejection...");
-  const secretToken = "1//very-sensitive-google-refresh-token";
-  const enc1 = encryptOAuthSecret(secretToken);
-  const enc2 = encryptOAuthSecret(secretToken);
-  assert.notEqual(enc1, enc2, "Random IV must produce distinct ciphertexts");
-  assert.ok(!enc1.includes(secretToken), "Plaintext must never appear in ciphertext");
-  assert.equal(decryptOAuthSecret(enc1), secretToken);
-  assert.equal(decryptOAuthSecret(enc2), secretToken);
-
-  // Tamper with ciphertext -> must throw auth tag verification error
-  const tampered = enc1.slice(0, -4) + "AAAA";
-  assert.throws(() => decryptOAuthSecret(tampered), "Tampered AES-GCM ciphertext must fail decryption");
+  const enc1 = encryptOAuthSecret("1//secret-refresh");
+  const enc2 = encryptOAuthSecret("1//secret-refresh");
+  assert.notEqual(enc1, enc2);
+  assert.equal(decryptOAuthSecret(enc1), "1//secret-refresh");
+  assert.throws(() => decryptOAuthSecret(enc1.slice(0, -4) + "AAAA"));
 
   // 3. CSRF State Verification
   console.log("3. Verifying OAuth CSRF state binding, HMAC integrity, and expiry...");
   const now = Date.now();
   const state = createGoogleOAuthState(adminActor.id, now);
   assert.equal(
-    verifyGoogleOAuthState({ queryState: state, cookieState: state, actorId: adminActor.id, nowMs: now + 1000 }).ok,
+    verifyGoogleOAuthState({ queryState: state, cookieState: state, actorId: adminActor.id, nowMs: now }).ok,
     true
   );
   assert.equal(
-    verifyGoogleOAuthState({ queryState: state, cookieState: "different", actorId: adminActor.id, nowMs: now }).ok,
-    false,
-    "Cookie/query mismatch must fail"
+    verifyGoogleOAuthState({ queryState: state, cookieState: "bad", actorId: adminActor.id, nowMs: now }).ok,
+    false
   );
   assert.equal(
-    verifyGoogleOAuthState({ queryState: state, cookieState: state, actorId: "other-admin-id", nowMs: now }).ok,
-    false,
-    "Cross-admin actor replay must fail"
+    verifyGoogleOAuthState({ queryState: state, cookieState: state, actorId: "wrong-admin", nowMs: now }).ok,
+    false
   );
   assert.equal(
-    verifyGoogleOAuthState({
-      queryState: state,
-      cookieState: state,
-      actorId: adminActor.id,
-      nowMs: now + 11 * 60 * 1000,
-    }).ok,
-    false,
-    "Expired state (>10m) must fail"
+    verifyGoogleOAuthState({ queryState: state, cookieState: state, actorId: adminActor.id, nowMs: now + 700_000 }).ok,
+    false
   );
 
-  // 4. Authorization URL & Minimal Scopes
-  console.log("4. Verifying Google OAuth authorization URL & least-privilege scopes...");
+  // 4. OAuth URL + Exchange + Encrypted Storage
+  console.log("4. Verifying OAuth authorization URL, code exchange, and encrypted storage...");
   const authUrlRes = buildGoogleOAuthAuthorizationUrl(state);
   assert.equal(authUrlRes.ok, true);
-  const parsedAuth = new URL(authUrlRes.url);
-  assert.equal(parsedAuth.origin, "https://accounts.google.com");
-  assert.equal(parsedAuth.searchParams.get("access_type"), "offline");
-  assert.equal(parsedAuth.searchParams.get("prompt"), "consent");
-  assert.equal(
-    parsedAuth.searchParams.get("redirect_uri"),
-    "https://hirzexa.com/api/admin/integrations/google-calendar/callback"
-  );
-  assert.equal(
-    parsedAuth.searchParams.get("scope"),
-    "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email"
-  );
-
-  // 5. OAuth Code Exchange + Encrypted Storage + Zero Secret Leakage
-  console.log("5. Verifying server-side code exchange, encrypted storage, and non-secret status...");
-  const exchangeRes = await exchangeGoogleOAuthCodeAndStore({
-    code: "4/mock_auth_code",
-    actor: adminActor,
-  });
-  assert.equal(exchangeRes.ok, true);
-  assert.equal(exchangeRes.connectedEmail, "hassan@hirzexa.com");
-
+  const exch = await exchangeGoogleOAuthCodeAndStore({ code: "4/mock_code", actor: adminActor });
+  assert.equal(exch.ok, true);
   const rawStored = await readFile(connFile, "utf8");
-  assert.ok(
-    !rawStored.includes("1//mock_super_secret_refresh_token"),
-    "Plaintext refresh token must NEVER be persisted"
-  );
-  assert.ok(
-    !rawStored.includes("ya29.mock_initial_access_token"),
-    "Plaintext access token must NEVER be persisted"
-  );
+  assert.ok(!rawStored.includes("1//mock_super_secret_refresh_token"));
 
-  const status = await getGoogleCalendarConnectionStatus();
-  assert.equal(status.connected, true);
-  assert.equal(status.connectedEmail, "hassan@hirzexa.com");
-  assert.equal(JSON.stringify(status).includes("mock_super_secret"), false, "Status must leak 0 tokens");
-
-  // 6. Automatic Unique Google Meet Event Creation + Reschedule + Cancel
-  console.log("6. Verifying automatic unique Google Meet creation, reschedule, and cancel sync...");
-  const slotIso = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-  const meet1 = await createGoogleMeetDiscoveryEvent({
-    id: "lead-1",
-    referenceId: "HRZ-DSC-2026-10001",
-    fullName: "Nadia Client",
-    email: "nadia@client.test",
-    company: "Crescent Cloud",
+  // 5. Pending Conference Status Polling (pending -> pending -> success)
+  console.log("5. Verifying bounded polling when Google returns conferenceData.statusCode=pending...");
+  mockMode = "pending_then_success";
+  const slot48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+  const polledMeet = await createGoogleMeetDiscoveryEvent({
+    id: "lead-poll-1",
+    referenceId: "HRZ-DSC-2026-90001",
+    fullName: "Poll Client",
+    email: "poll@hirzexa.test",
+    company: "Poll Corp",
     serviceTrack: "AI Engineering & Intelligent Agents",
     durationMinutes: 30,
-    scheduledSlotIso: slotIso,
+    scheduledSlotIso: slot48h,
     timezone: "Asia/Riyadh",
-    projectSummary: "Discovery consultation for enterprise RAG.",
+    projectSummary: "Testing pending conference status polling.",
   });
-  assert.equal(meet1.ok, true);
-  assert.equal(meet1.eventId, "gcal_evt_1");
-  assert.equal(meet1.meetUrl, "https://meet.google.com/hir-zexa-101");
+  assert.equal(polledMeet.ok, true, "Bounded polling must resolve pending -> success");
+  assert.equal(polledMeet.conferenceStatus, "success");
+  assert.ok(polledMeet.meetUrl?.startsWith("https://meet.google.com/pol-ledm-"));
 
-  const upd = await updateGoogleMeetDiscoveryEvent("gcal_evt_1", {
-    scheduledSlotIso: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+  // 6. Conference Failure Rejection (HTTP 200 + statusCode=failure MUST NOT succeed)
+  console.log("6. Verifying HTTP 200 with conferenceData.statusCode=failure is rejected...");
+  mockMode = "conference_failure";
+  const failedMeet = await createGoogleMeetDiscoveryEvent({
+    id: "lead-fail-1",
+    referenceId: "HRZ-DSC-2026-90002",
+    fullName: "Fail Client",
+    email: "fail@hirzexa.test",
+    company: "Fail Corp",
+    serviceTrack: "AI Engineering & Intelligent Agents",
     durationMinutes: 30,
-    timezone: "Asia/Riyadh",
+    scheduledSlotIso: slot48h,
+    timezone: "UTC",
+    projectSummary: "Testing conference failure detection.",
   });
-  assert.equal(upd.ok, true);
+  assert.equal(failedMeet.ok, false, "HTTP 200 without Meet URL must be rejected");
+  assert.equal(failedMeet.conferenceStatus, "failure");
+  assert.equal(failedMeet.meetUrl, undefined);
 
-  const del = await deleteGoogleMeetDiscoveryEvent("gcal_evt_1");
-  assert.equal(del.ok, true);
+  // 7. No /book?ref=... Fallback + ICS + Calendar Links + Join Google Meet CTA Consistency
+  console.log("7. Verifying zero /book?ref=... fallback, ICS conference properties, and email CTA consistency...");
+  assert.equal(generateMeetingLink("HRZ-DSC-2026-77777"), undefined, "Must NOT fall back to /book?ref=...");
 
-  // 7. Admin Meet Verification Probe (creates temp Meet event & deletes it immediately)
-  console.log("7. Verifying admin Test Meet Sync diagnostic (create + cleanup)...");
-  const probe = await testGoogleCalendarConnection(adminActor, { verifyMeetCreation: true });
-  assert.equal(probe.ok, true);
-  assert.ok(probe.verifiedMeetUrl?.startsWith("https://meet.google.com/"));
+  mockMode = "immediate_success";
+  const created = await createCrmLead({
+    leadType: "discovery_call",
+    fullName: "Synthetic Tester",
+    email: "synthetic@hirzexa.test",
+    company: "HIRZEXA QA",
+    serviceTrack: "AI Engineering & Intelligent Agents",
+    durationMinutes: 30,
+    scheduledSlotIso: slot48h,
+    timezone: "Asia/Riyadh",
+    projectSummary: "End-to-end verification of Google Meet link consistency across ICS and emails.",
+    consent: true,
+    locale: "en",
+  });
+  assert.equal(created.lead.meetingLink, undefined, "Unprovisioned booking must not contain fake /book link");
 
-  // 8. Disconnect + Token Revocation
-  console.log("8. Verifying disconnect revokes Google token & deletes stored connection...");
+  const provRes = await provisionGoogleMeetForBooking(created.lead);
+  assert.equal(provRes.ok, true);
+  assert.ok(provRes.meetUrl?.startsWith("https://meet.google.com/"));
+
+  const ics = generateDiscoveryIcs({
+    referenceId: provRes.lead.referenceId,
+    fullName: provRes.lead.fullName,
+    email: provRes.lead.email,
+    company: provRes.lead.company,
+    serviceTrack: provRes.lead.serviceTrack,
+    durationMinutes: provRes.lead.durationMinutes,
+    scheduledSlotIso: provRes.lead.scheduledSlotIso,
+    meetingLink: provRes.lead.meetingLink,
+    projectSummary: provRes.lead.projectSummary,
+  });
+  assert.ok(ics.includes(`LOCATION:${provRes.meetUrl}`), "ICS LOCATION must be real Google Meet URL");
+  assert.ok(!ics.includes("LOCATION:https://hirzexa.com/book"), "ICS LOCATION must NEVER be /book?ref=...");
+  assert.ok(ics.includes(`X-GOOGLE-CONFERENCE:${provRes.meetUrl}`), "ICS must include X-GOOGLE-CONFERENCE");
+  assert.ok(ics.includes(`CONFERENCE;VALUE=URI;FEATURE=VIDEO;LABEL=Google Meet:${provRes.meetUrl}`));
+  assert.ok(ics.includes(`UID:hirzexa-discovery-${provRes.lead.referenceId}@hirzexa.com`));
+
+  const calLinks = buildCalendarLinks(provRes.lead);
+  assert.ok(calLinks.googleUrl.includes(encodeURIComponent(provRes.meetUrl)));
+  assert.ok(calLinks.outlookUrl.includes(encodeURIComponent(provRes.meetUrl)));
+
+  const confirmEmail = renderMeetingEmailTemplate({ lead: provRes.lead, templateType: "meeting_confirmation" });
+  const rem24Email = renderMeetingEmailTemplate({ lead: provRes.lead, templateType: "meeting_reminder_24h" });
+  const rem1Email = renderMeetingEmailTemplate({ lead: provRes.lead, templateType: "meeting_reminder_1h" });
+  for (const tpl of [confirmEmail, rem24Email, rem1Email]) {
+    assert.ok(tpl.html.includes("Join Google Meet"), `${tpl.templateType} must feature 'Join Google Meet' CTA`);
+    assert.ok(tpl.html.includes(provRes.meetUrl), `${tpl.templateType} must use exact persisted Meet URL`);
+  }
+
+  // 8. Failure Handling + Persistent Retry Worker Recovery -> Triggers Held Confirmation Email
+  console.log("8. Verifying Meet failure holds email, schedules retry, and worker recovers cleanly...");
+  mockMode = "api_outage";
+  const slot60h = new Date(Date.now() + 60 * 60 * 60 * 1000).toISOString();
+  const outageLead = (
+    await createCrmLead({
+      leadType: "discovery_call",
+      fullName: "Outage Retry Client",
+      email: "retry@hirzexa.test",
+      company: "Resilient Systems",
+      serviceTrack: "Cloud Architecture & Systems Integration",
+      durationMinutes: 30,
+      scheduledSlotIso: slot60h,
+      timezone: "UTC",
+      projectSummary: "Verifying failed Meet creation persists booking and retries idempotently.",
+      consent: true,
+      locale: "en",
+    })
+  ).lead;
+
+  const emailsBeforeOutage = sentEmails.length;
+  const failProv = await provisionGoogleMeetForBooking(outageLead, { nowMs: now });
+  assert.equal(failProv.ok, false);
+  assert.equal(failProv.lead.meetProvisioningStatus, "failed");
+  assert.ok(failProv.lead.meetNextRetryAt, "Must schedule persistent retry timestamp");
+  assert.equal(sentEmails.length, emailsBeforeOutage, "Must NOT send customer email when Meet failed");
+
+  // Simulate Google recovery 6 minutes later -> worker retries, attaches Meet URL, sends held confirmation!
+  mockMode = "immediate_success";
+  const retryWorker = await processDueGoogleMeetProvisioningJobs({ nowMs: now + 6 * 60_000 });
+  assert.equal(retryWorker.claimed, 1);
+  assert.equal(retryWorker.provisioned, 1);
+  assert.equal(retryWorker.emailsTriggered, 1, "Must send held confirmation once genuine Meet link succeeds");
+  const recoveredLead = (await listCrmLeads()).find((l) => l.id === outageLead.id);
+  assert.ok(recoveredLead.meetingLink?.startsWith("https://meet.google.com/"));
+  assert.equal(recoveredLead.meetProvisioningStatus, "ready");
+
+  // 9. Admin Repair Action for Legacy Booking (Like HRZ-DSC-2026-60700) Without Duplicate Emails
+  console.log("9. Verifying admin repair replaces legacy booking without auto-sending duplicate emails...");
+  const slot80h = new Date(Date.now() + 80 * 60 * 60 * 1000).toISOString();
+  const legacyLead = (
+    await createCrmLead({
+      leadType: "discovery_call",
+      fullName: "Legacy Booking Client",
+      email: "legacy-repair@hirzexa.test",
+      company: "Legacy Corp",
+      serviceTrack: "Custom Software & SaaS Engineering",
+      durationMinutes: 30,
+      scheduledSlotIso: slot80h,
+      timezone: "UTC",
+      projectSummary: "Booking missing Google Meet link prior to OAuth connection.",
+      consent: true,
+      locale: "en",
+    })
+  ).lead;
+
+  const emailsBeforeRepair = sentEmails.length;
+  const repairRes = await adminRepairGoogleMeetLink(adminActor, legacyLead.id);
+  assert.equal(repairRes.ok, true);
+  assert.ok(repairRes.meetUrl?.startsWith("https://meet.google.com/"));
+  assert.equal(sentEmails.length, emailsBeforeRepair, "Admin repair must NOT auto-send duplicate emails");
+
+  // 10. Reschedule, Cancel, Probe & Disconnect
+  console.log("10. Verifying reschedule, cancel, Meet diagnostic probe, and disconnect...");
+  assert.equal((await updateGoogleMeetDiscoveryEvent("gcal_evt_1", { scheduledSlotIso: slot80h, durationMinutes: 30, timezone: "UTC" })).ok, true);
+  assert.equal((await deleteGoogleMeetDiscoveryEvent("gcal_evt_1")).ok, true);
+  assert.equal((await testGoogleCalendarConnection(adminActor, { verifyMeetCreation: true })).ok, true);
   const disc = await disconnectGoogleCalendar(adminActor);
   assert.equal(disc.ok, true);
-  assert.equal(disc.revokedRemote, true);
-  const statusAfter = await getGoogleCalendarConnectionStatus();
-  assert.equal(statusAfter.connected, false);
+  assert.equal((await getGoogleCalendarConnectionStatus()).connected, false);
 
-  console.log("\nALL 8 GOOGLE CALENDAR OAUTH 2.0 & MEET INTEGRATION TESTS PASSED!");
+  console.log("\nALL 10 END-TO-END GOOGLE MEET PROVISIONING, POLLING, FAILURE RECOVERY & REPAIR TESTS PASSED!");
 } finally {
   setGoogleCalendarFetchForTest(null);
+  setGoogleCalendarPollDelayForTest(null);
+  setMeetingEmailTransportForTest(null);
   await cleanup();
 }

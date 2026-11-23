@@ -1,6 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { processDueMeetingEmailJobs } from "@/lib/crm-meetings/service";
+import {
+  processDueGoogleMeetProvisioningJobs,
+  processDueMeetingEmailJobs,
+} from "@/lib/crm-meetings/service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,9 +60,10 @@ export async function POST(request: Request) {
     }
   } catch {}
 
+  const meetRetrySummary = await processDueGoogleMeetProvisioningJobs({ limit: 10 });
   const summary = await processDueMeetingEmailJobs({ limit });
   return NextResponse.json(
-    { ok: true, ...summary, processedAt: new Date().toISOString() },
+    { ok: true, ...summary, meetProvisioning: meetRetrySummary, processedAt: new Date().toISOString() },
     { status: 200, headers: { "Cache-Control": "no-store" } }
   );
 }

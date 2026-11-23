@@ -468,9 +468,18 @@ export function DiscoveryBookingSection({
                         {confirmed.timezone} · {confirmed.durationMinutes} min
                       </small>
                     </div>
-                    {confirmed.meetingLink ? (
+                    {confirmed.meetingLink &&
+                    !/hirzexa\.com\/book/i.test(confirmed.meetingLink) ? (
                       <div>
-                        <span>{arabic ? "رابط الاجتماع والتنسيق" : "Meeting & Coordination Link"}</span>
+                        <span>
+                          {confirmed.meetingLink.includes("meet.google.com")
+                            ? arabic
+                              ? "رابط Google Meet"
+                              : "Join Google Meet"
+                            : arabic
+                            ? "رابط الاجتماع"
+                            : "Video Meeting Link"}
+                        </span>
                         <a
                           dir="ltr"
                           href={confirmed.meetingLink}
@@ -480,7 +489,16 @@ export function DiscoveryBookingSection({
                           <Video size={14} /> {confirmed.meetingLink}
                         </a>
                       </div>
-                    ) : null}
+                    ) : (
+                      <div>
+                        <span>{arabic ? "رابط الاجتماع المرئي" : "Video Conferencing"}</span>
+                        <small>
+                          {arabic
+                            ? "تم تأكيد موعدك. جارٍ تجهيز رابط Google Meet الفريد وسيصلك عبر البريد الإلكتروني فور اعتماده."
+                            : "Your slot is confirmed. Your unique Google Meet joining link is being finalized and will be sent via email shortly."}
+                        </small>
+                      </div>
+                    )}
                   </div>
                 ) : null}
 
@@ -494,7 +512,9 @@ export function DiscoveryBookingSection({
                       >
                         <Download size={16} />
                         <span>
-                          {arabic ? "تحميل دعوة التقويم (.ics)" : "Download .ics Calendar Invite"}
+                          {arabic
+                            ? "إضافة إلى تقويم Apple / iPhone"
+                            : "Apple / iPhone Calendar (.ics)"}
                         </span>
                       </button>
                     ) : (
@@ -504,7 +524,9 @@ export function DiscoveryBookingSection({
                       >
                         <Download size={16} />
                         <span>
-                          {arabic ? "تحميل دعوة التقويم (.ics)" : "Download .ics Calendar Invite"}
+                          {arabic
+                            ? "إضافة إلى تقويم Apple / iPhone"
+                            : "Apple / iPhone Calendar (.ics)"}
                         </span>
                       </a>
                     )}

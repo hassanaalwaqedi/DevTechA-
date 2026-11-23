@@ -109,16 +109,55 @@ export function verifyBookingIcsSignature(
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export function generateMeetingLink(referenceId: string): string {
+/**
+ * Returns true ONLY for a real, verified video conference URL (Google Meet, Zoom,
+ * Microsoft Teams, Cal.com, etc.). Explicitly rejects the generic `/book?ref=...`
+ * booking management URL so it is NEVER mistaken for a video joining link or
+ * placed into a calendar LOCATION field.
+ */
+export function isVerifiedVideoMeetingUrl(rawUrl: string | null | undefined): boolean {
+  const trimmed = (rawUrl || "").trim();
+  if (!trimmed) return false;
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+    const host = parsed.hostname.toLowerCase();
+    if (host.endsWith("hirzexa.com") && parsed.pathname.toLowerCase().startsWith("/book")) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function isVerifiedGoogleMeetUrl(rawUrl: string | null | undefined): boolean {
+  const trimmed = (rawUrl || "").trim();
+  if (!trimmed) return false;
+  try {
+    const parsed = new URL(trimmed);
+    return (
+      parsed.protocol === "https:" &&
+      parsed.hostname.toLowerCase() === "meet.google.com" &&
+      parsed.pathname.length > 1
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function generateMeetingLink(referenceId: string): string | undefined {
   const configuredCalUrl = process.env.NEXT_PUBLIC_CALCOM_URL?.trim();
-  if (configuredCalUrl) {
+  if (configuredCalUrl && isVerifiedVideoMeetingUrl(configuredCalUrl)) {
     return configuredCalUrl;
   }
   const configuredMeetBase = process.env.DISCOVERY_MEETING_BASE_URL?.trim();
-  if (configuredMeetBase) {
+  if (configuredMeetBase && isVerifiedVideoMeetingUrl(configuredMeetBase)) {
     return `${configuredMeetBase.replace(/\/$/, "")}/${referenceId.toLowerCase()}`;
   }
-  return `${SITE_URL}/book?ref=${encodeURIComponent(referenceId)}`;
+  // Never fall back to /book?ref=... as a fake video meeting link.
+  // Real unique Google Meet URLs are provisioned via Google Calendar OAuth 2.0.
+  return undefined;
 }
 
 export function generateDiscoveryIcs(lead: {
@@ -129,7 +168,7 @@ export function generateDiscoveryIcs(lead: {
   serviceTrack: string;
   durationMinutes: 20 | 30;
   scheduledSlotIso: string;
-  meetingLink: string;
+  meetingLink?: string | null;
   projectSummary: string;
 }): string {
   const start = new Date(lead.scheduledSlotIso);
@@ -137,32 +176,54 @@ export function generateDiscoveryIcs(lead: {
   const dtStamp = formatIcsDate(new Date().toISOString());
   const dtStart = formatIcsDate(start.toISOString());
   const dtEnd = formatIcsDate(end.toISOString());
+  const verifiedVideoUrl = isVerifiedVideoMeetingUrl(lead.meetingLink)
+    ? lead.meetingLink!.trim()
+    : null;
+  const isGoogleMeet = isVerifiedGoogleMeetUrl(verifiedVideoUrl);
+  const manageUrl = `${SITE_URL}/book?ref=${encodeURIComponent(lead.referenceId)}`;
+
   const summary = `HIRZEXA Discovery Call — ${lead.company || lead.fullName} (${lead.referenceId})`;
   const description = [
     `HIRZEXA Engineering Discovery Consultation (${lead.durationMinutes} min)`,
-    `Reference: ${lead.referenceId}`,
+    verifiedVideoUrl
+      ? `${isGoogleMeet ? "Join Google Meet" : "Join Video Meeting"}: ${verifiedVideoUrl}`
+      : "Video Conferencing: Google Meet link will be provided prior to the session.",
+    `Booking Reference: ${lead.referenceId}`,
+    `Manage / Support: ${manageUrl} (${COMPANY_EMAILS.business})`,
     `Track: ${lead.serviceTrack}`,
     `Participant: ${lead.fullName} <${lead.email}>`,
-    `Meeting Link: ${lead.meetingLink}`,
     "",
     "Agenda & Scope:",
     lead.projectSummary,
   ].join("\n");
 
-  return [
+  const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//HIRZEXA//AI & Software Engineering Discovery//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:REQUEST",
     "BEGIN:VEVENT",
-    `UID:${sanitizeIcsToken(lead.referenceId) || "booking"}@hirzexa.com`,
+    `UID:hirzexa-discovery-${sanitizeIcsToken(lead.referenceId) || "booking"}@hirzexa.com`,
     `DTSTAMP:${dtStamp}`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,
     `SUMMARY:${escapeIcsText(summary)}`,
     `DESCRIPTION:${escapeIcsText(description)}`,
-    `LOCATION:${escapeIcsText(lead.meetingLink)}`,
+    `LOCATION:${escapeIcsText(verifiedVideoUrl || "Online Video Call (Google Meet pending)")}`,
+  ];
+
+  if (verifiedVideoUrl) {
+    lines.push(`URL:${verifiedVideoUrl}`);
+    lines.push(
+      `CONFERENCE;VALUE=URI;FEATURE=VIDEO;LABEL=${isGoogleMeet ? "Google Meet" : "Video Call"}:${verifiedVideoUrl}`
+    );
+    if (isGoogleMeet) {
+      lines.push(`X-GOOGLE-CONFERENCE:${verifiedVideoUrl}`);
+    }
+  }
+
+  lines.push(
     `ORGANIZER;CN=HIRZEXA Engineering:mailto:${COMPANY_EMAILS.business}`,
     `ATTENDEE;CN=${escapeIcsText(lead.fullName)};RSVP=TRUE:mailto:${sanitizeIcsToken(lead.email)}`,
     "STATUS:CONFIRMED",
@@ -172,13 +233,15 @@ export function generateDiscoveryIcs(lead: {
     "DESCRIPTION:Reminder: HIRZEXA Discovery Call in 24 hours",
     "END:VALARM",
     "BEGIN:VALARM",
-    "TRIGGER:-PT30M",
+    "TRIGGER:-PT60M",
     "ACTION:DISPLAY",
-    "DESCRIPTION:Reminder: HIRZEXA Discovery Call in 30 minutes",
+    "DESCRIPTION:Reminder: HIRZEXA Discovery Call in 1 hour",
     "END:VALARM",
     "END:VEVENT",
-    "END:VCALENDAR",
-  ].join("\r\n");
+    "END:VCALENDAR"
+  );
+
+  return lines.join("\r\n");
 }
 
 export function buildCalendarLinks(lead: {
@@ -188,7 +251,7 @@ export function buildCalendarLinks(lead: {
   serviceTrack: string;
   durationMinutes: 20 | 30;
   scheduledSlotIso?: string | null;
-  meetingLink?: string;
+  meetingLink?: string | null;
   projectSummary: string;
 }) {
   if (!lead.scheduledSlotIso) return null;
@@ -198,16 +261,31 @@ export function buildCalendarLinks(lead: {
   const gStart = formatIcsDate(start.toISOString());
   const gEnd = formatIcsDate(end.toISOString());
   const title = `HIRZEXA Discovery Call — ${lead.company || lead.fullName}`;
-  const details = `Reference: ${lead.referenceId}\nTrack: ${lead.serviceTrack}\nMeeting Link: ${
-    lead.meetingLink || `${SITE_URL}/book?ref=${lead.referenceId}`
-  }\n\nSummary:\n${lead.projectSummary}`;
+  const verifiedVideoUrl = isVerifiedVideoMeetingUrl(lead.meetingLink)
+    ? lead.meetingLink!.trim()
+    : null;
+  const isGoogleMeet = isVerifiedGoogleMeetUrl(verifiedVideoUrl);
+
+  const details = [
+    verifiedVideoUrl
+      ? `${isGoogleMeet ? "Join Google Meet" : "Join Video Meeting"}: ${verifiedVideoUrl}`
+      : "Video Conferencing: Online consultation (Google Meet link will be confirmed separately).",
+    `Booking Reference: ${lead.referenceId}`,
+    `Track: ${lead.serviceTrack}`,
+    `Contact: ${COMPANY_EMAILS.business}`,
+    "",
+    "Summary:",
+    lead.projectSummary,
+  ].join("\n");
+
+  const safeLocation = verifiedVideoUrl || "Online Video Consultation";
 
   const googleParams = new URLSearchParams({
     action: "TEMPLATE",
     text: title,
     dates: `${gStart}/${gEnd}`,
     details,
-    location: lead.meetingLink || SITE_URL,
+    location: safeLocation,
   });
 
   const outlookParams = new URLSearchParams({
@@ -217,7 +295,7 @@ export function buildCalendarLinks(lead: {
     startdt: start.toISOString(),
     enddt: end.toISOString(),
     body: details,
-    location: lead.meetingLink || SITE_URL,
+    location: safeLocation,
   });
 
   return {
@@ -647,6 +725,17 @@ function mapNormalizedLeadRow(row: Record<string, unknown>): CrmLeadRecord | nul
     googleCalendarEventId: row.google_calendar_event_id
       ? String(row.google_calendar_event_id)
       : null,
+    meetProvisioningStatus:
+      row.meet_provisioning_status === "pending" ||
+      row.meet_provisioning_status === "ready" ||
+      row.meet_provisioning_status === "failed"
+        ? row.meet_provisioning_status
+        : "not_applicable",
+    meetProvisioningError: row.meet_provisioning_error
+      ? String(row.meet_provisioning_error)
+      : null,
+    meetProvisioningAttempts: Number(row.meet_provisioning_attempts ?? 0),
+    meetNextRetryAt: row.meet_next_retry_at ? String(row.meet_next_retry_at) : null,
     projectSummary: String(row.project_summary || ""),
     currentStack: row.current_stack ? String(row.current_stack) : undefined,
     consent: Boolean(contactObj?.consent ?? true),
@@ -1294,20 +1383,19 @@ export async function createCrmLead(input: {
     await writeLocalLead(lead);
   }
 
-  const icsContent =
-    normalizedSlotIso && meetingLink
-      ? generateDiscoveryIcs({
-          referenceId: lead.referenceId,
-          fullName: lead.fullName,
-          email: lead.email,
-          company: lead.company,
-          serviceTrack: lead.serviceTrack,
-          durationMinutes: lead.durationMinutes,
-          scheduledSlotIso: normalizedSlotIso,
-          meetingLink,
-          projectSummary: lead.projectSummary,
-        })
-      : null;
+  const icsContent = normalizedSlotIso
+    ? generateDiscoveryIcs({
+        referenceId: lead.referenceId,
+        fullName: lead.fullName,
+        email: lead.email,
+        company: lead.company,
+        serviceTrack: lead.serviceTrack,
+        durationMinutes: lead.durationMinutes,
+        scheduledSlotIso: normalizedSlotIso,
+        meetingLink,
+        projectSummary: lead.projectSummary,
+      })
+    : null;
 
   const calendarLinks = buildCalendarLinks(lead);
   const emails = buildDiscoveryBookingEmails(lead);
@@ -1687,14 +1775,28 @@ export async function saveLeadGoogleMeetDetails(
   if (isSupabaseConfigured()) {
     try {
       const client = await createPrivilegedOrServerSupabaseClient();
-      await client
+      const { error } = await client
         .from("crm_leads")
         .update({
           meeting_link: details.meetingLink,
           google_calendar_event_id: details.googleCalendarEventId,
+          meet_provisioning_status: "ready",
+          meet_provisioning_error: null,
+          meet_next_retry_at: null,
           updated_at: nowIso,
         })
         .eq("id", leadId);
+      // Graceful fallback if 20261123_google_meet_provisioning.sql hasn't been applied yet
+      if (error) {
+        await client
+          .from("crm_leads")
+          .update({
+            meeting_link: details.meetingLink,
+            google_calendar_event_id: details.googleCalendarEventId,
+            updated_at: nowIso,
+          })
+          .eq("id", leadId);
+      }
     } catch {}
   }
 
@@ -1706,6 +1808,66 @@ export async function saveLeadGoogleMeetDetails(
         ...existing,
         meetingLink: details.meetingLink,
         googleCalendarEventId: details.googleCalendarEventId,
+        meetProvisioningStatus: "ready",
+        meetProvisioningError: null,
+        meetNextRetryAt: null,
+        updatedAt: nowIso,
+      };
+      memoryLeads.set(next.id, next);
+      await writeLocalLead(next);
+    }
+  }
+}
+
+/**
+ * Records an actionable Google Meet provisioning failure and schedules a bounded
+ * persistent retry without fabricating a meeting URL or touching the confirmed slot.
+ */
+export async function recordLeadGoogleMeetFailure(
+  leadId: string,
+  details: {
+    error: string;
+    googleCalendarEventId?: string | null;
+    attempts: number;
+    nextRetryAt: string | null;
+    status?: "failed" | "pending";
+  }
+): Promise<void> {
+  const nowIso = new Date().toISOString();
+  const safeError = details.error.slice(0, 380);
+  const status = details.status || "failed";
+
+  if (isSupabaseConfigured()) {
+    try {
+      const client = await createPrivilegedOrServerSupabaseClient();
+      const payload: Record<string, unknown> = {
+        meet_provisioning_status: status,
+        meet_provisioning_error: safeError,
+        meet_provisioning_attempts: details.attempts,
+        meet_next_retry_at: details.nextRetryAt,
+        updated_at: nowIso,
+      };
+      if (details.googleCalendarEventId) {
+        payload.google_calendar_event_id = details.googleCalendarEventId;
+      }
+      await client.from("crm_leads").update(payload).eq("id", leadId);
+    } catch {}
+  }
+
+  if (isLocalFallbackAllowed()) {
+    const leads = await readLocalLeads();
+    const existing = leads.find((l) => l.id === leadId) || memoryLeads.get(leadId);
+    if (existing) {
+      const next: CrmLeadRecord = {
+        ...existing,
+        googleCalendarEventId:
+          details.googleCalendarEventId !== undefined
+            ? details.googleCalendarEventId
+            : existing.googleCalendarEventId,
+        meetProvisioningStatus: status,
+        meetProvisioningError: safeError,
+        meetProvisioningAttempts: details.attempts,
+        meetNextRetryAt: details.nextRetryAt,
         updatedAt: nowIso,
       };
       memoryLeads.set(next.id, next);

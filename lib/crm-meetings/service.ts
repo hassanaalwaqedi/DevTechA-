@@ -6,7 +6,11 @@ import {
   canActorAccessCrmLead,
   generateDiscoveryIcs,
   getAuthorizedCrmLeadById,
+  isVerifiedGoogleMeetUrl,
+  isVerifiedVideoMeetingUrl,
   listCrmLeads,
+  recordLeadGoogleMeetFailure,
+  saveLeadGoogleMeetDetails,
   updateCrmLead,
 } from "@/lib/crm";
 import type { CrmLeadRecord } from "@/lib/crm-types";
@@ -20,6 +24,7 @@ import {
 } from "@/lib/email/transactional";
 import {
   deleteGoogleMeetDiscoveryEvent,
+  repairOrProvisionGoogleMeetEvent,
   updateGoogleMeetDiscoveryEvent,
 } from "@/lib/integrations/google-calendar";
 import type { EmailMessageTemplate } from "@/lib/email-templates";
@@ -427,7 +432,7 @@ function buildIcsAttachmentForLead(lead: CrmLeadRecord): TransactionalEmailAttac
     serviceTrack: lead.serviceTrack,
     durationMinutes: lead.durationMinutes,
     scheduledSlotIso: lead.scheduledSlotIso,
-    meetingLink: linkInfo.url || "https://hirzexa.com/book",
+    meetingLink: linkInfo.isDirectJoinUrl ? linkInfo.url : undefined,
     projectSummary: lead.projectSummary,
   });
   return [
@@ -2224,5 +2229,386 @@ export async function generateAiFollowUpDraft(
       sent: false,
       requiresHumanApproval: true,
     },
+  };
+}
+
+const MAX_MEET_PROVISIONING_ATTEMPTS = 5;
+
+/**
+ * Provisions a real unique Google Meet link for a newly confirmed Discovery Call booking.
+ * - On success: persists verified `https://meet.google.com/...` URL & Calendar event ID.
+ * - On failure: preserves the confirmed booking, records an actionable error, notifies admins
+ *   via an urgent business event + audit log, and schedules a bounded persistent retry job.
+ *   Never fabricates a Meet link or falls back to `/book?ref=...`.
+ */
+export async function provisionGoogleMeetForBooking(
+  lead: CrmLeadRecord,
+  options?: { nowMs?: number }
+): Promise<{
+  ok: boolean;
+  lead: CrmLeadRecord;
+  meetUrl?: string;
+  eventId?: string;
+  error?: string;
+}> {
+  if (lead.leadType !== "discovery_call" || !lead.scheduledSlotIso) {
+    return { ok: false, lead, error: "Not a scheduled discovery call." };
+  }
+
+  // If a real verified Google Meet URL already exists, preserve it idempotently
+  if (isVerifiedGoogleMeetUrl(lead.meetingLink) && lead.googleCalendarEventId) {
+    return {
+      ok: true,
+      lead: { ...lead, meetProvisioningStatus: "ready", meetProvisioningError: null },
+      meetUrl: lead.meetingLink,
+      eventId: lead.googleCalendarEventId,
+    };
+  }
+
+  const nowMs = options?.nowMs ?? Date.now();
+  const res = await repairOrProvisionGoogleMeetEvent(lead);
+
+  if (res.ok && res.meetUrl && res.eventId && isVerifiedGoogleMeetUrl(res.meetUrl)) {
+    await saveLeadGoogleMeetDetails(lead.id, {
+      meetingLink: res.meetUrl,
+      googleCalendarEventId: res.eventId,
+    });
+    const updatedLead: CrmLeadRecord = {
+      ...lead,
+      meetingLink: res.meetUrl,
+      googleCalendarEventId: res.eventId,
+      meetProvisioningStatus: "ready",
+      meetProvisioningError: null,
+      meetNextRetryAt: null,
+    };
+
+    await appendLeadActivityEvent(lead.id, {
+      type: "meeting_scheduled",
+      summary: `Verified Google Meet link provisioned via Google Calendar (${res.meetUrl}).`,
+      actor: "HIRZEXA Google Calendar Sync",
+    }).catch(() => {});
+
+    await recordAuditLog({
+      actorId: "system:google-calendar",
+      actorEmail: "calendar@hirzexa.com",
+      actorRole: "system",
+      module: "bookings",
+      action: "google_meet_provision",
+      entityType: "lead",
+      entityId: lead.id,
+      outcome: "allowed",
+      summary: `Provisioned unique Google Meet link for ${lead.referenceId} (eventId=${res.eventId}).`,
+      metadata: { eventId: res.eventId, conferenceStatus: res.conferenceStatus || "success" },
+    }).catch(() => {});
+
+    return { ok: true, lead: updatedLead, meetUrl: res.meetUrl, eventId: res.eventId };
+  }
+
+  // Failure path: preserve booking, record actionable error, schedule persistent retry, notify admins!
+  const attempts = Math.max(1, (lead.meetProvisioningAttempts || 0) + 1);
+  const nextRetryAt =
+    attempts < MAX_MEET_PROVISIONING_ATTEMPTS
+      ? new Date(nowMs + BASE_RETRY_BACKOFF_MS * Math.pow(2, attempts - 1)).toISOString()
+      : null;
+  const errorDetail =
+    res.error || "Google Meet link creation failed — check Google Calendar OAuth connection.";
+
+  await recordLeadGoogleMeetFailure(lead.id, {
+    error: errorDetail,
+    googleCalendarEventId: res.eventId || lead.googleCalendarEventId || null,
+    attempts,
+    nextRetryAt,
+    status: "failed",
+  });
+
+  const failedLead: CrmLeadRecord = {
+    ...lead,
+    meetingLink: isVerifiedVideoMeetingUrl(lead.meetingLink) ? lead.meetingLink : undefined,
+    googleCalendarEventId: res.eventId || lead.googleCalendarEventId || null,
+    meetProvisioningStatus: "failed",
+    meetProvisioningError: errorDetail,
+    meetProvisioningAttempts: attempts,
+    meetNextRetryAt: nextRetryAt,
+  };
+
+  await appendLeadActivityEvent(lead.id, {
+    type: "note",
+    summary: `Google Meet provisioning failed (attempt ${attempts}/${MAX_MEET_PROVISIONING_ATTEMPTS}): ${errorDetail}. Customer confirmation email held until genuine Meet link is ready.`,
+    actor: "HIRZEXA Google Calendar Sync",
+  }).catch(() => {});
+
+  await emitBusinessEvent({
+    eventType: "booking.created",
+    module: "bookings",
+    severity: "urgent",
+    actorRef: "system:google-calendar",
+    entityType: "lead",
+    entityId: lead.id,
+    title: `Google Meet link failed: ${lead.company || lead.fullName} (${lead.referenceId})`,
+    summary: `${errorDetail}${
+      nextRetryAt ? ` Automatic retry scheduled at ${nextRetryAt}.` : " Max retries reached — repair manually in Sales CRM."
+    }`,
+    sourceHref: `/admin/crm?lead=${encodeURIComponent(lead.id)}`,
+    idempotencyKey: `meet-fail:${lead.id}:attempt-${attempts}`,
+  }).catch(() => {});
+
+  await recordAuditLog({
+    actorId: "system:google-calendar",
+    actorEmail: "calendar@hirzexa.com",
+    actorRole: "system",
+    module: "bookings",
+    action: "google_meet_provision",
+    entityType: "lead",
+    entityId: lead.id,
+    outcome: "error",
+    summary: `Google Meet provisioning failed for ${lead.referenceId}: ${errorDetail}`,
+    metadata: {
+      attempts,
+      nextRetryAt,
+      eventId: res.eventId || null,
+      conferenceStatus: res.conferenceStatus || "unknown",
+    },
+  }).catch(() => {});
+
+  return { ok: false, lead: failedLead, eventId: res.eventId, error: errorDetail };
+}
+
+/**
+ * Concurrency-safe background retry processor for Discovery Call bookings whose
+ * initial Google Meet link creation failed or remained pending.
+ * Invoked by the authenticated Render Cron Worker (`/api/internal/workers/meeting-reminders`).
+ */
+export async function processDueGoogleMeetProvisioningJobs(options?: {
+  limit?: number;
+  nowMs?: number;
+}): Promise<{
+  claimed: number;
+  provisioned: number;
+  retried: number;
+  exhausted: number;
+  emailsTriggered: number;
+}> {
+  const limit = Math.max(1, Math.min(options?.limit ?? 10, 25));
+  const nowMs = options?.nowMs ?? Date.now();
+  const claimedIds: Array<{ id: string; attempts: number }> = [];
+
+  if (isSupabaseConfigured()) {
+    try {
+      const client = await createPrivilegedOrServerSupabaseClient();
+      const { data, error } = await client.rpc("claim_due_google_meet_provisioning_leads", {
+        p_limit: limit,
+      });
+      if (!error && Array.isArray(data)) {
+        for (const row of data as Array<Record<string, unknown>>) {
+          claimedIds.push({
+            id: String(row.id),
+            attempts: Number(row.meet_provisioning_attempts ?? 1),
+          });
+        }
+      }
+    } catch {}
+  } else if (isLocalFallbackAllowed()) {
+    const all = await listCrmLeads();
+    const due = all
+      .filter((l) => {
+        if (l.leadType !== "discovery_call" || !l.scheduledSlotIso) return false;
+        if (l.stage === "lost" || l.stage === "won" || l.stage === "discovery_completed") return false;
+        if (new Date(l.scheduledSlotIso).getTime() <= nowMs) return false;
+        if (l.meetProvisioningStatus !== "failed" && l.meetProvisioningStatus !== "pending") return false;
+        if ((l.meetProvisioningAttempts || 0) >= MAX_MEET_PROVISIONING_ATTEMPTS) return false;
+        const dueAt = l.meetNextRetryAt ? new Date(l.meetNextRetryAt).getTime() : 0;
+        return dueAt <= nowMs;
+      })
+      .slice(0, limit);
+    for (const l of due) {
+      claimedIds.push({ id: l.id, attempts: (l.meetProvisioningAttempts || 0) + 1 });
+    }
+  }
+
+  if (claimedIds.length === 0) {
+    return { claimed: 0, provisioned: 0, retried: 0, exhausted: 0, emailsTriggered: 0 };
+  }
+
+  const allLeads = await listCrmLeads();
+  const leadById = new Map<string, CrmLeadRecord>();
+  for (const l of allLeads) leadById.set(l.id, l);
+
+  let provisioned = 0;
+  let retried = 0;
+  let exhausted = 0;
+  let emailsTriggered = 0;
+
+  for (const entry of claimedIds) {
+    const lead = leadById.get(entry.id);
+    if (!lead || !lead.scheduledSlotIso) continue;
+
+    const res = await repairOrProvisionGoogleMeetEvent(lead);
+    if (res.ok && res.meetUrl && res.eventId && isVerifiedGoogleMeetUrl(res.meetUrl)) {
+      await saveLeadGoogleMeetDetails(lead.id, {
+        meetingLink: res.meetUrl,
+        googleCalendarEventId: res.eventId,
+      });
+      provisioned += 1;
+
+      const updatedLead: CrmLeadRecord = {
+        ...lead,
+        meetingLink: res.meetUrl,
+        googleCalendarEventId: res.eventId,
+        meetProvisioningStatus: "ready",
+        meetProvisioningError: null,
+        meetNextRetryAt: null,
+      };
+
+      await appendLeadActivityEvent(lead.id, {
+        type: "meeting_scheduled",
+        summary: `Background retry succeeded: verified Google Meet link provisioned (${res.meetUrl}).`,
+        actor: "HIRZEXA Google Calendar Sync",
+      }).catch(() => {});
+
+      // Once a genuine Meet link is ready, send the held confirmation + schedule reminders (if auto emails enabled)
+      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED === "true") {
+        const commRes = await handleDiscoveryBookingCreated(updatedLead, { nowMs });
+        if (commRes.confirmation && commRes.confirmation.status === "submitted") {
+          emailsTriggered += 1;
+        }
+      }
+    } else {
+      const attempts = entry.attempts;
+      const canRetry = attempts < MAX_MEET_PROVISIONING_ATTEMPTS;
+      const nextRetryAt = canRetry
+        ? new Date(nowMs + BASE_RETRY_BACKOFF_MS * Math.pow(2, attempts - 1)).toISOString()
+        : null;
+      await recordLeadGoogleMeetFailure(lead.id, {
+        error: res.error || "Google Meet retry failed.",
+        googleCalendarEventId: res.eventId || lead.googleCalendarEventId || null,
+        attempts,
+        nextRetryAt,
+        status: "failed",
+      });
+      if (canRetry) retried += 1;
+      else exhausted += 1;
+    }
+  }
+
+  return {
+    claimed: claimedIds.length,
+    provisioned,
+    retried,
+    exhausted,
+    emailsTriggered,
+  };
+}
+
+/**
+ * Admin-controlled repair action for existing bookings (such as HRZ-DSC-2026-60700)
+ * that lack a real Google Meet URL.
+ * Creates/attaches a verified unique Google Meet link via Google Calendar OAuth and persists it
+ * on the CRM lead WITHOUT automatically sending duplicate customer invitations.
+ */
+export async function adminRepairGoogleMeetLink(
+  actor: AuthActor,
+  leadId: string
+): Promise<{
+  ok: boolean;
+  status: number;
+  error?: string;
+  lead?: CrmLeadRecord;
+  meetUrl?: string;
+  eventId?: string;
+}> {
+  assertPermission(actor, "crm", "edit");
+  const scoped = await getAuthorizedCrmLeadById(actor, leadId);
+  if (scoped.denied) {
+    return {
+      ok: false,
+      status: 403,
+      error: "You do not have scope permission to repair this booking's meeting link.",
+    };
+  }
+  if (!scoped.lead) {
+    return { ok: false, status: 404, error: "Lead not found." };
+  }
+  const lead = scoped.lead;
+
+  if (!lead.scheduledSlotIso) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Cannot generate a Google Meet link because this lead has no scheduled meeting slot.",
+    };
+  }
+  if (lead.stage === "lost" || lead.stage === "discovery_completed") {
+    return {
+      ok: false,
+      status: 400,
+      error: "Cannot generate a Google Meet link for a cancelled or completed meeting.",
+    };
+  }
+
+  const res = await repairOrProvisionGoogleMeetEvent(lead);
+  if (!res.ok || !res.meetUrl || !res.eventId || !isVerifiedGoogleMeetUrl(res.meetUrl)) {
+    const errMsg = res.error || "Google Calendar failed to generate a verified Google Meet link.";
+    await recordLeadGoogleMeetFailure(lead.id, {
+      error: errMsg,
+      googleCalendarEventId: res.eventId || lead.googleCalendarEventId || null,
+      attempts: (lead.meetProvisioningAttempts || 0) + 1,
+      nextRetryAt: null,
+      status: "failed",
+    });
+
+    await recordAuditLog({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.roleKey,
+      module: "crm",
+      action: "admin_repair_google_meet",
+      entityType: "lead",
+      entityId: lead.id,
+      outcome: "error",
+      summary: `Admin Meet repair failed for ${lead.referenceId}: ${errMsg}`,
+    }).catch(() => {});
+
+    return { ok: false, status: 502, error: errMsg };
+  }
+
+  await saveLeadGoogleMeetDetails(lead.id, {
+    meetingLink: res.meetUrl,
+    googleCalendarEventId: res.eventId,
+  });
+
+  const updatedLead: CrmLeadRecord = {
+    ...lead,
+    meetingLink: res.meetUrl,
+    googleCalendarEventId: res.eventId,
+    meetProvisioningStatus: "ready",
+    meetProvisioningError: null,
+    meetNextRetryAt: null,
+  };
+
+  await appendLeadActivityEvent(lead.id, {
+    type: "meeting_scheduled",
+    summary: `Admin (${actor.fullName}) generated verified Google Meet link (${res.meetUrl}) — no duplicate email sent automatically.`,
+    actor: actor.fullName,
+  }).catch(() => {});
+
+  await recordAuditLog({
+    actorId: actor.id,
+    actorEmail: actor.email,
+    actorRole: actor.roleKey,
+    module: "crm",
+    action: "admin_repair_google_meet",
+    entityType: "lead",
+    entityId: lead.id,
+    outcome: "allowed",
+    summary: `Admin repaired booking ${lead.referenceId} with verified Google Meet link (eventId=${res.eventId}, no automatic email sent).`,
+    metadata: { eventId: res.eventId, meetUrl: res.meetUrl },
+  }).catch(() => {});
+
+  return {
+    ok: true,
+    status: 200,
+    lead: updatedLead,
+    meetUrl: res.meetUrl,
+    eventId: res.eventId,
   };
 }

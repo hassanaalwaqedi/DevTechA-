@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requirePermissionApi } from "@/lib/auth";
 import { getAuthorizedCrmLeadById } from "@/lib/crm";
 import {
+  adminRepairGoogleMeetLink,
   cancelLeadMeeting,
   cancelScheduledReminderJob,
   generateAiFollowUpDraft,
@@ -78,6 +79,10 @@ const aiDraftSchema = z.object({
   guidance: z.string().max(400).optional(),
 });
 
+const provisionGoogleMeetSchema = z.object({
+  action: z.literal("provision_google_meet"),
+});
+
 const postActionSchema = z.discriminatedUnion("action", [
   previewSchema,
   sendSchema,
@@ -86,6 +91,7 @@ const postActionSchema = z.discriminatedUnion("action", [
   rescheduleMeetingSchema,
   cancelMeetingSchema,
   aiDraftSchema,
+  provisionGoogleMeetSchema,
 ]);
 
 function authErrorResponse(error: unknown) {
@@ -324,6 +330,27 @@ export async function POST(
         lead: result.lead,
         cancelledCount: result.cancelledCount,
         notification: result.notification,
+        summary: refreshed.summary,
+      },
+      { status: 200, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
+  if (data.action === "provision_google_meet") {
+    const result = await adminRepairGoogleMeetLink(actor, id);
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+    const refreshed = await getLeadMeetingCommunications(actor, id);
+    return NextResponse.json(
+      {
+        ok: true,
+        lead: result.lead,
+        meetUrl: result.meetUrl,
+        eventId: result.eventId,
         summary: refreshed.summary,
       },
       { status: 200, headers: { "Cache-Control": "no-store" } }

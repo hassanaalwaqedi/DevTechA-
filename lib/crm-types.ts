@@ -129,6 +129,10 @@ export interface CrmLeadRecord {
   timezone: string;
   meetingLink?: string;
   googleCalendarEventId?: string | null;
+  meetProvisioningStatus?: "not_applicable" | "pending" | "ready" | "failed";
+  meetProvisioningError?: string | null;
+  meetProvisioningAttempts?: number;
+  meetNextRetryAt?: string | null;
   projectSummary: string;
   currentStack?: string;
   consent: boolean;

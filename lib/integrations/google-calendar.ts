@@ -74,6 +74,7 @@ interface StoredGoogleCalendarConnection {
 export interface GoogleMeetEventResult {
   ok: boolean;
   connected: boolean;
+  conferenceStatus?: "success" | "pending" | "failure" | "unknown";
   eventId?: string;
   meetUrl?: string;
   htmlLink?: string;
@@ -82,6 +83,7 @@ export interface GoogleMeetEventResult {
 
 type FetchLike = typeof fetch;
 let activeFetch: FetchLike = fetch;
+let pollBaseDelayMs = 450;
 
 export function setGoogleCalendarFetchForTest(fn: FetchLike | null): void {
   if (
@@ -91,6 +93,25 @@ export function setGoogleCalendarFetchForTest(fn: FetchLike | null): void {
     throw new Error("Cannot override Google Calendar HTTP transport in production.");
   }
   activeFetch = fn || fetch;
+}
+
+export function setGoogleCalendarPollDelayForTest(ms: number | null): void {
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.HIRZEXA_ALLOW_LOCAL_FALLBACK !== "true"
+  ) {
+    throw new Error("Cannot override poll delay in production.");
+  }
+  pollBaseDelayMs = ms === null ? 450 : Math.max(0, ms);
+}
+
+function redactErrorDetail(raw: string): string {
+  return raw
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]")
+    .replace(/ya29\.[A-Za-z0-9._-]+/g, "[REDACTED_ACCESS_TOKEN]")
+    .replace(/1\/\/[A-Za-z0-9._-]+/g, "[REDACTED_REFRESH_TOKEN]")
+    .replace(/GOCSPX-[A-Za-z0-9._-]+/g, "[REDACTED_CLIENT_SECRET]")
+    .slice(0, 260);
 }
 
 function getClientId(): string {
@@ -704,12 +725,32 @@ async function getValidAccessToken(): Promise<{
   return { ok: true, accessToken: body.access_token, connection: updated };
 }
 
-function extractVerifiedGoogleMeetUrl(event: {
+interface GoogleCalendarEventPayload {
+  id?: string;
+  htmlLink?: string;
   hangoutLink?: string;
+  status?: string;
   conferenceData?: {
+    createRequest?: {
+      requestId?: string;
+      status?: { statusCode?: string };
+    };
     entryPoints?: Array<{ entryPointType?: string; uri?: string }>;
   };
-}): string | null {
+  error?: { message?: string };
+}
+
+function extractConferenceStatus(
+  event: GoogleCalendarEventPayload
+): "success" | "pending" | "failure" | "unknown" {
+  const code = event.conferenceData?.createRequest?.status?.statusCode?.toLowerCase();
+  if (code === "success") return "success";
+  if (code === "pending") return "pending";
+  if (code === "failure") return "failure";
+  return extractVerifiedGoogleMeetUrl(event) ? "success" : "unknown";
+}
+
+function extractVerifiedGoogleMeetUrl(event: GoogleCalendarEventPayload): string | null {
   const candidates: string[] = [];
   if (typeof event.hangoutLink === "string") candidates.push(event.hangoutLink);
   if (Array.isArray(event.conferenceData?.entryPoints)) {
@@ -734,9 +775,108 @@ function extractVerifiedGoogleMeetUrl(event: {
   return null;
 }
 
+async function sleepMs(ms: number): Promise<void> {
+  if (ms <= 0) return;
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Polls a newly created/patched Google Calendar event with bounded retries
+ * when Google returns `conferenceData.createRequest.status.statusCode === "pending"`.
+ */
+async function pollForVerifiedGoogleMeet(params: {
+  calendarId: string;
+  eventId: string;
+  accessToken: string;
+  initialEvent: GoogleCalendarEventPayload;
+  maxPolls?: number;
+}): Promise<GoogleMeetEventResult> {
+  let latest = params.initialEvent;
+  let confStatus = extractConferenceStatus(latest);
+  let meetUrl = extractVerifiedGoogleMeetUrl(latest);
+
+  if (meetUrl && confStatus !== "failure") {
+    return {
+      ok: true,
+      connected: true,
+      conferenceStatus: "success",
+      eventId: latest.id || params.eventId,
+      meetUrl,
+      htmlLink: latest.htmlLink,
+    };
+  }
+
+  if (confStatus === "failure") {
+    return {
+      ok: false,
+      connected: true,
+      conferenceStatus: "failure",
+      eventId: latest.id || params.eventId,
+      htmlLink: latest.htmlLink,
+      error:
+        "Google Calendar created the event, but Google Meet conference provisioning returned statusCode=failure.",
+    };
+  }
+
+  const maxPolls = params.maxPolls ?? 4;
+  for (let attempt = 1; attempt <= maxPolls; attempt += 1) {
+    await sleepMs(pollBaseDelayMs * attempt);
+    try {
+      const pollRes = await activeFetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${params.calendarId}/events/${encodeURIComponent(
+          params.eventId
+        )}`,
+        {
+          headers: { Authorization: `Bearer ${params.accessToken}` },
+          cache: "no-store",
+          signal: AbortSignal.timeout(8_000),
+        }
+      );
+      if (!pollRes.ok) continue;
+      latest = (await pollRes.json().catch(() => ({}))) as GoogleCalendarEventPayload;
+      confStatus = extractConferenceStatus(latest);
+      meetUrl = extractVerifiedGoogleMeetUrl(latest);
+
+      if (meetUrl && confStatus !== "failure") {
+        return {
+          ok: true,
+          connected: true,
+          conferenceStatus: "success",
+          eventId: latest.id || params.eventId,
+          meetUrl,
+          htmlLink: latest.htmlLink,
+        };
+      }
+      if (confStatus === "failure") {
+        return {
+          ok: false,
+          connected: true,
+          conferenceStatus: "failure",
+          eventId: latest.id || params.eventId,
+          htmlLink: latest.htmlLink,
+          error:
+            "Google Meet conference creation failed asynchronously (conferenceData.statusCode=failure).",
+        };
+      }
+    } catch {
+      // Bounded poll continues until exhausted
+    }
+  }
+
+  return {
+    ok: false,
+    connected: true,
+    conferenceStatus: confStatus,
+    eventId: latest.id || params.eventId,
+    htmlLink: latest.htmlLink,
+    error: `Google Calendar event created (${params.eventId}), but Google Meet link remained ${confStatus} after ${maxPolls} polls.`,
+  };
+}
+
 /**
  * Automatically creates a Google Calendar event with a unique Google Meet conference link
- * for a confirmed Discovery Call booking.
+ * for a confirmed Discovery Call booking, verifying conference creation status and
+ * polling with bounded retries if Google returns `statusCode=pending`.
  * Uses `sendUpdates=none` so Google Calendar NEVER fires premature automatic customer emails.
  */
 export async function createGoogleMeetDiscoveryEvent(
@@ -763,7 +903,7 @@ export async function createGoogleMeetDiscoveryEvent(
     return {
       ok: false,
       connected: false,
-      error: tokenRes.error || "Google Calendar is not connected.",
+      error: redactErrorDetail(tokenRes.error || "Google Calendar is not connected."),
     };
   }
 
@@ -824,49 +964,166 @@ export async function createGoogleMeetDiscoveryEvent(
       }
     );
 
-    const parsed = (await res.json().catch(() => ({}))) as {
-      id?: string;
-      htmlLink?: string;
-      hangoutLink?: string;
-      conferenceData?: {
-        entryPoints?: Array<{ entryPointType?: string; uri?: string }>;
-      };
-      error?: { message?: string };
-    };
+    const parsed = (await res.json().catch(() => ({}))) as GoogleCalendarEventPayload;
 
     if (!res.ok || !parsed.id) {
       return {
         ok: false,
         connected: true,
-        error: parsed.error?.message || `Google Calendar API error (HTTP ${res.status}).`,
+        error: redactErrorDetail(
+          parsed.error?.message || `Google Calendar API error (HTTP ${res.status}).`
+        ),
       };
     }
 
-    const meetUrl = extractVerifiedGoogleMeetUrl(parsed);
-    if (!meetUrl) {
-      return {
-        ok: false,
-        connected: true,
-        eventId: parsed.id,
-        htmlLink: parsed.htmlLink,
-        error: "Google Calendar created the event, but no Google Meet URL was returned.",
-      };
-    }
-
-    return {
-      ok: true,
-      connected: true,
+    return await pollForVerifiedGoogleMeet({
+      calendarId,
       eventId: parsed.id,
-      meetUrl,
-      htmlLink: parsed.htmlLink,
-    };
+      accessToken: tokenRes.accessToken,
+      initialEvent: parsed,
+    });
   } catch (err) {
     return {
       ok: false,
       connected: true,
-      error: err instanceof Error ? err.message.slice(0, 200) : "Google Calendar request failed.",
+      error: redactErrorDetail(
+        err instanceof Error ? err.message : "Google Calendar request failed."
+      ),
     };
   }
+}
+
+/**
+ * Idempotent provisioning / repair helper:
+ * - If the lead already has a `googleCalendarEventId`, inspects it first and patches
+ *   `conferenceData` onto the existing event instead of creating a duplicate event.
+ * - Otherwise creates a fresh Google Calendar event with a unique Google Meet link.
+ */
+export async function repairOrProvisionGoogleMeetEvent(
+  lead: Pick<
+    CrmLeadRecord,
+    | "id"
+    | "referenceId"
+    | "fullName"
+    | "email"
+    | "company"
+    | "serviceTrack"
+    | "durationMinutes"
+    | "scheduledSlotIso"
+    | "timezone"
+    | "projectSummary"
+    | "googleCalendarEventId"
+  >
+): Promise<GoogleMeetEventResult> {
+  if (!lead.scheduledSlotIso) {
+    return { ok: false, connected: false, error: "Lead has no scheduled slot ISO." };
+  }
+
+  const existingEventId = lead.googleCalendarEventId?.trim() || "";
+  if (!existingEventId) {
+    return createGoogleMeetDiscoveryEvent(lead);
+  }
+
+  const tokenRes = await getValidAccessToken();
+  if (!tokenRes.ok || !tokenRes.accessToken || !tokenRes.connection) {
+    return {
+      ok: false,
+      connected: false,
+      error: redactErrorDetail(tokenRes.error || "Google Calendar is not connected."),
+    };
+  }
+
+  const calendarId = encodeURIComponent(tokenRes.connection.calendarId || getGoogleCalendarId());
+  try {
+    const getRes = await activeFetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${encodeURIComponent(
+        existingEventId
+      )}`,
+      {
+        headers: { Authorization: `Bearer ${tokenRes.accessToken}` },
+        cache: "no-store",
+        signal: AbortSignal.timeout(8_000),
+      }
+    );
+
+    if (getRes.status === 404 || getRes.status === 410) {
+      return createGoogleMeetDiscoveryEvent(lead);
+    }
+
+    if (getRes.ok) {
+      const existing = (await getRes.json().catch(() => ({}))) as GoogleCalendarEventPayload;
+      if (existing.status === "cancelled") {
+        return createGoogleMeetDiscoveryEvent(lead);
+      }
+      const alreadyReadyUrl = extractVerifiedGoogleMeetUrl(existing);
+      if (alreadyReadyUrl) {
+        return {
+          ok: true,
+          connected: true,
+          conferenceStatus: "success",
+          eventId: existing.id || existingEventId,
+          meetUrl: alreadyReadyUrl,
+          htmlLink: existing.htmlLink,
+        };
+      }
+
+      // Existing event lacks a Meet conference -> PATCH conferenceData onto the SAME event
+      const patchReqId = createHash("sha256")
+        .update(`hirzexa-meet-repair:${lead.id}:${existingEventId}:${Date.now()}`)
+        .digest("hex")
+        .slice(0, 32);
+      const patchRes = await activeFetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${encodeURIComponent(
+          existingEventId
+        )}?conferenceDataVersion=1&sendUpdates=none`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${tokenRes.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            conferenceData: {
+              createRequest: {
+                requestId: patchReqId,
+                conferenceSolutionKey: { type: "hangoutsMeet" },
+              },
+            },
+          }),
+          cache: "no-store",
+          signal: AbortSignal.timeout(10_000),
+        }
+      );
+      const patched = (await patchRes.json().catch(() => ({}))) as GoogleCalendarEventPayload;
+      if (!patchRes.ok) {
+        return {
+          ok: false,
+          connected: true,
+          eventId: existingEventId,
+          error: redactErrorDetail(
+            patched.error?.message || `Failed to attach Google Meet to event (HTTP ${patchRes.status}).`
+          ),
+        };
+      }
+      return await pollForVerifiedGoogleMeet({
+        calendarId,
+        eventId: existingEventId,
+        accessToken: tokenRes.accessToken,
+        initialEvent: patched,
+      });
+    }
+  } catch (err) {
+    return {
+      ok: false,
+      connected: true,
+      eventId: existingEventId,
+      error: redactErrorDetail(
+        err instanceof Error ? err.message : "Failed inspecting existing Google Calendar event."
+      ),
+    };
+  }
+
+  return createGoogleMeetDiscoveryEvent(lead);
 }
 
 export async function updateGoogleMeetDiscoveryEvent(

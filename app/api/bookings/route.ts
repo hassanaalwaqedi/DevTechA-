@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { COMPANY_EMAILS } from "@/lib/company-emails";
 import {
-  appendLeadActivityEvent,
   buildCalendarLinks,
   createCrmLead,
   generateDiscoveryIcs,
-  saveLeadGoogleMeetDetails,
+  isVerifiedVideoMeetingUrl,
 } from "@/lib/crm";
-import { handleDiscoveryBookingCreated } from "@/lib/crm-meetings/service";
-import { createGoogleMeetDiscoveryEvent } from "@/lib/integrations/google-calendar";
+import {
+  handleDiscoveryBookingCreated,
+  provisionGoogleMeetForBooking,
+} from "@/lib/crm-meetings/service";
 import { emitBusinessEvent } from "@/lib/intelligence/events";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -195,49 +196,42 @@ export async function POST(request: Request) {
     let finalLead = result.lead;
     let finalIcs = result.icsContent;
     let finalCalendarLinks = result.calendarLinks;
+    let meetStatus: "ready" | "failed" | "not_applicable" = "not_applicable";
 
-    // Automatically create a unique Google Meet link via server-side Google Calendar OAuth when connected
+    // Provision a verified unique Google Meet link via server-side Google Calendar OAuth.
+    // On failure: booking is preserved, actionable error + admin alert + persistent retry job are recorded,
+    // and NO fallback to /book?ref=... is used as a video meeting link.
     if (finalLead.leadType === "discovery_call" && finalLead.scheduledSlotIso) {
-      try {
-        const meetRes = await createGoogleMeetDiscoveryEvent(finalLead);
-        if (meetRes.ok && meetRes.meetUrl && meetRes.eventId) {
-          await saveLeadGoogleMeetDetails(finalLead.id, {
-            meetingLink: meetRes.meetUrl,
-            googleCalendarEventId: meetRes.eventId,
-          });
-          finalLead = {
-            ...finalLead,
-            meetingLink: meetRes.meetUrl,
-            googleCalendarEventId: meetRes.eventId,
-          };
-          finalIcs = generateDiscoveryIcs({
-            referenceId: finalLead.referenceId,
-            fullName: finalLead.fullName,
-            email: finalLead.email,
-            company: finalLead.company,
-            serviceTrack: finalLead.serviceTrack,
-            durationMinutes: finalLead.durationMinutes,
-            scheduledSlotIso: finalLead.scheduledSlotIso!,
-            meetingLink: meetRes.meetUrl,
-            projectSummary: finalLead.projectSummary,
-          });
-          finalCalendarLinks = buildCalendarLinks(finalLead);
-          await appendLeadActivityEvent(finalLead.id, {
-            type: "meeting_scheduled",
-            summary: `Unique Google Meet link generated via Google Calendar (${meetRes.meetUrl}).`,
-            actor: "HIRZEXA Google Calendar Sync",
-          }).catch(() => {});
-        }
-      } catch {
-        // Non-fatal: never block Discovery Call booking creation if Google Calendar is temporarily unreachable
-      }
+      const meetRes = await provisionGoogleMeetForBooking(finalLead);
+      finalLead = meetRes.lead;
+      meetStatus = meetRes.ok ? "ready" : "failed";
+
+      finalIcs = generateDiscoveryIcs({
+        referenceId: finalLead.referenceId,
+        fullName: finalLead.fullName,
+        email: finalLead.email,
+        company: finalLead.company,
+        serviceTrack: finalLead.serviceTrack,
+        durationMinutes: finalLead.durationMinutes,
+        scheduledSlotIso: finalLead.scheduledSlotIso!,
+        meetingLink: isVerifiedVideoMeetingUrl(finalLead.meetingLink)
+          ? finalLead.meetingLink
+          : undefined,
+        projectSummary: finalLead.projectSummary,
+      });
+      finalCalendarLinks = buildCalendarLinks(finalLead);
     }
 
-    // Automatic customer confirmation emails remain gated until DISCOVERY_AUTO_EMAILS_ENABLED=true
+    // Never send an automated confirmation email claiming a Meet link exists if Meet creation failed.
+    // Automatic customer confirmation emails also remain gated behind DISCOVERY_AUTO_EMAILS_ENABLED=true.
     let confirmationStatus: string = "not_applicable";
     let scheduledRemindersCount = 0;
     if (finalLead.leadType === "discovery_call" && finalLead.scheduledSlotIso) {
-      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED === "true") {
+      if (process.env.DISCOVERY_AUTO_EMAILS_ENABLED !== "true") {
+        confirmationStatus = "manual_review_pending";
+      } else if (!isVerifiedVideoMeetingUrl(finalLead.meetingLink)) {
+        confirmationStatus = "held_pending_meet_link";
+      } else {
         try {
           const commRes = await handleDiscoveryBookingCreated(finalLead);
           confirmationStatus = commRes.confirmation?.status || "not_sent";
@@ -245,8 +239,6 @@ export async function POST(request: Request) {
         } catch {
           confirmationStatus = "failed";
         }
-      } else {
-        confirmationStatus = "manual_review_pending";
       }
     }
 
@@ -259,7 +251,10 @@ export async function POST(request: Request) {
         scheduledSlotIso: finalLead.scheduledSlotIso,
         durationMinutes: finalLead.durationMinutes,
         timezone: finalLead.timezone,
-        meetingLink: finalLead.meetingLink,
+        meetingLink: isVerifiedVideoMeetingUrl(finalLead.meetingLink)
+          ? finalLead.meetingLink
+          : null,
+        meetProvisioningStatus: meetStatus,
         calendarLinks: finalCalendarLinks,
         icsContent: finalIcs,
         routedTo: COMPANY_EMAILS.business,

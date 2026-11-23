@@ -4,11 +4,11 @@ import {
   generateDiscoveryIcs,
   getAuthorizedCrmLeadById,
   getCrmLeadByReference,
+  isVerifiedVideoMeetingUrl,
   verifyBookingIcsSignature,
 } from "@/lib/crm";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { hasPermission } from "@/lib/rbac";
-import { SITE_URL } from "@/lib/site";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -82,6 +82,10 @@ export async function GET(request: Request) {
       : new Date(Date.now() + 86400_000).toISOString());
   const duration = lead?.durationMinutes || (Number(searchParams.get("duration")) === 20 ? 20 : 30);
 
+  const verifiedMeetingUrl = isVerifiedVideoMeetingUrl(lead?.meetingLink)
+    ? lead!.meetingLink
+    : undefined;
+
   const ics = generateDiscoveryIcs({
     referenceId: lead?.referenceId || ref,
     fullName: lead?.fullName || "Client",
@@ -90,7 +94,7 @@ export async function GET(request: Request) {
     serviceTrack: lead?.serviceTrack || "AI & Software Engineering",
     durationMinutes: duration,
     scheduledSlotIso: slotIso,
-    meetingLink: lead?.meetingLink || `${SITE_URL}/book?ref=${encodeURIComponent(ref)}`,
+    meetingLink: verifiedMeetingUrl,
     projectSummary: lead?.projectSummary || "HIRZEXA Engineering Discovery Call",
   });
 
@@ -98,7 +102,7 @@ export async function GET(request: Request) {
     status: 200,
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `attachment; filename="hirzexa-discovery-${ref.replace(/[^a-zA-Z0-9_-]/g, "")}.ics"`,
+      "Content-Disposition": `inline; filename="hirzexa-discovery-${ref.replace(/[^a-zA-Z0-9_-]/g, "")}.ics"`,
       "Cache-Control": "private, no-store, max-age=0",
       "X-Content-Type-Options": "nosniff",
     },

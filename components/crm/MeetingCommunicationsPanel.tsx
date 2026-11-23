@@ -121,6 +121,7 @@ export function MeetingCommunicationsPanel({
 }) {
   const [summary, setSummary] = useState<MeetingCommunicationSummary | null>(null);
   const [loading, setLoading] = useState(false);
+  const [repairBusy, setRepairBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -529,6 +530,42 @@ export function MeetingCommunicationsPanel({
     }
   }
 
+  async function handleRepairGoogleMeet() {
+    setRepairBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      const res = await fetch(`/api/admin/crm/${encodeURIComponent(lead.id)}/communications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "provision_google_meet" }),
+      });
+      const data = (await res.json()) as {
+        ok?: boolean;
+        error?: string;
+        lead?: CrmLeadRecord;
+        meetUrl?: string;
+        summary?: MeetingCommunicationSummary;
+      };
+      if (!res.ok || !data.meetUrl) {
+        setError(data.error || "Unable to generate Google Meet link.");
+        return;
+      }
+      if (data.lead) onLeadUpdated?.(data.lead);
+      if (data.summary) {
+        setSummary(data.summary);
+        onHistoryLoaded?.(data.summary.history);
+      }
+      setNotice(
+        `Verified Google Meet link attached (${data.meetUrl}). No duplicate customer email was sent automatically — use Send Email when ready to share it.`
+      );
+    } catch {
+      setError("Network error while provisioning Google Meet link.");
+    } finally {
+      setRepairBusy(false);
+    }
+  }
+
   const slotFmt = formatLocalDateTime(lead.scheduledSlotIso);
   const nextRemFmt = formatLocalDateTime(summary?.nextScheduledReminder?.scheduledFor);
   const confirmBadge = deliveryStatusMeta(summary?.confirmationStatus || "not_sent");
@@ -536,6 +573,11 @@ export function MeetingCommunicationsPanel({
     Boolean(lead.scheduledSlotIso) &&
     lead.stage !== "lost" &&
     lead.stage !== "discovery_completed";
+  const hasRealVideoLink =
+    Boolean(lead.meetingLink) && !/hirzexa\.com\/book/i.test(lead.meetingLink || "");
+  const isGoogleMeetLink = Boolean(
+    lead.meetingLink && /^https:\/\/meet\.google\.com\/.+$/i.test(lead.meetingLink.trim())
+  );
 
   const availableTemplates: MeetingEmailTemplateType[] = useMemo(
     () =>
@@ -640,8 +682,8 @@ export function MeetingCommunicationsPanel({
           <strong>{lead.ownerName || lead.ownerEmail || "Unassigned"}</strong>
         </div>
         <div>
-          <span>Joining Link / Location</span>
-          {lead.meetingLink ? (
+          <span>{isGoogleMeetLink ? "Google Meet Link" : "Joining Link / Location"}</span>
+          {hasRealVideoLink && lead.meetingLink ? (
             <a
               href={lead.meetingLink}
               target="_blank"
@@ -651,14 +693,26 @@ export function MeetingCommunicationsPanel({
                 alignItems: "center",
                 gap: 4,
                 fontSize: 12.5,
-                color: "#60A5FA",
+                color: "#34D399",
+                fontWeight: 600,
                 wordBreak: "break-all",
               }}
             >
               {lead.meetingLink} <ExternalLink size={11} />
             </a>
           ) : (
-            <strong style={{ color: "var(--hz-text-muted)" }}>Not configured</strong>
+            <div>
+              <strong style={{ color: "#FBBF24" }}>
+                {lead.meetProvisioningStatus === "failed"
+                  ? "Meet Link Failed"
+                  : "No Verified Meet Link"}
+              </strong>
+              {lead.meetProvisioningError ? (
+                <small style={{ display: "block", color: "#FCA5A5", fontSize: 11, marginTop: 2 }}>
+                  {lead.meetProvisioningError}
+                </small>
+              ) : null}
+            </div>
           )}
         </div>
         <div>
@@ -683,6 +737,18 @@ export function MeetingCommunicationsPanel({
       {/* Compact Action Controls */}
       {canEdit ? (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+          {meetingActive && !isGoogleMeetLink ? (
+            <button
+              type="button"
+              className="hz-btn hz-btn-primary hz-btn-sm"
+              disabled={repairBusy}
+              title="Creates a real Google Calendar event & unique Google Meet link without automatically emailing the client"
+              onClick={() => void handleRepairGoogleMeet()}
+            >
+              <RefreshCw size={12} />
+              {repairBusy ? "Generating Meet…" : "Generate Google Meet Link"}
+            </button>
+          ) : null}
           <button
             type="button"
             className="hz-btn hz-btn-primary hz-btn-sm"
